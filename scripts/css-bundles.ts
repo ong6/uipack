@@ -3,7 +3,7 @@
 // exports every one of them (test/package.test.tsx). A new entry with styles adds a line here
 // and a "./<name>.css" export in package.json.
 
-/** The role layer and every style's value set (src/styles). Every entry's stylesheet starts with
+/** The role layer, every style's value set (src/styles) and the faces they name. Every entry's stylesheet starts with
  * it, so an entry works on its own and `style="…"` works on any entry; importing two entries
  * repeats identical declarations, which is harmless. `uipack/styles.css` is the layer alone. */
 export const styleFiles = [
@@ -11,6 +11,10 @@ export const styleFiles = [
   "src/styles/technical.css",
   "src/styles/landing.css",
   "src/styles/graphical.css",
+  // The self-hosted faces the styles name (Technical's Archivo and Martian Mono on every entry:
+  // figures, charts, the article and the deck share one heading face). A face is fetched only
+  // when an element uses it. Its url()s are relative, so every bundle sits beside dist/fonts.
+  "src/web/fonts.css",
 ];
 
 const withRoles = (...files: string[]) => [...styleFiles, ...files];
@@ -23,14 +27,14 @@ export const cssBundles: { out: string; from: string[] }[] = [
   { out: "presentations.css", from: withRoles("src/presentations/presentations.css") },
   { out: "slides.css", from: withRoles("src/slides/slides.css", "src/canvas.css") },
   { out: "objects.css", from: withRoles("src/objects/objects.css", "src/canvas.css") },
-  { out: "web.css", from: withRoles("src/web/fonts.css", "src/web/web.css", "src/web/web-styles.css", "src/web/gutters.css") },
+  { out: "web.css", from: withRoles("src/web/web.css", "src/web/web-styles.css", "src/web/gutters.css") },
   { out: "web-gutters.css", from: withRoles("src/web/gutters.css") },
   { out: "docs.css", from: withRoles("src/docs/docs.css") },
   { out: "charts.css", from: withRoles("src/charts/charts.css") },
   { out: "article.css", from: withRoles("src/article/article.css") },
   {
     out: "deck.css",
-    from: withRoles("src/web/fonts.css", "src/deck/deck.css", "src/deck/bento.css", "src/deck/consulting/consulting.css"),
+    from: withRoles("src/deck/deck.css", "src/deck/bento.css", "src/deck/consulting/consulting.css"),
   },
   { out: "mechanism.css", from: withRoles("src/mechanism/mechanism.css") },
 ];

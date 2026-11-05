@@ -124,7 +124,8 @@ describe("server HTML carries the final text of animated components", () => {
       expect(text).toContain(s);
     }
     expect(html).toContain('aria-label="Demo transcript"');
-    expect(html).toContain('data-step="0"');
+    // The window itself is server-rendered at rest on the result, not on an empty first frame.
+    expect(html).toContain('data-step="2"');
   });
 
   it("Marquee lists each item once in server HTML; the loop copy arrives after mount", () => {

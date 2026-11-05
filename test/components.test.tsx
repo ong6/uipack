@@ -64,6 +64,16 @@ describe("Figure", () => {
     expect(screen.getByTestId("probe")).toHaveTextContent("false/true");
     globalThis.__reduced = false;
   });
+  it("static holds the resting frame: no controls, motion stopped, no entrance", () => {
+    const Probe = () => {
+      const m = useFigureMotion();
+      return <text data-testid="probe">{`${m.playing}/${m.reduced}`}</text>;
+    };
+    const { container } = wrap(<Probe />, { title: "t", static: true });
+    expect(screen.queryByRole("button", { name: /Pause|Replay/ })).toBeNull();
+    expect(screen.getByTestId("probe")).toHaveTextContent("false/true");
+    expect(container.querySelector("[data-enter]")).toBeNull();
+  });
   it("renders a narrow drawing when given", () => {
     const { container } = wrap(<Node x={0} y={0} w={10} h={10} label="wide" />, {
       narrow: <Node x={0} y={0} w={10} h={10} label="narrow" />,

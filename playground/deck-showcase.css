@@ -111,16 +111,14 @@
   color-scheme: dark;
 }
 
-/* Tech talk: the claim on the first and last slides is a full sentence, so it sets smaller than a label title. */
+/* Tech talk: the first and last slides set a short title large, with the points the speaker talks from under it. */
 .deck-demo-cover-title.uipack-deck-title {
-  max-width: 24ch;
-  font-size: 92px;
-  line-height: 1.04;
+  max-width: 18ch;
 }
-.uipack-deck-lede.deck-demo-lede {
-  max-width: 44ch;
+.uipack-deck-points.deck-demo-cover-points {
+  margin-top: 64px;
 }
-/* The claim's caveat, said before the ask: the evidence is a correlation. */
+/* The caveat stays on screen, quieter than the points it qualifies: the evidence is a correlation. */
 .deck-demo-caveat {
   color: var(--deck-muted);
 }
@@ -692,4 +690,12 @@
     padding: 0;
     background: none;
   }
+}
+
+/* Bento review: the answer's short title, large, with the three numbers the speaker talks from. */
+.deck-bento-cover-title.uipack-deck-title {
+  max-width: 18ch;
+}
+.uipack-deck-points.deck-bento-cover-points {
+  margin-top: 64px;
 }

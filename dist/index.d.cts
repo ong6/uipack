@@ -1,11 +1,12 @@
-export { F as Figure, a as FigureProps } from './Figure-lmTs6Iem.cjs';
-export { U as UiStyleId, a as UiStyleMeta, i as isUiStyle, s as sectionOrder, b as sharedSectionOrder, c as styleBootScript, u as uiStyles } from './style-CBYPyqqV.cjs';
+export { F as Figure, a as FigureProps } from './Figure-DaDijVfb.cjs';
+export { U as UiStyleId, a as UiStyleMeta, i as isUiStyle, s as sectionOrder, b as sharedSectionOrder, c as styleBootScript, u as uiStyles } from './style-CHmnF0sx.cjs';
 import { T as TokenKind, a as TokenShape, L as LegendItem } from './Legend-n6GikDm_.cjs';
 export { b as Legend, c as LegendProps, d as TOKEN_SHAPE, e as Token, f as TokenProps, t as tokenColor } from './Legend-n6GikDm_.cjs';
 import * as react from 'react';
 import { ReactNode } from 'react';
-import { I as IconName } from './index-DwRqkLtz.cjs';
-export { i as icons } from './index-DwRqkLtz.cjs';
+import { I as IconName } from './index-BCiSvaJI.cjs';
+export { i as icons } from './index-BCiSvaJI.cjs';
+export { F as FigureChrome, a as FigureChromeContext, b as FigureMotion, c as FigureMotionContext, u as useFigureMotion } from './context-Baoq0bBr.cjs';
 export { Z as ZoomFrame, R as ZoomRect, a as ZoomSample, b as ZoomSampleOptions, i as innerClipStart, z as zoomFrame, c as zoomSamples } from './zoom-math-DJBPrdGD.cjs';
 export { e as easeInOutCubic, s as smoothstep } from './math-DL8QKXOl.cjs';
 
@@ -484,22 +485,6 @@ declare function FigureScaleProvider({ floor, children }: {
 /** Clamp a font size to the enclosing figure's floor. Outside a Figure the size is returned as is. */
 declare function useFontFloor(size: number): number;
 
-interface FigureMotion {
-    /** False after Pause, or always false under prefers-reduced-motion. */
-    playing: boolean;
-    /** True when the viewer asked for reduced motion; packets render static. */
-    reduced: boolean;
-    /** Increments on Replay so animated children can restart. */
-    cycle: number;
-    /** Emit SMIL on the server render (static export); the client waits for mount. */
-    prerender?: boolean;
-    toggle: () => void;
-    replay: () => void;
-}
-declare const FigureMotionContext: react.Context<FigureMotion>;
-/** Motion state of the enclosing Figure. Outside a Figure it plays forever. */
-declare function useFigureMotion(): FigureMotion;
-
 /**
  * True when the viewer asks for reduced motion, and re-renders when that changes. The one
  * subscription every part shares. The server render and hydration say false, so they match; the
@@ -679,4 +664,4 @@ declare const drillMotion: {
     readonly reduced: 160;
 };
 
-export { Badge, type BadgeProps, type Box, Bus, type BusProps, type BusStub, Chip, type ChipProps, Connector, type ConnectorKind, type ConnectorProps, Cross, type CrossProps, type CurveMeasure, type CurveNote, CurvePlot, type CurvePlotProps, type CurvePoint, DEFAULT_RENDER_WIDTH, DRILL_GROW, Defs, type DefsProps, type DrillAction, DrillFigure, type DrillFigureProps, type DrillFocus, type DrillLevel, type DrillMove, DrillNode, type DrillNodeProps, type DrillPath, type DrillRenderContext, type DrillStaticFigure, type FigureHover, FigureHoverContext, type FigureMotion, FigureMotionContext, type FigureScale, FigureScaleProvider, FileMark, type Flow, FolderMark, Group, type GroupProps, IconName, Label, type LabelProps, Lane, type LaneProps, LegendItem, type MarkName, Node, type NodeProps, PACKET_POP, PACKET_SINK, Packet, type PacketProps, type Point, Sheet, type SheetProps, type Side, TokenKind, TokenShape, type TreeMarkProps, TreeRail, type TreeRailProps, Wall, type WallProps, Wordmark, anchor, busStub, busStubs, connectorStroke, curveAt, curveSegments, drillAnnouncement, drillBox, drillFocusTarget, drillMotion, drillMove, drillReducer, drillStatic, flowList, fontFloor, grid, hoverAttrs, isPointer, marks, normalizePath as normalizeDrillPath, packetScaleKeys, pathFromPoints, pointAlong, polylineLength, route, trim, useFigureHover, useFigureMotion, useFontFloor, usePrefersReducedMotion, wallSegments };
+export { Badge, type BadgeProps, type Box, Bus, type BusProps, type BusStub, Chip, type ChipProps, Connector, type ConnectorKind, type ConnectorProps, Cross, type CrossProps, type CurveMeasure, type CurveNote, CurvePlot, type CurvePlotProps, type CurvePoint, DEFAULT_RENDER_WIDTH, DRILL_GROW, Defs, type DefsProps, type DrillAction, DrillFigure, type DrillFigureProps, type DrillFocus, type DrillLevel, type DrillMove, DrillNode, type DrillNodeProps, type DrillPath, type DrillRenderContext, type DrillStaticFigure, type FigureHover, FigureHoverContext, type FigureScale, FigureScaleProvider, FileMark, type Flow, FolderMark, Group, type GroupProps, IconName, Label, type LabelProps, Lane, type LaneProps, LegendItem, type MarkName, Node, type NodeProps, PACKET_POP, PACKET_SINK, Packet, type PacketProps, type Point, Sheet, type SheetProps, type Side, TokenKind, TokenShape, type TreeMarkProps, TreeRail, type TreeRailProps, Wall, type WallProps, Wordmark, anchor, busStub, busStubs, connectorStroke, curveAt, curveSegments, drillAnnouncement, drillBox, drillFocusTarget, drillMotion, drillMove, drillReducer, drillStatic, flowList, fontFloor, grid, hoverAttrs, isPointer, marks, normalizePath as normalizeDrillPath, packetScaleKeys, pathFromPoints, pointAlong, polylineLength, route, trim, useFigureHover, useFontFloor, usePrefersReducedMotion, wallSegments };

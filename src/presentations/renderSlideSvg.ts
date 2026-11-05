@@ -1,5 +1,5 @@
 import type { PresentationTheme, SlideStarterData } from "./types";
-import { technicalValues } from "../styles/technical-values";
+import { technicalFonts, technicalValues } from "../styles/technical-values";
 
 export interface RenderSlideSvgOptions {
   theme?: PresentationTheme;
@@ -43,7 +43,7 @@ const cssColors: Colors = {
   rule: "var(--tune-slide-line, var(--ui-line))",
 };
 
-const resolvedFaces = { sans: "IBM Plex Sans, system-ui, sans-serif", mono: "IBM Plex Mono, ui-monospace, monospace" };
+const resolvedFaces = { sans: technicalFonts.sans, mono: technicalFonts.mono };
 const cssFaces = {
   sans: "var(--ui-slide-font-text, var(--ui-font-text))",
   mono: "var(--ui-slide-font-label, var(--ui-font-label))",
@@ -89,9 +89,9 @@ export function renderSlideSvg(slide: SlideStarterData, options: RenderSlideSvgO
     tracking?: number,
   ) =>
     `<text x="${x}" y="${y}"${anchor === "end" ? ' text-anchor="end"' : ""}${role ? ` class="uipack-slide-starter__${role}"` : ""} ${css ? "" : paint({ font: mono ? faces.mono : faces.sans })} font-size="${size}"${paint(css ? { fill: color, font: mono ? faces.mono : faces.sans } : { fill: color })} font-weight="${weight}"${tracking ? ` letter-spacing="${tracking}em"` : ""}>${escapeSvgText(tracking ? value.toUpperCase() : value)}</text>`;
-  // The deck's eyebrow and footer (deck.css .uipack-deck-eyebrow, .uipack-deck-footer), scaled from
+  // The deck's optional eyebrow and footer (deck.css .uipack-deck-eyebrow, .uipack-deck-footer), scaled from
   // its 1920 canvas to this 1200 one: tracked mono caps, the eyebrow in the accent.
-  const eyebrow = (value: string) => text(64, 105, value, 15, colors.accent, 600, true, "start", "label", 0.14);
+  const eyebrow = (value?: string) => (value ? text(64, 105, value, 15, colors.accent, 600, true, "start", "label", 0.14) : "");
   const foot = (x: number, value: string, anchor: "start" | "end") =>
     text(x, 635, value, 13, colors.muted, 500, true, anchor, "label", 0.06);
   const rule = (x1: number, y: number, x2: number) =>

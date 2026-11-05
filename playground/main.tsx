@@ -6,6 +6,7 @@ import { createRoot } from "react-dom/client";
 // loads with its chunk.
 import "../src/styles/roles.css";
 import "../src/styles/technical.css";
+import "../src/web/fonts.css";
 import "./showcase.css";
 import { libraryGroups, pageDefs, pageHeading, pageHref, resolvePage } from "./catalog";
 import { pageModules, routePath, routes } from "./routes";

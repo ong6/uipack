@@ -25,7 +25,7 @@ Nothing here has been applied; the homepage is untouched. Based on a read-only s
 
 Bump the pinned `uipack` commit to one that exports `./web`. Import `uipack/web.css` once in
 `_app.js`, and add a `uipack/web` entry to `ui-inventory.json`. Map the Landing tokens to the site
-rather than shipping Landing's indigo. On the element that wraps the pieces, set:
+rather than shipping Landing's cobalt. On the element that wraps the pieces, set:
 
 - `--web-accent` to cobalt
 - `--web-bg` and `--web-surface` to the paper tokens

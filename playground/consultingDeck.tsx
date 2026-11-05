@@ -51,7 +51,8 @@ const sitePoints = siteFacts.map(({ label, cost, utilisation, orders, highlight,
   labelAt,
 }));
 
-export const consultingDeckLint: LintOptions = { template: "decision-request" };
+// A consulting readout is read without its presenter, so it keeps full-sentence action titles and a full talk track.
+export const consultingDeckLint: LintOptions = { template: "decision-request", mode: "read-alone" };
 
 export const consultingDeck: DeckSlide[] = [
   {
@@ -176,7 +177,7 @@ export const consultingDeck: DeckSlide[] = [
           " as orders spread across five sites",
         ]}
         subtitle="Fulfilment network, FY22–FY25"
-        takeaway="The network grew in sites, not in scale: each new site added split shipments and part-empty shifts."
+        takeaway="Each new site added split shipments and part-empty shifts."
         notes={["Index of annual totals; FY22 = 100.", "Dashed line: network average, weighted by orders shipped."]}
         source={source}
       >
@@ -405,14 +406,14 @@ export const consultingDeck: DeckSlide[] = [
   {
     id: "recommendation",
     title: "Two hubs win",
-    headline: "Two hubs save most; the price is nine months of transition and weaker service",
+    headline: "Two hubs save most but cost nine months of transition and weaker service",
     role: "recommendation",
     render: () => (
       <ConsultingSlide
         tracker={tracker("Recommendation")}
         sticker={sticker}
         label={label}
-        title="Two hubs save most; the price is nine months of transition and weaker service"
+        title="Two hubs save most but cost nine months of transition and weaker service"
         subtitle="Fulfilment cost, FY25 actual to FY27 run-rate"
         takeaway="Accept a two-point dip in on-time delivery for two quarters to take $14M a year out of the cost base."
         notes={[
@@ -485,14 +486,14 @@ export const consultingDeck: DeckSlide[] = [
   {
     id: "plan",
     title: "Nine months and $9M",
-    headline: "Nine months and $9M; done when cost per order is below $7.50 by M12",
+    headline: "Nine months and $9M, done when cost per order is below $7.50 by M12",
     role: "plan",
     render: () => (
       <ConsultingSlide
         tracker={tracker("Plan")}
         sticker={sticker}
         label={label}
-        title="Nine months and $9M; done when cost per order is below $7.50 by M12"
+        title="Nine months and $9M, done when cost per order is below $7.50 by M12"
         subtitle="Two-hub option; months from approval"
         rows="minmax(0, 1fr) auto"
         notes={[

@@ -48,6 +48,10 @@ describe("package entries", () => {
 
   it("every doc ships with the package", () => {
     expect(pkg.files).toContain("docs/*.md");
+    // The design-system spec ships too: the uipack-design skill reads node_modules/uipack/docs/system.
+    expect(pkg.files).toContain("docs/system/*.md");
+    // The web starter ships so a builder copies a working page instead of discovering the API.
+    expect(pkg.files).toContain("examples/web-starter/*");
   });
 });
 

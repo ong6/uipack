@@ -13,6 +13,7 @@ export type SlotName =
   | "eyebrow"
   | "headline"
   | "lede"
+  | "point"
   | "label"
   | "quote"
   | "attribution"
@@ -50,8 +51,28 @@ export interface SlotBudget {
 }
 
 /**
+ * How a deck is meant to be read, which sets how long its titles run:
+ * - `presented` (default): the speaker is in the room. A title is a 2–5 word label or spoken
+ *   verdict ("Search: twice as fast since March"), the points carry the numbers as fragments, and
+ *   the speaker says the full claim aloud from cue notes.
+ * - `read-alone`: the deck travels without the speaker (a pre-read, a forwarded deck, a consulting
+ *   readout). Each title is the full conclusion as one sentence, so the titles alone tell the argument.
+ */
+export type DeckMode = "presented" | "read-alone";
+
+/**
+ * Most words in a title, by mode: past `presented`, a title is a sentence to read out rather than a
+ * cue to talk from (rule `title-length`). The read-alone limit is also `MAX_TITLE_WORDS`.
+ */
+export const TITLE_WORDS: Readonly<Record<DeckMode, number>> = { presented: 6, "read-alone": 14 };
+
+/** Most body points on one slide: more than four is a second idea or an appendix table. */
+export const MAX_POINTS = 4;
+
+/**
  * The budget table. Sizes are canvas pixels on the 1920×1080 slide, so the measures hold at any
- * screen size. The headline's word limit is also `MAX_TITLE_WORDS` (rule `title-length`).
+ * screen size. The headline row is the read-alone ceiling; a presented deck's titles stop at
+ * `TITLE_WORDS.presented` words (rule `title-length`).
  */
 export const SLOT_BUDGETS: Readonly<Record<SlotName, SlotBudget>> = {
   title: {
@@ -60,7 +81,7 @@ export const SLOT_BUDGETS: Readonly<Record<SlotName, SlotBudget>> = {
     overflow: "ellipsis",
   },
   eyebrow: {
-    role: "Above the headline: the section, not the claim",
+    role: "Optional, off by default: a section name above the headline, never the claim",
     minWords: 1,
     maxWords: 4,
     maxLines: 1,
@@ -69,8 +90,8 @@ export const SLOT_BUDGETS: Readonly<Record<SlotName, SlotBudget>> = {
     overflow: "wrap",
   },
   headline: {
-    role: "The claim as one sentence",
-    minWords: 3,
+    role: "Presented: a 2–5 word spoken verdict (a bare label only on agenda, section and mechanism slides). Read-alone: the conclusion as one sentence",
+    minWords: 1,
     maxWords: 14,
     maxLines: 2,
     charsPerLine: 44,
@@ -78,11 +99,19 @@ export const SLOT_BUDGETS: Readonly<Record<SlotName, SlotBudget>> = {
     overflow: "wrap-balance",
   },
   lede: {
-    role: "Under the headline: one sentence of why or caveat",
+    role: "Optional, off by default: one plain sentence under the headline, for a caveat the slide can't lose",
     maxWords: 30,
     maxLines: 3,
     charsPerLine: 60,
     maxSentences: 1,
+    overflow: "wrap",
+  },
+  point: {
+    role: "Body: a fragment that carries a number or a cue to talk from, 2–4 a slide, no full stop",
+    maxWords: 8,
+    maxLines: 1,
+    charsPerLine: 48,
+    maxSentences: 0,
     overflow: "wrap",
   },
   label: { role: "Inside a drawing or a tile", maxWords: 3, maxSentences: 0, overflow: "wrap" },
@@ -179,7 +208,8 @@ export function slotProblems(slot: SlotName, text: string): string[] {
   }
   if (b.maxSentences !== undefined) {
     const n = slotSentences(text);
-    if (b.maxSentences === 0 && n > 0 && words > 3) out.push("a sentence, where a label belongs");
+    if (b.maxSentences === 0 && n > 0 && words > 3)
+      out.push(slot === "point" ? "a full sentence, where a fragment belongs" : "a sentence, where a label belongs");
     else if (b.maxSentences > 0 && n > b.maxSentences) out.push(`${n} sentences, at most ${b.maxSentences}`);
   }
   return out;

@@ -15,6 +15,7 @@ import {
   DeckSlideContext,
   endSlide,
   factSlide,
+  pointsSlide,
   lintDeck,
   quoteSlide,
   sectionSlide,
@@ -609,20 +610,30 @@ describe("Bento", () => {
 });
 
 describe("slide archetypes", () => {
-  const frame = { eyebrow: "Latency", footer: "Q3 review" };
+  // No eyebrow by default; the section slide below opts into one.
+  const frame = { footer: "Q3 review" };
   const archetypes: DeckSlide[] = [
+    pointsSlide({
+      id: "p",
+      title: "Search latency",
+      ...frame,
+      headline: "Search: twice as fast since March",
+      points: ["p95 198 ms, half of March", "5 indexes → 1"],
+      source: "Search latency dashboard",
+    }),
     sectionSlide({
       id: "s",
       title: "Part two",
       ...frame,
+      eyebrow: "Part 02",
       number: "02",
-      headline: "Next quarter holds the speed through the peak.",
+      headline: "Next quarter",
     }),
     quoteSlide({
       id: "q",
       title: "Meeting one",
       ...frame,
-      headline: "Nine of 13 reviews ended asking what we needed.",
+      headline: "Nine of 13 reviews",
       quote: "So what do you need from us?",
       attribution: "An approver, review 14",
     }),
@@ -630,7 +641,7 @@ describe("slide archetypes", () => {
       id: "f",
       title: "198 ms",
       ...frame,
-      headline: "p95 latency fell from 412 ms to 198 ms.",
+      headline: "Search p95",
       value: "198",
       unit: "ms p95",
       baseline: "From 412 ms in Q2.",
@@ -640,7 +651,7 @@ describe("slide archetypes", () => {
       id: "e",
       title: "The ask",
       ...frame,
-      headline: "Platform leads: approve the shard by 30 October.",
+      headline: "Approve the shard",
       action: "Two engineers for the shard",
       owner: "Platform leads",
       date: "30 October",
@@ -653,34 +664,41 @@ describe("slide archetypes", () => {
       </DeckSlideContext.Provider>,
     ).container;
 
-  it.each(archetypes.map((s) => [s.slots && Object.keys(s.slots).join("+"), s] as const))(
-    "%s: keeps the shared regions (eyebrow, headline, footer) in reading order and says its headline",
+  it.each(archetypes.map((s) => [s.slots ? Object.keys(s.slots).join("+") : "points", s] as const))(
+    "%s: keeps the shared regions (optional eyebrow, headline, footer) in reading order and says its headline",
     (_, slide) => {
       const el = shown(slide);
       const root = el.querySelector(".uipack-deck-slide")!;
-      expect(root.getAttribute("data-layout")).toMatch(/^(section|quote|fact|end)$/);
+      expect(root.getAttribute("data-layout")).toMatch(/^(points|section|quote|fact|end)$/);
       const order = [...root.children].map((c) => c.className.split(" ")[0]);
-      expect(order[0]).toBe("uipack-deck-eyebrow");
-      expect(order[1]).toBe("uipack-deck-heading");
+      const heading = slide.eyebrow ? 1 : 0;
+      if (slide.eyebrow) expect(order[0]).toBe("uipack-deck-eyebrow");
+      else expect(order).not.toContain("uipack-deck-eyebrow");
+      expect(order[heading]).toBe("uipack-deck-heading");
       expect(order[order.length - 1]).toBe("uipack-deck-footer");
       expect(headlineDrift(slide, el)).toBeNull();
-      expect(slide.eyebrow).toBe("Latency");
     },
   );
 
+  it("points: a short title and its fragments, read by lintDeck as points", () => {
+    const [points] = archetypes;
+    expect(points.points).toEqual(["p95 198 ms, half of March", "5 indexes → 1"]);
+    expect([...shown(points).querySelectorAll(".uipack-deck-points li")].map((li) => li.textContent)).toEqual(points.points);
+    expect(points.source).toBe("Search latency dashboard");
+  });
+
   it("declares its words as slots that lintDeck checks", () => {
-    expect(archetypes[2].slots).toEqual({
+    expect(archetypes[3].slots).toEqual({
       value: "198",
       unit: "ms p95",
       baseline: "From 412 ms in Q2.",
       source: "Search latency dashboard",
     });
-    expect(archetypes[3].slots).toEqual({ action: "Two engineers for the shard", owner: "Platform leads", date: "30 October" });
+    expect(archetypes[4].slots).toEqual({ action: "Two engineers for the shard", owner: "Platform leads", date: "30 October" });
     const tooLong = factSlide({
       id: "x",
       title: "x",
-      eyebrow: "Latency",
-      headline: "p95 latency fell by more than half.",
+      headline: "p95 latency halved",
       value: "1,234,567",
       baseline: "Q2",
     });

@@ -81,9 +81,9 @@ test("catalog filters, style grouping, and presentation composition work on mobi
   await expect(page.getByRole("heading", { name: "Technical", exact: true })).toBeVisible();
   await page.locator(".showcase-menu-button").click();
   await page.getByRole("dialog", { name: "Library menu" }).getByRole("link", { name: "Slide starters", exact: true }).click();
-  await expect(page.getByRole("heading", { name: "A model is only the beginning." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "The model is the start" })).toBeVisible();
   await page.getByRole("button", { name: "Next chapter" }).click();
-  await expect(page.getByRole("heading", { name: "Every action needs a boundary." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Every action needs a boundary" })).toBeVisible();
   await page.getByRole("button", { name: "04 Comparison" }).click();
   await expect(page.getByRole("heading", { name: "Where the check belongs" })).toBeVisible();
   await page.getByRole("button", { name: "Open canvas", exact: true }).click();
@@ -92,7 +92,7 @@ test("catalog filters, style grouping, and presentation composition work on mobi
   await page.getByRole("button", { name: "05 Closing" }).click();
   await expect(
     page.getByRole("heading", {
-      name: "One goal. One bounded workflow. One inspectable result.",
+      name: "Start with one workflow",
     }),
   ).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);

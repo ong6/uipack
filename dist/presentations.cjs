@@ -1,27 +1,27 @@
 'use strict';
 
 var chunk3OIHMAKF_cjs = require('./chunk-3OIHMAKF.cjs');
-var chunk4IWXI4YM_cjs = require('./chunk-4IWXI4YM.cjs');
+var chunkL3MBR67W_cjs = require('./chunk-L3MBR67W.cjs');
 var react = require('react');
 var jsxRuntime = require('react/jsx-runtime');
 
 // src/presentations/renderSlideSvg.ts
 var palettes = {
   light: {
-    paper: chunk4IWXI4YM_cjs.technicalValues.light.paper,
-    surface: chunk4IWXI4YM_cjs.technicalValues.light["surface-raised"],
-    ink: chunk4IWXI4YM_cjs.technicalValues.light.ink,
-    muted: chunk4IWXI4YM_cjs.technicalValues.light["ink-2"],
-    accent: chunk4IWXI4YM_cjs.technicalValues.light.accent,
-    rule: chunk4IWXI4YM_cjs.technicalValues.light["slide-line"]
+    paper: chunkL3MBR67W_cjs.technicalValues.light.paper,
+    surface: chunkL3MBR67W_cjs.technicalValues.light["surface-raised"],
+    ink: chunkL3MBR67W_cjs.technicalValues.light.ink,
+    muted: chunkL3MBR67W_cjs.technicalValues.light["ink-2"],
+    accent: chunkL3MBR67W_cjs.technicalValues.light.accent,
+    rule: chunkL3MBR67W_cjs.technicalValues.light["slide-line"]
   },
   dark: {
-    paper: chunk4IWXI4YM_cjs.technicalValues.dark.paper,
-    surface: chunk4IWXI4YM_cjs.technicalValues.dark["surface-raised"],
-    ink: chunk4IWXI4YM_cjs.technicalValues.dark.ink,
-    muted: chunk4IWXI4YM_cjs.technicalValues.dark["ink-2"],
-    accent: chunk4IWXI4YM_cjs.technicalValues.dark.accent,
-    rule: chunk4IWXI4YM_cjs.technicalValues.dark["slide-line"]
+    paper: chunkL3MBR67W_cjs.technicalValues.dark.paper,
+    surface: chunkL3MBR67W_cjs.technicalValues.dark["surface-raised"],
+    ink: chunkL3MBR67W_cjs.technicalValues.dark.ink,
+    muted: chunkL3MBR67W_cjs.technicalValues.dark["ink-2"],
+    accent: chunkL3MBR67W_cjs.technicalValues.dark.accent,
+    rule: chunkL3MBR67W_cjs.technicalValues.dark["slide-line"]
   }
 };
 var cssColors = {
@@ -32,7 +32,7 @@ var cssColors = {
   accent: "var(--ui-accent)",
   rule: "var(--tune-slide-line, var(--ui-line))"
 };
-var resolvedFaces = { sans: "IBM Plex Sans, system-ui, sans-serif", mono: "IBM Plex Mono, ui-monospace, monospace" };
+var resolvedFaces = { sans: chunkL3MBR67W_cjs.technicalFonts.sans, mono: chunkL3MBR67W_cjs.technicalFonts.mono };
 var cssFaces = {
   sans: "var(--ui-slide-font-text, var(--ui-font-text))",
   mono: "var(--ui-slide-font-label, var(--ui-font-label))"
@@ -52,7 +52,7 @@ function renderSlideSvg(slide, options = {}) {
   const width = options.width ?? 1200;
   const height = Math.round(width * 9 / 16);
   const text = (x, y, value, size = 26, color = colors.ink, weight = 400, mono = false, anchor = "start", role, tracking) => `<text x="${x}" y="${y}"${anchor === "end" ? ' text-anchor="end"' : ""}${role ? ` class="uipack-slide-starter__${role}"` : ""} ${css ? "" : paint({ font: mono ? faces.mono : faces.sans })} font-size="${size}"${paint(css ? { fill: color, font: mono ? faces.mono : faces.sans } : { fill: color })} font-weight="${weight}"${tracking ? ` letter-spacing="${tracking}em"` : ""}>${escapeSvgText(tracking ? value.toUpperCase() : value)}</text>`;
-  const eyebrow = (value) => text(64, 105, value, 15, colors.accent, 600, true, "start", "label", 0.14);
+  const eyebrow = (value) => value ? text(64, 105, value, 15, colors.accent, 600, true, "start", "label", 0.14) : "";
   const foot = (x, value, anchor) => text(x, 635, value, 13, colors.muted, 500, true, anchor, "label", 0.06);
   const rule = (x1, y, x2) => `<path d="M${x1} ${y}H${x2}"${paint({ stroke: colors.rule })} stroke-width="2"/>`;
   const footer = slide.footer ? rule(64, 592, 1136) + foot(64, slide.footer.label, "start") + (slide.footer.page ? foot(1136, slide.footer.page, "end") : "") : "";

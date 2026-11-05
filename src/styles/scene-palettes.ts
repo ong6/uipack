@@ -8,26 +8,26 @@
 /** The 3D animation player's scene colours (uipack/slides), as CSS colour strings for three.js. */
 export const technicalSlidePalettes = {
   dark: {
-    background: "#0e1512", // surface
-    surface: "#14201b", // surface-raised
-    ink: "#e8ece9",
-    muted: "#9aa39e", // ink-2
-    rule: "#43544b", // slide-line
-    accent: "#71dcb2",
-    request: "#8ea4ff",
-    response: "#5fd39b",
-    change: "#c39aff",
+    background: "#0d2a4f", // surface
+    surface: "#12345f", // surface-raised
+    ink: "#edf3fb",
+    muted: "#acc2dc", // ink-2
+    rule: "#2e5180", // slide-line
+    accent: "#f0c45a",
+    request: "#8fd6ff",
+    response: "#8be6ae",
+    change: "#d2b4ff",
   },
   light: {
-    background: "#ffffff",
+    background: "#fcfdfe",
     surface: "#ffffff",
-    ink: "#1a1c1a",
-    muted: "#5c625e",
-    rule: "#bac3bc",
-    accent: "#205f49",
-    request: "#4f6fe6",
-    response: "#3fb27f",
-    change: "#9a63e0",
+    ink: "#0b2748",
+    muted: "#3d5878",
+    rule: "#b9c8d9",
+    accent: "#9c5700",
+    request: "#0b77a3",
+    response: "#2b7a4b",
+    change: "#7048c0",
   },
 } as const;
 
@@ -36,6 +36,6 @@ export const technicalSlidePalettes = {
  * Material colours, lit by the scene, so darker and greyer than the flat CSS values they map to.
  */
 export const studioObjectPalettes = {
-  light: { paper: 0xf3efe7, ink: 0x292e32, muted: 0x9aaba5, accent: 0x205f49 },
-  dark: { paper: 0xd8ded9, ink: 0x394c48, muted: 0x81958a, accent: 0x71bda3 },
+  light: { paper: 0xeef2f6, ink: 0x1a3352, muted: 0x93a6bc, accent: 0x9c5700 },
+  dark: { paper: 0xd5dde7, ink: 0x22405f, muted: 0x7d93ad, accent: 0xd9ad4a },
 };

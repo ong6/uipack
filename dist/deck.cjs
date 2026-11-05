@@ -403,13 +403,15 @@ function runTransition(opts) {
         const r = rectOf(el);
         return early.some((p) => overlaps(p, r));
       };
+      const incomingText = inn.rest.filter((el) => isText(el) && !unbuilt(el)).map(rectOf);
       const fromArea = rectOf(from).w * rectOf(from).h;
+      const wordsOnWords = (kids) => kids.some((k) => isText(k) && incomingText.some((r) => overlaps(r, rectOf(k))));
       const outgoing = out.rest.flatMap((el) => {
         const r = rectOf(el);
         const kids = Array.from(el.children).filter((c) => c instanceof HTMLElement);
-        return r.w * r.h > fromArea / 6 && kids.length > 1 && crossed(el) ? kids : [el];
+        if (r.w * r.h > fromArea / 6 && kids.length > 1 && crossed(el)) return kids;
+        return !isText(el) && kids.length > 1 && wordsOnWords(kids) ? kids : [el];
       });
-      const incomingText = inn.rest.filter((el) => isText(el) && !unbuilt(el)).map(rectOf);
       const handedOver = [];
       for (const el of outgoing) {
         if (besideOut(el)) play(el, [{ opacity: 1 }, { opacity: 0 }], { duration: deckMotion.morph * 0.08, easing: "linear" });
@@ -648,45 +650,57 @@ var STORYLINE_TEMPLATES = [
       {
         role: "answer",
         purpose: "Status and headline result in one sentence.",
-        titlePattern: "<Project> is <on track | at risk | done>: <result against goal>",
-        example: "Search indexing migration is on track: 70% of traffic moved, no regressions",
+        titlePattern: "<Project>: <on track | at risk | done>",
+        example: "Index migration: on track",
+        points: ["70% of traffic moved", "No regressions"],
+        readAlone: "Search indexing migration is on track: 70% of traffic moved, no regressions",
         guidance: "Lead with the status word. If it is at risk, say so here, not on slide five."
       },
       {
         role: "evidence",
         purpose: "The result against the goal agreed at the start.",
-        titlePattern: "<Metric> moved from <baseline> to <now> against a <target> goal",
-        example: "Index freshness improved from 40 minutes to 6 against a 10-minute goal",
+        titlePattern: "<Metric>: <before> \u2192 <after>",
+        example: "Freshness: 40 \u2192 6 min",
+        points: ["Goal: 10 min", "Source: the indexing dashboard"],
+        readAlone: "Index freshness improved from 40 minutes to 6 against a 10-minute goal",
         guidance: "Same metric and baseline as the last update. Source and window on the slide.",
         repeatable: true
       },
       {
         role: "evidence",
         purpose: "Progress against the plan, including what slipped and why.",
-        titlePattern: "<N of M> milestones done; <milestone> slipped <time> because <cause>",
-        example: "Four of six milestones are done; backfill slipped two weeks on quota",
+        titlePattern: "Milestones: <N of M>",
+        example: "Milestones: 4 of 6",
+        points: ["Backfill slipped 2 weeks", "Cause: storage quota"],
+        readAlone: "Four of six milestones are done and backfill is two weeks late on quota",
         guidance: "Report slips plainly with their cause. Surprises later cost more trust than slips now."
       },
       {
         role: "risk",
         purpose: "The one risk leadership should know about, and what you are doing about it.",
-        titlePattern: "<Risk> could <impact>; <mitigation> by <date>",
-        example: "Shard rebalancing could delay cutover; a dry run on 12 May will tell us",
+        titlePattern: "Could <milestone> slip?",
+        example: "Could cutover slip?",
+        points: ["Shard rebalancing may run long", "Dry run on 12 May decides"],
+        readAlone: "A dry run on 12 May will show whether shard rebalancing delays cutover",
         guidance: "One risk with a mitigation beats a red-amber-green table of ten.",
         optional: true
       },
       {
         role: "plan",
         purpose: "The next milestones with dates.",
-        titlePattern: "Next: <milestone> by <date>, then <milestone>",
-        example: "Next: full cutover by 30 May, then the old cluster is retired in June",
+        titlePattern: "Next: <milestone> <date>",
+        example: "Next: cutover 30 May",
+        points: ["Old cluster retired in June"],
+        readAlone: "Next: full cutover by 30 May, then the old cluster is retired in June",
         guidance: "Dates, not quarters, for anything within six weeks."
       },
       {
         role: "ask",
         purpose: "The one thing you need from this audience.",
-        titlePattern: "We need <owner> to <decide/do> by <date>",
-        example: "We need Platform leads to approve a two-week schema freeze from 20 May",
+        titlePattern: "<Decision> by <date>",
+        example: "Schema freeze from 20 May",
+        points: ["Platform leads to approve", "Two weeks"],
+        readAlone: "We need Platform leads to approve a two-week schema freeze from 20 May",
         guidance: "If you need nothing, say 'no asks; next update on <date>'. Silence reads as hiding."
       }
     ]
@@ -703,59 +717,75 @@ var STORYLINE_TEMPLATES = [
       {
         role: "answer",
         purpose: "The recommendation and the ask in one line, before any background.",
-        titlePattern: "We should <action> to <outcome>; we need <decision or resource>",
-        example: "Move image resizing to a queue to stop upload timeouts; we need one engineer",
+        titlePattern: "<Recommendation>",
+        example: "Resize uploads in a queue",
+        points: ["Ends upload timeouts", "Needs one engineer"],
+        readAlone: "One engineer can end upload timeouts by moving resizing to a queue",
         guidance: "Minto's governing thought. Executives may stop here; the rest is support."
       },
       {
         role: "context",
         purpose: "Situation: what the room already accepts.",
-        titlePattern: "<System> does <job> for <who>",
-        example: "Uploads resize every image inline before the request returns",
+        titlePattern: "<What the system does> today",
+        example: "Every upload resizes inline",
+        points: ["Every image, before the request returns"],
+        readAlone: "Uploads resize every image inline before the request returns",
         guidance: "One slide. If the room would nod at every word, it's the right context."
       },
       {
         role: "problem",
         purpose: "Complication: what broke or changed, sized, and why now.",
-        titlePattern: "<Problem> costs <metric> and grows <rate>",
-        example: "Large uploads time out 4% of the time, and volume doubles by Q4",
+        titlePattern: "<How often it fails>",
+        example: "4% of large uploads time out",
+        points: ["Volume doubles by Q4"],
+        readAlone: "Large uploads time out 4% of the time, and volume doubles by Q4",
         guidance: "A number with a source. 'Why now' turns a nice-to-have into a decision."
       },
       {
         role: "option",
         purpose: "Two or three real options, including doing nothing, on the same criteria.",
-        titlePattern: "<N> options: <A>, <B> or do nothing, compared on <criteria>",
-        example: "Three options: bigger servers, a resize queue, or doing nothing",
+        titlePattern: "<N> options compared",
+        example: "Three options compared",
+        points: ["Bigger servers", "A resize queue", "Do nothing"],
+        readAlone: "Three options: bigger servers, a resize queue, or doing nothing",
         guidance: "One comparison slide. A straw-man option tells the room the answer was rigged."
       },
       {
         role: "recommendation",
         purpose: "Why the chosen option wins and what you trade away.",
-        titlePattern: "<Option> wins on <criterion>; the cost is <trade-off>",
-        example: "A queue ends timeouts; thumbnails arrive about 5 seconds later",
+        titlePattern: "Why <option> wins",
+        example: "Why the queue wins",
+        points: ["Cost: thumbnails about 5 s later"],
+        readAlone: "A queue ends timeouts at the cost of thumbnails arriving 5 seconds later",
         guidance: "Naming the cost is what makes the recommendation credible."
       },
       {
         role: "plan",
         purpose: "Cost, timeline and how you will know it worked.",
-        titlePattern: "<Effort> over <time>; done when <measurable result>",
-        example: "Six engineer-weeks; done when upload timeouts drop below 0.1%",
+        titlePattern: "<Effort>",
+        example: "Six engineer-weeks",
+        points: ["Done when timeouts drop below 0.1%"],
+        readAlone: "Six engineer-weeks, done when upload timeouts drop below 0.1%",
         guidance: "A success metric decided now stops the goalposts moving later."
       },
       {
         role: "risk",
         purpose: "The main risk and the tripwire that makes you reverse.",
-        titlePattern: "If <signal>, we <fallback>",
-        example: "If queue lag passes one minute, we fall back to inline resizing",
+        titlePattern: "Tripwire: <signal>",
+        example: "Tripwire: queue lag over 1 min",
+        points: ["Fall back to inline resizing"],
+        readAlone: "If queue lag passes one minute, we fall back to inline resizing",
         guidance: "Reversibility lowers the bar for a yes.",
         optional: true
       },
       {
         role: "ask",
-        purpose: "The decision, who makes it, by when.",
-        titlePattern: "Decide <what> by <date> so <owner> can <next step>",
-        example: "Platform leads: decide by 14 March so the work is staffed in Q2",
-        guidance: "Repeat the ask from slide one, word for word if possible."
+        purpose: "The decision and what it costs, who makes it, by when, and what a no means.",
+        titlePattern: "Approve <what> by <date>",
+        example: "Approve the queue by 14 March",
+        points: ["Platform leads", "Six engineer-weeks", "Later misses Q2 staffing"],
+        readAlone: "Platform leads: approve the six-week queue by 14 March so Q2 can staff it",
+        guidance: "Name what is approved and its cost on this slide; it stays up while the room decides."
       }
     ]
   },
@@ -771,29 +801,37 @@ var STORYLINE_TEMPLATES = [
       {
         role: "answer",
         purpose: "The one idea the audience should leave with.",
-        titlePattern: "<System> achieves <property> by <key idea>",
-        example: "The rate limiter adds 0.2 ms by deciding locally and syncing counts later",
-        guidance: "A thesis, not a title. Everything after it explains or tests this sentence."
+        titlePattern: "<System> at <number>",
+        example: "A rate limiter at 0.2 ms",
+        points: ["Decides locally", "Syncs counts later"],
+        readAlone: "The rate limiter adds 0.2 ms by deciding locally and syncing counts later",
+        guidance: "State the one idea up front; everything after it explains or tests it. Say the full thesis aloud."
       },
       {
         role: "problem",
         purpose: "Why it matters: the constraint that makes the obvious design fail.",
-        titlePattern: "<Naive approach> fails because <constraint>",
-        example: "A central counter adds a 2 ms network hop to every request",
+        titlePattern: "<Naive approach> costs <number>",
+        example: "A central counter costs 2 ms",
+        points: ["One network hop", "On every request"],
+        readAlone: "A central counter adds a 2 ms network hop to every request",
         guidance: "Engineers care about the design only once they feel the constraint."
       },
       {
         role: "mechanism",
         purpose: "The whole system on one slide, three to five parts.",
-        titlePattern: "<N> parts: <A>, <B> and <C>",
-        example: "Three parts: a local bucket, a sync loop and a global budget",
+        titlePattern: "<N> parts",
+        example: "Three parts",
+        points: ["Local bucket", "Sync loop", "Global budget"],
+        readAlone: "Three parts: a local bucket, a sync loop and a global budget",
         guidance: "Wrap each part in <Morph id> so the next slide can zoom into it."
       },
       {
         role: "mechanism",
         purpose: "Zoom into the part that holds the key idea. One part per slide.",
-        titlePattern: "<Part> <does what> so that <property>",
-        example: "Each local bucket refills from its share of the global budget",
+        titlePattern: "<Part>",
+        example: "The local bucket",
+        points: ["Refills from its share of the budget"],
+        readAlone: "Each local bucket refills from its share of the global budget",
         guidance: "Zoom in, explain, come back out. Never zoom two levels without returning.",
         move: "zoom",
         repeatable: true
@@ -801,8 +839,10 @@ var STORYLINE_TEMPLATES = [
       {
         role: "mechanism",
         purpose: "Show the same thing changing: a request moving, state before and after.",
-        titlePattern: "<Event> <changes what> while <what stays>",
-        example: "A burst drains one bucket while the others keep serving",
+        titlePattern: "<Event>",
+        example: "A burst",
+        points: ["Drains one bucket", "The others keep serving"],
+        readAlone: "A burst drains one bucket while the others keep serving",
         guidance: "Morph the same diagram rather than drawing a second one.",
         move: "morph",
         optional: true
@@ -810,30 +850,38 @@ var STORYLINE_TEMPLATES = [
       {
         role: "evidence",
         purpose: "Measured behaviour, with method and source.",
-        titlePattern: "<Test> shows <result> at <load>",
-        example: "Load tests show 0.2 ms added latency and 3% overshoot at peak",
+        titlePattern: "<Test>: <result>",
+        example: "Load test: +0.2 ms",
+        points: ["3% overshoot at peak", "Source: load test 12"],
+        readAlone: "Load tests show 0.2 ms added latency and 3% overshoot at peak",
         guidance: "Say how it was measured. A benchmark without a method is an anecdote."
       },
       {
         role: "option",
         purpose: "Trade-offs and rejected alternatives.",
-        titlePattern: "We chose <X> over <Y>: <gain>, at the cost of <loss>",
-        example: "We accept brief overshoot in exchange for no extra network hop",
+        titlePattern: "<Cost accepted> is the price",
+        example: "Brief overshoot is the price",
+        points: ["Buys: no extra network hop"],
+        readAlone: "We accept brief overshoot in exchange for no extra network hop",
         guidance: "The trade-off slide is where senior engineers decide whether to trust you."
       },
       {
         role: "plan",
         purpose: "What's next and the open questions.",
-        titlePattern: "Next: <work>; open question: <question>",
-        example: "Next: per-tenant budgets in Q3; fairness under bursts is still open",
+        titlePattern: "Next: <work>, <date>",
+        example: "Next: per-tenant budgets, Q3",
+        points: ["Open: fairness under bursts"],
+        readAlone: "Next: per-tenant budgets in Q3, with fairness under bursts still open",
         guidance: "Open questions invite the experts in the room to help.",
         optional: true
       },
       {
         role: "ask",
         purpose: "What you want from the experts in the room.",
-        titlePattern: "<Review/adopt/try> <what> by <date>",
-        example: "Storage team: review the sync design doc by Friday; I'll fold in every comment",
+        titlePattern: "<Review / adopt / try> <what>",
+        example: "Review the sync design",
+        points: ["Storage team, by Friday", "Every comment folded in"],
+        readAlone: "Storage team: review the sync design doc by Friday",
         guidance: "Engineers respond to a specific review request, not 'any questions?'."
       }
     ]
@@ -850,22 +898,28 @@ var STORYLINE_TEMPLATES = [
       {
         role: "answer",
         purpose: "What shipped, for whom, and the change it makes.",
-        titlePattern: "<Who> can now <do what> <how much better>",
-        example: "Support agents can now issue refunds in one click instead of a two-day ticket",
+        titlePattern: "<What users can now do>",
+        example: "Refunds take one click",
+        points: ["Support agents, no ticket", "Was a two-day wait"],
+        readAlone: "Support agents can now issue refunds in one click instead of a two-day ticket",
         guidance: "The user and the outcome, not the feature name."
       },
       {
         role: "problem",
         purpose: "The before: who felt the pain, sized.",
-        titlePattern: "<Task> took <time/cost> because <cause>",
-        example: "Refunds took two days because every one needed an engineer",
+        titlePattern: "<Task> took <time>",
+        example: "Refunds took two days",
+        points: ["Every one needed an engineer"],
+        readAlone: "Refunds took two days because every one needed an engineer",
         guidance: "Make the before concrete enough that the demo is a relief."
       },
       {
         role: "demo",
         purpose: "The after, in the product. One rehearsed path.",
-        titlePattern: "Watch <user> <do task> in <time>",
-        example: "Watch an agent refund a duplicate charge in under a minute",
+        titlePattern: "Watch: <task>",
+        example: "Watch: a duplicate charge",
+        points: ["Refunded in under a minute"],
+        readAlone: "Watch an agent refund a duplicate charge in under a minute",
         guidance: "Live with a recorded fallback. Morph from the before screen to the after.",
         move: "morph",
         repeatable: true
@@ -873,30 +927,38 @@ var STORYLINE_TEMPLATES = [
       {
         role: "mechanism",
         purpose: "Just enough how-it-works to trust it: guardrails and limits.",
-        titlePattern: "<Guardrail> keeps <risk> in check",
-        example: "Refunds over an agent's limit still route to a lead for approval",
+        titlePattern: "<Guardrail>",
+        example: "Limits still apply",
+        points: ["Over an agent's limit \u2192 a lead approves"],
+        readAlone: "Refunds over an agent's limit still route to a lead for approval",
         guidance: "Answer the question the room is already asking: what stops misuse?",
         optional: true
       },
       {
         role: "evidence",
         purpose: "Early results, with window and source, and what isn't measured yet.",
-        titlePattern: "In <window>, <result>",
-        example: "In the first two weeks, 1,200 refunds skipped the engineering queue",
+        titlePattern: "<Result>",
+        example: "1,200 refunds skipped engineering",
+        points: ["In the first two weeks", "Source: the refunds log"],
+        readAlone: "In the first two weeks, 1,200 refunds skipped the engineering queue",
         guidance: "Usage beats opinions. Say 'not measured yet' rather than imply a result."
       },
       {
         role: "plan",
         purpose: "Rollout: who gets it when, and what comes next.",
-        titlePattern: "<Audience> gets it by <date>; <next feature> comes next",
-        example: "All support regions get it by 1 June; partial refunds come next",
+        titlePattern: "<Audience> by <date>",
+        example: "All regions by 1 June",
+        points: ["Partial refunds next"],
+        readAlone: "All support regions get it by 1 June, then partial refunds",
         guidance: "Tell people exactly when it reaches them."
       },
       {
         role: "ask",
         purpose: "Adoption, feedback or a sponsor.",
-        titlePattern: "<Owner>: <turn on/try/send> <what> by <date>",
-        example: "Team leads: switch your queues on by 15 May and send feedback to me",
+        titlePattern: "<Turn on / try / send> <what>",
+        example: "Switch your queues on",
+        points: ["Team leads, by 15 May", "Feedback to me"],
+        readAlone: "Team leads: switch your queues on by 15 May and send feedback to me",
         guidance: "Name who acts and where feedback goes."
       }
     ]
@@ -913,51 +975,65 @@ var STORYLINE_TEMPLATES = [
       {
         role: "answer",
         purpose: "Summary: what happened, impact, cause, status.",
-        titlePattern: "<Trigger> caused <impact> for <duration>; <status>",
-        example: "A bad config push took checkout down for 42 minutes; fixed and guarded",
+        titlePattern: "<What> down <duration>",
+        example: "Checkout down 42 minutes",
+        points: ["Bad config push", "Fixed and guarded"],
+        readAlone: "A bad config push took checkout down for 42 minutes and is now guarded",
         guidance: "Everyone in the room wants this sentence first. Systems, not names."
       },
       {
         role: "evidence",
         purpose: "Impact: who, how many, how long, with source.",
-        titlePattern: "<N> <users/orders> affected over <duration>",
-        example: "About 18,000 orders failed; most customers retried within an hour",
+        titlePattern: "<N> <orders/users> affected",
+        example: "About 18,000 failed orders",
+        points: ["Most customers retried within an hour"],
+        readAlone: "About 18,000 orders failed and most customers retried within an hour",
         guidance: "Give the denominator and the source (dashboard, logs, finance)."
       },
       {
         role: "evidence",
         purpose: "Timeline: detection, response, mitigation. Where the minutes went.",
-        titlePattern: "Detected in <t>; mitigated in <t> because <reason>",
-        example: "Alerts fired after 9 minutes; rollback took 25 because the tool was slow",
+        titlePattern: "Where the minutes went",
+        example: "Where the minutes went",
+        points: ["Alerts: 9 min", "Rollback: 25 min, slow tool"],
+        readAlone: "Alerts took 9 minutes and a slow rollback tool took 25 more",
         guidance: "The gaps in the timeline are usually the real findings."
       },
       {
         role: "mechanism",
         purpose: "Root cause: how the failure propagated.",
-        titlePattern: "<Condition> let <fault> reach <blast radius>",
-        example: "A missing default let one bad value disable every payment provider",
+        titlePattern: "<The fault>",
+        example: "One missing default",
+        points: ["One bad value", "Every payment provider off"],
+        readAlone: "A missing default let one bad value disable every payment provider",
         guidance: "Zoom into the failing component from a system overview.",
         move: "zoom"
       },
       {
         role: "problem",
         purpose: "Why it wasn't caught: testing, detection and response gaps.",
-        titlePattern: "<Process gap> let <cause> reach <scope>",
-        example: "Config changes skipped canary, so the bad value reached all 14 regions at once",
+        titlePattern: "Why didn't <safeguard> catch it?",
+        example: "Why didn't canary catch it?",
+        points: ["Config pushes skipped canary", "All 14 regions at once"],
+        readAlone: "Config changes skipped canary, so the bad value reached all 14 regions at once",
         guidance: "Ask why the safeguards missed it, not who pushed the change."
       },
       {
         role: "plan",
         purpose: "Action items: prevent, detect, mitigate, each with owner and date.",
-        titlePattern: "<N> fixes: <prevent>, <detect>, <mitigate> by <date>",
-        example: "Three fixes: canary config pushes, schema defaults and faster rollback by June",
+        titlePattern: "<N> fixes by <date>",
+        example: "Three fixes by June",
+        points: ["Canary config pushes", "Schema defaults", "Faster rollback"],
+        readAlone: "Three fixes: canary config pushes, schema defaults and faster rollback by June",
         guidance: "Fewer, owned, dated actions beat a long list nobody tracks."
       },
       {
         role: "ask",
         purpose: "The prioritisation or help the fixes need.",
-        titlePattern: "Prioritise <fix> in <planning cycle>; <owner> owns it",
-        example: "Prioritise the canary work in Q3 planning; Release Engineering owns it",
+        titlePattern: "Prioritise <fix> in <cycle>",
+        example: "Prioritise canary work in Q3",
+        points: ["Release Engineering owns it"],
+        readAlone: "Prioritise the canary work in Q3 planning so Release Engineering owns it",
         guidance: "Action items without an ask for capacity tend to slip."
       }
     ]
@@ -974,45 +1050,57 @@ var STORYLINE_TEMPLATES = [
       {
         role: "answer",
         purpose: "Headline impact for the period: outcomes, not tasks.",
-        titlePattern: "This <period> we <outcome> and <outcome>",
-        example: "This half we cut payment failures by a third and unblocked two launches",
+        titlePattern: "<Outcome with its size>",
+        example: "A third fewer payment failures",
+        points: ["Two launches unblocked"],
+        readAlone: "Payment failures fell by a third this half, and two launches were unblocked",
         guidance: "If a reviewer reads one slide, this is it."
       },
       {
         role: "evidence",
         purpose: "One outcome per slide: result, baseline, source, and your part in it.",
-        titlePattern: "<Change> moved <metric> from <baseline> to <now>",
-        example: "Smarter retries cut failed payments from 3% to 2% of attempts",
+        titlePattern: "<Metric>: <before> \u2192 <after>",
+        example: "Failed payments: 3% \u2192 2%",
+        points: ["Since smarter retries shipped", "Share of all attempts"],
+        readAlone: "Failed payments went from 3% to 2% of attempts after smarter retries shipped",
         guidance: "Say what you did versus what the team did. Credit others by name.",
         repeatable: true
       },
       {
         role: "evidence",
         purpose: "Leverage: what others can do now because of the work.",
-        titlePattern: "<Who> can now <do what> without <old cost>",
-        example: "Two product teams launched on the new API in three weeks, without our help",
+        titlePattern: "<Who>, <how fast>",
+        example: "Two teams, three weeks",
+        points: ["Launched on the new API", "Without our help"],
+        readAlone: "Two product teams launched on the new API in three weeks, without our help",
         guidance: "Multipliers are what reviewers look for at senior levels."
       },
       {
         role: "problem",
         purpose: "What didn't land, and what changed because of it.",
-        titlePattern: "<Miss> happened; we now <changed practice>",
-        example: "The fraud-rule rewrite slipped three months; we now ship rules behind flags",
+        titlePattern: "<Work> slipped <duration>",
+        example: "Fraud rules slipped 3 months",
+        points: ["Now: rules ship behind flags"],
+        readAlone: "The fraud-rule rewrite slipped three months, so rules now ship behind flags",
         guidance: "One honest miss makes the wins believable.",
         optional: true
       },
       {
         role: "plan",
         purpose: "Next period's bets, tied to the org's goals.",
-        titlePattern: "Next <period>: <bet> to support <org goal>",
-        example: "Next half: halve payout latency to support instant withdrawals",
+        titlePattern: "Next <period>: <bet>",
+        example: "Next half: halve payout latency",
+        points: ["For instant withdrawals"],
+        readAlone: "Next half: halve payout latency to support instant withdrawals",
         guidance: "Link each bet to a goal your leadership already owns."
       },
       {
         role: "ask",
         purpose: "The support you need: scope, headcount, sponsorship.",
-        titlePattern: "We need <owner> to <support> by <date>",
-        example: "We need the payments director to approve one more engineer by July",
+        titlePattern: "<Support> by <date>",
+        example: "One more engineer by July",
+        points: ["Payments director to approve"],
+        readAlone: "We need the payments director to approve one more engineer by July",
         guidance: "A review without an ask leaves your growth to someone else's memory."
       }
     ]
@@ -1023,69 +1111,16 @@ function getStorylineTemplate(id) {
   if (!found) throw new Error(`Unknown storyline template: ${id}`);
   return found;
 }
-function templateOutline(template) {
+function templateOutline(template, { mode = "presented" } = {}) {
   const t = typeof template === "string" ? getStorylineTemplate(template) : template;
-  return t.beats.map((beat, i) => ({ id: `${t.id}-${i + 1}`, title: beat.example, role: beat.role }));
+  return t.beats.map(
+    (beat, i) => mode === "presented" ? { id: `${t.id}-${i + 1}`, title: beat.example, role: beat.role, points: beat.points } : { id: `${t.id}-${i + 1}`, title: beat.readAlone, role: beat.role }
+  );
 }
 
-// src/deck/storyline/rules.ts
-var LINT_RULES = {
-  "deck-empty": { severity: "error", check: "The deck has at least one slide." },
-  "duplicate-id": { severity: "error", check: "Slide IDs are unique (they appear in URLs and presenter sync)." },
-  "title-present": { severity: "error", check: "Every slide has an action title." },
-  "title-claim": {
-    severity: "error",
-    check: "The title states a claim of three or more words, not a topic label like 'Background' or 'Architecture'."
-  },
-  "title-length": { severity: "warn", check: "The title is at most 14 words." },
-  "title-specific": {
-    severity: "warn",
-    check: "An answer, evidence, problem or recommendation title quantifies its claim: a number that isn't a date or a version, a multiple or fraction ('twice', 'a third'), a number word with a unit ('three weeks', 'one engineer'), or a comparison of two quantities ('one meeting, not three'). A plan title carries a date or a number. A bare count ('two teams', 'one big improvement'), 'no regressions', adjectives and names don't count."
-  },
-  "one-idea": { severity: "tip", check: "The title is one sentence: one idea per slide." },
-  "notes-present": { severity: "warn", check: "Every presented slide has a talk track." },
-  "number-source": {
-    severity: "warn",
-    check: "A number in a title names its source in the notes: a named artifact ('the search latency dashboard', 'load test 12', 'the Q3 user survey') or a URL, with no hedge ('trust me', 'someone mentioned', 'said so'); or in the slide's `source`."
-  },
-  "roles-missing": {
-    severity: "warn",
-    check: "Slides are tagged with roles. Without them, roles are inferred from the titles and only the answer-first and closing-ask checks run."
-  },
-  "answer-first": {
-    severity: "error",
-    check: "The answer or recommendation appears within the first three content slides."
-  },
-  "outcome-first": {
-    severity: "tip",
-    check: "Slide one names the business outcome (faster, cheaper, safer, by how much), not the system that produced it."
-  },
-  "closing-ask": { severity: "error", check: "The last presented slide is an ask." },
-  "ask-concrete": {
-    severity: "warn",
-    check: "The ask names a decision or action, an owner (a team or role such as 'platform leads', 'the payments team', 'VP Eng' or an @handle; not 'we', 'the team', a bare name, 'owner TBD' or 'lead' as a verb) and a firm calendar date ('next quarter', 'Monday-ish' and 'next Monday maybe' are not)."
-  },
-  "role-repeat": {
-    severity: "warn",
-    check: "No two adjacent slides share a role, except evidence, mechanism, demo and appendix."
-  },
-  "deck-length": { severity: "warn", check: "About one to two minutes per presented slide." },
-  "talk-time": {
-    severity: "warn",
-    check: "The talk track fits the time budget at 135 words a minute, and covers at least half of it."
-  },
-  "template-beats": {
-    severity: "warn",
-    check: "With a template, every beat it requires has a slide in that role: a decision request has its options, a postmortem its plan."
-  },
-  "slot-budget": {
-    severity: "warn",
-    check: "Every slot the slide declares as data (title, eyebrow, headline lines, lede, and archetype slots such as quote, value, owner and date) fits its text budget in SLOT_BUDGETS: an eyebrow is one to four words, a lede one sentence, a headline at most two lines, a label no sentence."
-  }
-};
-var MAX_TITLE_WORDS = 14;
-
 // src/deck/budgets.ts
+var TITLE_WORDS = { presented: 6, "read-alone": 14 };
+var MAX_POINTS = 4;
 var SLOT_BUDGETS = {
   title: {
     role: "Short name for the overview, counter and screen readers; never longer than a headline",
@@ -1093,7 +1128,7 @@ var SLOT_BUDGETS = {
     overflow: "ellipsis"
   },
   eyebrow: {
-    role: "Above the headline: the section, not the claim",
+    role: "Optional, off by default: a section name above the headline, never the claim",
     minWords: 1,
     maxWords: 4,
     maxLines: 1,
@@ -1102,8 +1137,8 @@ var SLOT_BUDGETS = {
     overflow: "wrap"
   },
   headline: {
-    role: "The claim as one sentence",
-    minWords: 3,
+    role: "Presented: a 2\u20135 word spoken verdict (a bare label only on agenda, section and mechanism slides). Read-alone: the conclusion as one sentence",
+    minWords: 1,
     maxWords: 14,
     maxLines: 2,
     charsPerLine: 44,
@@ -1111,11 +1146,19 @@ var SLOT_BUDGETS = {
     overflow: "wrap-balance"
   },
   lede: {
-    role: "Under the headline: one sentence of why or caveat",
+    role: "Optional, off by default: one plain sentence under the headline, for a caveat the slide can't lose",
     maxWords: 30,
     maxLines: 3,
     charsPerLine: 60,
     maxSentences: 1,
+    overflow: "wrap"
+  },
+  point: {
+    role: "Body: a fragment that carries a number or a cue to talk from, 2\u20134 a slide, no full stop",
+    maxWords: 8,
+    maxLines: 1,
+    charsPerLine: 48,
+    maxSentences: 0,
     overflow: "wrap"
   },
   label: { role: "Inside a drawing or a tile", maxWords: 3, maxSentences: 0, overflow: "wrap" },
@@ -1204,11 +1247,99 @@ function slotProblems(slot, text) {
   }
   if (b.maxSentences !== void 0) {
     const n = slotSentences(text);
-    if (b.maxSentences === 0 && n > 0 && words > 3) out.push("a sentence, where a label belongs");
+    if (b.maxSentences === 0 && n > 0 && words > 3)
+      out.push(slot === "point" ? "a full sentence, where a fragment belongs" : "a sentence, where a label belongs");
     else if (b.maxSentences > 0 && n > b.maxSentences) out.push(`${n} sentences, at most ${b.maxSentences}`);
   }
   return out;
 }
+
+// src/deck/storyline/rules.ts
+var LINT_RULES = {
+  "deck-empty": { severity: "error", check: "The deck has at least one slide." },
+  "duplicate-id": { severity: "error", check: "Slide IDs are unique (they appear in URLs and presenter sync)." },
+  "title-present": { severity: "error", check: "Every slide has a title." },
+  "title-claim": {
+    severity: "error",
+    check: "Presented: a content slide's title is a short verdict the speaker can say ('Crashes down by two thirds', 'Start time: 0.2 s slower'); a bare topic label ('Crash rate') warns except on a cover, section, mechanism, demo or appendix slide, and a word that names the slide's kind ('Background', 'Results', 'Next steps') warns everywhere. Read-alone: the title states a claim of three or more words, not a topic label."
+  },
+  "title-length": {
+    severity: "warn",
+    check: "Presented: the title is at most 6 words, a spoken verdict, never a sentence to read out. Read-alone: at most 14 words."
+  },
+  "title-specific": {
+    severity: "warn",
+    check: "An answer, evidence, problem or recommendation slide quantifies its claim, in the title or (presented) a point: a number that isn't a date or a version, a multiple or fraction ('twice', 'a third'), a number word with a unit ('three weeks', 'one engineer'), or a comparison of two quantities ('from 40 to 6 minutes'). A plan title carries a date or a number. A bare count ('two teams', 'one big improvement'), 'no regressions', adjectives and names don't count."
+  },
+  "one-idea": { severity: "tip", check: "The title is one sentence: one idea per slide." },
+  "notes-present": {
+    severity: "warn",
+    check: "Every presented slide has speaker notes: cues when presented, a talk track when read alone."
+  },
+  "number-source": {
+    severity: "warn",
+    check: "A number in a title or a point names its source in the notes: a named artifact ('the search latency dashboard', 'load test 12', 'the Q3 user survey') or a URL, with no hedge ('trust me', 'someone mentioned', 'said so'); or in the slide's `source`."
+  },
+  "roles-missing": {
+    severity: "warn",
+    check: "Slides are tagged with roles. Without them, roles are inferred from the titles and only the answer-first and closing-ask checks run."
+  },
+  "answer-first": {
+    severity: "error",
+    check: "The answer or recommendation appears within the first three content slides."
+  },
+  "outcome-first": {
+    severity: "tip",
+    check: "Slide one names the business outcome (faster, cheaper, safer, by how much), not the system that produced it."
+  },
+  "closing-ask": { severity: "error", check: "The last presented slide is an ask." },
+  "ask-concrete": {
+    severity: "warn",
+    check: "The ask names a decision or action, an owner (a team or role such as 'platform leads', 'the payments team', 'VP Eng' or an @handle; not 'we', 'the team', a bare name, 'owner TBD' or 'lead' as a verb) and a firm calendar date ('next quarter', 'Monday-ish' and 'next Monday maybe' are not)."
+  },
+  "role-repeat": {
+    severity: "warn",
+    check: "No two adjacent slides share a role, except evidence, mechanism, demo and appendix."
+  },
+  "deck-length": { severity: "warn", check: "About one to two minutes per presented slide." },
+  "talk-time": {
+    severity: "warn",
+    check: "The notes fit the time budget at 135 words a minute. Read-alone decks' talk tracks also cover at least half of it (the minutes given, else the template's shortest length, capped at one minute per presented slide); a presented deck's cues aren't timed."
+  },
+  "template-beats": {
+    severity: "warn",
+    check: "With a template, every beat it requires has a slide in that role: a decision request has its options, a postmortem its plan."
+  },
+  "slot-budget": {
+    severity: "warn",
+    check: "Every slot the slide declares as data (title, eyebrow, headline lines, lede, body points, and archetype slots such as quote, value, owner and date) fits its text budget in SLOT_BUDGETS: an eyebrow is one to four words, a lede one sentence, a headline at most two lines, a body point a fragment of at most 8 words on one line and at most four a slide, a label no sentence."
+  },
+  "notes-cues": {
+    severity: "warn",
+    check: "Presented: each slide's `say` is cues, not a script: at most 60 words (why it matters, the so-what, the trade-off), with the bridge in `next`. A `say` of stage directions only ('Point at the 9', 'Walk the figure') warns; a stage direction beside content is a tip to move it to `delivery`."
+  },
+  "notes-echo": {
+    severity: "warn",
+    check: "Presented: a slide's notes add what the slide can't hold (why it matters, the so-what for this audience, the trade-off if the answer is no, the bridge), reasoned from the given facts. Notes whose content words are mostly (55% or more) already on the slide warn; source lines don't count."
+  },
+  "ask-scope": {
+    severity: "warn",
+    check: "Presented: the ask slide itself says what is approved or done (a decision verb with its object: 'approve Spanish and French', not 'approve by 15 January') and, when another slide states a cost, what it costs (a quantity that isn't a date: 'one engineer, about three weeks', or 'no extra cost')."
+  },
+  "slide-shape": {
+    severity: "warn",
+    check: "The deck doesn't repeat one shape on every slide: not eyebrow + headline + lede throughout, and (presented) not the same title form throughout ('Topic: verdict' or a full sentence on every slide). Mix labels, verdicts and the occasional question."
+  },
+  "ai-tells": {
+    severity: "warn",
+    check: "No templated rhetoric: a 'X, not Y' contrast or an appended comparison ('\u2026, twice as fast as March') on more than one slide warns; a semicolon joining two clauses in a title, lede or point is a tip."
+  },
+  "causal-claim": {
+    severity: "warn",
+    check: "A deck that shows a before/after comparison ('61.2% \u2192 63.0%', 'was 40', 'Sep vs Oct') claims no cause from it: a cause verb ('lifted', 'cut', 'drove', 'because') in a title, lede or point warns outside mechanism, plan and ask slides (say 'after', 'since', 'went from\u2026 to'). A tip when nothing on the slides, notes or source says once that the numbers come from two windows, before and after."
+  }
+};
+var MAX_TITLE_WORDS = TITLE_WORDS["read-alone"];
 
 // src/deck/storyline/heuristics.ts
 var TOPIC_LABELS = /* @__PURE__ */ new Set([
@@ -1410,11 +1541,91 @@ function inferRoles(slides) {
     return void 0;
   });
 }
+function titleForm(title) {
+  const t = title.trim();
+  if (/\?["”’)]?$/.test(t)) return "question";
+  if (wordsOf(t).length > 6) return "sentence";
+  if (/^[^:]{1,40}:\s+\S/.test(t)) return "colon";
+  return "short";
+}
+var NOT_CONTRAST_RE = /,\s+not\s+(?:a\s+|an\s+|the\s+)?[\p{L}\p{N}]|\bnot\b[^,.;:!?]{1,40},\s+but\b/iu;
+var COMPARISON_KICKER_RE = /,\s+(?:(?:twice|half|three times|four times|\d+(?:\.\d+)?\s*[x×]|\d+(?:\.\d+)?\s+times)\s+(?:as\s+\p{L}+\s+as|\p{L}+er\s+than)|\p{L}+er\s+than)\b/iu;
+var SEMICOLON_CLAUSES_RE = /\S\s*;\s+\p{L}/u;
+var BEFORE_AFTER_RE = /\d[^→]*(?:→|->)\s*[~≈]?\d|\bfrom\s+(?:about\s+|~)?\d[^,;]*?\bto\s+(?:about\s+|~)?\d|\bwas\s+(?:about\s+|~)?\d|\d[^,;]*\bvs\.?\s|\bbefore\b[^,;]*\bafter\b/i;
+var CAUSAL_RE = /\b(?:lift(?:s|ed)?|boost(?:s|ed)?|dr(?:ove|ives|iven)|cut(?:s)?|slash(?:es|ed)?|caused|led to|leads to|resulted in|results in|because|thanks to|due to|delivered)\b/i;
+var NOT_A_TEST_RE = /before[\s/-]*(?:and[\s-]*)?after|not\s+(?:a\s+)?(?:controlled\s+|a\/b\s+)?test|not proof|correlat|two windows/i;
+var STAGE_DIRECTION_RE = /^(?:point(?:\s+(?:at|to))?|walk(?:\s+(?:through|the))?|pause|click|gesture|show|look\s+at|wait|advance|turn\s+to|go\s+to|hold|let\s+it|read\s+out|trace)\b/i;
+var VERB_RE = /\b(?:is|are|was|were|be|been|am|has|have|had|do|does|did|can|could|will|would|shall|should|may|might|must|won't|can't|isn't|aren't|wasn't|weren't|don't|doesn't|didn't|hasn't|haven't|got|gets|get|goes|went|came|comes|fell|falls|rose|rises|grew|grows|cut|cuts|took|takes|made|makes|kept|keeps|held|holds|ran|runs|won|wins|lost|loses|beat|beats|left|leaves|stays|needs|need|costs|shows|says|means|works|adds|drops|lands|hits|saves|ships|ends|stops|slips|slip|breaks|fails|moves|doubles|halves|applies|apply|drains|refills|decides|syncs|serves|catches|caught|missed|misses|pays|buys|bought|brings|brought|lets|helps|returns|reaches|matters|wait|waits|take|resize|resizes|uses|use|blocks|sits|lives)\b/i;
+var NOT_PAST_RE = /^(?:hundred|speed|seed|feed|breed|bleed|greed|embed|shed|bed|red|need)$/i;
+function isLabelTitle(title) {
+  const t = title.trim();
+  if (isSpecific(t) || hasFirmDate(t)) return false;
+  if (/[:→]|->/.test(t)) return false;
+  if (VERB_RE.test(t) || DECISION_RE.test(wordsOf(t)[0] ?? "")) return false;
+  return !wordsOf(t).some((w) => /^\p{L}{3,}ed$/u.test(w) && !NOT_PAST_RE.test(w));
+}
+var ECHO_STOP = /* @__PURE__ */ new Set(
+  /* @__PURE__ */ "a an the and or but nor so yet of to in on at for by with from as into onto over under up down out off per via vs is are was were be been being am it its it's this that these those there here then than also only just very too i we you they he she me us them our your their my his her who what which when where why how all any each both do does did done has have had will would can could should shall may might must not no yes get gets got say says said mean means still now more most less about around plus such s they've we've you've it's that's there's isn't aren't wasn't weren't don't doesn't didn't won't can't we're they're you're i'm let's".split(" ")
+);
+var echoRoot = (word) => {
+  const w = word.toLowerCase().replace(/['’]s$/, "").replace(/[.,%]+$/, "");
+  return w.length > 5 ? w.slice(0, 5) : w.replace(/s$/, "");
+};
+function contentRoots(text) {
+  return wordsOf(text.replace(/[-–—/]/g, " ")).map(echoRoot).filter((w) => w && !ECHO_STOP.has(w));
+}
+function notesEcho(slide) {
+  const said = sayOf(slide.notes).split(/\n+/).filter((line) => !/^\s*(?:[-•*]\s*)?sources?\b/i.test(line)).join(" ");
+  const roots = contentRoots(said);
+  if (!roots.length) return { share: 0, words: 0 };
+  const shown = new Set(
+    contentRoots(
+      [headlineOf(slide), slide.lede ?? "", ...slide.points ?? [], ...Object.values(slide.slots ?? {}), slide.source ?? ""].join(
+        " "
+      )
+    )
+  );
+  return { share: roots.filter((w) => shown.has(w)).length / roots.length, words: roots.length };
+}
+var NO_OBJECT_RE = /^(?:by|before|on|until|till|at|from|in|this|that|it|now|today|tomorrow|tonight|soon|asap|please|here|\d|$)/i;
+var ASK_FRAME_RE = /^(?:by|before|on|until|till|at|from|in|of|for|to|this|that|it|now|today|tomorrow|tonight|soon|asap|please|we|you|need|needs|your|our|the|a|an|so|and|or|yes|no|go|ahead|sign|off|approval|decision|deadline|ask|needed|required)$/i;
+function hasAskObject(headline, shown) {
+  const re = new RegExp(DECISION_RE.source, "gi");
+  for (const m of shown.matchAll(re)) {
+    const rest = shown.slice((m.index ?? 0) + m[0].length).replace(/^\s*(?:off\s+on|off|on)?\s*/i, "").replace(/^(?:the|a|an|our|this|to)\s+/i, "");
+    const next = rest.match(/^[\p{L}\p{N}][\p{L}\p{N}'’-]*/u)?.[0] ?? "";
+    if (next && !NO_OBJECT_RE.test(next) && !DATE_RE.test(next)) return true;
+  }
+  const left = wordsOf(headline).filter(
+    (w) => !DECISION_RE.test(w) && !ASK_FRAME_RE.test(w) && !DATE_RE.test(w) && !/^\d/.test(w) && !hasOwner(w)
+  );
+  return left.length > 0;
+}
+var NO_COST_RE = /\b(?:no|zero|without)\s+(?:extra\s+|additional\s+|new\s+)?(?:cost|budget|spend|headcount|people|engineers?)\b|\bfree\b/i;
+var MONEY_RE = /[$€£¥]\s?\d|\b\d[\d,.]*\s?(?:k|m|bn)\b/i;
+function hasAskCost(text) {
+  return isSpecific(text) || MONEY_RE.test(text) || NO_COST_RE.test(text);
+}
+var COST_WORD_RE = /\b(?:budget|spend|engineers?|engineer-(?:days|weeks|months)|headcount|FTEs?|hires?|people|contractors?|licen[cs]es?)\b|[$€£¥]\s?\d/i;
+function statesCost(text) {
+  return COST_WORD_RE.test(text) && hasAskCost(text);
+}
 
 // src/deck/storyline/checks.ts
 function titledSlides(deck) {
   return deck.slides.filter((slide) => slide.role !== "appendix").map((slide) => ({ slide, headline: headlineOf(slide) })).filter(({ headline }) => headline);
 }
+var LABEL_ROLES = ["cover", "mechanism", "demo", "appendix"];
+var labelAllowed = (deck, slide) => {
+  const role = deck.roleAt(slide);
+  return Boolean(role && LABEL_ROLES.includes(role) || slide.slots?.number !== void 0);
+};
+var bodyText = (slide) => [...slide.points ?? [], ...Object.values(slide.slots ?? {})].filter(Boolean);
+var wordCount = (text) => text.match(/\S+/g)?.length ?? 0;
+var MAX_CUE_WORDS = 60;
+var COST_ROLES = ["answer", "option", "recommendation", "plan"];
+var ECHO_SHARE = 0.55;
+var ECHO_MIN_WORDS = 6;
 var LINT_CHECKS = [
   {
     rule: "deck-empty",
@@ -1436,7 +1647,12 @@ var LINT_CHECKS = [
     rule: "title-present",
     check: ({ slides }, report) => {
       for (const slide of slides)
-        if (!headlineOf(slide)) report("error", "No title. Write the slide's point as a sentence.", slide.id);
+        if (!headlineOf(slide))
+          report(
+            "error",
+            "No title. Give it a short verdict the speaker can say (read-alone: the conclusion as a sentence).",
+            slide.id
+          );
     }
   },
   {
@@ -1445,8 +1661,27 @@ var LINT_CHECKS = [
       for (const { slide, headline } of titledSlides(deck)) {
         const words = wordsOf(headline);
         const label = normaliseLabel(headline);
+        const soft = (s) => slide.role === "cover" ? "tip" : s;
+        if (deck.mode === "presented") {
+          if (TOPIC_LABELS.has(label))
+            report(
+              soft("warn"),
+              `"${headline}" names the kind of slide, not its topic. Say the verdict ("Search: twice as fast since March").`,
+              slide.id
+            );
+          else if (TOPIC_OPENING_RE.test(headline))
+            report(soft("tip"), `"${headline}" opens like a topic ("${topicOpening(headline)}"). Say the verdict.`, slide.id);
+          else if (labelAllowed(deck, slide) || !isLabelTitle(headline)) continue;
+          else
+            report(
+              "warn",
+              `"${headline}" is a topic label on a content slide. Say the verdict the speaker would say aloud ("Crashes down by two thirds", "Start time: 0.2 s slower"); keep bare labels for agenda and section slides.`,
+              slide.id
+            );
+          continue;
+        }
         const prefix = headline.includes(":") ? normaliseLabel(headline.slice(0, headline.indexOf(":"))) : "";
-        const soften = (s) => slide.role === "cover" ? "tip" : s;
+        const soften = soft;
         if (TOPIC_LABELS.has(label)) {
           report(
             soften("error"),
@@ -1458,11 +1693,7 @@ var LINT_CHECKS = [
         } else if (words.length <= 4 && edgeLabel(label)) {
           report(soften("warn"), `"${headline}" reads like a section label. State the finding instead.`, slide.id);
         } else if (prefix && TOPIC_LABELS.has(prefix) && prefix !== "next") {
-          report(
-            soften("tip"),
-            `"${headline}" opens with a section label. Lead with the claim; put the section in the eyebrow.`,
-            slide.id
-          );
+          report(soften("tip"), `"${headline}" opens with a section label. Lead with the claim.`, slide.id);
         } else if (TOPIC_OPENING_RE.test(headline)) {
           report(
             soften("warn"),
@@ -1476,24 +1707,34 @@ var LINT_CHECKS = [
   {
     rule: "title-length",
     check: (deck, report) => {
+      const max = TITLE_WORDS[deck.mode];
       for (const { slide, headline } of titledSlides(deck)) {
         const words = wordsOf(headline).length;
-        if (words > MAX_TITLE_WORDS)
-          report("warn", `Title is ${words} words; keep it to ${MAX_TITLE_WORDS} or move detail to the body.`, slide.id);
+        if (words <= max) continue;
+        if (deck.mode === "presented")
+          report(
+            "warn",
+            `"${headline}" is ${words} words, a sentence to read out. Cut it to a 2\u20135 word verdict, put the numbers in the points and say the rest. (Sent without you? Lint it with mode "read-alone".)`,
+            slide.id
+          );
+        else report("warn", `Title is ${words} words; keep it to ${MAX_TITLE_WORDS} or move detail to the body.`, slide.id);
       }
     }
   },
   {
     rule: "title-specific",
     check: (deck, report) => {
+      const presented = deck.mode === "presented";
       for (const { slide, headline } of titledSlides(deck)) {
-        if (slide.role && QUANTIFIED_ROLES.includes(slide.role) && !isSpecific(headline)) {
+        const texts = presented ? [headline, ...bodyText(slide)] : [headline];
+        const specific = texts.some(isSpecific);
+        if (slide.role && QUANTIFIED_ROLES.includes(slide.role) && !specific) {
           report(
             "warn",
-            `"${headline}" could describe any quarter. Put the quantity in the title: the number with its unit, or the from\u2192to it moved; a bare count ("two teams") doesn't say how much.`,
+            presented ? `"${headline}" and its points could describe any quarter. Put the quantity on the slide, in the title or a point: the number with its unit, or the from\u2192to it moved; a bare count ("two teams") doesn't say how much.` : `"${headline}" could describe any quarter. Put the quantity in the title: the number with its unit, or the from\u2192to it moved; a bare count ("two teams") doesn't say how much.`,
             slide.id
           );
-        } else if (slide.role === "plan" && !isSpecific(headline) && !hasFirmDate(headline)) {
+        } else if (slide.role === "plan" && !specific && !texts.some(hasFirmDate)) {
           report("warn", `"${headline}" has no date and no number. Say when each milestone lands, or what it costs.`, slide.id);
         }
       }
@@ -1508,6 +1749,80 @@ var LINT_CHECKS = [
     }
   },
   {
+    // The template tell: the same three-part shape, or the same title form, on every slide.
+    rule: "slide-shape",
+    check: (deck, report) => {
+      const content = titledSlides(deck).filter(({ slide }) => deck.roleAt(slide) !== "cover");
+      if (content.length < 4) return;
+      if (content.every(({ slide }) => slide.eyebrow && slide.lede)) {
+        report(
+          "warn",
+          "Every slide has the same three parts: eyebrow, headline, lede. Drop the eyebrow and the lede by default; keep a lede only where a caveat must stay on screen."
+        );
+        return;
+      }
+      if (deck.mode !== "presented") return;
+      const forms = content.map(({ headline }) => titleForm(headline));
+      if (forms.every((f) => f === forms[0]) && (forms[0] === "colon" || forms[0] === "sentence")) {
+        report(
+          "warn",
+          forms[0] === "colon" ? 'Every title is "Topic: verdict". Mix the forms: a plain verdict ("Search got twice as fast"), a "Topic: value" pair, the occasional question.' : "Every title is a full sentence, so the deck reads as a script. Use short spoken verdicts, and say the full sentences aloud."
+        );
+      }
+    }
+  },
+  {
+    // AI tells: any one is fine now and then; on slide after slide they read as generated.
+    rule: "ai-tells",
+    check: (deck, report) => {
+      const slides = deck.slides.filter((s) => s.role !== "appendix");
+      const linesOf = (s) => [headlineOf(s), s.lede ?? "", ...s.points ?? []].filter(Boolean);
+      for (const [re, what, fix] of [
+        [NOT_CONTRAST_RE, '"X, not Y" contrast', 'State the fact ("3 meetings \u2192 1") and say the contrast aloud if it matters'],
+        [COMPARISON_KICKER_RE, "comparison bolted onto the claim", 'Give the baseline its own point ("March: 410 ms") or say it']
+      ]) {
+        const hits = slides.filter((s) => linesOf(s).some((l) => re.test(l)));
+        if (hits.length > 1)
+          report("warn", `${hits.length} slides use a ${what} (${hits.map((s) => s.id).join(", ")}). ${fix}.`, hits[1].id);
+      }
+      for (const slide of slides) {
+        const line = linesOf(slide).find((l) => SEMICOLON_CLAUSES_RE.test(l));
+        if (line)
+          report(
+            "tip",
+            `"${line}" balances two clauses on a semicolon. Make them two points, or keep one and say the other.`,
+            slide.id
+          );
+      }
+    }
+  },
+  {
+    // A before/after of two windows shows what changed alongside the change, not that it caused it.
+    rule: "causal-claim",
+    check: (deck, report) => {
+      const slides = deck.slides.filter((s) => s.role !== "appendix");
+      const linesOf = (s) => [headlineOf(s), s.lede ?? "", ...s.points ?? []].filter(Boolean);
+      if (!slides.some((s) => linesOf(s).some((l) => BEFORE_AFTER_RE.test(l)))) return;
+      const exempt = ["mechanism", "plan", "ask"];
+      for (const slide of slides) {
+        if (exempt.includes(deck.roleAt(slide))) continue;
+        const line = linesOf(slide).find((l) => CAUSAL_RE.test(l) && !NOT_A_TEST_RE.test(l));
+        if (line)
+          report(
+            "warn",
+            `"${line}" claims a cause from a before/after comparison. Say what went with it: "after", "since", "went from\u2026 to".`,
+            slide.id
+          );
+      }
+      const said = slides.some((s) => [...linesOf(s), notesText(s.notes), s.source ?? ""].some((t) => NOT_A_TEST_RE.test(t)));
+      if (!said && slides.some((s) => sayOf(s.notes)))
+        report(
+          "tip",
+          'The deck compares before and after but never says so. Say it once, in a cue or a point: "these numbers come from two windows, before and after".'
+        );
+    }
+  },
+  {
     rule: "slot-budget",
     check: ({ slides }, report) => {
       for (const slide of slides) {
@@ -1515,8 +1830,15 @@ var LINT_CHECKS = [
           ["title", slide.headline ? slide.title : void 0],
           ["eyebrow", slide.eyebrow],
           ["lede", slide.lede],
+          ...(slide.points ?? []).map((p) => ["point", p]),
           ...Object.entries(slide.slots ?? {})
         ];
+        if ((slide.points?.length ?? 0) > MAX_POINTS)
+          report(
+            "warn",
+            `${slide.points.length} body points; keep it to ${MAX_POINTS}. Merge them, split the slide, or move the rest to the appendix.`,
+            slide.id
+          );
         const headline = headlineOf(slide);
         if (headline) {
           const b = SLOT_BUDGETS.headline;
@@ -1542,18 +1864,67 @@ var LINT_CHECKS = [
     check: ({ presented }, report) => {
       for (const slide of presented)
         if (!sayOf(slide.notes))
-          report("warn", "No talk track. Notes carry what you say; the title carries the claim.", slide.id);
+          report(
+            "warn",
+            "No speaker notes. Cue what the slide can't hold: why it matters, what follows for this audience, the trade-off, and the bridge in `next`.",
+            slide.id
+          );
+    }
+  },
+  {
+    rule: "notes-cues",
+    check: ({ presented, mode }, report) => {
+      if (mode !== "presented") return;
+      for (const slide of presented) {
+        const words = wordCount(sayOf(slide.notes));
+        if (words > MAX_CUE_WORDS)
+          report(
+            "warn",
+            `The notes run ${words} words, a script to recite. Cut them to a few short cue lines (why it matters, the so-what, the trade-off) and the bridge in \`next\`; you'll say it in your own words.`,
+            slide.id
+          );
+        const lines = sayOf(slide.notes).split(/\n+|(?<=[.!?])\s+/).map((l) => l.trim()).filter(Boolean);
+        const directions = lines.filter((l) => STAGE_DIRECTION_RE.test(l));
+        if (directions.length && directions.length === lines.length)
+          report(
+            "warn",
+            `The notes are only stage directions ("${directions[0]}"). Cue what the slide can't say: why the number matters to this room, what follows from it ("Desktop only, so mobile is still open").`,
+            slide.id
+          );
+        else if (directions.length)
+          report(
+            "tip",
+            `"${directions[0]}" is a stage direction; move it to \`delivery\` and keep \`say\` for what to say.`,
+            slide.id
+          );
+      }
+    }
+  },
+  {
+    rule: "notes-echo",
+    check: ({ presented, mode }, report) => {
+      if (mode !== "presented") return;
+      for (const slide of presented) {
+        const { share, words } = notesEcho(slide);
+        if (words < ECHO_MIN_WORDS || share < ECHO_SHARE) continue;
+        report(
+          "warn",
+          `The notes mostly repeat the slide (${Math.round(share * 100)}% of their words are on it). The room can read the slide; cue what it can't hold: why it matters to this audience, what follows from the number, the trade-off, and the bridge to the next slide. Reason from the given facts; add no new ones.`,
+          slide.id
+        );
+      }
     }
   },
   {
     rule: "number-source",
     check: (deck, report) => {
       for (const { slide, headline } of titledSlides(deck)) {
-        if (slide.role === "plan" || slide.role === "ask" || !hasClaimNumber(headline)) continue;
+        if (slide.role === "plan" || slide.role === "ask") continue;
+        if (![headline, ...slide.points ?? []].some(hasClaimNumber)) continue;
         if (namedSource(notesText(slide.notes)) || slide.source && slide.source.trim()) continue;
         report(
           "warn",
-          'The title has a number but no source. Name the artifact it came from ("the search latency dashboard", "load test 12", "the Q3 user survey", a URL) and its window in the notes, or set the slide\'s `source`. Hearsay ("someone mentioned", "trust me") doesn\'t count.',
+          'The slide has a number but no source. Name the artifact it came from ("the search latency dashboard", "load test 12", "the Q3 user survey", a URL) and its window in the notes, or set the slide\'s `source`. Hearsay ("someone mentioned", "trust me") doesn\'t count.',
           slide.id
         );
       }
@@ -1594,10 +1965,11 @@ var LINT_CHECKS = [
   },
   {
     rule: "outcome-first",
-    check: ({ answerFirst, presented }, report) => {
+    check: ({ answerFirst, presented, mode }, report) => {
       const first = presented[0];
       const text = first ? headlineOf(first) : "";
-      if (answerFirst && first && text && !isSpecific(text) && !OUTCOME_RE.test(text)) {
+      const points = first && mode === "presented" ? first.points ?? [] : [];
+      if (answerFirst && first && text && !isSpecific(text) && !OUTCOME_RE.test(text) && !points.some(isSpecific)) {
         report(
           "tip",
           "Slide one names the work, not the outcome. Say what got faster, cheaper or safer for the business, and by how much.",
@@ -1626,7 +1998,7 @@ var LINT_CHECKS = [
     rule: "ask-concrete",
     check: ({ asks }, report) => {
       for (const ask of asks) {
-        const text = `${headlineOf(ask)}. ${notesText(ask.notes)}`;
+        const text = [headlineOf(ask), ...bodyText(ask), notesText(ask.notes)].join(". ");
         const missing = [];
         if (!DECISION_RE.test(text)) missing.push("a decision or action verb");
         if (!hasOwner(text)) missing.push("an owner");
@@ -1640,6 +2012,23 @@ var LINT_CHECKS = [
           missing.includes("a date") && hedged && 'The date is hedged ("-ish", "maybe", "TBC"); commit to one.'
         ].filter(Boolean);
         report("warn", [`The ask is missing ${missing.join(", ")}.`, ...hints].join(" "), ask.id);
+      }
+    }
+  },
+  {
+    rule: "ask-scope",
+    check: ({ asks, presented, mode, roleAt }, report) => {
+      if (mode !== "presented") return;
+      const costed = presented.find(
+        (s) => !asks.includes(s) && COST_ROLES.includes(roleAt(s)) && statesCost([headlineOf(s), ...bodyText(s)].join(". "))
+      );
+      for (const ask of asks) {
+        const shown = [headlineOf(ask), ...bodyText(ask)].join(". ");
+        const missing = [
+          !hasAskObject(headlineOf(ask), shown) && 'what is being approved or done ("approve Spanish and French", not "approve by 15 January")',
+          costed && !hasAskCost(shown) && `what it costs: "${headlineOf(costed)}" states a cost, so put it on the ask in a few words, beside the decision it buys`
+        ].filter(Boolean);
+        if (missing.length) report("warn", `The ask slide doesn't say ${missing.join(", or ")}.`, ask.id);
       }
     }
   },
@@ -1706,17 +2095,17 @@ var LINT_CHECKS = [
   },
   {
     rule: "talk-time",
-    check: ({ slides, presented, options, template }, report) => {
+    check: ({ slides, presented, options, template, mode }, report) => {
       const budget = options.minutes ?? template?.minutes.max;
       if (budget === void 0) return;
       const seconds = talkSeconds(slides);
-      const floor = options.minutes ?? template.minutes.min;
+      const floor = options.minutes ?? Math.min(template.minutes.min, Math.max(presented.length, 1));
       if (seconds > budget * 60) {
         report(
           "warn",
           `The talk track runs about ${Math.round(seconds / 60)} minutes at ${chunk3OIHMAKF_cjs.WORDS_PER_MINUTE} words a minute, over the ${budget}-minute budget.`
         );
-      } else if (seconds < floor * 30 && presented.every((s) => sayOf(s.notes))) {
+      } else if (mode === "read-alone" && seconds < floor * 30 && presented.every((s) => sayOf(s.notes))) {
         report(
           "warn",
           `The talk track covers about ${formatDuration(seconds)} of the ${floor}-minute budget, under half. Write what you'll say in full sentences; a forwarded deck and the speaker view's clock both read it.`
@@ -1733,6 +2122,7 @@ function lintContext(slides, options) {
   return {
     slides,
     options,
+    mode: options.mode ?? "presented",
     template,
     answerFirst: options.answerFirst ?? template?.answerFirst ?? true,
     inferred,
@@ -2833,6 +3223,13 @@ function Player({
     }
   );
 }
+function PointsSlide({ eyebrow, headline, points, source, footer }) {
+  return /* @__PURE__ */ jsxRuntime.jsxs(Slide, { eyebrow, footer, layout: "points", children: [
+    /* @__PURE__ */ jsxRuntime.jsx("h2", { className: "uipack-deck-heading", children: headline }),
+    /* @__PURE__ */ jsxRuntime.jsx("ul", { className: "uipack-deck-points", children: points.map((p) => /* @__PURE__ */ jsxRuntime.jsx("li", { children: p }, p)) }),
+    source && /* @__PURE__ */ jsxRuntime.jsx("p", { className: "uipack-deck-label uipack-deck-points__source", children: source })
+  ] });
+}
 function SectionSlide({ eyebrow, headline, number, lede, footer }) {
   return /* @__PURE__ */ jsxRuntime.jsxs(Slide, { eyebrow, footer, layout: "section", children: [
     /* @__PURE__ */ jsxRuntime.jsx("h2", { className: "uipack-deck-heading", children: headline }),
@@ -2881,6 +3278,17 @@ function EndSlide({ eyebrow, headline, action, owner, date, lede, footer }) {
       ] })
     ] })
   ] });
+}
+function pointsSlide({ eyebrow, headline, points, source, footer, ...meta }) {
+  return {
+    ...meta,
+    headline,
+    eyebrow,
+    points,
+    source,
+    ...source ? { slots: { source } } : {},
+    render: () => /* @__PURE__ */ jsxRuntime.jsx(PointsSlide, { eyebrow, headline, points, source, footer })
+  };
 }
 function sectionSlide({ eyebrow, headline, number, lede, footer, ...meta }) {
   return {
@@ -3233,10 +3641,17 @@ function starterDeck(template, { footer } = {}) {
       title: s.title,
       headline: s.title,
       role: beat.role,
-      render: () => /* @__PURE__ */ jsxRuntime.jsxs(Slide, { eyebrow: `${SLIDE_ROLES[beat.role].label} \xB7 draft`, footer: footer ?? t.name, children: [
+      points: beat.points,
+      render: () => /* @__PURE__ */ jsxRuntime.jsxs(Slide, { footer: footer ?? t.name, layout: "points", children: [
         /* @__PURE__ */ jsxRuntime.jsx("h2", { className: "uipack-deck-heading", children: s.title }),
-        /* @__PURE__ */ jsxRuntime.jsx("p", { className: "uipack-deck-lede", children: beat.titlePattern }),
-        /* @__PURE__ */ jsxRuntime.jsx("p", { className: "uipack-deck-body uipack-deck-starter-note", children: beat.guidance })
+        /* @__PURE__ */ jsxRuntime.jsx("ul", { className: "uipack-deck-points", children: beat.points.map((p) => /* @__PURE__ */ jsxRuntime.jsx("li", { children: p }, p)) }),
+        /* @__PURE__ */ jsxRuntime.jsxs("p", { className: "uipack-deck-body uipack-deck-starter-note", children: [
+          SLIDE_ROLES[beat.role].label,
+          " \xB7 draft. Title: ",
+          beat.titlePattern,
+          ". ",
+          beat.guidance
+        ] })
       ] })
     };
   });
@@ -4442,11 +4857,13 @@ exports.HarveyTable = HarveyTable;
 exports.KpiTiles = KpiTiles;
 exports.LINT_RULES = LINT_RULES;
 exports.LineChart = LineChart;
+exports.MAX_POINTS = MAX_POINTS;
 exports.MAX_TITLE_WORDS = MAX_TITLE_WORDS;
 exports.MIN_TEXT_PX = MIN_TEXT_PX;
 exports.Matrix2x2 = Matrix2x2;
 exports.Morph = Morph;
 exports.Panel = Panel;
+exports.PointsSlide = PointsSlide;
 exports.QuoteSlide = QuoteSlide;
 exports.REPEATABLE_ROLES = REPEATABLE_ROLES;
 exports.Ref = Ref;
@@ -4459,6 +4876,7 @@ exports.SlideThumbnail = SlideThumbnail;
 exports.SoWhat = SoWhat;
 exports.Sparkline = Sparkline;
 exports.StackedBar = StackedBar;
+exports.TITLE_WORDS = TITLE_WORDS;
 exports.Tracker = Tracker;
 exports.Waterfall = Waterfall;
 exports.annotationGeometry = annotationGeometry;
@@ -4480,6 +4898,7 @@ exports.linearScale = linearScale;
 exports.lintDeck = lintDeck;
 exports.niceStep = niceStep;
 exports.niceTicks = niceTicks;
+exports.pointsSlide = pointsSlide;
 exports.quoteSlide = quoteSlide;
 exports.sectionSlide = sectionSlide;
 exports.slotLines = slotLines;

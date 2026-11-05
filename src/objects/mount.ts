@@ -1,21 +1,13 @@
 // Mounts one 3D object scene on a canvas: loads Three.js and the scene lazily, builds the renderer,
-// lights and camera, runs the playback loop, and tears all of it down again. No React: ObjectStage
+// applies the scene's look (light rig per theme, environment, materials, contact shadow and framing,
+// src/objects/look.ts), runs the playback loop, and tears all of it down again. No React: ObjectStage
 // calls it from an effect and drives it through the returned handle, and the loop reads the
 // stage's live flags (active, paused, reduced…) from the object it is given, each frame.
 import type { ObjectKind, ObjectPalette } from "./scenes";
 import type { ObjectEdition, ObjectVariant } from "./variants";
 
 const REST_START_MS = 5400;
-/** Stages narrower than this use an object's `userData.narrowFrame`, if it has one. */
-const NARROW_STAGE_PX = 480;
 const MOBILE_FRAME_MS = 1000 / 30;
-
-/** Camera half-extents in world units, and the view's vertical centre. */
-interface ObjectFrame {
-  halfWidth: number;
-  halfHeight: number;
-  y?: number;
-}
 
 /** The stage's state, owned by the component and read by the scene on every frame. */
 export interface ObjectStageFlags {
@@ -32,6 +24,8 @@ export interface ObjectSceneOptions {
   variant: ObjectVariant;
   edition: ObjectEdition;
   modelUrl?: string;
+  /** Picks the light rig (src/objects/look.ts): dark mode changes the lighting, not only the card. */
+  theme: "light" | "dark";
   flags: ObjectStageFlags;
   /** The stage's root, which mirrors the scene's phase for styling. */
   host: () => HTMLElement | null;
@@ -60,8 +54,8 @@ export interface ObjectSceneHandle {
   dispose: () => void;
 }
 
-/** Free every GPU resource under a scene: geometries, materials, their maps and shadow maps. */
-function disposeScene(scene: import("three").Scene) {
+/** Free every GPU resource under a scene: geometries, materials, their textures and shadow maps. */
+function disposeScene(scene: import("three").Scene, textures: (material: import("three").Material) => import("three").Texture[]) {
   scene.traverse((item) => {
     item.userData.dispose?.();
     (item as import("three").DirectionalLight).shadow?.dispose();
@@ -69,19 +63,20 @@ function disposeScene(scene: import("three").Scene) {
     drawable.geometry?.dispose();
     const materials = Array.isArray(drawable.material) ? drawable.material : drawable.material ? [drawable.material] : [];
     materials.forEach((entry) => {
-      (entry as import("three").MeshStandardMaterial).map?.dispose();
+      textures(entry).forEach((texture) => texture.dispose());
       entry.dispose();
     });
   });
 }
 
 export function mountObjectScene(canvas: HTMLCanvasElement, options: ObjectSceneOptions): ObjectSceneHandle {
-  const { kind, colors, variant, edition, modelUrl, flags, host, onReady, onCompleted, onReplayed } = options;
+  const { kind, colors, variant, edition, modelUrl, theme, flags, host, onReady, onCompleted, onReplayed } = options;
   let disposed = false;
   let contextLost = false;
   let frame: number | null = null;
   let renderer: import("three").WebGLRenderer | undefined;
   let environment: import("three").WebGLRenderTarget | undefined;
+  let materialTextures: ((material: import("three").Material) => import("three").Texture[]) | undefined;
   let scene: import("three").Scene | undefined;
   let resizeObserver: ResizeObserver | undefined;
   let viewportObserver: IntersectionObserver | undefined;
@@ -102,9 +97,10 @@ export function mountObjectScene(canvas: HTMLCanvasElement, options: ObjectScene
   };
   canvas.addEventListener("webglcontextlost", handleContextLost);
 
-  Promise.all([import("three"), import("./scenes"), import("three/addons/environments/RoomEnvironment.js")])
-    .then(async ([THREE, { createObject, disposeObject }, { RoomEnvironment }]) => {
+  Promise.all([import("three"), import("./scenes"), import("./look")])
+    .then(async ([THREE, { createObject, disposeObject }, look]) => {
       if (disposed) return;
+      materialTextures = look.materialTextures;
       try {
         const gl = new THREE.WebGLRenderer({
           canvas,
@@ -117,15 +113,6 @@ export function mountObjectScene(canvas: HTMLCanvasElement, options: ObjectScene
         gl.outputColorSpace = THREE.SRGBColorSpace;
         const world = new THREE.Scene();
         scene = world;
-        const room = new RoomEnvironment();
-        const pmrem = new THREE.PMREMGenerator(gl);
-        environment = pmrem.fromScene(room, 0.04);
-        world.environment = environment.texture;
-        world.environmentIntensity = variant === 5 ? 0.85 : 0.35;
-        room.dispose();
-        pmrem.dispose();
-        const camera = new THREE.OrthographicCamera(-3, 3, 3, -3, 0.1, 100);
-        camera.position.set(0, variant === 4 && kind !== "contact" ? -0.15 : 0, 10);
         const object = await createObject(kind, colors, variant, edition, modelUrl);
         if (disposed || contextLost) {
           disposeObject(object);
@@ -133,35 +120,56 @@ export function mountObjectScene(canvas: HTMLCanvasElement, options: ObjectScene
         }
         canvas.dataset.source = object.userData.source ?? "procedural";
         canvas.dataset.artDirection = object.userData.style;
-        const shadows = kind === "tennis" || (variant !== 0 && variant !== 5);
-        if (variant !== 0 && variant !== 5)
+        const {
+          rig,
+          framing,
+          camera: lens,
+          contactShadow,
+          castShadows,
+          transmissionBackdrop,
+        } = look.resolveLook(object.userData.look, theme);
+        environment = (await look.buildEnvironment(gl, rig)) ?? undefined;
+        if (disposed || contextLost) {
+          disposeObject(object);
+          return;
+        }
+        world.environment = environment?.texture ?? null;
+        world.environmentIntensity = rig.environment.intensity;
+        world.environmentRotation.y = rig.environment.rotation;
+        look.applyMaterials(object, environment?.texture ?? null, rig, theme);
+        gl.toneMapping = look.toneMappingFor(rig);
+        gl.toneMappingExposure = rig.exposure;
+        if (castShadows)
           object.traverse((item) => {
-            if (item instanceof THREE.Mesh) {
+            if (item instanceof THREE.Mesh && !item.userData.frameIgnore) {
               item.castShadow = true;
               item.receiveShadow = true;
             }
           });
-        if (shadows) {
+        if (rig.key.shadow) {
           gl.shadowMap.enabled = true;
-          gl.shadowMap.type = THREE.PCFSoftShadowMap;
+          gl.shadowMap.type = THREE.PCFShadowMap;
         }
-        world.add(object, new THREE.HemisphereLight(0xf5f4eb, 0x596778, 2.0));
-        const key = new THREE.DirectionalLight(0xfff2dc, 2.5);
-        key.position.set(-3, 5, 7);
-        key.castShadow = shadows;
-        key.shadow.mapSize.set(1024, 1024);
-        Object.assign(key.shadow.camera, { left: -4, right: 4, top: 4, bottom: -4 });
-        key.shadow.normalBias = 0.025;
-        key.shadow.bias = -0.0003;
-        gl.toneMapping = THREE.ACESFilmicToneMapping;
-        gl.toneMappingExposure = 1.05;
-        world.add(key);
-        const rim = new THREE.DirectionalLight(0xc6ddff, 1.4);
-        rim.position.set(4, 2, -3);
-        world.add(rim);
-
-        const loopDuration = object.userData.loopDuration as number | undefined;
         const restTime = object.userData.restTime ?? REST_START_MS;
+        if (contactShadow) {
+          object.userData.animate?.(restTime);
+          look.addContactShadow(object, contactShadow);
+        }
+        world.add(object);
+        look.addRigLights(world, rig);
+
+        // Framing: measure the subject once (over its loop when it loops), then fit on every resize.
+        const camera =
+          lens.projection === "perspective"
+            ? new THREE.PerspectiveCamera(lens.fov, 1, 0.1, 100)
+            : new THREE.OrthographicCamera(-3, 3, 3, -3, 0.1, 100);
+        const rotation = look.cameraRotation(lens);
+        const subject = framing ? look.measureSubject(object, rotation, look.framingTimes(object, framing, restTime)) : null;
+        object.userData.animate?.(0);
+        const backdrop = look.usesTransmission(object) ? look.addTransmissionBackdrop(camera, transmissionBackdrop) : null;
+        if (backdrop) world.add(camera);
+        canvas.dataset.envKind = rig.environment.kind;
+        const loopDuration = object.userData.loopDuration as number | undefined;
         canvas.dataset.playback = loopDuration ? "loop" : "once";
         let frames = 0;
         let elapsed = 0;
@@ -226,22 +234,25 @@ export function mountObjectScene(canvas: HTMLCanvasElement, options: ObjectScene
           const height = canvas.clientHeight || 1;
           gl.setSize(width, height, false);
           const aspect = width / height;
-          // An object may declare a tighter fit for narrow canvases, where the
-          // shared framing leaves a compact model small in a square stage.
-          const narrow = width < NARROW_STAGE_PX ? (object.userData.narrowFrame as ObjectFrame | undefined) : undefined;
-          const halfWidth =
-            narrow?.halfWidth ?? (variant === 4 && kind !== "contact" ? 2.15 : kind === "server" && variant === 0 ? 3.25 : 2.65);
-          const halfHeight = Math.max(
-            narrow?.halfHeight ?? (variant === 4 && kind !== "contact" ? 1.75 : 2.2),
-            halfWidth / aspect,
-          );
-          camera.position.y = narrow?.y ?? (variant === 4 && kind !== "contact" ? -0.15 : 0);
-          camera.left = -halfHeight * aspect;
-          camera.right = halfHeight * aspect;
-          camera.top = halfHeight;
-          camera.bottom = -halfHeight;
+          const fit = framing && subject ? look.fitCamera(camera, subject, aspect, framing, rotation) : null;
+          if (fit) canvas.dataset.fill = fit.fillHeight.toFixed(2);
+          else if (camera instanceof THREE.OrthographicCamera) {
+            // The legacy fixed frame, for a look that sets `framing: false`.
+            const halfHeight = Math.max(2.2, 2.65 / aspect);
+            Object.assign(camera, {
+              left: -halfHeight * aspect,
+              right: halfHeight * aspect,
+              top: halfHeight,
+              bottom: -halfHeight,
+            });
+            camera.position.set(0, 0, 10);
+          } else {
+            camera.aspect = aspect;
+            camera.position.set(0, 0, 10);
+          }
           camera.zoom = flags.zoom;
           camera.updateProjectionMatrix();
+          backdrop?.fit();
           gl.render(world, camera);
         };
         loaded.resize = resize;
@@ -293,7 +304,7 @@ export function mountObjectScene(canvas: HTMLCanvasElement, options: ObjectScene
       stop();
       resizeObserver?.disconnect();
       viewportObserver?.disconnect();
-      if (scene) disposeScene(scene);
+      if (scene && materialTextures) disposeScene(scene, materialTextures);
       environment?.dispose();
       renderer?.dispose();
       renderer?.forceContextLoss();

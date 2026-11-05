@@ -46,7 +46,7 @@ describe("technicalValues mirrors src/styles/technical.css", () => {
     });
   }
   for (const role of ["line", "line-soft"] as const) {
-    it(`${role} (ink at ${role === "line" ? 22 : 16}%)`, () => {
+    it(`${role} (ink at ${role === "line" ? 26 : 13}%)`, () => {
       const [lightInk, darkInk] = pair("ink");
       expect(technicalValues.light[role]).toBe(rgba(lightInk, inkAt(role)));
       expect(technicalValues.dark[role]).toBe(rgba(darkInk, inkAt(role)));

@@ -461,7 +461,7 @@ describe("backgrounds", () => {
     const css = readFileSync("src/web/web.css", "utf8");
     const cap = (block: string) => Number(block.match(/--web-aurora-opacity: ([\d.]+);/)![1]);
     const light = cap(css.slice(css.indexOf(".uipack-web {")));
-    const dark = cap(css.slice(css.indexOf('[data-theme="dark"] .uipack-web:not')));
+    const dark = cap(css.slice(css.indexOf(':is([data-theme="dark"], [data-ui-theme="dark"]) .uipack-web:not')));
     for (const [theme, opacity] of [
       ["light", light],
       ["dark", dark],

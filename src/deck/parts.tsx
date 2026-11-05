@@ -75,7 +75,7 @@ export function Build({
 }
 
 /**
- * The standard slide frame: canvas padding, an optional eyebrow and a footer with the page.
+ * The standard slide frame: canvas padding, an optional eyebrow (off by default) and a footer with the page.
  * Children are the slide's blocks; `advance` staggers them in reading order.
  */
 export function Slide({
@@ -89,10 +89,10 @@ export function Slide({
   footer?: ReactNode;
   /**
    * `stack` flows top to bottom; `center` centres a statement; `split` is two columns. The
-   * archetypes (`SectionSlide`, `QuoteSlide`, `FactSlide`, `EndSlide`) set `section`, `quote`,
-   * `fact` and `end`: a stack whose body region they fill their own way.
+   * archetypes (`PointsSlide`, `SectionSlide`, `QuoteSlide`, `FactSlide`, `EndSlide`) set `points`,
+   * `section`, `quote`, `fact` and `end`: a stack whose body region they fill their own way.
    */
-  layout?: "stack" | "center" | "split" | "section" | "quote" | "fact" | "end";
+  layout?: "stack" | "center" | "split" | "points" | "section" | "quote" | "fact" | "end";
   className?: string;
   children?: ReactNode;
 }) {

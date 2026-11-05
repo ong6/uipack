@@ -37,7 +37,7 @@ for (const theme of ["light", "dark"] as const) {
     await expect(page.locator(".mechanism-thumbs svg.iso-svg")).toHaveCount(4);
     // The card's paper follows the theme.
     const paper = await page.locator(".mechanism-stage .um-plate").evaluate((node) => getComputedStyle(node).backgroundColor);
-    expect(paper).toBe(theme === "light" ? "rgb(255, 255, 255)" : "rgb(14, 21, 18)");
+    expect(paper).toBe(theme === "light" ? "rgb(252, 253, 254)" : "rgb(13, 42, 79)");
     // Wall clock on purpose: let the machine run a while, then check it logged nothing.
     await page.waitForTimeout(1200);
     expect(errors).toEqual([]);

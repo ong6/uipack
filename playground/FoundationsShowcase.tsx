@@ -11,10 +11,11 @@ import "../src/docs/docs.css";
 import "./foundations.css";
 import {
   DeckPlayer,
-  Slide,
   SLOT_BUDGETS,
+  TITLE_WORDS,
   endSlide,
   factSlide,
+  pointsSlide,
   quoteSlide,
   sectionSlide,
   slotProblems,
@@ -26,6 +27,7 @@ import { DocsMarkdown } from "../src/docs";
 import { pipeline } from "../src/presets";
 import { uiStyles, type UiStyleId } from "../src/style";
 import { routePath } from "./routes";
+import { libraryPages } from "./catalog";
 import { useShowcaseTheme } from "./ShowcaseShell";
 import overviewDoc from "../docs/system/README.md?raw";
 import styleDoc from "../docs/system/style.md?raw";
@@ -184,6 +186,101 @@ function FullSpec({
   );
 }
 
+/* ---------------------------------------------------------------- guide frame */
+
+/** The seven guides in reading order, from the catalog (one source for labels and intros). */
+const guides = libraryPages.filter((p) => p.group === "foundations" && p.path.startsWith("/foundations"));
+
+/**
+ * Code names for the reader who builds with the library: a closed aside, so the guide scans as
+ * ideas and examples and the API is one click away.
+ */
+function Implementers({ children }: { children: ReactNode }) {
+  return (
+    <details className="fdn-impl">
+      <summary className="fdn-impl__label">For implementers: the code names</summary>
+      <div className="fdn-impl__body">{children}</div>
+    </details>
+  );
+}
+
+/** A short pre-ship checklist: real checkboxes, so a reader can tick through it on a draft. */
+function Checklist({ items }: { items: string[] }) {
+  return (
+    <section>
+      <h2>Before you ship</h2>
+      <ul className="fdn-checklist">
+        {items.map((item) => (
+          <li key={item}>
+            <label>
+              <input type="checkbox" />
+              <span>{item}</span>
+            </label>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+/** Previous and next guide, with where this one sits in the series. */
+function GuidePager({ path }: { path: string }) {
+  const i = guides.findIndex((g) => g.path === path);
+  if (i < 0) return null;
+  const prev = guides[i - 1];
+  const next = guides[i + 1];
+  return (
+    <nav className="fdn-pager" aria-label="Foundations guides">
+      <p className="fdn-pager__count">
+        Guide {i + 1} of {guides.length}
+      </p>
+      <div className="fdn-pager__links">
+        {prev ? (
+          <a href={prev.path} rel="prev" className="fdn-pager__link">
+            <span className="fdn-pager__dir">Previous</span>
+            <span className="fdn-pager__title">{prev.label}</span>
+          </a>
+        ) : (
+          <span />
+        )}
+        {next && (
+          <a href={next.path} rel="next" className="fdn-pager__link fdn-pager__link--next">
+            <span className="fdn-pager__dir">Next</span>
+            <span className="fdn-pager__title">{next.label}</span>
+          </a>
+        )}
+      </div>
+    </nav>
+  );
+}
+
+/**
+ * Every table in the guides, the rendered docs included, gets each cell's column name as
+ * `data-label`, so below 640px the CSS can stack a row into a card (the key on top, each value
+ * under its column name) instead of scrolling the columns that decide it out of view. The first
+ * column is the key and needs no label.
+ */
+function useLabelledTables() {
+  useEffect(() => {
+    const main = document.querySelector("main");
+    if (!main) return;
+    const label = () => {
+      for (const table of main.querySelectorAll<HTMLTableElement>(".fdn-table table, .fdn-guide table")) {
+        const heads = [...table.querySelectorAll("thead th")].map((th) => th.textContent?.trim() ?? "");
+        for (const row of table.querySelectorAll("tbody tr")) {
+          [...row.children].forEach((cell, i) => {
+            if (i > 0 && heads[i] && cell.getAttribute("data-label") !== heads[i]) cell.setAttribute("data-label", heads[i]);
+          });
+        }
+      }
+    };
+    label();
+    const mo = new MutationObserver(label);
+    mo.observe(main, { childList: true, subtree: true });
+    return () => mo.disconnect();
+  }, []);
+}
+
 /* ---------------------------------------------------------------- controls */
 
 /** A labelled radio group: real inputs, so it works with a keyboard, a screen reader and touch. */
@@ -218,22 +315,21 @@ const styleOptions = uiStyles.map((s) => ({ id: s.id, label: s.name }));
 
 /* ---------------------------------------------------------------- one unit, three layers */
 
-type Content = { eyebrow: string; headline: string; lede: string; value: string; unit: string; baseline: string; source: string };
+/** One unit's words, written for a presented slide: a short title and the fragments it's spoken from. */
+type Content = { title: string; points: string[]; value: string; unit: string; baseline: string; source: string };
 
 const writings: Record<"search" | "reviews", Content> = {
   search: {
-    eyebrow: "Search",
-    headline: "Search answers in 198 ms at p95, twice as fast as March",
-    lede: "One index replaced five, and the cache serves the rest.",
+    title: "Search: twice as fast since March",
+    points: ["p95 198 ms, was 410 ms", "5 indexes → 1"],
     value: "198",
     unit: "ms at p95",
     baseline: "410 ms in March",
     source: "The search latency dashboard, October",
   },
   reviews: {
-    eyebrow: "Reviews",
-    headline: "Answer-first reviews were decided in one meeting, not three",
-    lede: "Same teams and the same six months; only the order of the slides changed.",
+    title: "Review decisions: 3 meetings → 1",
+    points: ["Same teams, same 6 months", "Only change: the answer moved to slide 1"],
     value: "1",
     unit: "meeting",
     baseline: "3 when the answer came last",
@@ -241,42 +337,28 @@ const writings: Record<"search" | "reviews", Content> = {
   },
 };
 
-type LayoutId = "fact" | "statement";
+type LayoutId = "fact" | "points";
 
 function unitSlide(c: Content, layout: LayoutId): DeckSlide {
   if (layout === "fact")
     return factSlide({
       id: "unit",
-      title: c.eyebrow,
+      title: c.title,
       role: "evidence",
-      eyebrow: c.eyebrow,
-      headline: c.headline,
+      headline: c.title,
       value: c.value,
       unit: c.unit,
       baseline: c.baseline,
       source: c.source,
       footer: "Foundations",
     });
-  return {
-    id: "unit",
-    title: c.eyebrow,
-    role: "answer",
-    eyebrow: c.eyebrow,
-    headline: c.headline,
-    lede: c.lede,
-    render: () => (
-      <Slide eyebrow={c.eyebrow} layout="center" footer="Foundations">
-        <h2 className="uipack-deck-heading">{c.headline}</h2>
-        <p className="uipack-deck-lede">{c.lede}</p>
-      </Slide>
-    ),
-  };
+  return pointsSlide({ id: "unit", title: c.title, role: "answer", headline: c.title, points: c.points, footer: "Foundations" });
 }
 
-/** The same content as a web section: the layout picks a number block or a statement. */
+/** The same content as a web section: the layout picks a number block or the points. */
 function UnitSection({ c, layout }: { c: Content; layout: LayoutId }) {
   return (
-    <Section eyebrow={c.eyebrow} title={c.headline} intro={c.lede} align={layout === "statement" ? "center" : "start"}>
+    <Section title={c.title}>
       {layout === "fact" && (
         <div className="fdn-fact">
           <span className="fdn-fact__value">
@@ -288,10 +370,12 @@ function UnitSection({ c, layout }: { c: Content; layout: LayoutId }) {
           </span>
         </div>
       )}
-      {layout === "statement" && (
-        <div className="fdn-actions">
-          <CtaButton>Read the review</CtaButton>
-        </div>
+      {layout === "points" && (
+        <ul className="fdn-points">
+          {c.points.map((p) => (
+            <li key={p}>{p}</li>
+          ))}
+        </ul>
       )}
     </Section>
   );
@@ -307,8 +391,8 @@ function LayerToggle() {
     <section>
       <h2>Swap one layer at a time</h2>
       <p className="collection-intro">
-        One unit, rendered twice: as a deck slide and as a web section. Each control changes one layer. Style changes only tokens
-        and ornaments; writing changes only the words; layout changes only where the slots sit.
+        One unit, shown twice: as a slide and as a web section. Each control changes one layer. Style changes colours, faces and
+        decoration. Writing changes the words. Layout changes where the words sit. Try each one and watch what stays still.
       </p>
       <div className="fdn-toggles">
         <Choice legend="Style" value={style} options={styleOptions} onChange={setStyle} />
@@ -326,7 +410,7 @@ function LayerToggle() {
           value={layout}
           options={[
             { id: "fact", label: "Fact" },
-            { id: "statement", label: "Statement" },
+            { id: "points", label: "Points" },
           ]}
           onChange={setLayout}
         />
@@ -347,9 +431,12 @@ function LayerToggle() {
           <UnitSection c={content} layout={layout} />
         </WebSurface>
       </div>
-      <p className="fdn-note" aria-live="polite">
-        <code>{`<DeckPlayer uiStyle="${style}" slides={[${layout}Slide(${writing})]} />`}</code>
-      </p>
+      <Implementers>
+        <p aria-live="polite">
+          The slide above is <code>{`<DeckPlayer uiStyle="${style}" slides={[${layout}Slide(${writing})]} />`}</code>; the web
+          section is the same content in <code>{`<WebSurface uiStyle="${style}">`}</code>.
+        </p>
+      </Implementers>
     </section>
   );
 }
@@ -357,26 +444,45 @@ function LayerToggle() {
 function ContractSection() {
   const { theme } = useShowcaseTheme();
   const layers = splitDoc(overviewDoc).sections.find((sec) => sec.title.startsWith("Three layers"))!;
+  // The doc ends the section with its code names; the page sets them apart.
+  const [prose, code = ""] = layers.body.split(/^\*\*For implementers\.\*\*\s*/m);
   return (
     <section>
       <h2>The contract between the layers</h2>
       <div className="uipack-docs fdn-guide" data-palette="technical" data-theme={theme}>
-        <DocsMarkdown source={layers.body} headingOffset={1} />
+        <DocsMarkdown source={prose} headingOffset={1} />
       </div>
-      <ul className="fdn-links">
-        <li>
-          <a href="/foundations/style">Style roles</a>: the roles, ornament slots and values.
-        </li>
-        <li>
-          <a href="/foundations/writing">Writing</a>: the content schema and slot budgets.
-        </li>
-        <li>
-          <a href="/foundations/layout">Layout</a>: regions, archetypes and narrow forms.
-        </li>
-        <li>
-          <a href="/foundations/mix">Mix and match</a>: what swaps cleanly and where it leaks.
-        </li>
-      </ul>
+      {code && (
+        <Implementers>
+          <div className="uipack-docs fdn-guide" data-palette="technical" data-theme={theme}>
+            <DocsMarkdown source={code} headingOffset={1} />
+          </div>
+        </Implementers>
+      )}
+    </section>
+  );
+}
+
+/** The guides after this one, as an index: what each teaches, in reading order. */
+function GuideIndex() {
+  return (
+    <section>
+      <h2>The guides</h2>
+      <p className="collection-intro">
+        Read them in order, or jump to the layer you are working on. Each ends with a checklist and a link to its full
+        specification.
+      </p>
+      <ol className="fdn-index">
+        {guides.slice(1).map((g, i) => (
+          <li key={g.path}>
+            <a href={g.path}>
+              <span className="fdn-index__num">{String(i + 2).padStart(2, "0")}</span>
+              <span className="fdn-index__title">{g.label}</span>
+              <span className="fdn-index__intro">{g.intro}</span>
+            </a>
+          </li>
+        ))}
+      </ol>
     </section>
   );
 }
@@ -386,6 +492,16 @@ function Overview() {
     <>
       <LayerToggle />
       <ContractSection />
+      <GuideIndex />
+      <Checklist
+        items={[
+          "Each unit makes one claim you could say in a sentence.",
+          "Colours, faces and decoration come from the style, never from the layout or the words.",
+          "The words live in a content object, not inside the layout.",
+          "Every slot is within its text budget; the linter reports nothing.",
+          "Swapping the style once moves nothing but the paint.",
+        ]}
+      />
       <FullSpec
         source={overviewDoc}
         page="Foundations overview"
@@ -429,8 +545,8 @@ function Swatches({ style, theme }: { style: UiStyleId; theme: "light" | "dark" 
         ))}
       </ul>
       <p className="fdn-swatches__text">
-        <span style={{ color: "var(--ui-ink)" }}>Ink</span> <span style={{ color: "var(--ui-ink-2)" }}>ink 2</span>{" "}
-        <span style={{ color: "var(--ui-ink-3)" }}>ink 3</span>
+        Text: <span style={{ color: "var(--ui-ink)" }}>Ink</span> · <span style={{ color: "var(--ui-ink-2)" }}>Ink 2</span> ·{" "}
+        <span style={{ color: "var(--ui-ink-3)" }}>Ink 3</span>
       </p>
     </div>
   );
@@ -462,8 +578,9 @@ function StylePage() {
       <section>
         <h2>Roles in light and dark</h2>
         <p className="collection-intro">
-          Every swatch is the live CSS variable, read inside <code>data-ui-style</code> and <code>data-ui-theme</code>. A role
-          keeps its meaning in every style; only the value changes.
+          A role is a job a colour does, such as the page background, body text or the one highlighted thing. Every style fills
+          the same twelve roles; only the values change, so a role means the same in every style. These swatches are live: each is
+          read from the style itself, in its light and dark halves.
         </p>
         <div className="fdn-styles">
           {uiStyles.map((s) => (
@@ -520,7 +637,23 @@ function StylePage() {
           Every style is shown in the <a href="/styles">styles gallery</a>, with Mechanism and the 3D art directions.
         </p>
       </section>
+      <Implementers>
+        <p>
+          Each role is a CSS custom property, named under its swatch (<code>--ui-accent</code>). A style is one value set keyed by{" "}
+          <code>data-ui-style</code> on any element, with <code>data-ui-theme</code> for light or dark; components take it as the{" "}
+          <code>uiStyle</code> prop. <code>uiStyles</code> lists the styles with their fonts and preloads.
+        </p>
+      </Implementers>
       <MediumTabs source={styleDoc} label="Style" />
+      <Checklist
+        items={[
+          "One accent, on the one thing the unit is about.",
+          "Every colour is a role; no raw colour values in a layout or component.",
+          "Small text reaches 4.5:1 contrast and large text 3:1, in light and in dark.",
+          "Glow marks a selection, never the whole page.",
+          "Only the active style's fonts load.",
+        ]}
+      />
       <FullSpec source={styleDoc} page="Style roles" file="style.md" />
     </>
   );
@@ -529,8 +662,8 @@ function StylePage() {
 /* ---------------------------------------------------------------- writing */
 
 function BudgetChecker() {
-  const [slot, setSlot] = useState<SlotName>("headline");
-  const [text, setText] = useState("Results");
+  const [slot, setSlot] = useState<SlotName>("point");
+  const [text, setText] = useState("The first response now takes two hours, down from nine.");
   const problems = slotProblems(slot, text);
   const inputId = useId();
   return (
@@ -549,31 +682,86 @@ function BudgetChecker() {
         <span>Words</span>
       </label>
       <textarea id={inputId} rows={2} value={text} onChange={(e) => setText(e.target.value)} />
-      <p className="fdn-checker__result" role="status">
-        {problems.length ? `Over budget: ${problems.join("; ")}.` : "Fits the budget."}
+      <p className="fdn-checker__result" role="status" data-verdict={problems.length ? "over" : "fits"}>
+        <span className="fdn-checker__icon" aria-hidden="true">
+          {problems.length ? "✕" : "✓"}
+        </span>
+        <span>{problems.length ? `Over budget: ${problems.join("; ")}.` : "Fits the budget."}</span>
       </p>
     </div>
   );
 }
 
 function budgetText(b: (typeof SLOT_BUDGETS)[SlotName]) {
+  const n = (count: number, one: string, many: string) => `${count} ${count === 1 ? one : many}`;
   const parts: string[] = [];
   if (b.minWords !== undefined || b.maxWords !== undefined)
-    parts.push(b.minWords !== undefined ? `${b.minWords}–${b.maxWords ?? "∞"} words` : `≤ ${b.maxWords} words`);
-  if (b.maxChars !== undefined) parts.push(`≤ ${b.maxChars} characters`);
-  if (b.maxLines !== undefined) parts.push(`≤ ${b.maxLines} lines`);
-  if (b.maxSentences !== undefined) parts.push(b.maxSentences === 0 ? "not a sentence" : `≤ ${b.maxSentences} sentences`);
+    parts.push(b.minWords !== undefined ? `${b.minWords}–${b.maxWords ?? "∞"} words` : `at most ${b.maxWords} words`);
+  if (b.maxChars !== undefined) parts.push(`at most ${b.maxChars} characters`);
+  if (b.maxLines !== undefined) parts.push(b.maxLines === 1 ? "one line" : `at most ${n(b.maxLines, "line", "lines")}`);
+  if (b.maxSentences !== undefined)
+    parts.push(
+      b.maxSentences === 0 ? "not a sentence" : b.maxSentences === 1 ? "one sentence" : `at most ${b.maxSentences} sentences`,
+    );
   return parts.join(", ");
 }
+
+/** What the slot does with text past its measure, in words. */
+const overflowText: Record<string, string> = {
+  ellipsis: "Cut with an ellipsis",
+  wrap: "Wraps",
+  "wrap-balance": "Wraps, lines balanced",
+};
 
 function WritingPage() {
   return (
     <>
       <section>
+        <h2>Headlines: presented or read alone</h2>
+        <p className="collection-intro">
+          Decide first who carries the argument. When you present, you do: the title is a short verdict and you say the claim. When
+          the piece goes out without you, the title has to carry it: write the claim as a full sentence.
+        </p>
+        <div className="fdn-table" tabIndex={0} role="region" aria-label="Headline modes">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Mode</th>
+                <th scope="col">When</th>
+                <th scope="col">Title</th>
+                <th scope="col">Example</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">Presented (the default for slides)</th>
+                <td>You give it and the room hears you</td>
+                <td>2–5 words, a verdict you&rsquo;d say aloud; a bare label only on agenda, section and mechanism slides</td>
+                <td>Search: twice as fast since March</td>
+              </tr>
+              <tr>
+                <th scope="row">Read alone</th>
+                <td>A pre-read, a forwarded deck, a figure</td>
+                <td>The real conclusion as one sentence, 3–14 words</td>
+                <td>Index freshness fell from 40 to 6 minutes</td>
+              </tr>
+              <tr>
+                <th scope="row">Web page</th>
+                <td>Read alone, by a visitor</td>
+                <td>The hero says what changed for the reader; section heads are 2–5 plain words naming what they get</td>
+                <td>Pull requests check in about 7 minutes</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <HeadlinePairs />
+      </section>
+      <section>
         <h2>Slot budgets</h2>
         <p className="collection-intro">
-          Read live from <code>SLOT_BUDGETS</code> in <code>uipack/deck</code>; <code>lintDeck</code> reports a slot over budget
-          as <code>slot-budget</code>. A budget belongs to the slot, so it holds in every layout and style.
+          A slot is a named place for words: the headline, a point, a label. Each holds a fixed amount before it stops reading at
+          a glance. The budget belongs to the slot, so it holds in every layout and every style; a narrow display face is no
+          excuse for a longer headline.
         </p>
         <div className="fdn-table" tabIndex={0} role="region" aria-label="Slot budgets">
           <table>
@@ -592,8 +780,12 @@ function WritingPage() {
                     <code>{name}</code>
                   </th>
                   <td>{b.role}</td>
-                  <td>{budgetText(b)}</td>
-                  <td>{b.overflow}</td>
+                  <td>
+                    {name === "headline"
+                      ? `presented: at most ${TITLE_WORDS.presented} words (aim for 2–5); read alone: at most ${TITLE_WORDS["read-alone"]}, on at most ${b.maxLines} lines`
+                      : budgetText(b)}
+                  </td>
+                  <td>{overflowText[b.overflow] ?? b.overflow}</td>
                 </tr>
               ))}
             </tbody>
@@ -602,10 +794,41 @@ function WritingPage() {
       </section>
       <section>
         <h2>Check your words</h2>
-        <p className="collection-intro">The same check the linter runs, on one slot.</p>
+        <p className="collection-intro">Pick a slot and type. The verdict is the same one the linter gives a whole deck.</p>
         <BudgetChecker />
+        <Implementers>
+          <p>
+            The table is read live from <code>SLOT_BUDGETS</code> in <code>uipack/deck</code>. <code>lintDeck</code> reports a
+            slot over budget as <code>slot-budget</code>, and <code>slotProblems(slot, text)</code> checks one string, as this
+            checker does.
+          </p>
+        </Implementers>
+      </section>
+      <section>
+        <h2>Name the parts, not the system</h2>
+        <p className="collection-intro">
+          A drawing earns its place by showing how something works. One box with the system&rsquo;s name says nothing a heading
+          couldn&rsquo;t; the stages the claim depends on, with what travels between them, explain it.
+        </p>
+        <div className="fdn-pairs fdn-pairs--one">
+          <Pair
+            title="A retrieval pipeline"
+            dont={<NodeSketch label="RAG pipeline" />}
+            doit={<ChainSketch />}
+            why="Each box is a label of two or three words, each arrow says what moves, and the sentence that explains it goes in the caption."
+          />
+        </div>
       </section>
       <MediumTabs source={writingDoc} label="Writing" />
+      <Checklist
+        items={[
+          "A presented slide's title is a short spoken verdict; a read-alone slide or a figure states the claim as one sentence.",
+          "Every number has a baseline, a window and a source.",
+          "Labels are two or three words; sentences go in the caption or the notes.",
+          "Nothing you were not given: a missing fact is left out or pinned to the data in a note, never guessed.",
+          "The linter reports no slot over budget.",
+        ]}
+      />
       <FullSpec source={writingDoc} page="Writing" file="writing.md" />
     </>
   );
@@ -614,45 +837,31 @@ function WritingPage() {
 /* ---------------------------------------------------------------- layout */
 
 const archetypeDeck: DeckSlide[] = [
+  { ...unitSlide(writings.reviews, "points"), id: "points", title: "Points" },
   sectionSlide({
     id: "section",
     title: "Section",
     role: "context",
-    eyebrow: "Part two",
     number: "02",
-    headline: "The index, not the model, set our latency",
-    lede: "Three changes, in the order we shipped them.",
+    headline: "Where latency comes from",
     footer: "Archetypes",
   }),
   quoteSlide({
     id: "quote",
     title: "Quote",
     role: "evidence",
-    eyebrow: "Support",
-    headline: "Agents stopped asking for the same document twice",
+    headline: "What support agents say",
     quote: "I search once now. The answer is on the first screen.",
     attribution: "Support lead, EMEA",
     footer: "Archetypes",
   }),
-  factSlide({
-    id: "fact",
-    title: "Fact",
-    role: "evidence",
-    eyebrow: "Latency",
-    headline: "Search answers in 198 ms at p95",
-    value: "198",
-    unit: "ms at p95",
-    baseline: "410 ms in March",
-    source: "The search latency dashboard",
-    footer: "Archetypes",
-  }),
-  { ...unitSlide(writings.reviews, "statement"), id: "invert", title: "Statement, inverted", invert: true },
+  { ...unitSlide(writings.search, "fact"), id: "fact", title: "Fact" },
+  { ...unitSlide(writings.search, "points"), id: "invert", title: "Points, inverted", invert: true },
   endSlide({
     id: "end",
     title: "End",
     role: "ask",
-    eyebrow: "The ask",
-    headline: "Approve the shared index for every region",
+    headline: "Approve the rollout by 20 November",
     action: "Approve the rollout plan",
     owner: "Platform leads",
     date: "20 November",
@@ -668,8 +877,9 @@ function LayoutPage() {
       <section>
         <h2>Slide archetypes on one region map</h2>
         <p className="collection-intro">
-          Section, quote, fact, an inverted statement and end. The eyebrow, headline and footer stay in the same place on every
-          slide; only the body region changes. Step through with the arrows, and swap the style to see the map hold.
+          Points (the default for a presented deck), section, quote, fact, inverted points and end. The headline and footer stay
+          in the same place on every slide, and so would an eyebrow on the rare slide that has one; only the body region changes.
+          Step through with the arrows, and swap the style to see the map hold.
         </p>
         <div className="fdn-toggles">
           <Choice legend="Style" value={style} options={styleOptions} onChange={setStyle} />
@@ -687,6 +897,15 @@ function LayoutPage() {
         {pipeline(undefined, "foundations-narrow")}
       </section>
       <MediumTabs source={layoutDoc} label="Layout" />
+      <Checklist
+        items={[
+          "The archetype comes from the claim's shape: a flow left to right, layers top to bottom.",
+          "Positions sit on the 8px grid; nothing is nudged by eye.",
+          "Reading order, build order and keyboard order are the same.",
+          "Checked at 390px: an authored narrow form or an internal scroll, and no page overflow.",
+          "No rendered text under 11px.",
+        ]}
+      />
       <FullSpec source={layoutDoc} page="Layout" file="layout.md" />
     </>
   );
@@ -712,7 +931,11 @@ const leaks = [
     "Anton caps are narrower than Plex Sans and taller at 1.3×, so a heading changes height.",
     "Region order and columns stay fixed; heights may move",
   ],
-  ["Density", "A style that wanted roomier cards would change every box.", "Density is a style role; all three use 1"],
+  [
+    "Density",
+    "Technical pads sections at 0.9, Graphical 0.95, Landing 1.1, so a page grows or shrinks vertically.",
+    "Density scales vertical section padding only; columns and boxes keep their widths",
+  ],
   [
     "Ornaments",
     "A poster disc behind the copy would hide words.",
@@ -778,18 +1001,18 @@ function MixPage() {
         </div>
       </section>
       <section>
-        <h2>The same headline in three faces</h2>
+        <h2>The same title in three faces</h2>
         <p className="collection-intro">
-          One claim, one layout, three styles. The column and the order hold; the line breaks follow each face.
+          One title, one layout, three styles. The column and the order hold; the line breaks follow each face.
         </p>
         <div className="fdn-grid3">
           {uiStyles.map((s) => (
             <WebSurface key={s.id} theme={theme} uiStyle={s.id} className="fdn-mini">
               <Eyebrow>{s.name}</Eyebrow>
               <Heading level={3} size={4}>
-                Search answers in <em>198 ms</em> at p95
+                Search: <em>twice as fast</em> since March
               </Heading>
-              <Body>One index replaced five, and the cache serves the rest.</Body>
+              <Body>p95 198 ms, was 410 ms · 5 indexes → 1</Body>
             </WebSurface>
           ))}
         </div>
@@ -797,15 +1020,43 @@ function MixPage() {
       <section>
         <h2>A headline over budget</h2>
         <p className="collection-intro">
-          The linter catches it before any style is chosen: <code>{slotProblems("headline", longHeadline).join("; ")}</code>.
+          Length is the one leak no style can fix, so it is caught in the words, before any style is chosen. The linter&rsquo;s
+          verdict on this headline, measured on a full-width slide: {slotProblems("headline", longHeadline).join("; ")}. In a
+          narrow card it wraps further. The words past the budget are marked.
         </p>
-        <WebSurface theme={theme} className="fdn-mini">
-          <Eyebrow>Reviews</Eyebrow>
-          <Heading level={3} size={4}>
-            {longHeadline}
-          </Heading>
-        </WebSurface>
+        <div className="fdn-pairs fdn-pairs--one">
+          <Pair
+            title="A review result, as a headline"
+            dont={
+              <WebSurface theme={theme} className="fdn-mini">
+                <Heading level={3} size={4}>
+                  <OverBudget text={longHeadline} max={SLOT_BUDGETS.headline.maxWords ?? 14} />
+                </Heading>
+              </WebSurface>
+            }
+            doit={
+              <WebSurface theme={theme} className="fdn-mini">
+                <Heading level={3} size={4}>
+                  Review decisions: 3 meetings → 1
+                </Heading>
+                <ul className="fdn-points">
+                  <li>Every team, April to September</li>
+                  <li>Only change: the answer moved to slide 1</li>
+                </ul>
+              </WebSurface>
+            }
+            why="Fix it in the words, not the type: a short title the speaker talks from, with the window and the cause moved into points. Shrinking the font to fit would break the budget's promise in every other style."
+          />
+        </div>
       </section>
+      <Checklist
+        items={[
+          "Swap each layer once and compare: only that layer changed.",
+          "Headings may change height between faces; regions and their order must not.",
+          "Ornaments sit behind or beside text, never over it.",
+          "Long text is fixed in the words, never by shrinking the type.",
+        ]}
+      />
     </>
   );
 }
@@ -817,14 +1068,14 @@ const recipes: { name: string; style: string; sequence: string[]; template: stri
     name: "Talk deck",
     style: "Technical",
     sequence: ["cover", "answer", "evidence", "mechanism", "plan", "end"],
-    template: "DeckSlide { role, eyebrow, headline, lede, notes { say, next } }",
+    template: "DeckSlide { role, headline (2–5 words), points[2–4], notes { say: cues, next } }",
     href: "/deck?deck=moves",
     link: "Tech talk deck",
   },
   {
     name: "Landing page (generic)",
     style: "Landing",
-    sequence: ["hero + demo", "steps", "mechanism", "proof", "FAQ", "pricing"],
+    sequence: ["hero + product output", "steps", "mechanism", "demo", "proof", "FAQ", "pricing", "closing"],
     template: "hero { eyebrow, headline, subhead, cta }, features[3], faq[], offer",
     href: "/web?style=landing",
     link: "The page in Landing",
@@ -832,8 +1083,8 @@ const recipes: { name: string; style: string; sequence: string[]; template: stri
   {
     name: "Product page (Technical)",
     style: "Technical",
-    sequence: ["hero, start edge", "mechanism figure", "proof", "steps", "FAQ", "pricing"],
-    template: "hero { … }, figure spec { stages, queue, caption }, stats[], faq[]",
+    sequence: ["hero + product output", "steps", "mechanism figure", "demo", "proof", "FAQ", "pricing", "closing"],
+    template: "hero { … }, figure spec { stages, queue, caption }, demo steps[], stats[], faq[]",
     href: "/web?style=technical",
     link: "The page in Technical",
   },
@@ -865,42 +1116,52 @@ const recipes: { name: string; style: string; sequence: string[]; template: stri
 
 function RecipesPage() {
   return (
-    <section>
-      <h2>Six jobs, three layers each</h2>
-      <p className="collection-intro">
-        Pick the style, follow the sequence, fill the template, then check it against the live page.
-      </p>
-      <ul className="fdn-recipes">
-        {recipes.map((r) => (
-          <li key={r.name} className="fdn-recipe">
-            <h3>{r.name}</h3>
-            <dl>
-              <div>
-                <dt>Style</dt>
-                <dd>{r.style}</dd>
-              </div>
-              <div>
-                <dt>Sequence</dt>
-                <dd>
-                  <ol className="fdn-sequence">
-                    {r.sequence.map((step) => (
-                      <li key={step}>{step}</li>
-                    ))}
-                  </ol>
-                </dd>
-              </div>
-              <div>
-                <dt>Content</dt>
-                <dd>
-                  <code>{r.template}</code>
-                </dd>
-              </div>
-            </dl>
-            <a href={r.href}>{r.link}</a>
-          </li>
-        ))}
-      </ul>
-    </section>
+    <>
+      <section>
+        <h2>Six jobs, three layers each</h2>
+        <p className="collection-intro">
+          Pick the style, follow the sequence, fill the template, then check it against the live page.
+        </p>
+        <ul className="fdn-recipes">
+          {recipes.map((r) => (
+            <li key={r.name} className="fdn-recipe">
+              <h3>{r.name}</h3>
+              <dl>
+                <div>
+                  <dt>Style</dt>
+                  <dd>{r.style}</dd>
+                </div>
+                <div>
+                  <dt>Sequence</dt>
+                  <dd>
+                    <ol className="fdn-sequence">
+                      {r.sequence.map((step) => (
+                        <li key={step}>{step}</li>
+                      ))}
+                    </ol>
+                  </dd>
+                </div>
+                <div>
+                  <dt>Content</dt>
+                  <dd>
+                    <code>{r.template}</code>
+                  </dd>
+                </div>
+              </dl>
+              <a href={r.href}>{r.link}</a>
+            </li>
+          ))}
+        </ul>
+      </section>
+      <Checklist
+        items={[
+          "The style fits the job: Technical by default, Landing only for a generic landing page, Graphical for a poster.",
+          "The sequence is followed, or you can say why it changed.",
+          "Every template field is filled from real facts, with a TODO where one is missing.",
+          "The draft is compared side by side with the live example.",
+        ]}
+      />
+    </>
   );
 }
 
@@ -952,51 +1213,202 @@ function NodeSketch({ label, sub, wrapped }: { label: string; sub?: string; wrap
   );
 }
 
+/** A headline with the words past its budget marked, so the overflow is visible, not just counted. */
+function OverBudget({ text, max }: { text: string; max: number }) {
+  const words = text.split(/\s+/);
+  return (
+    <>
+      {words.slice(0, max).join(" ")}{" "}
+      <mark className="fdn-over" title="Past the budget">
+        {words.slice(max).join(" ")}
+      </mark>
+    </>
+  );
+}
+
+/** Three stages with labelled arrows: the "do" for a box that names the whole system. */
+function ChainSketch() {
+  const stages = ["Chunk", "Embed", "pgvector"];
+  const arrows = ["~1000 chars", "1536-dim"];
+  return (
+    <svg
+      className="fdn-node fdn-chain"
+      viewBox="0 0 360 96"
+      role="img"
+      aria-label="Chunk, then Embed, then pgvector; the arrows carry about 1000 characters and 1536-dimension vectors"
+    >
+      {stages.map((label, i) => (
+        <g key={label} transform={`translate(${i * 128}, 32)`}>
+          <rect x="1" y="1" width="102" height="46" rx="6" />
+          <text x="52" y="29" textAnchor="middle">
+            {label}
+          </text>
+        </g>
+      ))}
+      {arrows.map((label, i) => (
+        <g key={label} transform={`translate(${104 + i * 128}, 0)`}>
+          <line x1="2" y1="56" x2="20" y2="56" className="fdn-chain__line" />
+          <path d="M18,52 L24,56 L18,60 z" className="fdn-chain__head" />
+          <text x="12" y="20" textAnchor="middle" className="fdn-node__sub">
+            {label}
+          </text>
+        </g>
+      ))}
+    </svg>
+  );
+}
+
 const tropes = [
   [
     "Purple or indigo accent on a grey page",
-    "Technical's forest and Graphical's orange; Landing keeps indigo only when the brief is a generic landing page",
+    "Technical's Prussian blue and amber, Graphical's orange; Landing's cobalt only when the brief is a generic landing page",
   ],
-  ["Inter or Roboto everywhere", "IBM Plex on the web, system type in figures, Anton for posters"],
+  ["Inter or Roboto everywhere", "Archivo Expanded headings on page, slide and figure; Martian Mono labels; Anton for posters"],
   [
     "Centred hero, one CTA, three icon cards",
-    "Technical leads with a working diagram on the start edge; each style reorders the sections",
+    "The product's real output in the first screen, straight after the headline; one section order in every style",
   ],
-  ["Rounded everything", "6px in Technical, 0 in Graphical"],
-  ["Floating dashboard screenshot as the hero", "A live mechanism figure or the product demo"],
+  ["Rounded everything", "Square corners in Technical and Graphical; Landing's 12px cards only on a generic landing page"],
+  ["Floating dashboard screenshot as the hero", "The product's real output drawn from data, the mechanism figure or the demo"],
   ["Instrument Serif as the default headline face", "Only in Landing, the generic option"],
   ["Glassy blobs and ambient glow", "Glow means selection; grain and aurora only in Landing, one per viewport"],
   ["Emoji as icons", "Shape-coded flow tokens and the icon set"],
   ["Gradient text and gradient buttons", "One flat accent on one thing"],
 ];
 
+/** A slide's words as a small sketch: the optional eyebrow, the title, the optional lede and the points. */
+function SlideSketch({ eyebrow, title, lede, points }: { eyebrow?: string; title: string; lede?: string; points?: string[] }) {
+  const { theme } = useShowcaseTheme();
+  return (
+    <WebSurface theme={theme} className="fdn-mini">
+      {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
+      <Heading level={4} size={3}>
+        {title}
+      </Heading>
+      {lede && <Body>{lede}</Body>}
+      {points && (
+        <ul className="fdn-points">
+          {points.map((p) => (
+            <li key={p}>{p}</li>
+          ))}
+        </ul>
+      )}
+    </WebSurface>
+  );
+}
+
+/** Patterns that make slide text read as generated. Any one is fine now and then; on every slide it's a template. */
+const slideTells = [
+  [
+    "“X, not Y” on every slide",
+    "decided in one meeting, not three",
+    "State the fact (3 meetings → 1); say the contrast if it matters",
+  ],
+  [
+    "Two balanced clauses on a semicolon",
+    "Same teams and the same six months; only the order of the slides changed.",
+    "Two points, or keep one and say the other",
+  ],
+  [
+    "A comparison bolted onto every claim",
+    "198 ms at p95, twice as fast as March",
+    "The baseline as its own point, or said aloud",
+  ],
+  ["Matched number pairs", "one meeting, not three · one index replaced five", "One number per point, with its baseline"],
+  ["A tidy closing clause", "…and the cache serves the rest", "Stop at the fact"],
+  ["A coined term used as if established", "Answer-first reviews", "Say what happened: reviews that opened with the answer"],
+  [
+    "The same three-part shape on every slide",
+    "Eyebrow, sentence headline, lede, ten times",
+    "Mix labels, verdicts and the odd question; no eyebrow or lede by default",
+  ],
+  ["A one-word caps eyebrow", "REVIEWS, SEARCH", "Drop it; the title names the topic"],
+];
+
+/**
+ * The two headline modes from writing.md, each with its do and don't: a presented slide (a short
+ * spoken verdict over fragments) and a read-alone deck, figure or web page (the claim written out).
+ */
+function HeadlinePairs() {
+  const { theme } = useShowcaseTheme();
+  return (
+    <div className="fdn-pairs">
+      <Pair
+        title="Presented slide: a short verdict you'd say aloud"
+        dont={
+          <SlideSketch
+            eyebrow="Search"
+            title="Search answers in 198 ms at p95, twice as fast as March"
+            lede="One index replaced five."
+          />
+        }
+        doit={<SlideSketch title="Search: twice as fast since March" points={["p95 198 ms, was 410 ms", "5 indexes → 1"]} />}
+        why="With a speaker in the room, a sentence title and a lede are a script: the room reads ahead while the speaker recites it. A 2–5 word verdict is the cue, the points carry the numbers, and the speaker says why it matters."
+      />
+      <Pair
+        title="Read alone, a figure or the web: the claim as a sentence"
+        dont={
+          <WebSurface theme={theme} className="fdn-mini">
+            <Heading level={4} size={3}>
+              Results
+            </Heading>
+          </WebSurface>
+        }
+        doit={
+          <WebSurface theme={theme} className="fdn-mini">
+            <Heading level={4} size={3}>
+              Index freshness fell from 40 to 6 minutes
+            </Heading>
+          </WebSurface>
+        }
+        why="Forwarded without you, a label or a bare verdict says nothing. Write the real conclusion as one sentence of 3–14 words; on a web page, the hero says what changed for the reader and each section head names what they get."
+      />
+    </div>
+  );
+}
+
 function DontPage() {
   const { theme } = useShowcaseTheme();
   return (
     <>
       <section>
+        <h2>Headlines: two modes</h2>
+        <p className="collection-intro">
+          Claim headlines are right when nobody is there to say the claim. A presented slide gets a short verdict, and the speaker
+          says the because. A deck read without its speaker, a figure and a web page write the claim out. Each mode has its own
+          way to go wrong.
+        </p>
+        <HeadlinePairs />
+      </section>
+      <section>
+        <h2>Slide text that reads as generated</h2>
+        <p className="collection-intro">
+          Any one of these is fine now and then. On every slide it reads as a template.
+        </p>
+        <div className="fdn-table" tabIndex={0} role="region" aria-label="AI tells in slide text">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Tell</th>
+                <th scope="col">Looks like</th>
+                <th scope="col">Instead</th>
+              </tr>
+            </thead>
+            <tbody>
+              {slideTells.map(([tell, looks, instead]) => (
+                <tr key={tell}>
+                  <th scope="row">{tell}</th>
+                  <td>{looks}</td>
+                  <td>{instead}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+      <section>
         <h2>Paired examples</h2>
         <div className="fdn-pairs">
-          <Pair
-            title="Headlines state the claim"
-            dont={
-              <WebSurface theme={theme} className="fdn-mini">
-                <Eyebrow>Results</Eyebrow>
-                <Heading level={4} size={3}>
-                  Results
-                </Heading>
-              </WebSurface>
-            }
-            doit={
-              <WebSurface theme={theme} className="fdn-mini">
-                <Eyebrow>Results</Eyebrow>
-                <Heading level={4} size={3}>
-                  Index freshness fell from 40 to 6 minutes
-                </Heading>
-              </WebSurface>
-            }
-            why="A topic title could head any slide. A claim is a sentence the reader can repeat."
-          />
           <Pair
             title="Labels, not sentences, in the drawing"
             dont={<NodeSketch label="This service checks that" wrapped="each request is valid" />}
@@ -1026,8 +1438,19 @@ function DontPage() {
                 Card
               </div>
             }
-            doit={<div className="fdn-glow">Card</div>}
-            why="An ambient glow says everything is selected. Technical and Graphical turn it off (--ui-glow: 0)."
+            doit={
+              <div className="fdn-glow-row">
+                <div className="fdn-glow">Card</div>
+                <div className="fdn-glow" data-selected="">
+                  <span className="fdn-glow__tick" aria-hidden="true">
+                    ✓
+                  </span>
+                  Selected
+                </div>
+                <div className="fdn-glow">Card</div>
+              </div>
+            }
+            why="An ambient glow says everything is selected. Mark the one selected card with a ring, a tick and the word, so it reads without colour; the rest stay plain."
           />
         </div>
       </section>
@@ -1055,6 +1478,15 @@ function DontPage() {
           </table>
         </div>
       </section>
+      <Checklist
+        items={[
+          "No trope from the list above without a reason you could defend.",
+          "One filled button per view; everything else is secondary.",
+          "Shape-coded marks and icons, never emoji.",
+          "Presented titles are short spoken verdicts; read-alone titles state the claim; never just \u201cResults\u201d.",
+          "Drawings carry labels; captions carry the sentences.",
+        ]}
+      />
     </>
   );
 }
@@ -1072,7 +1504,14 @@ const pagesByPath: Record<string, () => ReactNode> = {
 };
 
 export default function FoundationsShowcase() {
-  const Page = pagesByPath[routePath(location.pathname)] ?? Overview;
+  const path = routePath(location.pathname);
+  const Page = pagesByPath[path] ?? Overview;
+  useLabelledTables();
   // Sections sit straight under the shell's <main>, like every page (showcase.css styles `main > section > h2`).
-  return <Page />;
+  return (
+    <>
+      <Page />
+      <GuidePager path={pagesByPath[path] ? path : "/foundations"} />
+    </>
+  );
 }

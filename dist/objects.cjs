@@ -1,6 +1,6 @@
 'use strict';
 
-var chunkPOU3TTIE_cjs = require('./chunk-POU3TTIE.cjs');
+var chunkROALLHW7_cjs = require('./chunk-ROALLHW7.cjs');
 var chunkD43QOXLX_cjs = require('./chunk-D43QOXLX.cjs');
 var chunkKV6PPCWS_cjs = require('./chunk-KV6PPCWS.cjs');
 var react = require('react');
@@ -8,16 +8,24 @@ var jsxRuntime = require('react/jsx-runtime');
 
 // src/objects/variants.ts
 var objectDirections = [
-  { id: "studio", name: "Studio objects", description: "Physical details, soft light, close-up choreography." },
-  { id: "paper-theatre", name: "Paper worlds", description: "Cut-paper stages, layered landscapes and pop-up architecture." },
-  { id: "kinetic", name: "Kinetic sculptures", description: "Brass mechanisms, ceramic forms and suspended motion." },
-  { id: "cartoon", name: "Cartoon worlds", description: "Rounded little places, toy-like details and playful motion." },
+  {
+    id: "studio",
+    name: "Studio objects",
+    description: "Product photography: one object on a seamless sweep, soft light, a low lens."
+  },
+  {
+    id: "paper-theatre",
+    name: "Paper worlds",
+    description: "Cut-card toy theatres: layered flats in a proscenium under one warm light."
+  },
+  { id: "kinetic", name: "Kinetic sculptures", description: "Brass armatures and glazed ceramic turning on a slate base." },
+  { id: "cartoon", name: "Cartoon worlds", description: "Floating toy islands with toon shading, by day and by night." },
   {
     id: "realistic",
     name: "Realistic close\u2011ups",
-    description: "Tactile materials, precision details and intimate camera angles."
+    description: "Low close-ups on real surfaces under grazing window light."
   },
-  { id: "abstract", name: "Abstract forms", description: "Optical glass, sculptural rhythms and unexpected silhouettes." }
+  { id: "abstract", name: "Abstract forms", description: "Refractive glass against bands of colour, with obsidian accents." }
 ];
 var objectVariants = {
   ai: [
@@ -44,7 +52,7 @@ var objectVariants = {
     "Abstract \xB7 Elastic exchange"
   ],
   trading: [
-    "Studio \xB7 Market terminal",
+    "Studio \xB7 Market abacus",
     "Paper \xB7 Market accordion",
     "Kinetic \xB7 Market balance",
     "Cartoon \xB7 Exchange avenue",
@@ -53,8 +61,8 @@ var objectVariants = {
   ],
   server: [
     "Studio \xB7 Inference hardware",
-    "Paper \xB7 Server architecture",
-    "Kinetic \xB7 Floating compute",
+    "Paper \xB7 Server city",
+    "Kinetic \xB7 Hanging compute",
     "Cartoon \xB7 Cloud factory",
     "Realistic \xB7 Silicon detail",
     "Abstract \xB7 Signal stack"
@@ -107,9 +115,8 @@ function transferObjectVariant(from, to, variant) {
 
 // src/objects/mount.ts
 var REST_START_MS = 5400;
-var NARROW_STAGE_PX = 480;
 var MOBILE_FRAME_MS = 1e3 / 30;
-function disposeScene(scene) {
+function disposeScene(scene, textures) {
   scene.traverse((item) => {
     item.userData.dispose?.();
     item.shadow?.dispose();
@@ -117,18 +124,19 @@ function disposeScene(scene) {
     drawable.geometry?.dispose();
     const materials = Array.isArray(drawable.material) ? drawable.material : drawable.material ? [drawable.material] : [];
     materials.forEach((entry) => {
-      entry.map?.dispose();
+      textures(entry).forEach((texture) => texture.dispose());
       entry.dispose();
     });
   });
 }
 function mountObjectScene(canvas, options) {
-  const { kind, colors, variant, edition, modelUrl, flags, host, onReady, onCompleted, onReplayed } = options;
+  const { kind, colors, variant, edition, modelUrl, theme, flags, host, onReady, onCompleted, onReplayed } = options;
   let disposed = false;
   let contextLost = false;
   let frame = null;
   let renderer;
   let environment;
+  let materialTextures;
   let scene;
   let resizeObserver;
   let viewportObserver;
@@ -146,8 +154,9 @@ function mountObjectScene(canvas, options) {
     onReady(false);
   };
   canvas.addEventListener("webglcontextlost", handleContextLost);
-  Promise.all([import('three'), import('./scenes-KTKVMMR5.cjs'), import('three/addons/environments/RoomEnvironment.js')]).then(async ([THREE, { createObject, disposeObject }, { RoomEnvironment }]) => {
+  Promise.all([import('three'), import('./scenes-SVHQXBTQ.cjs'), import('./look-XR7F7LXC.cjs')]).then(async ([THREE, { createObject, disposeObject }, look]) => {
     if (disposed) return;
+    materialTextures = look.materialTextures;
     try {
       const gl = new THREE.WebGLRenderer({
         canvas,
@@ -160,15 +169,6 @@ function mountObjectScene(canvas, options) {
       gl.outputColorSpace = THREE.SRGBColorSpace;
       const world = new THREE.Scene();
       scene = world;
-      const room = new RoomEnvironment();
-      const pmrem = new THREE.PMREMGenerator(gl);
-      environment = pmrem.fromScene(room, 0.04);
-      world.environment = environment.texture;
-      world.environmentIntensity = variant === 5 ? 0.85 : 0.35;
-      room.dispose();
-      pmrem.dispose();
-      const camera = new THREE.OrthographicCamera(-3, 3, 3, -3, 0.1, 100);
-      camera.position.set(0, variant === 4 && kind !== "contact" ? -0.15 : 0, 10);
       const object = await createObject(kind, colors, variant, edition, modelUrl);
       if (disposed || contextLost) {
         disposeObject(object);
@@ -176,34 +176,51 @@ function mountObjectScene(canvas, options) {
       }
       canvas.dataset.source = object.userData.source ?? "procedural";
       canvas.dataset.artDirection = object.userData.style;
-      const shadows = kind === "tennis" || variant !== 0 && variant !== 5;
-      if (variant !== 0 && variant !== 5)
+      const {
+        rig,
+        framing,
+        camera: lens,
+        contactShadow,
+        castShadows,
+        transmissionBackdrop
+      } = look.resolveLook(object.userData.look, theme);
+      environment = await look.buildEnvironment(gl, rig) ?? void 0;
+      if (disposed || contextLost) {
+        disposeObject(object);
+        return;
+      }
+      world.environment = environment?.texture ?? null;
+      world.environmentIntensity = rig.environment.intensity;
+      world.environmentRotation.y = rig.environment.rotation;
+      look.applyMaterials(object, environment?.texture ?? null, rig, theme);
+      gl.toneMapping = look.toneMappingFor(rig);
+      gl.toneMappingExposure = rig.exposure;
+      if (castShadows)
         object.traverse((item) => {
-          if (item instanceof THREE.Mesh) {
+          if (item instanceof THREE.Mesh && !item.userData.frameIgnore) {
             item.castShadow = true;
             item.receiveShadow = true;
           }
         });
-      if (shadows) {
+      if (rig.key.shadow) {
         gl.shadowMap.enabled = true;
-        gl.shadowMap.type = THREE.PCFSoftShadowMap;
+        gl.shadowMap.type = THREE.PCFShadowMap;
       }
-      world.add(object, new THREE.HemisphereLight(16119019, 5859192, 2));
-      const key = new THREE.DirectionalLight(16773852, 2.5);
-      key.position.set(-3, 5, 7);
-      key.castShadow = shadows;
-      key.shadow.mapSize.set(1024, 1024);
-      Object.assign(key.shadow.camera, { left: -4, right: 4, top: 4, bottom: -4 });
-      key.shadow.normalBias = 0.025;
-      key.shadow.bias = -3e-4;
-      gl.toneMapping = THREE.ACESFilmicToneMapping;
-      gl.toneMappingExposure = 1.05;
-      world.add(key);
-      const rim = new THREE.DirectionalLight(13032959, 1.4);
-      rim.position.set(4, 2, -3);
-      world.add(rim);
-      const loopDuration = object.userData.loopDuration;
       const restTime = object.userData.restTime ?? REST_START_MS;
+      if (contactShadow) {
+        object.userData.animate?.(restTime);
+        look.addContactShadow(object, contactShadow);
+      }
+      world.add(object);
+      look.addRigLights(world, rig);
+      const camera = lens.projection === "perspective" ? new THREE.PerspectiveCamera(lens.fov, 1, 0.1, 100) : new THREE.OrthographicCamera(-3, 3, 3, -3, 0.1, 100);
+      const rotation = look.cameraRotation(lens);
+      const subject = framing ? look.measureSubject(object, rotation, look.framingTimes(object, framing, restTime)) : null;
+      object.userData.animate?.(0);
+      const backdrop = look.usesTransmission(object) ? look.addTransmissionBackdrop(camera, transmissionBackdrop) : null;
+      if (backdrop) world.add(camera);
+      canvas.dataset.envKind = rig.environment.kind;
+      const loopDuration = object.userData.loopDuration;
       canvas.dataset.playback = loopDuration ? "loop" : "once";
       let frames = 0;
       let elapsed = 0;
@@ -268,19 +285,24 @@ function mountObjectScene(canvas, options) {
         const height = canvas.clientHeight || 1;
         gl.setSize(width, height, false);
         const aspect = width / height;
-        const narrow = width < NARROW_STAGE_PX ? object.userData.narrowFrame : void 0;
-        const halfWidth = narrow?.halfWidth ?? (variant === 4 && kind !== "contact" ? 2.15 : kind === "server" && variant === 0 ? 3.25 : 2.65);
-        const halfHeight = Math.max(
-          narrow?.halfHeight ?? (variant === 4 && kind !== "contact" ? 1.75 : 2.2),
-          halfWidth / aspect
-        );
-        camera.position.y = narrow?.y ?? (variant === 4 && kind !== "contact" ? -0.15 : 0);
-        camera.left = -halfHeight * aspect;
-        camera.right = halfHeight * aspect;
-        camera.top = halfHeight;
-        camera.bottom = -halfHeight;
+        const fit = framing && subject ? look.fitCamera(camera, subject, aspect, framing, rotation) : null;
+        if (fit) canvas.dataset.fill = fit.fillHeight.toFixed(2);
+        else if (camera instanceof THREE.OrthographicCamera) {
+          const halfHeight = Math.max(2.2, 2.65 / aspect);
+          Object.assign(camera, {
+            left: -halfHeight * aspect,
+            right: halfHeight * aspect,
+            top: halfHeight,
+            bottom: -halfHeight
+          });
+          camera.position.set(0, 0, 10);
+        } else {
+          camera.aspect = aspect;
+          camera.position.set(0, 0, 10);
+        }
         camera.zoom = flags.zoom;
         camera.updateProjectionMatrix();
+        backdrop?.fit();
         gl.render(world, camera);
       };
       loaded.resize = resize;
@@ -329,14 +351,14 @@ function mountObjectScene(canvas, options) {
       stop();
       resizeObserver?.disconnect();
       viewportObserver?.disconnect();
-      if (scene) disposeScene(scene);
+      if (scene && materialTextures) disposeScene(scene, materialTextures);
       environment?.dispose();
       renderer?.dispose();
       renderer?.forceContextLoss();
     }
   };
 }
-var objectPalettes = chunkPOU3TTIE_cjs.studioObjectPalettes;
+var objectPalettes = chunkROALLHW7_cjs.studioObjectPalettes;
 var styles = {
   scene: "uipack-object",
   canvas: "uipack-object__canvas",
@@ -439,6 +461,12 @@ var Fallback = ({ kind, label }) => {
     captions[kind] && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-object__fallback-caption", "aria-hidden": "true", children: captions[kind] })
   ] });
 };
+var ControlIcon = ({ name }) => /* @__PURE__ */ jsxRuntime.jsxs("svg", { viewBox: "0 0 16 16", width: "16", height: "16", "aria-hidden": "true", focusable: "false", children: [
+  name === "pause" && /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M5.5 3.5v9M10.5 3.5v9" }),
+  name === "play" && /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M5 3.2v9.6L12.5 8z", fill: "currentColor" }),
+  name === "replay" && /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M3.5 8a4.5 4.5 0 1 0 1.4-3.3M3.5 2.8v2.4h2.4" }),
+  name === "expand" && /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M9.5 2.5h4v4M13.5 2.5 9 7M6.5 13.5h-4v-4M2.5 13.5 7 9" })
+] });
 function ObjectStage({
   kind,
   label,
@@ -496,6 +524,7 @@ function ObjectStage({
       variant: resolvedVariant,
       edition,
       modelUrl,
+      theme,
       flags: flagsRef.current,
       host: () => hostRef.current,
       onReady: setReady,
@@ -537,15 +566,18 @@ function ObjectStage({
       children: [
         /* @__PURE__ */ jsxRuntime.jsx(Fallback, { kind, label }),
         active && /* @__PURE__ */ jsxRuntime.jsx("canvas", { ref: canvasRef, className: styles.canvas, "data-ready": ready ? "true" : "false", "aria-hidden": "true" }),
-        ready && !reduced && /* @__PURE__ */ jsxRuntime.jsx(
+        ready && !reduced && /* @__PURE__ */ jsxRuntime.jsxs(
           "button",
           {
             type: "button",
             className: styles.pause,
             onClick: completed ? replay : togglePaused,
             "aria-pressed": completed ? void 0 : paused,
-            "aria-label": completed ? "Replay motion" : paused ? "Resume motion" : "Pause motion",
-            children: controls === "playback" ? completed ? "Replay" : paused ? "Resume" : "Pause" : completed ? "Replay motion" : paused ? "Resume motion" : "Pause motion"
+            title: completed ? "Replay" : paused ? "Resume" : "Pause",
+            children: [
+              /* @__PURE__ */ jsxRuntime.jsx(ControlIcon, { name: completed ? "replay" : paused ? "play" : "pause" }),
+              /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-object__sr", children: completed ? "Replay motion" : paused ? "Resume motion" : "Pause motion" })
+            ]
           }
         )
       ]
@@ -568,10 +600,16 @@ function ObjectScene(props) {
   const anotherLook = () => setPick((current) => current && { ...current, turns: current.turns + 1 });
   return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-object-frame", "data-theme": props.theme ?? "light", "data-controls": controls, children: [
     controls === "full" && variant !== null && /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-object-edition", children: [
-      /* @__PURE__ */ jsxRuntime.jsx("span", { children: variant === 0 && props.kind !== "contact" ? `Studio \xB7 ${objectEditions[props.kind][props.edition ?? 0]}` : objectVariants[props.kind][variant] }),
+      /* @__PURE__ */ jsxRuntime.jsxs("span", { children: [
+        objectVariants[props.kind][variant],
+        variant === 0 && props.kind !== "contact" && props.edition ? ` \xB7 ${objectEditions[props.kind][props.edition]}` : ""
+      ] }),
       canVary && /* @__PURE__ */ jsxRuntime.jsx("button", { type: "button", onClick: anotherLook, "aria-label": "Another look", children: "\u21BB" })
     ] }),
-    controls === "full" && /* @__PURE__ */ jsxRuntime.jsx("button", { ref: opener, type: "button", className: "uipack-object-open", onClick: () => setOpen(true), children: "Open canvas" }),
+    controls === "full" && /* @__PURE__ */ jsxRuntime.jsxs("button", { ref: opener, type: "button", className: "uipack-object-open", onClick: () => setOpen(true), title: "Open canvas", children: [
+      /* @__PURE__ */ jsxRuntime.jsx(ControlIcon, { name: "expand" }),
+      /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-object__sr", children: "Open canvas" })
+    ] }),
     /* @__PURE__ */ jsxRuntime.jsx(
       chunkD43QOXLX_cjs.CanvasView,
       {

@@ -1,12 +1,13 @@
-import { Fragment, type CSSProperties, type ElementType, type ReactNode } from "react";
+import { type CSSProperties, type ElementType, type ReactNode } from "react";
 import { sectionOrder, uiStyles, type UiStyleId, type UiStyleMeta } from "../style";
-import { WebSurface } from "./Surface";
+import { WebSurface, type WebSurfaceProps } from "./Surface";
+import { SectionIndexContext } from "./Section";
 
 /** What a section's render function learns about the page it is placed on. */
 export interface WebPageContext {
   uiStyle: UiStyleId;
   layout: "style" | "shared";
-  /** The style's layout defaults; under layout="shared", the shared defaults (demo hero, centred, cards). */
+  /** The layout defaults: shared (demo hero, start edge, cards) unless the page opted into layout="style". */
   defaults: UiStyleMeta["layout"];
 }
 
@@ -18,33 +19,55 @@ export interface WebPageProps {
   /** The style; default "technical". */
   uiStyle?: UiStyleId;
   /**
-   * "style" (default): the section order and layout defaults the style recommends (`uiStyles[].prefers`
-   * and `.layout`). "shared": one order and layout for every style, so a swap changes tokens only.
+   * "shared" (default): the page's own section order (the keys of `sections`) and one layout in
+   * every style, so a swap changes tokens and ornaments only. "style" is an explicit opt-in to the
+   * style's own sequence and layout defaults (`uiStyles[].prefers` and `.layout`).
    */
   layout?: "style" | "shared";
   /** Or an explicit order of section ids. */
   order?: readonly string[];
   theme?: "light" | "dark";
+  /** Figure tool chrome on the page (WebSurface `figureChrome`): "quiet" by default. */
+  figureChrome?: WebSurfaceProps["figureChrome"];
   className?: string;
   style?: CSSProperties;
   as?: ElementType;
   children?: ReactNode;
 }
 
-const SHARED: UiStyleMeta["layout"] = { hero: "demo", align: "center", steps: "cards" };
+/**
+ * Each slot's content and its section number: 1, 2, 3… down the page in its order, skipping the
+ * hero (it has no section eyebrow) and any slot that renders nothing (null, false, undefined).
+ */
+export function numberSections(
+  ids: readonly string[],
+  sections: WebPageProps["sections"],
+  page: WebPageContext,
+): { id: string; node: ReactNode; index: number | undefined }[] {
+  let n = 0;
+  return ids.flatMap((id) => {
+    const section = sections[id];
+    const node = typeof section === "function" ? section(page) : section;
+    if (node === null || node === undefined || node === false) return [];
+    return [{ id, node, index: id === "hero" ? undefined : ++n }];
+  });
+}
+
+const SHARED: UiStyleMeta["layout"] = { hero: "demo", align: "start", steps: "cards" };
 
 /**
- * A whole web page in one style: the style's tokens and ornaments (WebSurface), its recommended
- * section sequence, and its layout defaults (`data-ui-layout="style"`, which web-styles.css reads:
- * Technical sets the hero and section heads on the start edge and the steps as numbered rows).
+ * A whole web page in one style: the style's tokens and ornaments (WebSurface) over the page's own
+ * section order. Swapping `uiStyle` keeps every section, its words and its position. Opt into a
+ * style's own sequence and layout defaults with `layout="style"` (`data-ui-layout="style"`).
  */
 export function WebPage({
   sections,
   nav,
   uiStyle = "technical",
-  layout = "style",
+  layout = "shared",
   order,
   theme,
+  figureChrome,
   className = "",
   style,
   as,
@@ -54,12 +77,21 @@ export function WebPage({
   const page: WebPageContext = { uiStyle, layout, defaults: layout === "style" ? meta.layout : SHARED };
   const ids = order ? order.filter((id) => id in sections) : sectionOrder(uiStyle, Object.keys(sections), layout);
   return (
-    <WebSurface uiStyle={uiStyle} theme={theme} className={className} style={style} as={as} layout={layout}>
+    <WebSurface
+      uiStyle={uiStyle}
+      theme={theme}
+      className={className}
+      style={style}
+      as={as}
+      layout={layout}
+      figureChrome={figureChrome}
+    >
       {nav}
-      {ids.map((id) => {
-        const section = sections[id];
-        return <Fragment key={id}>{typeof section === "function" ? section(page) : section}</Fragment>;
-      })}
+      {numberSections(ids, sections, page).map(({ id, node, index }) => (
+        <SectionIndexContext.Provider key={id} value={index}>
+          {node}
+        </SectionIndexContext.Provider>
+      ))}
       {children}
     </WebSurface>
   );

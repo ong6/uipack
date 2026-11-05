@@ -1,7 +1,8 @@
 import * as react from 'react';
 import { ReactNode } from 'react';
 import { L as LegendItem, T as TokenKind } from './Legend-n6GikDm_.js';
-import { I as IconName } from './index-DwRqkLtz.js';
+import { F as FigureChrome } from './context-Baoq0bBr.js';
+import { I as IconName } from './index-BCiSvaJI.js';
 
 /** One box in a preset spec. */
 interface Item {
@@ -19,6 +20,10 @@ interface FigureMeta {
     caption?: string;
     alt: string;
     headingLevel?: 2 | 3 | 4 | 5;
+    /** Hold the finished resting frame (Figure's `static`). */
+    static?: boolean;
+    /** Tool chrome (Figure's `chrome`): "full" brings Open canvas back on a quiet web page, e.g. for a hero figure. */
+    chrome?: FigureChrome;
 }
 /** What a preset produces; `Figure`-ready. */
 interface PresetParts {
@@ -80,6 +85,11 @@ interface PipelineSpec {
         depth?: number;
     };
     laneTitle?: string;
+    /**
+     * The key under the drawing. Default: "Inline" and "Queued" when there is a queue, none without
+     * one. Pass your own entries, or `false` to hide it.
+     */
+    legend?: LegendItem[] | false;
 }
 declare const defaultPipeline: PipelineSpec;
 declare function pipelineParts(spec: PipelineSpec | undefined, id: string): PresetParts;

@@ -1,5 +1,5 @@
 import { WORDS_PER_MINUTE } from './chunk-K7T4NUBP.js';
-import { technicalValues } from './chunk-LUFIOW7C.js';
+import { technicalValues, technicalFonts } from './chunk-UQE4FCJO.js';
 import { useId, useState } from 'react';
 import { jsxs, jsx } from 'react/jsx-runtime';
 
@@ -30,7 +30,7 @@ var cssColors = {
   accent: "var(--ui-accent)",
   rule: "var(--tune-slide-line, var(--ui-line))"
 };
-var resolvedFaces = { sans: "IBM Plex Sans, system-ui, sans-serif", mono: "IBM Plex Mono, ui-monospace, monospace" };
+var resolvedFaces = { sans: technicalFonts.sans, mono: technicalFonts.mono };
 var cssFaces = {
   sans: "var(--ui-slide-font-text, var(--ui-font-text))",
   mono: "var(--ui-slide-font-label, var(--ui-font-label))"
@@ -50,7 +50,7 @@ function renderSlideSvg(slide, options = {}) {
   const width = options.width ?? 1200;
   const height = Math.round(width * 9 / 16);
   const text = (x, y, value, size = 26, color = colors.ink, weight = 400, mono = false, anchor = "start", role, tracking) => `<text x="${x}" y="${y}"${anchor === "end" ? ' text-anchor="end"' : ""}${role ? ` class="uipack-slide-starter__${role}"` : ""} ${css ? "" : paint({ font: mono ? faces.mono : faces.sans })} font-size="${size}"${paint(css ? { fill: color, font: mono ? faces.mono : faces.sans } : { fill: color })} font-weight="${weight}"${tracking ? ` letter-spacing="${tracking}em"` : ""}>${escapeSvgText(tracking ? value.toUpperCase() : value)}</text>`;
-  const eyebrow = (value) => text(64, 105, value, 15, colors.accent, 600, true, "start", "label", 0.14);
+  const eyebrow = (value) => value ? text(64, 105, value, 15, colors.accent, 600, true, "start", "label", 0.14) : "";
   const foot = (x, value, anchor) => text(x, 635, value, 13, colors.muted, 500, true, anchor, "label", 0.06);
   const rule = (x1, y, x2) => `<path d="M${x1} ${y}H${x2}"${paint({ stroke: colors.rule })} stroke-width="2"/>`;
   const footer = slide.footer ? rule(64, 592, 1136) + foot(64, slide.footer.label, "start") + (slide.footer.page ? foot(1136, slide.footer.page, "end") : "") : "";

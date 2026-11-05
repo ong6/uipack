@@ -1,7 +1,8 @@
 'use strict';
 
-var chunkXEK5V7KF_cjs = require('./chunk-XEK5V7KF.cjs');
-var chunk4IWXI4YM_cjs = require('./chunk-4IWXI4YM.cjs');
+var chunkLF6OWAHL_cjs = require('./chunk-LF6OWAHL.cjs');
+var chunkL3MBR67W_cjs = require('./chunk-L3MBR67W.cjs');
+var chunkCRQKMR73_cjs = require('./chunk-CRQKMR73.cjs');
 var react = require('react');
 var server = require('react-dom/server');
 var jsxRuntime = require('react/jsx-runtime');
@@ -18,11 +19,11 @@ var paletteOf = (c) => ({
   "token-request": c["flow-request"],
   "token-response": c["flow-response"],
   "token-change": c["flow-change"],
-  mono: chunk4IWXI4YM_cjs.technicalFonts.mono,
-  sans: chunk4IWXI4YM_cjs.technicalFonts.sans
+  mono: chunkL3MBR67W_cjs.technicalFonts.mono,
+  sans: chunkL3MBR67W_cjs.technicalFonts.sans
 });
-var LIGHT = paletteOf(chunk4IWXI4YM_cjs.technicalValues.light);
-var DARK = paletteOf(chunk4IWXI4YM_cjs.technicalValues.dark);
+var LIGHT = paletteOf(chunkL3MBR67W_cjs.technicalValues.light);
+var DARK = paletteOf(chunkL3MBR67W_cjs.technicalValues.dark);
 function resolvePalette(theme) {
   const p = !theme || theme === "light" ? LIGHT : theme === "dark" ? DARK : { ...theme.base === "dark" ? DARK : LIGHT, ...stripBase(theme) };
   return { ...p, mono: p.mono.replace(/"/g, "'"), sans: p.sans.replace(/"/g, "'") };
@@ -111,10 +112,10 @@ function renderStatic(input, opts = {}) {
   g.__UIPACK_PRERENDER__ = motion;
   let drawing;
   try {
-    const floor = chunkXEK5V7KF_cjs.fontFloor(vw, opts.width ?? chunkXEK5V7KF_cjs.DEFAULT_RENDER_WIDTH, opts.minFont ?? 11);
+    const floor = chunkLF6OWAHL_cjs.fontFloor(vw, opts.width ?? chunkLF6OWAHL_cjs.DEFAULT_RENDER_WIDTH, opts.minFont ?? 11);
     drawing = inlineVars(
       svgMarkup(
-        /* @__PURE__ */ jsxRuntime.jsx(chunkXEK5V7KF_cjs.FigureMotionContext.Provider, { value: ctx, children: /* @__PURE__ */ jsxRuntime.jsx(chunkXEK5V7KF_cjs.FigureScaleProvider, { floor, children: fig.children }) })
+        /* @__PURE__ */ jsxRuntime.jsx(chunkCRQKMR73_cjs.FigureMotionContext.Provider, { value: ctx, children: /* @__PURE__ */ jsxRuntime.jsx(chunkLF6OWAHL_cjs.FigureScaleProvider, { floor, children: fig.children }) })
       ),
       p
     );
@@ -155,7 +156,7 @@ function renderStatic(input, opts = {}) {
       for (const it of fig.legend) {
         const kind = it.kind ?? "neutral";
         const tok = inlineVars(
-          svgMarkup(/* @__PURE__ */ jsxRuntime.jsx(chunkXEK5V7KF_cjs.Token, { kind, shape: it.shape ?? chunkXEK5V7KF_cjs.TOKEN_SHAPE[kind], r: 5.5, cx: lx + 6, cy: hy - 4 })),
+          svgMarkup(/* @__PURE__ */ jsxRuntime.jsx(chunkLF6OWAHL_cjs.Token, { kind, shape: it.shape ?? chunkLF6OWAHL_cjs.TOKEN_SHAPE[kind], r: 5.5, cx: lx + 6, cy: hy - 4 })),
           p
         );
         head.push(
