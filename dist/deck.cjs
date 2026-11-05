@@ -1580,9 +1580,13 @@ function notesEcho(slide) {
   if (!roots.length) return { share: 0, words: 0 };
   const shown = new Set(
     contentRoots(
-      [headlineOf(slide), slide.lede ?? "", ...slide.points ?? [], ...Object.values(slide.slots ?? {}), slide.source ?? ""].join(
-        " "
-      )
+      [
+        headlineOf(slide),
+        slide.lede ?? "",
+        ...slide.points ?? [],
+        ...Object.values(slide.slots ?? {}),
+        slide.source ?? ""
+      ].join(" ")
     )
   );
   return { share: roots.filter((w) => shown.has(w)).length / roots.length, words: roots.length };

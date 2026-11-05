@@ -347,22 +347,30 @@ function PricingPlans({ plans, note, className = "" }) {
       );
   }
   return /* @__PURE__ */ jsxs("div", { className: `uipack-web-pricing ${className}`.trim(), children: [
-    /* @__PURE__ */ jsx("ul", { className: "uipack-web-pricing__plans", "data-count": plans.length, style: { "--plans": Math.min(3, plans.length) }, children: plans.map((p, i) => /* @__PURE__ */ jsxs("li", { className: "uipack-web-plan", "data-featured": p.featured ? "" : void 0, children: [
-      /* @__PURE__ */ jsxs("div", { className: "uipack-web-plan__head", children: [
-        /* @__PURE__ */ jsx(Heading, { level: 3, size: 1, className: "uipack-web-plan__name", children: p.name }),
-        p.badge && /* @__PURE__ */ jsx("span", { className: "uipack-web-plan__badge", children: p.badge })
-      ] }),
-      /* @__PURE__ */ jsxs("p", { className: "uipack-web-plan__price", children: [
-        /* @__PURE__ */ jsx("span", { children: p.price }),
-        p.period && /* @__PURE__ */ jsx("small", { children: p.period })
-      ] }),
-      p.summary && /* @__PURE__ */ jsx(Body, { children: p.summary }),
-      p.features && p.features.length > 0 && /* @__PURE__ */ jsx("ul", { className: "uipack-web-plan__features", children: p.features.map((f, j) => /* @__PURE__ */ jsxs("li", { children: [
-        /* @__PURE__ */ jsx(Check, {}),
-        /* @__PURE__ */ jsx("span", { children: f })
-      ] }, j)) }),
-      p.action && /* @__PURE__ */ jsx("div", { className: "uipack-web-plan__action", children: /* @__PURE__ */ jsx(CtaButton, { href: p.action.href, variant: p.featured ? "primary" : "secondary", children: p.action.label }) })
-    ] }, i)) }),
+    /* @__PURE__ */ jsx(
+      "ul",
+      {
+        className: "uipack-web-pricing__plans",
+        "data-count": plans.length,
+        style: { "--plans": Math.min(3, plans.length) },
+        children: plans.map((p, i) => /* @__PURE__ */ jsxs("li", { className: "uipack-web-plan", "data-featured": p.featured ? "" : void 0, children: [
+          /* @__PURE__ */ jsxs("div", { className: "uipack-web-plan__head", children: [
+            /* @__PURE__ */ jsx(Heading, { level: 3, size: 1, className: "uipack-web-plan__name", children: p.name }),
+            p.badge && /* @__PURE__ */ jsx("span", { className: "uipack-web-plan__badge", children: p.badge })
+          ] }),
+          /* @__PURE__ */ jsxs("p", { className: "uipack-web-plan__price", children: [
+            /* @__PURE__ */ jsx("span", { children: p.price }),
+            p.period && /* @__PURE__ */ jsx("small", { children: p.period })
+          ] }),
+          p.summary && /* @__PURE__ */ jsx(Body, { children: p.summary }),
+          p.features && p.features.length > 0 && /* @__PURE__ */ jsx("ul", { className: "uipack-web-plan__features", children: p.features.map((f, j) => /* @__PURE__ */ jsxs("li", { children: [
+            /* @__PURE__ */ jsx(Check, {}),
+            /* @__PURE__ */ jsx("span", { children: f })
+          ] }, j)) }),
+          p.action && /* @__PURE__ */ jsx("div", { className: "uipack-web-plan__action", children: /* @__PURE__ */ jsx(CtaButton, { href: p.action.href, variant: p.featured ? "primary" : "secondary", children: p.action.label }) })
+        ] }, i))
+      }
+    ),
     note && /* @__PURE__ */ jsx("p", { className: "uipack-web-pricing__note", children: note })
   ] });
 }
@@ -809,6 +817,13 @@ function DemoPlayer({
     if (!el || typeof ResizeObserver === "undefined") return;
     let width = 0;
     let tallest = 0;
+    let frame2 = 0;
+    const apply = (value) => {
+      cancelAnimationFrame(frame2);
+      frame2 = requestAnimationFrame(() => {
+        el.style.minHeight = value;
+      });
+    };
     const ro = new ResizeObserver(([entry]) => {
       const border = getComputedStyle(el).boxSizing === "border-box";
       const box = (border ? entry.borderBoxSize : entry.contentBoxSize)?.[0];
@@ -818,17 +833,20 @@ function DemoPlayer({
         width = w;
         tallest = 0;
         if (el.style.minHeight) {
-          el.style.minHeight = "";
+          apply("");
           return;
         }
       }
       if (h > tallest + 0.5) {
         tallest = h;
-        el.style.minHeight = `${Math.ceil(h)}px`;
+        apply(`${Math.ceil(h)}px`);
       }
     });
     ro.observe(el);
-    return () => ro.disconnect();
+    return () => {
+      cancelAnimationFrame(frame2);
+      ro.disconnect();
+    };
   }, []);
   const end = demoEnd(steps, timing);
   const cycle = demoCycle(steps, timing);
