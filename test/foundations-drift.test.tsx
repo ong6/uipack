@@ -49,13 +49,22 @@ describe("Foundations guides and docs state only the system's own budgets", () =
     expect(rows.length).toBeGreaterThan(10);
     const wrong: string[] = [];
     for (const row of rows) {
-      const [cell, budget] = row.split("|").slice(1, 3).map((c) => c.trim());
-      const slots = cell.replace(/\(.*?\)/g, "").split("/").map((s) => s.trim()) as (keyof typeof SLOT_BUDGETS)[];
+      const [cell, budget] = row
+        .split("|")
+        .slice(1, 3)
+        .map((c) => c.trim());
+      const slots = cell
+        .replace(/\(.*?\)/g, "")
+        .split("/")
+        .map((s) => s.trim()) as (keyof typeof SLOT_BUDGETS)[];
       for (const slot of slots) {
         const b = SLOT_BUDGETS[slot];
         if (!b) continue;
         if (slot === "headline") {
-          if (!budget.includes(`at most ${TITLE_WORDS.presented} words`) || !budget.includes(`at most ${TITLE_WORDS["read-alone"]}`))
+          if (
+            !budget.includes(`at most ${TITLE_WORDS.presented} words`) ||
+            !budget.includes(`at most ${TITLE_WORDS["read-alone"]}`)
+          )
             wrong.push(`${slot}: "${budget}"`);
           continue;
         }
@@ -88,14 +97,20 @@ describe("Foundations guides agree with the pages they teach", () => {
     for (const r of web) {
       const style = new URLSearchParams(r.href.split("?")[1]).get("style") as "technical" | "landing" | "graphical";
       const rendered = sectionOrder(style, exampleSectionIds(), "shared");
-      expect(r.sequence.map((s) => name[s] ?? `?${s}`), r.name).toEqual(rendered);
+      expect(
+        r.sequence.map((s) => name[s] ?? `?${s}`),
+        r.name,
+      ).toEqual(rendered);
     }
   });
 
   it("the Foundations navigation separates the guides the pager counts from the reference pages", () => {
     const group = libraryPages.filter((p) => p.group === "foundations");
     const run = (p: (typeof group)[number]) => ("run" in p ? (p as { run?: string }).run : undefined);
-    expect(group.every((p) => run(p)), "every Foundations page names its run").toBe(true);
+    expect(
+      group.every((p) => run(p)),
+      "every Foundations page names its run",
+    ).toBe(true);
     expect(group.filter((p) => run(p) === "Guides").map((p) => p.path)).toEqual(guides.map((g) => g.path));
   });
 

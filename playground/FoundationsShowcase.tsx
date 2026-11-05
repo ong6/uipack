@@ -27,6 +27,7 @@ import { DocsMarkdown } from "../src/docs";
 import { pipeline } from "../src/presets";
 import { uiStyles, type UiStyleId } from "../src/style";
 import { routePath } from "./routes";
+import { guideSources, wordRules, words } from "./guideFacts";
 import { libraryPages } from "./catalog";
 import { useShowcaseTheme } from "./ShowcaseShell";
 import overviewDoc from "../docs/system/README.md?raw";
@@ -719,8 +720,8 @@ function WritingPage() {
       <section>
         <h2>Headlines: presented or read alone</h2>
         <p className="collection-intro">
-          Decide first who carries the argument. When you present, you do: the title is a short verdict and you say the claim. When
-          the piece goes out without you, the title has to carry it: write the claim as a full sentence.
+          Decide first who carries the argument. When you present, you do: the title is a short verdict and you say the claim.
+          When the piece goes out without you, the title has to carry it: write the claim as a full sentence.
         </p>
         <div className="fdn-table" tabIndex={0} role="region" aria-label="Headline modes">
           <table>
@@ -736,19 +737,25 @@ function WritingPage() {
               <tr>
                 <th scope="row">Presented (the default for slides)</th>
                 <td>You give it and the room hears you</td>
-                <td>2–5 words, a verdict you&rsquo;d say aloud; a bare label only on agenda, section and mechanism slides</td>
+                <td>
+                  {words(wordRules.presentedTitleAim)} (the check stops at {wordRules.presentedTitleMax}), a verdict you&rsquo;d
+                  say aloud; a bare label only on agenda, section and mechanism slides
+                </td>
                 <td>Search: twice as fast since March</td>
               </tr>
               <tr>
                 <th scope="row">Read alone</th>
                 <td>A pre-read, a forwarded deck, a figure</td>
-                <td>The real conclusion as one sentence, 3–14 words</td>
+                <td>The real conclusion as one sentence, {words(wordRules.readAloneTitle)}</td>
                 <td>Index freshness fell from 40 to 6 minutes</td>
               </tr>
               <tr>
                 <th scope="row">Web page</th>
                 <td>Read alone, by a visitor</td>
-                <td>The hero says what changed for the reader; section heads are 2–5 plain words naming what they get</td>
+                <td>
+                  The hero says what changed for the reader; section heads are {words(wordRules.webSectionHead)} naming what they
+                  get
+                </td>
                 <td>Pull requests check in about 7 minutes</td>
               </tr>
             </tbody>
@@ -782,7 +789,7 @@ function WritingPage() {
                   <td>{b.role}</td>
                   <td>
                     {name === "headline"
-                      ? `presented: at most ${TITLE_WORDS.presented} words (aim for 2–5); read alone: at most ${TITLE_WORDS["read-alone"]}, on at most ${b.maxLines} lines`
+                      ? `presented: at most ${TITLE_WORDS.presented} words (aim for ${words(wordRules.presentedTitleAim)}); read alone: at most ${TITLE_WORDS["read-alone"]}, on at most ${b.maxLines} lines`
                       : budgetText(b)}
                   </td>
                   <td>{overflowText[b.overflow] ?? b.overflow}</td>
@@ -1068,7 +1075,7 @@ export const recipes: { name: string; style: string; sequence: string[]; templat
     name: "Talk deck",
     style: "Technical",
     sequence: ["cover", "answer", "evidence", "mechanism", "plan", "end"],
-    template: "DeckSlide { role, headline (2–5 words), points[2–4], notes { say: cues, next } }",
+    template: `DeckSlide { role, headline (${words(wordRules.presentedTitleAim)}), points[${wordRules.pointsPerSlide.join("–")}], notes { say: cues, next } }`,
     href: "/deck?deck=moves",
     link: "Tech talk deck",
   },
@@ -1108,7 +1115,7 @@ export const recipes: { name: string; style: string; sequence: string[]; templat
     name: "3D hero",
     style: "Studio (3D)",
     sequence: ["establishing stop", "detail stops", "2D fallback"],
-    template: "stops[] { narration, labels[2–3 words] }",
+    template: `stops[] { narration, labels[${words(wordRules.drawingLabel)}] }`,
     href: "/animations",
     link: "3D animations",
   },
@@ -1322,7 +1329,11 @@ const slideTells = [
     "Eyebrow, sentence headline, lede, ten times",
     "Mix labels, verdicts and the odd question; no eyebrow or lede by default",
   ],
-  ["A one-word caps eyebrow", "REVIEWS, SEARCH", "Drop it; the title names the topic"],
+  [
+    "A one-word caps eyebrow on a slide",
+    "REVIEWS, SEARCH",
+    "Drop it; the title names the topic (a web page's numbered section eyebrow is wayfinding and stays)",
+  ],
 ];
 
 /**
@@ -1343,7 +1354,7 @@ function HeadlinePairs() {
           />
         }
         doit={<SlideSketch title="Search: twice as fast since March" points={["p95 198 ms, was 410 ms", "5 indexes → 1"]} />}
-        why="With a speaker in the room, a sentence title and a lede are a script: the room reads ahead while the speaker recites it. A 2–5 word verdict is the cue, the points carry the numbers, and the speaker says why it matters."
+        why={`With a speaker in the room, a sentence title and a lede are a script: the room reads ahead while the speaker recites it. A verdict of ${words(wordRules.presentedTitleAim)} is the cue, the points carry the numbers, and the speaker says why it matters.`}
       />
       <Pair
         title="Read alone, a figure or the web: the claim as a sentence"
@@ -1361,7 +1372,7 @@ function HeadlinePairs() {
             </Heading>
           </WebSurface>
         }
-        why="Forwarded without you, a label or a bare verdict says nothing. Write the real conclusion as one sentence of 3–14 words; on a web page, the hero says what changed for the reader and each section head names what they get."
+        why={`Forwarded without you, a label or a bare verdict says nothing. Write the real conclusion as one sentence of ${words(wordRules.readAloneTitle)}; on a web page, the hero says what changed for the reader and each section head names what they get in ${words(wordRules.webSectionHead)}.`}
       />
     </div>
   );
@@ -1382,9 +1393,7 @@ function DontPage() {
       </section>
       <section>
         <h2>Slide text that reads as generated</h2>
-        <p className="collection-intro">
-          Any one of these is fine now and then. On every slide it reads as a template.
-        </p>
+        <p className="collection-intro">Any one of these is fine now and then. On every slide it reads as a template.</p>
         <div className="fdn-table" tabIndex={0} role="region" aria-label="AI tells in slide text">
           <table>
             <thead>
@@ -1491,6 +1500,68 @@ function DontPage() {
   );
 }
 
+/**
+ * "On this page": the guide's sections as links, so a long guide can be scanned and entered at any
+ * section. Built from the rendered h2s after mount (each gets an id from its text if it has none).
+ */
+function OnThisPage() {
+  const [items, setItems] = useState<{ id: string; title: string }[]>([]);
+  useEffect(() => {
+    // Read once the page's sections have painted (the same frame a hash link would land in).
+    const frame = requestAnimationFrame(() => {
+      const heads = [...document.querySelectorAll<HTMLHeadingElement>("main > section > h2")];
+      setItems(
+        heads.map((h) => {
+          const title = h.textContent?.trim() ?? "";
+          if (!h.id) h.id = slug(title);
+          return { id: h.id, title };
+        }),
+      );
+    });
+    return () => cancelAnimationFrame(frame);
+  }, []);
+  if (items.length < 3) return null;
+  return (
+    <nav className="fdn-toc" aria-label="On this page">
+      <span className="fdn-toc__label">On this page</span>
+      <ol>
+        {items.map((item) => (
+          <li key={item.id}>
+            <a href={`#${item.id}`}>{item.title}</a>
+          </li>
+        ))}
+      </ol>
+    </nav>
+  );
+}
+
+/** The guides that teach across several docs link to each part instead of embedding one. */
+const linkedSources = ["/foundations/mix", "/foundations/recipes", "/foundations/do-and-dont"];
+
+/** Where the rules a guide teaches are written in full, as links into the library's docs. */
+function SpecLinks({ path }: { path: string }) {
+  const sources = guideSources[path] ?? [];
+  return (
+    <section>
+      <h2>Where the full rules live</h2>
+      <p className="collection-intro">
+        This guide draws on these parts of the library&rsquo;s documentation; each one is the canonical text.
+      </p>
+      <ul className="fdn-sources">
+        {sources.map((src) => {
+          const file = src.file.startsWith("../") ? src.file.slice(3) : `system/${src.file}`;
+          return (
+            <li key={src.label}>
+              <a href={`${REPO}/${file}${src.anchor ? `#${src.anchor}` : ""}`}>{src.label}</a>
+              <code>docs/{file}</code>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
+}
+
 /* ---------------------------------------------------------------- router */
 
 const pagesByPath: Record<string, () => ReactNode> = {
@@ -1510,7 +1581,9 @@ export default function FoundationsShowcase() {
   // Sections sit straight under the shell's <main>, like every page (showcase.css styles `main > section > h2`).
   return (
     <>
+      <OnThisPage />
       <Page />
+      {linkedSources.includes(path) && <SpecLinks path={path} />}
       <GuidePager path={pagesByPath[path] ? path : "/foundations"} />
     </>
   );

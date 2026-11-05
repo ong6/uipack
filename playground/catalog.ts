@@ -83,6 +83,11 @@ export interface PageDef {
    * switcher in its context line, kept in `?style=` so it survives a reload; the first is the default.
    */
   styles?: readonly string[];
+  /**
+   * A labelled run in the second nav row and the menu sheet: Foundations lists its seven guides
+   * (the run the guide pager counts) apart from its reference pages.
+   */
+  run?: string;
 }
 
 /**
@@ -188,14 +193,16 @@ export const libraryPages = [
   {
     id: "foundations",
     group: "foundations",
+    run: "Guides",
     label: "Overview",
     path: "/foundations",
     intro:
-      "Style, writing and layout are three layers you swap one at a time. Change each one on the slide and the web section below.",
+      "UiPack draws explanations: diagrams, slides, web pages, motion and 3D. Start here: style, writing and layout are three layers you swap one at a time; change each one on the slide and the web section below.",
   },
   {
     id: "foundations-style",
     group: "foundations",
+    run: "Guides",
     label: "Style roles",
     path: "/foundations/style",
     intro: "The roles every style fills, the ornament slots it paints, and each style's values in light and dark.",
@@ -203,6 +210,7 @@ export const libraryPages = [
   {
     id: "foundations-writing",
     group: "foundations",
+    run: "Guides",
     label: "Writing",
     path: "/foundations/writing",
     intro: "Words are typed data: a claim per unit, a text budget per slot, and one place for each kind of sentence.",
@@ -210,6 +218,7 @@ export const libraryPages = [
   {
     id: "foundations-layout",
     group: "foundations",
+    run: "Guides",
     label: "Layout",
     path: "/foundations/layout",
     intro: "Regions, archetypes and narrow forms: where each slot sits and in what order it is read.",
@@ -217,6 +226,7 @@ export const libraryPages = [
   {
     id: "foundations-mix",
     group: "foundations",
+    run: "Guides",
     label: "Mix and match",
     path: "/foundations/mix",
     intro: "What changes when you swap each layer, and the four places one layer still leaks into another.",
@@ -224,6 +234,7 @@ export const libraryPages = [
   {
     id: "foundations-recipes",
     group: "foundations",
+    run: "Guides",
     label: "Recipes",
     path: "/foundations/recipes",
     intro: "Six common jobs, each as a style, an archetype sequence and a content template, with the live page.",
@@ -231,6 +242,7 @@ export const libraryPages = [
   {
     id: "foundations-dont",
     group: "foundations",
+    run: "Guides",
     label: "Do and don't",
     path: "/foundations/do-and-dont",
     intro: "Paired examples of the rules, and the checklist of generic AI-landing tropes to keep out.",
@@ -238,6 +250,7 @@ export const libraryPages = [
   {
     id: "styles",
     group: "foundations",
+    run: "Reference",
     label: "Styles",
     path: "/styles",
     intro: "The visual languages in the library and where each one is used.",
@@ -245,6 +258,7 @@ export const libraryPages = [
   {
     id: "assets",
     group: "foundations",
+    run: "Reference",
     label: "Icons & marks",
     path: "/assets",
     intro: "Searchable icons, marks, canvas backgrounds and motion tokens, each with a preview and a copy button.",

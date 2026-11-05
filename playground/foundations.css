@@ -935,3 +935,79 @@
 .fdn-guide .uipack-docs__table tbody td:first-child {
   font-weight: 600;
 }
+
+/* On this page: the guide's sections as a wrapping row of links under the intro. */
+.fdn-toc {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px 16px;
+  margin: 0 0 32px;
+  padding: 12px 0;
+  border-block: 1px solid var(--show-rule);
+}
+.fdn-toc__label {
+  font: var(--show-eyebrow-font);
+  letter-spacing: var(--show-eyebrow-tracking);
+  text-transform: uppercase;
+  color: var(--show-muted);
+}
+.fdn-toc ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.fdn-toc a {
+  display: inline-block;
+  padding: 6px 0;
+  color: var(--show-ink);
+  font-size: 15px;
+  text-decoration: underline;
+  text-decoration-color: var(--show-rule);
+  text-underline-offset: 4px;
+}
+.fdn-toc a:hover,
+.fdn-toc a:focus-visible {
+  text-decoration-color: var(--show-accent);
+}
+
+/* Where the full rules live: one link per doc section, its file path beside it. */
+.fdn-sources {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.fdn-sources li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+}
+.fdn-sources a {
+  color: var(--show-accent);
+  font-size: 16px;
+  font-weight: 500;
+}
+.fdn-sources code {
+  font: 500 13px var(--show-font-mono);
+  color: var(--show-muted);
+}
+
+/* Do and don't read apart by shape as well as colour: a solid accent rule over each DO, a dashed
+   ink rule over each DON'T, and a verdict label large enough to find at a glance. */
+.fdn-pair figure {
+  padding-top: 10px;
+  border-top: 3px solid var(--show-accent);
+}
+.fdn-pair figure[data-verdict="dont"] {
+  border-top: 3px dashed var(--show-muted);
+}
+.fdn-pair figcaption {
+  font: 600 13px/1.3 var(--show-font-mono);
+  color: var(--show-ink);
+}

@@ -128,17 +128,14 @@ const features = [
   {
     title: "Ask in a sentence",
     body: "No rules to write. Describe the outcome and the agent plans the steps.",
-    icon: <RhymeIcon at={0.1} />,
   },
   {
     title: "Watch every action",
     body: "Each change is listed as it happens, so you can stop it or undo it.",
-    icon: <RhymeIcon at={0.55} />,
   },
   {
     title: "Decide what is left",
     body: "You see the few messages that need a person, with drafts ready.",
-    icon: <RhymeIcon at={1} />,
   },
 ];
 
@@ -493,7 +490,13 @@ function LazyFlow({ headingLevel = 3 }: { headingLevel?: 2 | 3 }) {
 }
 
 const demo = (
-  <DemoPlayer label="Product demo: clearing an inbox" address="tidy.example/inbox" steps={demoSteps} initialMetric={40} metricLabel="in your inbox" />
+  <DemoPlayer
+    label="Product demo: clearing an inbox"
+    address="tidy.example/inbox"
+    steps={demoSteps}
+    initialMetric={40}
+    metricLabel="in your inbox"
+  />
 );
 
 /** The hero's still: the product's real output after one run, the three messages left for you. */
@@ -576,7 +579,7 @@ function exampleSections(seo: ReturnType<typeof tidySeo> | null): WebPageProps["
         <Section
           id="web-demo"
           eyebrow="Demo"
-          title="Watch it clear an inbox in nine seconds."
+          title="Watch one inbox clear."
           intro="The three steps, played on a sample inbox. Pick a step to see it."
         >
           <div data-section-id="demo">{demo}</div>
@@ -592,7 +595,12 @@ function exampleSections(seo: ReturnType<typeof tidySeo> | null): WebPageProps["
       >
         <div data-section-id="proof">
           <Proof
-            lead={{ value: <NumberTicker value={37} />, of: "of 40", label: "messages handled in the sample inbox", ratio: 37 / 40 }}
+            lead={{
+              value: <NumberTicker value={37} />,
+              of: "of 40",
+              label: "messages handled in the sample inbox",
+              ratio: 37 / 40,
+            }}
             stats={[
               { value: <NumberTicker value={22} />, label: "newsletters archived" },
               { value: <NumberTicker value={9} />, label: "receipts filed" },
@@ -627,7 +635,12 @@ function exampleSections(seo: ReturnType<typeof tidySeo> | null): WebPageProps["
                 price: "$8",
                 period: "a month",
                 summary: "After a free 30-day trial.",
-                features: ["One inbox", "Every action listed as it happens", "Drafts wait for your approval", "Cancel any time"],
+                features: [
+                  "One inbox",
+                  "Every action listed as it happens",
+                  "Drafts wait for your approval",
+                  "Nothing is deleted",
+                ],
               },
             ]}
             note="Illustrative prices for a sample product."
@@ -639,7 +652,7 @@ function exampleSections(seo: ReturnType<typeof tidySeo> | null): WebPageProps["
       <ClosingCta
         id="web-closing"
         eyebrow="Start"
-        title="Try it on your own inbox."
+        title="Try it on your inbox."
         intro="Thirty days free. Tidy drafts replies but never sends them."
         action={{ label: "Start free", href: "#web-pricing" }}
         note="No card needed for the trial."
@@ -657,10 +670,10 @@ function NestedStyleDemo({ theme }: { theme: "light" | "dark" }) {
   if (!useAfterLoad()) return null;
   return (
     <WebSurface theme={theme} uiStyle="technical" className="web-panel web-nested">
-      <Section id="web-nested-technical" eyebrow="Technical" title="This band is the page's own style.">
+      <Section id="web-nested-technical" eyebrow="Technical" title="The page's own style.">
         <CtaButton>Start free</CtaButton>
       </Section>
-      <Section id="web-nested-graphical" uiStyle="graphical" eyebrow="Graphical" title="This band sets its style on its section.">
+      <Section id="web-nested-graphical" uiStyle="graphical" eyebrow="Graphical" title="One band, another style.">
         <CtaButton>Start free</CtaButton>
       </Section>
     </WebSurface>
@@ -693,7 +706,9 @@ export default function WebShowcase() {
       <SmoothScroll />
       <section data-route="web" id="web-example" className="web-anchor">
         <p className="collection-intro">
-          One page built from <code>uipack/web</code>, with one call to action in the hero, the nav and the end.
+          UiPack is a design system that draws explanations: diagrams, slides, web pages, motion and 3D, in three styles that
+          share one set of writing and layout rules. New to it? <a href="/foundations">Start with the Foundations overview</a>.
+          Below, one page built from <code>uipack/web</code>, with one call to action in the hero, the nav and the end.
         </p>
         <PageIndex />
         <LayoutSwitch layout={layout} setLayout={setLayout} order={order} />
@@ -985,21 +1000,21 @@ function Replay({ onClick }: { onClick: () => void }) {
 }
 
 function ViewTransitionDemo() {
-  const [yearly, setYearly] = useState(false);
+  const [after, setAfter] = useState(false);
   return (
     <div className="web-block" data-sample>
       <Eyebrow>View transition · with fallback</Eyebrow>
       <div className="web-price" style={{ viewTransitionName: "web-price" } as CSSProperties}>
-        <strong>{yearly ? "$96" : "$10"}</strong>
-        <span>{yearly ? "per year, two months free" : "per month"}</span>
+        <strong>{after ? "3" : "40"}</strong>
+        <span>{after ? "need you, after one run" : "in your inbox"}</span>
       </div>
       <div className="web-buttons">
         <CtaButton
           variant="secondary"
-          aria-pressed={yearly}
-          onClick={() => void withViewTransition(() => flushSync(() => setYearly((y) => !y)))}
+          aria-pressed={after}
+          onClick={() => void withViewTransition(() => flushSync(() => setAfter((a) => !a)))}
         >
-          {yearly ? "Show monthly" : "Show yearly"}
+          {after ? "Show before" : "Show after"}
         </CtaButton>
       </div>
       <Body>Cross-fades where the browser supports View Transitions; swaps instantly elsewhere and under reduced motion.</Body>
@@ -1087,9 +1102,9 @@ function MotionSection({
                   </dd>
                 </div>
                 <div>
-                  <dt>saved each week</dt>
+                  <dt>drafted</dt>
                   <dd>
-                    <NumberTicker value={4.5} format={{ minimumFractionDigits: 1, maximumFractionDigits: 1 }} suffix=" h" />
+                    <NumberTicker value={4} />
                   </dd>
                 </div>
               </dl>
