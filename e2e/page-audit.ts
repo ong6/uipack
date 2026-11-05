@@ -164,6 +164,91 @@ function cardRows() {
   return rows;
 }
 
+/**
+ * Paired examples: wrappers side by side in a row (a "don't" and a "do" figure, each a caption over
+ * a box) whose boxes sit at the same place in each wrapper. The boxes share a height, so a short
+ * example never leaves its box shorter than its partner's. 2px of slack for fonts that differ on CI.
+ */
+export async function checkPairedBoxes(page: Page) {
+  for (const row of await page.evaluate(pairedBoxRows))
+    expect(
+      Math.max(...row.heights) - Math.min(...row.heights),
+      `paired boxes in ${row.where}: ${row.heights}`,
+    ).toBeLessThanOrEqual(2);
+}
+
+function pairedBoxRows() {
+  const visible = (el: Element) => {
+    const r = el.getBoundingClientRect();
+    const s = getComputedStyle(el);
+    return r.width > 0 && r.height > 0 && s.visibility !== "hidden" && s.display !== "none";
+  };
+  const boxed = (el: Element) => {
+    const s = getComputedStyle(el);
+    return parseFloat(s.borderTopWidth) > 0 || s.backgroundColor !== "rgba(0, 0, 0, 0)";
+  };
+  const label = (el: Element) => `${el.tagName.toLowerCase()}.${[...el.classList].join(".")}`;
+  const rows: { where: string; heights: number[] }[] = [];
+  for (const parent of document.querySelectorAll(".showcase-shell *")) {
+    if (parent.closest("svg, canvas, .uipack-deck__canvas, .uipack-deck-canvas, .uipack-deck-stage, .uipack-slide-labels"))
+      continue;
+    const s = getComputedStyle(parent);
+    if (!(s.display.includes("grid") || (s.display.includes("flex") && s.flexDirection.startsWith("row")))) continue;
+    const byTop = new Map<number, Element[]>();
+    for (const kid of [...parent.children].filter(visible)) {
+      const top = Math.round(kid.getBoundingClientRect().top);
+      byTop.set(top, [...(byTop.get(top) ?? []), kid]);
+    }
+    for (const row of byTop.values()) {
+      const n = row[0].children.length;
+      if (row.length < 2 || n < 2 || row.some(boxed) || row.some((k) => k.children.length !== n)) continue;
+      for (let i = 0; i < n; i++) {
+        const boxes = row.map((k) => k.children[i]);
+        if (!boxes.every((b) => visible(b) && boxed(b) && b.tagName.toLowerCase() !== "svg")) continue;
+        const heights = boxes.map((b) => Math.round(b.getBoundingClientRect().height));
+        if (Math.max(...heights) < 40) continue;
+        rows.push({ where: `${label(parent)} > ${label(boxes[0])}`, heights });
+      }
+    }
+  }
+  return rows;
+}
+
+/**
+ * No heading ends on a line of its own one short word: page, section and card headings and figure
+ * titles balance their lines (`text-wrap: balance`). Sample content (slides, the /web page, docs
+ * prose) keeps its own rules. A last line under a third of the line above it is an orphan; balanced
+ * lines are near-equal, so other fonts do not trip it.
+ */
+export async function checkHeadingOrphans(page: Page) {
+  const orphans = await page.evaluate((sample) => {
+    const out: string[] = [];
+    for (const h of document.querySelectorAll<HTMLElement>(".showcase-shell :is(h1, h2, h3, h4, .uipack__title)")) {
+      if (!h.getClientRects().length || h.closest(sample) || h.closest("svg")) continue;
+      const words: { text: string; top: number; left: number; right: number; height: number }[] = [];
+      const walker = document.createTreeWalker(h, NodeFilter.SHOW_TEXT);
+      for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+        for (const m of (node.textContent ?? "").matchAll(/\S+/g)) {
+          const range = document.createRange();
+          range.setStart(node, m.index!);
+          range.setEnd(node, m.index! + m[0].length);
+          const r = [...range.getClientRects()].find((x) => x.width > 0);
+          if (r) words.push({ text: m[0], top: r.top, left: r.left, right: r.right, height: r.height });
+        }
+      }
+      if (words.length < 3) continue;
+      const last = words[words.length - 1];
+      const before = words[words.length - 2];
+      if (last.top < before.top + before.height / 2) continue; // the last word shares a line
+      const above = words.filter((w) => Math.abs(w.top - before.top) < before.height / 2);
+      const aboveWidth = Math.max(...above.map((w) => w.right)) - Math.min(...above.map((w) => w.left));
+      if (last.right - last.left < aboveWidth / 3) out.push(`"${(h.textContent ?? "").trim()}" ends on "${last.text}" alone`);
+    }
+    return out;
+  }, SAMPLE);
+  expect(orphans, "no heading leaves one word on its last line").toEqual([]);
+}
+
 // Buttons, selects and inputs that sit side by side in one parent.
 function controlRows() {
   const out: { where: string; heights: number[] }[] = [];

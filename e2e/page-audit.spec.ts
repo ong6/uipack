@@ -5,15 +5,18 @@ import {
   checkCompactHeader,
   checkControlFaces,
   checkFocusRingsNotClipped,
+  checkHeadingOrphans,
   checkHeadingOutline,
   checkHeadingScale,
   checkNoOverflow,
+  checkPairedBoxes,
   tabOf,
 } from "./page-audit";
 
 // Every playground page, from the catalog, loaded once per width with every page-level check run on
-// that load: the heading outline and tab title, the heading scale, control faces, card and control
-// alignment, the compact phone header, focus rings, and no page overflow in both themes.
+// that load: the heading outline and tab title, the heading scale, control faces, card, control and
+// paired-box alignment, heading orphans, the compact phone header, focus rings, and no page overflow
+// in both themes.
 test.describe.configure({ mode: "parallel" });
 
 // Mobile routes the owner asked to keep clean: no page-wide overflow at 390 and 768, in both themes.
@@ -52,6 +55,8 @@ for (const { label, path } of ALL) {
         await checkHeadingOutline(page, label, path);
         await checkHeadingScale(page, 24);
         await checkAlignment(page);
+        await checkPairedBoxes(page);
+        await checkHeadingOrphans(page);
         if (path === "/") {
           // Sections on the diagrams page are one shell gap apart.
           const gaps = await page.evaluate(() => {
@@ -71,6 +76,8 @@ for (const { label, path } of ALL) {
         await checkCompactHeader(page, label);
         await checkHeadingScale(page, 22);
         await checkAlignment(page);
+        await checkPairedBoxes(page);
+        await checkHeadingOrphans(page);
         const mobile = MOBILE_ROUTES.includes(path);
         if (mobile) await checkNoOverflow(page, 390, "390 light");
         if (FOCUS_RING_PAGES[390].includes(path)) await checkFocusRingsNotClipped(page);
