@@ -13,19 +13,24 @@ render in any layout that has matching slots, in any style. See [the system over
    input. Arithmetic on given numbers is fine ("40 to 6 minutes" is "34 minutes sooner"); a guess
    about what a metric includes, why it moved or what it rules out is not, however plausible ("the
    p95 already counts retried requests"). A fact the piece needs but the input lacks is never filled
-   in, and finished copy never shows `TODO`: say the gap where it is spoken or read, as a line a
-   person can say ("iOS 0.8%: source still to confirm", "We don't yet know the iOS start-time
-   cost"), in the notes or caption, and off the slide unless it changes the decision. A visible
-   `TODO:` is only for a draft the owner asked to see as a draft. A consequence the input gives as a
+   in, and finished copy never shows `TODO` (only a draft the owner asked to see as one). Never
+   state a gap as a fact about the team or the world ("we haven't costed a fix", "no other options
+   costed", "nothing else changed"): that is invented too. Leave it out, or, only when the decision
+   needs it, pin it to the data in the notes or caption ("iOS isn't in these numbers", "the brief
+   has no cost for a fix", "iOS 0.8%: source still to confirm"). A consequence the input gives as a
    purpose can be stated: "approve by 9 January so it ships in spring" means a later yes misses
-   spring. A recommendation is said as one ("we recommend"), never as a measured fact.
+   spring. A recommendation is said as one ("we recommend"), never as a measured fact. A
+   before/after comparison claims no cause: say "after", "since", "went from… to", never "lifted",
+   "cut", "drove" or "because", and say once, briefly, that it is a before/after of two windows,
+   not a controlled test (`causal-claim`).
 3. **Specific beats upbeat.** Use a number and what it measures, a multiple ("twice"), or a
    before and after ("3 meetings → 1"). "In a good place" could describe any quarter.
 4. **Every number has a baseline, a window and a source, and each binds only to the number it
    measures.** "The search latency dashboard, May vs June, all regions" given for p95 says nothing
    about the error rate in the next sentence: its notes say the window and source are still to
-   confirm, never "same window and source". Keep the measure's own word too: a median stays a median (or
-   its exact plain form, "half of requests"). Put all three on the canvas when they change the
+   confirm, never "same window and source". Keep the measure's own word and its qualifiers exactly:
+   a median stays a median (or its exact plain form, "half of requests"), "up to 15 minutes" never
+   becomes "a short while" or "15 min", "about 40" keeps its "about". Put all three on the canvas when they change the
    decision, otherwise in the caption or notes.
 5. **Each word has one place to live:**
 
@@ -44,7 +49,9 @@ render in any layout that has matching slots, in any style. See [the system over
    codes go in parentheses only when someone needs to trace them. Don't coin a label the input
    doesn't use ("off-main decode"). Copy for users says what they notice ("images now load in the
    background"), not the mechanism ("main thread") or the tool that measured it ("Crashlytics":
-   "our crash reports"), and keeps the scope qualifier they need ("on Android").
+   "our crash reports"), and keeps the scope qualifier they need ("on Android"). A public or
+   customer page carries no internal metrics (conversion rates, ticket counts) unless its reader
+   cares about them: "cards that used to go missing now show up", not "tickets fell from 40 to 9".
 7. **No sentences in the drawing, no labels in the notes.** If a label wraps, split the part or
    move the sentence to the caption.
 8. **Readable alone.** A screenshot of a figure and a muted video still make the point. A presented
@@ -129,18 +136,20 @@ yet.
 
 - The **caption** states the claim. A stranger should be able to say it from the picture alone, and
   the caption confirms it.
-- Every box appears in the caption (its claim or its caveat) or in an arrow label. Eight to twelve
-  nodes is the ceiling; past that, use two figures with two claims, or a drill-down.
-- Every arrow is labelled with what moves or the rule that gates it (`decoded image`, `draw`),
-  never a statistic or a noun that names no change (`user sessions`). Node labels use the input's
-  words, not coined ones.
-- **Outcome nodes name the result** (`Crash rate`) with the value and window in the sub-label; a
-  time window (`30 days after`) is not a node. Before and after panels show the same measures.
+- **Draw the system or the flow, not the results.** At most six nodes; past that, use two
+  figures with two claims, or a drill-down. Every box appears in the caption (its claim or its
+  caveat) or in an arrow label.
+- Every arrow follows the direction of flow and is labelled with what moves or the rule that gates
+  it (`decoded image`, `draw`), never a statistic or a noun that names no change (`user sessions`).
+  Nothing points from a screen to a metric or a ticket count. Node labels use the input's words,
+  not coined ones.
+- **Results live in a sub-label or the caption**, never as their own node; a time window (`30 days
+  after`) is not a node either. Before and after panels show the same measures.
 - **A statistic lives once, in the sub-label of the node it measures**, with its baseline:
-  `p95 198ms · was 410ms` on the outcome node, `3% · was 5%` on the retry branch's node. On an arrow or a
+  `p95 198ms · was 410ms` on the search node, `3% · was 5%` on the retry branch's node. On an arrow or a
   single path, it reads as if it covered only that path.
-- **Every path ends somewhere.** Each branch, the failure and exception ones included, reaches an
-  outcome node or rejoins the flow. If the input doesn't say where a branch goes, end it at a node
+- **Every path ends somewhere.** Each branch, the failure and exception ones included, reaches a
+  node or rejoins the flow. If the input doesn't say where a branch goes, end it at a node
   labelled `Not yet known` and say so in the caption, rather than drawing an invented route or a
   dead end.
 - **One scope per figure.** Every number in it shares the caption's population and window, and the
@@ -201,8 +210,8 @@ nothing. A short verdict keeps both.
 - **One idea per slide, said once.** The body proves the title without repeating it, and no slide
   restates another (rule 9). Cover the title, and the visual should still point at it.
 - **The facts set the length, not the template.** When the input can't fill a beat (no options,
-  no milestones), merge or drop it and say the gap in that slide's notes ("No options costed
-  yet"); don't invent content to fill it. "Do nothing" can always be stated from the facts: what stays as it is.
+  no milestones), merge or drop it; don't invent content to fill it, and don't announce the gap as
+  a fact about the team (rule 2). "Do nothing" can always be stated from the facts: what stays as it is.
 - **Roles** (`cover`, `answer`, `context`, `problem`, `evidence`, `mechanism`, `option`,
   `recommendation`, `plan`, `risk`, `ask`, `demo`, `appendix`) tag each slide's job. Six storyline
   templates order them: project update, decision request, deep dive, launch, postmortem, review
@@ -210,9 +219,11 @@ nothing. A short verdict keeps both.
 - **End on a concrete ask**: an action, a named owner (a role or team) and a calendar date (with
   its year when that isn't this year), in the title or the points, plus what happens on a no or a
   missed date: the input's stated purpose gives it ("so it ships in spring": later misses spring);
-  if nothing does, the notes say it is still open. Never "Questions?".
+  if nothing does, leave it out. Never "Questions?".
 - **Notes are cues when presented.** `say` is a few short lines, one thought each and at most about
-  60 words (`notes-cues`): the claim to say, the number to point at, the caveat, the source.
+  60 words (`notes-cues`), content first: the claim to say and the number to point at, in a few
+  words ("Desktop only: 61.2 → 63.0 over four weeks"), then the caveat and the source. A stage
+  direction alone ("Point at the 9") is not a cue; it goes in `delivery`.
   `delivery` is one cue for pace or where to point; `next` is the bridge, a few words, only where
   the link isn't obvious (the same "Next: …" under every slide reads as a template). Because you
   talk in your own words, the talk's length comes from the slide count, about a minute a slide, not
@@ -228,7 +239,8 @@ The full rules are in [Web principles](../web-principles.md). The core:
 - **One goal per page.** One primary action, placed in the hero, the nav and the end. It is the
   reader's own next step. When the facts' real action is an internal approval, that ask belongs
   in the deck; the page keeps budgets, pending approvals and approvers' names off it, but keeps
-  any trade-off its readers will feel (a higher error rate) as a section.
+  any trade-off its readers will feel (a higher error rate) as a section. Internal metrics
+  (conversion, ticket counts) stay off it too (rule 6): say what the customer notices.
 - **The headline is the outcome for the reader**, in their words and with its scope ("on
   Android"); the subhead says how, and a demo proves it within 15 seconds.
 - **Section heads are short and plain**: 2–5 words naming what the reader gets ("Fewer crashes",
