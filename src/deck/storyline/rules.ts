@@ -15,7 +15,7 @@ export interface StorySlide {
   role?: SlideRole;
   /** Talk track. A string is treated as `say`. */
   notes?: (SpeechGuide & { stops?: Record<string, string> }) | string;
-  /** The title shown on the slide: a short label or verdict when presented, the full conclusion when read alone. */
+  /** The title shown on the slide: a short spoken verdict when presented, the full conclusion when read alone. */
   headline?: string;
   /** On-slide source line for the slide's numbers. */
   source?: string;
@@ -52,8 +52,11 @@ export type LintRule =
   | "template-beats"
   | "slot-budget"
   | "notes-cues"
+  | "notes-echo"
+  | "ask-scope"
   | "slide-shape"
-  | "ai-tells";
+  | "ai-tells"
+  | "causal-claim";
 
 export interface LintFinding {
   slideId?: string;
@@ -85,12 +88,12 @@ export const LINT_RULES: Readonly<Record<LintRule, { severity: LintSeverity; che
   "title-claim": {
     severity: "error",
     check:
-      "Presented: the title names the slide's topic or verdict, not its kind ('Background', 'Results', 'Next steps' warn). Read-alone: the title states a claim of three or more words, not a topic label.",
+      "Presented: a content slide's title is a short verdict the speaker can say ('Crashes down by two thirds', 'Start time: 0.2 s slower'); a bare topic label ('Crash rate') warns except on a cover, section, mechanism, demo or appendix slide, and a word that names the slide's kind ('Background', 'Results', 'Next steps') warns everywhere. Read-alone: the title states a claim of three or more words, not a topic label.",
   },
   "title-length": {
     severity: "warn",
     check:
-      "Presented: the title is at most 6 words, a label or a verdict, never a sentence to read out. Read-alone: at most 14 words.",
+      "Presented: the title is at most 6 words, a spoken verdict, never a sentence to read out. Read-alone: at most 14 words.",
   },
   "title-specific": {
     severity: "warn",
@@ -149,7 +152,17 @@ export const LINT_RULES: Readonly<Record<LintRule, { severity: LintSeverity; che
   "notes-cues": {
     severity: "warn",
     check:
-      "Presented: each slide's `say` is cues, not a script: at most 60 words (the claim to say, the number to point at), with the bridge in `next`.",
+      "Presented: each slide's `say` is cues, not a script: at most 60 words (why it matters, the so-what, the trade-off), with the bridge in `next`. A `say` of stage directions only ('Point at the 9', 'Walk the figure') warns; a stage direction beside content is a tip to move it to `delivery`.",
+  },
+  "notes-echo": {
+    severity: "warn",
+    check:
+      "Presented: a slide's notes add what the slide can't hold (why it matters, the so-what for this audience, the trade-off if the answer is no, the bridge), reasoned from the given facts. Notes whose content words are mostly (55% or more) already on the slide warn; source lines don't count.",
+  },
+  "ask-scope": {
+    severity: "warn",
+    check:
+      "Presented: the ask slide itself says what is approved or done (a decision verb with its object: 'approve Spanish and French', not 'approve by 15 January') and, when another slide states a cost, what it costs (a quantity that isn't a date: 'one engineer, about three weeks', or 'no extra cost').",
   },
   "slide-shape": {
     severity: "warn",
@@ -160,6 +173,11 @@ export const LINT_RULES: Readonly<Record<LintRule, { severity: LintSeverity; che
     severity: "warn",
     check:
       "No templated rhetoric: a 'X, not Y' contrast or an appended comparison ('…, twice as fast as March') on more than one slide warns; a semicolon joining two clauses in a title, lede or point is a tip.",
+  },
+  "causal-claim": {
+    severity: "warn",
+    check:
+      "A deck that shows a before/after comparison ('61.2% → 63.0%', 'was 40', 'Sep vs Oct') claims no cause from it: a cause verb ('lifted', 'cut', 'drove', 'because') in a title, lede or point warns outside mechanism, plan and ask slides (say 'after', 'since', 'went from… to'). A tip when nothing on the slides, notes or source says once that it is a before/after of two windows, not a controlled test.",
   },
 };
 

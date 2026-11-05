@@ -26,9 +26,18 @@ import {
   isSpecific,
   inferRoles,
   titleForm,
+  isLabelTitle,
   NOT_CONTRAST_RE,
   COMPARISON_KICKER_RE,
   SEMICOLON_CLAUSES_RE,
+  BEFORE_AFTER_RE,
+  CAUSAL_RE,
+  NOT_A_TEST_RE,
+  STAGE_DIRECTION_RE,
+  notesEcho,
+  hasAskObject,
+  hasAskCost,
+  statesCost,
 } from "./heuristics";
 
 /** What every check reads: the deck, its options, and what is derived from them once. */
@@ -65,6 +74,13 @@ function titledSlides(deck: LintContext) {
     .filter(({ headline }) => headline);
 }
 
+/** Slides whose title may be a bare label: the cover, a section divider, a zoom into one part, a demo, the appendix. */
+const LABEL_ROLES: readonly SlideRole[] = ["cover", "mechanism", "demo", "appendix"];
+const labelAllowed = (deck: LintContext, slide: StorySlide) => {
+  const role = deck.roleAt(slide);
+  return Boolean((role && LABEL_ROLES.includes(role)) || slide.slots?.number !== undefined);
+};
+
 /** A slide's body points and declared slots: where a presented slide's numbers sit. */
 const bodyText = (slide: StorySlide) =>
   [...(slide.points ?? []), ...Object.values(slide.slots ?? {})].filter(Boolean) as string[];
@@ -74,6 +90,12 @@ const wordCount = (text: string) => text.match(/\S+/g)?.length ?? 0;
 
 /** Most words in a presented slide's `say` before it reads as a script rather than cues. */
 const MAX_CUE_WORDS = 60;
+/** Roles whose slides state what the work costs. */
+const COST_ROLES: readonly SlideRole[] = ["answer", "option", "recommendation", "plan"];
+/** Share of a presented slide's note words already on the slide at which the note only repeats it. */
+export const ECHO_SHARE = 0.55;
+/** Fewest content words a note needs before its echo is judged: "Source: the survey" is too short to tell. */
+const ECHO_MIN_WORDS = 6;
 
 /**
  * The checks, in the order their findings are listed: the deck's identity, then each slide's title
@@ -102,7 +124,11 @@ export const LINT_CHECKS: readonly LintCheck[] = [
     check: ({ slides }, report) => {
       for (const slide of slides)
         if (!headlineOf(slide))
-          report("error", "No title. Give it a short label or verdict (read-alone: the conclusion as a sentence).", slide.id);
+          report(
+            "error",
+            "No title. Give it a short verdict the speaker can say (read-alone: the conclusion as a sentence).",
+            slide.id,
+          );
     },
   },
   {
@@ -118,13 +144,16 @@ export const LINT_CHECKS: readonly LintCheck[] = [
           if (TOPIC_LABELS.has(label))
             report(
               soft("warn"),
-              `"${headline}" names the kind of slide, not its topic. Name the topic ("Search latency") or the verdict ("Search: twice as fast since March").`,
+              `"${headline}" names the kind of slide, not its topic. Say the verdict ("Search: twice as fast since March").`,
               slide.id,
             );
           else if (TOPIC_OPENING_RE.test(headline))
+            report(soft("tip"), `"${headline}" opens like a topic ("${topicOpening(headline)}"). Say the verdict.`, slide.id);
+          else if (labelAllowed(deck, slide) || !isLabelTitle(headline)) continue;
+          else
             report(
-              soft("tip"),
-              `"${headline}" opens like a topic ("${topicOpening(headline)}"). Name the thing itself, or the verdict.`,
+              "warn",
+              `"${headline}" is a topic label on a content slide. Say the verdict the speaker would say aloud ("Crashes down by two thirds", "Start time: 0.2 s slower"); keep bare labels for agenda and section slides.`,
               slide.id,
             );
           continue;
@@ -163,7 +192,7 @@ export const LINT_CHECKS: readonly LintCheck[] = [
         if (deck.mode === "presented")
           report(
             "warn",
-            `"${headline}" is ${words} words, a sentence to read out. Cut it to a 2–5 word label or verdict, put the numbers in the points and say the rest. (Sent without you? Lint it with mode "read-alone".)`,
+            `"${headline}" is ${words} words, a sentence to read out. Cut it to a 2–5 word verdict, put the numbers in the points and say the rest. (Sent without you? Lint it with mode "read-alone".)`,
             slide.id,
           );
         else report("warn", `Title is ${words} words; keep it to ${MAX_TITLE_WORDS} or move detail to the body.`, slide.id);
@@ -219,8 +248,8 @@ export const LINT_CHECKS: readonly LintCheck[] = [
         report(
           "warn",
           forms[0] === "colon"
-            ? 'Every title is "Topic: verdict". Mix the forms: a plain label ("Search latency"), a verdict, the occasional question.'
-            : "Every title is a full sentence, so the deck reads as a script. Use short labels and verdicts, and say the sentences aloud.",
+            ? 'Every title is "Topic: verdict". Mix the forms: a plain verdict ("Search got twice as fast"), a "Topic: value" pair, the occasional question.'
+            : "Every title is a full sentence, so the deck reads as a script. Use short spoken verdicts, and say the full sentences aloud.",
         );
       }
     },
@@ -248,6 +277,33 @@ export const LINT_CHECKS: readonly LintCheck[] = [
             slide.id,
           );
       }
+    },
+  },
+  {
+    // A before/after of two windows shows what changed alongside the change, not that it caused it.
+    rule: "causal-claim",
+    check: (deck, report) => {
+      const slides = deck.slides.filter((s) => s.role !== "appendix");
+      const linesOf = (s: StorySlide) => [headlineOf(s), s.lede ?? "", ...(s.points ?? [])].filter(Boolean);
+      if (!slides.some((s) => linesOf(s).some((l) => BEFORE_AFTER_RE.test(l)))) return;
+      const exempt: readonly (SlideRole | undefined)[] = ["mechanism", "plan", "ask"];
+      for (const slide of slides) {
+        if (exempt.includes(deck.roleAt(slide))) continue;
+        const line = linesOf(slide).find((l) => CAUSAL_RE.test(l) && !NOT_A_TEST_RE.test(l));
+        if (line)
+          report(
+            "warn",
+            `"${line}" claims a cause from a before/after comparison. Say what went with it: "after", "since", "went from… to".`,
+            slide.id,
+          );
+      }
+      const said = slides.some((s) => [...linesOf(s), notesText(s.notes), s.source ?? ""].some((t) => NOT_A_TEST_RE.test(t)));
+      // A titles-only outline has nowhere to say it yet; notes-present reports that.
+      if (!said && slides.some((s) => sayOf(s.notes)))
+        report(
+          "tip",
+          'The deck compares before and after but never says so. Say it once, in a cue or a point: "before/after of two windows, not a controlled test".',
+        );
     },
   },
   {
@@ -295,7 +351,7 @@ export const LINT_CHECKS: readonly LintCheck[] = [
         if (!sayOf(slide.notes))
           report(
             "warn",
-            "No speaker notes. Give the cues: the claim you'll say, the number to point at, and the bridge in `next`.",
+            "No speaker notes. Cue what the slide can't hold: why it matters, what follows for this audience, the trade-off, and the bridge in `next`.",
             slide.id,
           );
     },
@@ -309,9 +365,41 @@ export const LINT_CHECKS: readonly LintCheck[] = [
         if (words > MAX_CUE_WORDS)
           report(
             "warn",
-            `The notes run ${words} words, a script to recite. Cut them to a few short cue lines (the claim to say, the number to point at) and the bridge in \`next\`; you'll say it in your own words.`,
+            `The notes run ${words} words, a script to recite. Cut them to a few short cue lines (why it matters, the so-what, the trade-off) and the bridge in \`next\`; you'll say it in your own words.`,
             slide.id,
           );
+        const lines = sayOf(slide.notes)
+          .split(/\n+|(?<=[.!?])\s+/)
+          .map((l) => l.trim())
+          .filter(Boolean);
+        const directions = lines.filter((l) => STAGE_DIRECTION_RE.test(l));
+        if (directions.length && directions.length === lines.length)
+          report(
+            "warn",
+            `The notes are only stage directions ("${directions[0]}"). Cue what the slide can't say: why the number matters to this room, what follows from it ("Desktop only, so mobile is still open").`,
+            slide.id,
+          );
+        else if (directions.length)
+          report(
+            "tip",
+            `"${directions[0]}" is a stage direction; move it to \`delivery\` and keep \`say\` for what to say.`,
+            slide.id,
+          );
+      }
+    },
+  },
+  {
+    rule: "notes-echo",
+    check: ({ presented, mode }, report) => {
+      if (mode !== "presented") return;
+      for (const slide of presented) {
+        const { share, words } = notesEcho(slide);
+        if (words < ECHO_MIN_WORDS || share < ECHO_SHARE) continue;
+        report(
+          "warn",
+          `The notes mostly repeat the slide (${Math.round(share * 100)}% of their words are on it). The room can read the slide; cue what it can't hold: why it matters to this audience, what follows from the number, the trade-off, and the bridge to the next slide. Reason from the given facts; add no new ones.`,
+          slide.id,
+        );
       }
     },
   },
@@ -418,6 +506,32 @@ export const LINT_CHECKS: readonly LintCheck[] = [
           missing.includes("a date") && hedged && 'The date is hedged ("-ish", "maybe", "TBC"); commit to one.',
         ].filter(Boolean);
         report("warn", [`The ask is missing ${missing.join(", ")}.`, ...hints].join(" "), ask.id);
+      }
+    },
+  },
+  {
+    rule: "ask-scope",
+    check: ({ asks, presented, mode, roleAt }, report) => {
+      if (mode !== "presented") return;
+      // A cost stated on an answer, option, recommendation or plan slide belongs on the ask too (a
+      // problem slide's "needed an engineer" is the pain, not the price); with none, none is asked for.
+      const costed = presented.find(
+        (s) =>
+          !asks.includes(s) &&
+          COST_ROLES.includes(roleAt(s) as SlideRole) &&
+          statesCost([headlineOf(s), ...bodyText(s)].join(". ")),
+      );
+      for (const ask of asks) {
+        // On the slide, so a forwarded copy still says what is asked and what it costs.
+        const shown = [headlineOf(ask), ...bodyText(ask)].join(". ");
+        const missing = [
+          !hasAskObject(headlineOf(ask), shown) &&
+            'what is being approved or done ("approve Spanish and French", not "approve by 15 January")',
+          costed &&
+            !hasAskCost(shown) &&
+            `what it costs: "${headlineOf(costed)}" states a cost, so put it on the ask in a few words, beside the decision it buys`,
+        ].filter(Boolean);
+        if (missing.length) report("warn", `The ask slide doesn't say ${missing.join(", or ")}.`, ask.id);
       }
     },
   },
@@ -530,7 +644,7 @@ function lintContext(slides: readonly StorySlide[], options: LintOptions): LintC
 }
 
 /**
- * Check a deck's argument: titles that fit the mode (short labels and verdicts when presented, full
+ * Check a deck's argument: titles that fit the mode (short spoken verdicts when presented, full
  * conclusions when read alone), answer first, a concrete closing ask, role rhythm,
  * talk tracks, sources for numbers, and length against the time budget. Runs `LINT_CHECKS` in
  * order. Pure; no DOM.

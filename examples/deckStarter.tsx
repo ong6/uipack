@@ -44,11 +44,12 @@ const rewritten: Record<string, Partial<DeckSlide>> = {
     },
   },
   [`${TEMPLATE}-2`]: {
-    ...written("Freshness", "Index freshness", ["40 min → 6", "Goal: 10 min", "p95, last 14 days, migrated traffic"]),
+    ...written("Freshness", "Freshness: 40 → 6 min", ["Goal: 10 min", "p95, last 14 days, migrated traffic"]),
     notes: {
       say: cues(
         "Freshness is why we're migrating.",
         "An edit shows up in search in 6 minutes. It used to take 40.",
+        "Migrated against old traffic: not a controlled test.",
         "Source: the freshness dashboard.",
       ),
       delivery: "Point at the goal, not the old number.",
@@ -108,8 +109,9 @@ const rewritten: Record<string, Partial<DeckSlide>> = {
     ]),
     notes: {
       say: cues(
-        "Platform leads: approve a two-week freeze on index schema changes from 20 May.",
-        "Without it, a schema change during cutover costs another backfill.",
+        "Why: two weeks from 20 May spans the 30 May cutover, when a schema change hurts most.",
+        "If no: one change mid-cutover means another backfill.",
+        "Teams with a change planned land it before 20 May.",
       ),
       delivery: "Stop after the ask and wait for an answer.",
     },

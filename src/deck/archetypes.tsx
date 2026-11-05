@@ -14,7 +14,7 @@ import type { DeckSlide } from "./types";
 interface Frame {
   /** Optional, off by default: the section this slide sits in, 1–4 words. */
   eyebrow?: string;
-  /** The title: a 2–5 word label or verdict when presented, the conclusion as a sentence when read alone. */
+  /** The title: a 2–5 word spoken verdict when presented (a label only on a cover, section or mechanism slide), the conclusion as a sentence when read alone. */
   headline: string;
   footer?: ReactNode;
 }

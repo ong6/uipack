@@ -10,9 +10,9 @@ For information-dense slides in the strategy-consulting style (panels of charts,
 
 1. **Pick the storyline.** Project update, decision request, deep dive, launch, postmortem or review highlights ([deck storytelling](deck-storytelling.md) has all six, each with the one line leadership should remember).
 2. **Get a playable draft.** `starterDeck(template)` returns one stub slide per beat, with the template's example title and points, its title pattern and advice.
-3. **Write the titles and points first.** Rewrite each `headline` (2–5 words: a label or a verdict) and its `points` (the numbers, as fragments) with your facts, and read the titles in order (G, then Storyline): that ghost deck is your outline. Slide one names the business outcome, not the system.
-4. **Replace each stub's `render`** with the slide that shows its points or its one piece of evidence, and add cue `notes`: a few short lines on what you'll say.
-5. **Check it.** Pass `lint` while you write; the Storyline tab lists what's missing (notes, sources for numbers, an ask without an owner or a date). Remove `lint`, present, then send the PDF. If the deck will be read without you, write full-sentence titles and lint with `mode: "read-alone"` ([the two modes](deck-storytelling.md#two-modes-presented-and-read-alone)).
+3. **Write the titles and points first.** Rewrite each `headline` (2–5 words: a verdict you'd say aloud) and its `points` (the numbers, as fragments) with your facts, and read the titles in order (G, then Storyline): that ghost deck is your outline. Slide one names the business outcome, not the system.
+4. **Replace each stub's `render`** with the slide that shows its points or its one piece of evidence, and add cue `notes`: a few short lines on what the slide can't hold (why it matters, the so-what, the trade-off), never its points again.
+5. **Check it.** Pass `lint` while you write; the Storyline tab lists what's missing (notes, notes that repeat their slide, sources for numbers, an ask without its object, cost, owner or date). Then reread it as the audience against the [review checklist](system/writing.md#rules-for-every-medium) and revise once. Remove `lint`, present, then send the PDF. If the deck will be read without you, write full-sentence titles and lint with `mode: "read-alone"` ([the two modes](deck-storytelling.md#two-modes-presented-and-read-alone)).
 
 ```tsx
 import { DeckPlayer, PointsSlide, starterDeck, type DeckSlide } from "uipack/deck";
@@ -111,7 +111,7 @@ const latency = factSlide({
   source: "Search latency dashboard, Q2 against Q3",
   footer: "Search platform · Q3 review",
   role: "evidence",
-  notes: { say: "p95: the slowest search in twenty.\n412 ms in Q2, 198 now.\nSource: the search latency dashboard." },
+  notes: { say: "p95: the slowest search in twenty, what people waiting feel.\nSame query mix both quarters, so easier queries don't explain it.\nSource: the search latency dashboard." },
 });
 ```
 
@@ -200,7 +200,7 @@ The **PDF / Print** button prints every slide, fully built, one per 16:9 page (1
 
 ## Storyline and checks
 
-Give slides a `role` (`cover`, `answer`, `context`, `problem`, `evidence`, `mechanism`, `option`, `recommendation`, `plan`, `risk`, `ask`, `demo`, `appendix`), a `headline` (the title on the slide: 2–5 words when presented, the full conclusion when read alone) and its `points`. The overview's Storyline tab lists the headlines in order: read alone, they should outline the argument. Pass `lint` (or `lint={{ template: "decision-request", minutes: 10 }}`, adding `mode: "read-alone"` for a deck sent without you) to show `lintDeck` findings there: titles that are sentences to read out (presented) or labels rather than claims (read-alone), slides without a quantity, notes that are a script rather than cues, the same shape on every slide, repeated AI tells, a missing early answer, no concrete closing ask (an owner that is a placeholder, a hedged date), numbers without a named source, a template beat with no slide, missing or thin talk tracks, and length against the time budget. A deck with no roles still gets the answer-first and closing-ask checks, on roles read from its titles. Leave `lint` off for the audience. In development builds the player also warns in the console, once per slide, when a slide's on-slide heading (its first `h1` or `h2`) no longer says its `headline`, since the two are written separately. The templates, roles and every rule are in [deck storytelling](deck-storytelling.md).
+Give slides a `role` (`cover`, `answer`, `context`, `problem`, `evidence`, `mechanism`, `option`, `recommendation`, `plan`, `risk`, `ask`, `demo`, `appendix`), a `headline` (the title on the slide: 2–5 words when presented, the full conclusion when read alone) and its `points`. The overview's Storyline tab lists the headlines in order: read alone, they should outline the argument. Pass `lint` (or `lint={{ template: "decision-request", minutes: 10 }}`, adding `mode: "read-alone"` for a deck sent without you) to show `lintDeck` findings there: titles that are sentences to read out (presented) or labels rather than claims (read-alone), slides without a quantity, notes that are a script rather than cues or that repeat their slide, the same shape on every slide, repeated AI tells, a missing early answer, no concrete closing ask (an owner that is a placeholder, a hedged date, an ask slide without its object or the cost stated earlier), numbers without a named source, a template beat with no slide, missing or thin talk tracks, and length against the time budget. A deck with no roles still gets the answer-first and closing-ask checks, on roles read from its titles. Leave `lint` off for the audience. In development builds the player also warns in the console, once per slide, when a slide's on-slide heading (its first `h1` or `h2`) no longer says its `headline`, since the two are written separately. The templates, roles and every rule are in [deck storytelling](deck-storytelling.md).
 
 ## URL and position
 
