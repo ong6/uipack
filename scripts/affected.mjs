@@ -41,7 +41,8 @@ const FIGURES = [
   "reduced",
   "static",
 ];
-const SHELL = ["nav", "page-audit", "showcase", "gallery", "assets-gallery"];
+// The shell draws every page's header, context line and nav, so the pages whose specs read those run too.
+const SHELL = ["nav", "page-audit", "showcase", "gallery", "assets-gallery", "web", "showcase-content", "foundations", "docs"];
 
 /** First matching rule wins. A path no rule matches runs no browser test. */
 const AREAS = [
