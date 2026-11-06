@@ -1,6 +1,8 @@
 # UIPACK agent guide
 
-Read `docs/system/README.md` (the design system: style, writing and layout as independent layers) and `docs/design-direction.md` before changing any visible UI. Read the nearest README before editing its area. `CLAUDE.md` points here; keep one canonical policy.
+**Using UiPack on a site** (building a page, a diagram, copy, a site spec, a review): start at [`docs/agents/README.md`](docs/agents/README.md), then the job's skill in [`skills/`](skills/README.md). Both ship in the package (`node_modules/uipack/`). The rest of this file is for changing uipack itself.
+
+**Changing uipack:** read `docs/system/README.md` (the design system: style, writing and layout as independent layers) and `docs/design-direction.md` before changing any visible UI. Read the nearest README before editing its area. `CLAUDE.md` points here; keep one canonical policy. Guidance lives in `docs/`; a skill in `skills/` links to it and never restates it.
 
 ## What this library is
 

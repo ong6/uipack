@@ -154,7 +154,8 @@ values:
 
 | Skill | Role | Reads |
 | --- | --- | --- |
-| `uipack-design` | The entry point for any UI Pack visual: pick the medium, write the content, choose the layout, apply a style, review against the three layers. Routes execution to the skills below. | This folder |
+| [`skills/`](../../skills/README.md): `uipack-page`, `uipack-diagram`, `uipack-copy`, `uipack-spec`, `uipack-review` | The job skills, shipped in this package and versioned with it. Each routes to the rules, recipe and spec it needs. | The docs they link |
+| `uipack-design` (ong6/skills) | The entry point: finds uipack and the site's spec, picks the job skill. | [`skills/`](../../skills/README.md) |
 | `system-diagram` (existing) | Executes diagrams. Its taste table defers to [Style roles, diagrams](style.md#diagrams) and [Layout, figures](layout/README.md#figures). | Diagram sections |
 | `3d-design`, `blender-authoring` (existing) | Execute 3D. Art direction comes from [Style roles, 3D](style.md#3d). | 3D sections |
 | `frontend-design`, `ux-design` | Execute web pages in Technical. Another site's look comes from its [spec](../specs/README.md). | Web sections, [Web principles](../web-principles.md) |

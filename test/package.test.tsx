@@ -52,6 +52,9 @@ describe("package entries", () => {
     expect(pkg.files).toContain("docs/system/*.md");
     // The web starter ships so a builder copies a working page instead of discovering the API.
     expect(pkg.files).toContain("examples/web-starter/*");
+    // The agent skills and the agent guide ship so a site reads the guidance for the code it installed.
+    expect(pkg.files).toContain("skills");
+    expect(pkg.files).toContain("docs/agents/*.md");
   });
 });
 

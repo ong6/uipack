@@ -71,6 +71,42 @@ export const docsManifest = [
     ],
   },
   {
+    id: "agents",
+    label: "For agents",
+    pages: [
+      {
+        id: "agents",
+        label: "How agents use UiPack",
+        path: "/agents",
+        file: "docs/agents/README.md",
+        intro:
+          "The read order for an agent: the job's skill, the site's spec, the core rules, then the parts; what is fixed and what each site sets.",
+      },
+      {
+        id: "agents-multi",
+        label: "Multi-agent build",
+        path: "/agents/multi-agent-build",
+        file: "docs/agents/multi-agent-build.md",
+        intro:
+          "How a lead splits a website across subagents: what the lead owns, what a subagent never decides, the hand-off and the review pass.",
+      },
+      {
+        id: "agents-brief",
+        label: "Subagent brief",
+        path: "/agents/subagent-brief",
+        file: "docs/agents/subagent-brief.md",
+        intro: "The copy-paste brief for one subagent building one page or section: inputs, limits, outputs and the self-check.",
+      },
+      {
+        id: "agents-new-site",
+        label: "Starting a new website",
+        path: "/agents/new-website",
+        file: "docs/agents/new-website.md",
+        intro: "A new site gets its spec first: write it from the template, check it, register it, then build.",
+      },
+    ],
+  },
+  {
     id: "foundations",
     label: "Rules",
     pages: [

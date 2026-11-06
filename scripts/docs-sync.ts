@@ -136,7 +136,7 @@ export function llmsTxt() {
     "",
     "> A design system that draws explanations: diagrams, slides, web pages, motion and 3D, as React and SVG components. Its documentation is the Markdown in this package; the docs site renders the same files.",
     "",
-    "Read docs/system/README.md first (style, writing and layout as three layers). Agent instructions are in AGENTS.md. Generated from playground/docs-manifest.ts by `npm run docs:sync`; do not edit by hand.",
+    "Agents: read docs/agents/README.md first, then the skill for your job in skills/ (README.md indexes them); the design system itself starts at docs/system/README.md. Agent instructions are in AGENTS.md. Generated from playground/docs-manifest.ts by `npm run docs:sync`; do not edit by hand.",
     "",
     ...sections.filter(Boolean).flatMap((s) => [s, ""]),
   ].join("\n");
