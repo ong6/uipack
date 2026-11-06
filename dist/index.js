@@ -1,7 +1,7 @@
 import { useLayerFlight, zoomSamples, zoomFrame } from './chunk-H33EHDSS.js';
 export { innerClipStart, zoomFrame, zoomSamples } from './chunk-H33EHDSS.js';
-import { useFigureHover, hoverAttrs, connectorStroke, flowList, useItemSelection, FocusRing, Node, nodeName, SelectionContext, isPointer, useRovingFocus, FigureHoverContext, Legend, ReplayGlyph, PauseGlyph, PlayGlyph, placeNote } from './chunk-L7LC7TSL.js';
-export { Bus, Chip, Connector, Defs, FIGURE_GRID, Figure, FigureHoverContext, Group, Label, Lane, Legend, Node, PACKET_POP, PACKET_SINK, Packet, anchor, busStub, busStubs, connectorStroke, flowList, grid, hoverAttrs, icons, isPointer, packetScaleKeys, pathFromPoints, pointAlong, polylineLength, route, trim, useFigureHover } from './chunk-L7LC7TSL.js';
+import { useFigureHover, hoverAttrs, connectorStroke, flowList, useItemSelection, FocusRing, Node, nodeName, SelectionContext, isPointer, useRovingFocus, FigureHoverContext, Legend, ReplayGlyph, PauseGlyph, PlayGlyph, placeNote } from './chunk-JP2UKODO.js';
+export { Bus, Chip, Connector, Defs, FIGURE_GRID, Figure, FigureHoverContext, Group, Label, Lane, Legend, Node, PACKET_POP, PACKET_SINK, Packet, anchor, busStub, busStubs, connectorStroke, flowList, grid, hoverAttrs, icons, isPointer, packetScaleKeys, pathFromPoints, pointAlong, polylineLength, route, trim, useFigureHover } from './chunk-JP2UKODO.js';
 import { useFontFloor, FigureScaleContext } from './chunk-HCR2C6OV.js';
 export { DEFAULT_RENDER_WIDTH, FigureScaleProvider, TOKEN_SHAPE, Token, fontFloor, tokenColor, useFontFloor } from './chunk-HCR2C6OV.js';
 import { CanvasView } from './chunk-MKST5NJE.js';
