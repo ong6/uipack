@@ -6,7 +6,7 @@
 
 ## What this library is
 
-Reusable SVG figures, primitives, 3D animations, and presentation composition examples. The gallery is a browsing interface; a 3D animation is not a complete slide deck. Keep the optional 3D entry lazy and keep the SVG entry free of Three.js and GSAP imports.
+The owner's own design system, for his sites (every one is in `docs/specs/registry.md`) and work presentations; not a public product, so the registry's sites are the only consumers. Its docs are written for agents: each file opens with what it is for, is headed so an agent can jump, and is reachable from README.md or this file (`scripts/check-agent-docs.ts`). It holds reusable SVG figures, primitives, 3D animations, and presentation composition examples. The gallery is a browsing interface; a 3D animation is not a complete slide deck. Keep the optional 3D entry lazy and keep the SVG entry free of Three.js and GSAP imports.
 
 ## Design contract
 
@@ -33,7 +33,7 @@ Run `npm run typecheck`, `npm run lint`, `npm run build` (then commit `dist/`) a
 
 Inspect real browser screenshots at desktop and 390px, with both themes when colour changes. Automated tests do not prove visual polish. Report failures, skips, and unsupported behaviour honestly. Test the meaning of an interaction, not just matching implementation details.
 
-Never assume the preview is running. Check it before handing over a localhost link. Update README links and API docs with the change. Keep work scoped; do not add unrelated dependencies or publish without authorization.
+Never assume the preview is running. Check it before handing over a localhost link. Update the API doc for the entry (the root README's Entries table names it) with the change; a docs change passes `npx tsx scripts/check-agent-docs.ts`. Keep work scoped; do not add unrelated dependencies or publish without authorization.
 
 ## Component-first workflow
 

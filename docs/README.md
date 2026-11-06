@@ -1,17 +1,21 @@
 # What UiPack is
 
-UiPack is a design system that draws explanations: diagrams, slides, web pages, motion and 3D,
-as React and SVG components with the rules for writing and laying them out. This page says who it
-is for, how it is built, where to start and how to install it, then lists every page of these docs.
+UiPack is Jun Xiong's own design system: diagrams, slides, web pages, motion and 3D for his sites
+(the [registry](specs/registry.md)) and work presentations, as React and SVG components with the
+rules for writing and laying them out. This page says who reads it, how it is built and where to
+start, then lists every page of these docs.
 
 ## Who it is for
 
-- **People** building a page, a deck or a figure: read these pages on the docs site, where each
-  one shows its live demos.
-- **Agents** doing the same job: read the same files as Markdown, from a clone, from GitHub or
-  from `node_modules/uipack/docs/`. Each file says what it is for in its first line, keeps its
-  values near the top and stays short enough to read whole; [`llms.txt`](../llms.txt) at the
-  package root lists them all, and the agent instructions are in [AGENTS.md](../AGENTS.md) and [For agents](agents/README.md).
+- **Agents first.** An agent building a page, deck, figure or copy for one of the owner's sites
+  reads these files as Markdown, from `node_modules/uipack/docs/` in a site or a clone. Start at
+  [For agents](agents/README.md); [`llms.txt`](../llms.txt) lists every file with one line on what
+  it is for. Each file opens with what it is for and who should read it, so you can stop after the
+  first paragraph, and it is headed so you can jump to your part (`scripts/check-agent-docs.ts`
+  checks both).
+- **The owner** reviews the same pages on the docs site, where each one shows its live demos.
+- **Not a public product.** The only consumers are the sites in the registry, so there is no
+  compatibility promise beyond them.
 
 The site and the files are one source: every page renders the Markdown file named under its
 title ("View as Markdown").
@@ -53,7 +57,7 @@ npm install github:ong6/uipack
 
 Each entry loads only what it draws: `uipack` for figure parts, `uipack/presets` for ready figures,
 `uipack/deck` for decks, `uipack/web` for web pages, `uipack/docs` for documentation, and more.
-The first figure, every entry and the setup are in [Install and use](../README.md).
+The first figure, every entry with its reference doc, and the setup are in [Install and use](../README.md).
 
 ## Site map
 
@@ -70,5 +74,5 @@ Every page of the docs site, by sidebar group, linked to the file it renders. Ge
 - **Specs:** [How to write a spec](specs/README.md), [Spec template](specs/TEMPLATE.md), [Technical](specs/technical.md), [Registry](specs/registry.md)
 - **Examples:** [Example landing page](examples/landing-page.md), [Example text page](examples/text-page.md)
 - **Reference:** [Icons & marks](icons-and-marks.md), [Contributing](contributing.md), [Testing](testing.md), [Component-first](component-first.md), [Design direction](design-direction.md), [Canvas and selection](interaction.md), [Web principles](web-principles.md), [Web parts API](web-api.md), [Web principles: Smooth scrolling](web-smooth-scroll.md), [Web discoverability](web-discoverability.md), [Web discoverability: Head and structured data](web-discoverability/head-and-structured-data.md), [Web discoverability: Crawl files](web-discoverability/crawl-files.md), [Web discoverability: Performance](web-discoverability/performance.md), [Portfolio ideas](portfolio-ideas.md)
-- **Grading:** [How to grade](grading/README.md), [Mechanical checks](grading/tier-1.md), [Pairwise judging](grading/protocol.md), [Calibration anchors](grading/calibration.md), [Regression set](grading/regression.md), [Landing rubric](grading/rubrics/landing-v1.md), [Docs rubric](grading/rubrics/docs-v1.md), [Deck rubric](grading/rubrics/deck-slide-v1.md), [Dashboard rubric](grading/rubrics/dashboard-v1.md), [Diagram rubric](grading/rubrics/diagram-v1.md)
+- **Grading:** [How to grade](grading/README.md), [Mechanical checks](grading/tier-1.md), [Pairwise judging](grading/protocol.md), [Calibration anchors](grading/calibration.md), [Regression set](grading/regression.md), [Grading docs for agents](grading/agent-docs.md), [Landing rubric](grading/rubrics/landing-v1.md), [Docs rubric](grading/rubrics/docs-v1.md), [Deck rubric](grading/rubrics/deck-slide-v1.md), [Dashboard rubric](grading/rubrics/dashboard-v1.md), [Diagram rubric](grading/rubrics/diagram-v1.md), [Agent docs rubric](grading/rubrics/agent-docs-v1.md)
 <!-- /generated -->

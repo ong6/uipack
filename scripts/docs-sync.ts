@@ -136,7 +136,7 @@ export function llmsTxt() {
   return [
     "# UiPack",
     "",
-    "> A design system that draws explanations: diagrams, slides, web pages, motion and 3D, as React and SVG components. Its documentation is the Markdown in this package; the docs site renders the same files.",
+    "> Jun Xiong's own design system for his sites and work presentations: diagrams, slides, web pages, motion and 3D, as React and SVG components with the rules for writing and laying them out. The Markdown in this package is written for agents; the docs site renders the same files.",
     "",
     "Agents: read docs/agents/README.md first, then the skill for your job in skills/ (README.md indexes them); the design system itself starts at docs/system/README.md. Agent instructions are in AGENTS.md. Generated from playground/docs-manifest.ts by `npm run docs:sync`; do not edit by hand.",
     "",

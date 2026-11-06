@@ -40,7 +40,7 @@ restyles it.
    ([layout, diagrams](../../docs/system/layout/README.md#figures)). Author the narrow (390px) drawing or
    keep a readable width that scrolls inside the frame; never shrink labels below the 11px floor.
 5. **Build with real exports.** `Figure`, `Node`, `Connector`, `Packet`, `route`, `Defs` from
-   `uipack` (see the root [README](../../README.md)); check `dist/*.d.ts` before a prop. Give
+   `uipack` (props in [docs/figure-api.md](../../docs/figure-api.md)); check `dist/*.d.ts` before a prop. Give
    `alt`, a caption, and a legend only when there is more than one flow kind.
 6. **Check.** Render at 1440 and 390 in both themes; labels inside their boxes, no page overflow,
    packets that arrive and leave. Then `uipack-review`.

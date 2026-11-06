@@ -1,8 +1,7 @@
 # Layout archetype: slide canvas
 
 The `slide-canvas` archetype: one slide in a `uipack/deck` deck, with the canvas, the regions every
-slide shares, the slide archetypes, and the transitions between slides. A deck is a page of a site
-(an HTML deck), so the site's spec picks it for its `deck` page type
+slide shares, the slide archetypes, and the transitions between slides. The site's spec picks it for its `deck` page type
 (`layouts: { deck: slide-canvas }`), extends it, or a talk series' own spec does
 ([presentations](../README.md#presentations-are-websites)). Every deck keeps the
 [layout floors](README.md#floors-what-holds-on-every-site). The words follow the site's writing

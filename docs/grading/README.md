@@ -11,6 +11,8 @@ and a ledger that proves each fix reached the next build.
 | 2 Judged | Pairwise A vs B on one brief, frozen rubric, two judges in opposite order ([protocol](protocol.md)) | A lead, with fresh subagents | Win rate and paired delta, read against the [anchor](calibration.md) |
 | 3 Regression | 15 frozen briefs and the fix ledger ([regression set](regression.md)) | The lead, every round | Same briefs every round; a fix counts only when someone else verified it |
 
+These tiers grade UI work that people see. uipack's own docs are read by agents, so they have their own tiers and rubric: [grading these docs for agents](agent-docs.md).
+
 ## Grade your own work before handing off
 
 1. Run tier 1 on every page you changed, served locally:

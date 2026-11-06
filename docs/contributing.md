@@ -15,7 +15,7 @@ Every package entry (`uipack`, `uipack/deck`, `uipack/mechanism`…) has the sam
 | A barrel that lists every export by name (no `export *`) | `src/<entry>/index.ts` | `test/exports.test.tsx` (no name in two entries) |
 | A main component that renders on the server | the entry | `test/ssr.test.tsx` (node environment, no React warnings) |
 | CSS scoped under one root class (`.uipack-<entry>`), tokens on that class, no bare element rules | `src/<entry>/<entry>.css` | review |
-| A doc with the import, the props table and the limits | `docs/<entry>.md`, linked from `docs/README.md` and the root README | `files` ships `docs/*.md` |
+| A doc with the import, the props table and the limits | `docs/<entry>.md`, in `playground/docs-manifest.ts` (the docs index and `llms.txt` follow), and a row in the root README's Entries table | `files` ships `docs/*.md` |
 | A playground page or section, registered in the catalog | `playground/catalog.ts` | `test/catalog.test.tsx` |
 | Unit tests for the pure parts, Playwright for the interaction | `test/<entry>.test.tsx`, `e2e/<entry>.spec.ts` | |
 
@@ -92,7 +92,7 @@ The diagrams page shows each pattern once, simplest first. Add one the first tim
 1. The figure: `playground/figures/<pattern>.tsx`, a `Figure` built from library parts, with a wide drawing and an authored `narrow` drawing below 720px, neutral content (no real systems), and `controls={false}` if nothing moves.
 2. A `figureEntries` row in `playground/catalog.ts`: `[id, "Pattern: what it teaches", tags]`, placed by complexity.
 3. A `figureDetails` entry in `playground/figures/index.tsx` under the same id, with an `intro` that starts "Use when…" and names the parts it is built from, and `render(number)`. The page's `figureSections` are derived from `figureEntries`, so the order is the catalog's; the typecheck fails until every id has its entry.
-4. If the figure needs a mark that published figures share (as `Wall` and `Cross` were), promote it to `src/` with a test and a README line instead of drawing it locally, then `npm run build` and commit `dist/`. Candidates still drawn locally are listed at the end of this page.
+4. If the figure needs a mark that published figures share (as `Wall` and `Cross` were), promote it to `src/` with a test and a line in [docs/figure-api.md](figure-api.md#parts) instead of drawing it locally, then `npm run build` and commit `dist/`. Candidates still drawn locally are listed at the end of this page.
 5. `e2e/geometry.spec.ts` checks every figure on the page: arrowheads clear of nodes, packets clear of heads, text inside node boxes at 1440 and 390, the 11px text floor, no motion controls on a still figure.
 
 ## A new Mechanism machine
@@ -112,7 +112,7 @@ The diagrams page shows each pattern once, simplest first. Add one the first tim
 3. `package.json` `exports`: `"./<entry>": { "import": { "types": "./dist/<entry>.d.ts", "default": "./dist/<entry>.js" }, "require": { "types": "./dist/<entry>.d.cts", "default": "./dist/<entry>.cjs" } }`. The conditions nest so that `require` users get the CommonJS declarations: in a `"type": "module"` package a `.d.ts` describes an ES module.
 4. If it has styles: a line in `scripts/css-bundles.ts` (`{ out: "<entry>.css", from: [...] }`), `"./<entry>.css": "./dist/<entry>.css"` in `exports`, and the same `"./<entry>.css"` in `excludeEntrypoints` in `.attw.json` (a stylesheet has no type declarations for attw to find). `test/package.test.tsx` fails until entries, bundles, exports and `.attw.json` agree. (`exports` stays hand-written: npm reads `package.json` as it is, and the test names the line you missed.)
 5. Keep heavy dependencies out of the default entry: Three.js and GSAP only behind an optional, lazy entry. A heavy dependency an entry needs goes in `peerDependencies` in `package.json` and in `peerDependenciesMeta` with `{ "optional": true }` (so consumers who skip the entry never install it). Nothing in `tsup.config.ts`: tsup leaves every dependency and peer dependency, and their subpaths (`react-dom/server`), out of `dist/`.
-6. Docs: `docs/<entry>.md` (shipped by the `docs/*.md` glob in `files`), a line in `docs/README.md`, a section in the root README and a line in `src/README.md`.
+6. Docs: `docs/<entry>.md` (shipped by the `docs/*.md` glob in `files`), a page in `playground/docs-manifest.ts` (then `npm run docs:sync`), a row in the root README's Entries table and a line in `src/README.md`.
 7. `npm run build`, commit `dist/`, load every built entry in both module systems with `node scripts/load-entries.mjs`, and check the types each module system sees with `npm run attw` (CI runs both, and fails if `dist/` differs from a fresh build). `.attw.json` uses the `node16` profile: TypeScript's legacy `node10` resolution ignores `exports`, so no subpath entry can resolve under it.
 
 ## Formatting

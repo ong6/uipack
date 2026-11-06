@@ -654,6 +654,13 @@ export const docsManifest = [
         intro: "Fifteen frozen briefs reused every round, and the fix ledger that proves a fix reached the next build.",
       },
       {
+        id: "grading-agent-docs",
+        label: "Grading docs for agents",
+        path: "/grading/agent-docs",
+        file: "docs/grading/agent-docs.md",
+        intro: "How to grade uipack's own docs for their agent readers: the mechanical check, task-based judging and the frozen tasks.",
+      },
+      {
         id: "rubric-landing",
         label: "Landing rubric",
         path: "/grading/rubrics/landing-v1",
@@ -687,6 +694,13 @@ export const docsManifest = [
         path: "/grading/rubrics/diagram-v1",
         file: "docs/grading/rubrics/diagram-v1.md",
         intro: "Version 1 of the frozen judge rubric for figures.",
+      },
+      {
+        id: "rubric-agent-docs",
+        label: "Agent docs rubric",
+        path: "/grading/rubrics/agent-docs-v1",
+        file: "docs/grading/rubrics/agent-docs-v1.md",
+        intro: "Version 1 of the frozen rubric for a documentation set read by agents: routing, progressive disclosure, index, executable rules, currency, stop conditions.",
       },
     ],
   },

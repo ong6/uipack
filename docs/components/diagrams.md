@@ -1,8 +1,7 @@
 # Diagrams: the Blueprint look
 
 Diagrams have one look, **Blueprint**, and it is `fixed`: a figure looks the same on every site
-that draws one, and only light and dark follow the host. The blog and the main site share their
-figures, so a reader who met a uipack figure on one reads it on the other. Members: figures
+that draws one, and only light and dark follow the host. Members: figures
 (`uipack`, the presets), drill-down figures (`uipack/drill`) and the HTML charts (`uipack/charts`:
 `SpanChart`, `LayerStack`, drawn in the same language). A spec picks it with
 `components: { diagrams: blueprint }` and never sets its values: `scripts/check-spec.ts` fails a

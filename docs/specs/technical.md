@@ -13,8 +13,7 @@ values: src/styles/technical.css
 # Technical: the uipack site's spec
 
 Technical is the spec of the uipack site itself and the package's default look: what a figure,
-deck or page renders in when nothing else is set. Its layout picks (every archetype in the library
-was first drawn for it) and its writing style (the aims in `src/deck/budgets.ts` are its defaults)
+deck or page renders in when nothing else is set. Its layout picks and its writing style (the aims in `src/deck/budgets.ts` are its defaults)
 are this site's choices, not rules for other sites. It is written to the [template](TEMPLATE.md);
 its role values are generated from `src/styles/technical.css` by `npm run docs:sync`, so this page
 and the code cannot drift.

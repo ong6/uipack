@@ -1,6 +1,6 @@
 # UiPack
 
-> A design system that draws explanations: diagrams, slides, web pages, motion and 3D, as React and SVG components. Its documentation is the Markdown in this package; the docs site renders the same files.
+> Jun Xiong's own design system for his sites and work presentations: diagrams, slides, web pages, motion and 3D, as React and SVG components with the rules for writing and laying them out. The Markdown in this package is written for agents; the docs site renders the same files.
 
 Agents: read docs/agents/README.md first, then the skill for your job in skills/ (README.md indexes them); the design system itself starts at docs/system/README.md. Agent instructions are in AGENTS.md. Generated from playground/docs-manifest.ts by `npm run docs:sync`; do not edit by hand.
 
@@ -103,8 +103,10 @@ Agents: read docs/agents/README.md first, then the skill for your job in skills/
 - [Pairwise judging](docs/grading/protocol.md): Two fresh judges in opposite order compare A and B on one brief and a frozen rubric; the packet and the tally.
 - [Calibration anchors](docs/grading/calibration.md): Known human pages scored on the same rubric, so a target score reads relative to them.
 - [Regression set](docs/grading/regression.md): Fifteen frozen briefs reused every round, and the fix ledger that proves a fix reached the next build.
+- [Grading docs for agents](docs/grading/agent-docs.md): How to grade uipack's own docs for their agent readers: the mechanical check, task-based judging and the frozen tasks.
 - [Landing rubric](docs/grading/rubrics/landing-v1.md): Version 1 of the frozen judge rubric for landing pages.
 - [Docs rubric](docs/grading/rubrics/docs-v1.md): Version 1 of the frozen judge rubric for documentation and articles.
 - [Deck rubric](docs/grading/rubrics/deck-slide-v1.md): Version 1 of the frozen judge rubric for decks.
 - [Dashboard rubric](docs/grading/rubrics/dashboard-v1.md): Version 1 of the frozen judge rubric for dashboards.
 - [Diagram rubric](docs/grading/rubrics/diagram-v1.md): Version 1 of the frozen judge rubric for figures.
+- [Agent docs rubric](docs/grading/rubrics/agent-docs-v1.md): Version 1 of the frozen rubric for a documentation set read by agents: routing, progressive disclosure, index, executable rules, currency, stop conditions.

@@ -120,9 +120,13 @@ export function agentDocsFailures(rows = agentDocsReport()): string[] {
     if (r.hops === null) out.push(`${r.file}: not linked from README.md or AGENTS.md by any chain of links`);
     else if (r.hops > MAX_HOPS) out.push(`${r.file}: ${r.hops} hops from an entry file (max ${MAX_HOPS})`);
     if (!r.openingOk)
-      out.push(`${r.file}: the first paragraph after the title must say what the file is for, in prose of at most ${OPENING_LIMIT} words (has ${r.openingWords})`);
+      out.push(
+        `${r.file}: the first paragraph after the title must say what the file is for, in prose of at most ${OPENING_LIMIT} words (has ${r.openingWords})`,
+      );
     if (r.longestSection.words > SECTION_LIMIT)
-      out.push(`${r.file}: ${r.longestSection.words} words under "${r.longestSection.heading}" without a heading (max ${SECTION_LIMIT})`);
+      out.push(
+        `${r.file}: ${r.longestSection.words} words under "${r.longestSection.heading}" without a heading (max ${SECTION_LIMIT})`,
+      );
   }
   return out;
 }
@@ -137,11 +141,13 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     for (const r of rows) byHop.set(String(r.hops ?? "unreached"), (byHop.get(String(r.hops ?? "unreached")) ?? 0) + 1);
     console.log([...byHop].map(([h, n]) => `  ${h}: ${n}`).join("\n"));
     const long = rows.filter((r) => r.words > LONG_FILE).sort((a, b) => b.words - a.words);
-    if (long.length) console.log(`Long files (over ${LONG_FILE} words; fine when headed and routed):\n${long.map((r) => `  ${r.words} ${r.file}`).join("\n")}`);
+    if (long.length)
+      console.log(
+        `Long files (over ${LONG_FILE} words; fine when headed and routed):\n${long.map((r) => `  ${r.words} ${r.file}`).join("\n")}`,
+      );
   }
   const fails = agentDocsFailures(rows);
   for (const f of fails) console.log(`FAIL ${f}`);
   console.log(fails.length ? `${fails.length} failure(s)` : "agent-docs check: pass");
   process.exit(fails.length ? 1 : 0);
 }
-

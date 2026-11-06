@@ -67,7 +67,7 @@ const AREAS = [
   [/^src\/docs\/|^playground\/Docs/, ["docs", "foundations", "nav"]],
   // The docs site: its manifest, the Markdown page, demos, links and generated blocks.
   [
-    /^playground\/(docs-manifest|docs-links|demos|MarkdownShowcase)|^scripts\/(docs-sync|check-spec|style-contract|site-model)|^docs\/(?!system\/)|^README\.md$|^llms\.txt$/,
+    /^playground\/(docs-manifest|docs-links|demos|MarkdownShowcase)|^scripts\/(docs-sync|check-spec|style-contract|site-model|check-agent-docs)|^docs\/(?!system\/)|^README\.md$|^llms\.txt$/,
     ["foundations", "nav", "page-audit"],
   ],
   [/^src\/(CanvasView|canvas)/, ["canvas", "canvas-gestures"]],
@@ -112,6 +112,8 @@ const tests = changed.filter((f) => /^test\/.*\.test\.tsx?$/.test(f) && existsSy
 // generated blocks, llms.txt).
 if (changed.some((f) => /^docs\/.*\.md$|^README\.md$|^llms\.txt$/.test(f)) && !tests.includes("test/docs-manifest.test.tsx"))
   tests.push("test/docs-manifest.test.tsx");
+if (changed.some((f) => /^docs\/.*\.md$|^README\.md$|^AGENTS\.md$|^skills\/|^scripts\/check-agent-docs/.test(f)) && !tests.includes("test/agent-docs.test.tsx"))
+  tests.push("test/agent-docs.test.tsx");
 
 console.log(`Changed since ${base}: ${changed.length} file(s)`);
 console.log(`Unit: vitest related ${sources.length} source file(s) + ${tests.length} changed test file(s)`);

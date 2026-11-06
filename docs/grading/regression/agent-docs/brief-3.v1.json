@@ -1,0 +1,22 @@
+{
+  "id": "agent-docs-3",
+  "version": 1,
+  "frozen": "2026-11-06",
+  "pageType": "agent-docs",
+  "rubric": "agent-docs-v1",
+  "product": "The documentation set at the package root",
+  "audience": "A fresh agent with no prior context, starting from README.md and AGENTS.md",
+  "task": "The owner will present a six-slide deck at work asking leadership to approve a migration. Without writing the deck, say which entry and template you would use, the rule for presented slide titles, what the last slide must contain, and how you would check the deck's words before building it.",
+  "facts": [
+    "Presented live by the owner, not read alone",
+    "Six slides",
+    "The deck ends by asking leadership to approve a migration"
+  ],
+  "mustInclude": [
+    "The deck entry (DeckPlayer) and the decision-request storyline template",
+    "Presented titles are short spoken verdicts: aim for 2-5 words, the check stops at 6",
+    "The last slide is an ask naming the decision with its object, an owner and a date",
+    "lintDeck (with storylineOf) checks the words, and its findings are fixed before layout"
+  ],
+  "outOfScope": ["Inventing numbers the brief does not give"]
+}
