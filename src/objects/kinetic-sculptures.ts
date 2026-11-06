@@ -89,7 +89,8 @@ function glazeFinish(material: THREE.MeshPhysicalMaterial) {
 /** Polished brass with turning marks: fine rings of roughness across each part, so highlights glint and break. */
 function brassFinish(material: THREE.MeshStandardMaterial) {
   return surfaceFinish(material, "brass", {
-    rough: "float rings = fNoise(vec3(p.y * 150.0, p.x * 4.0, p.z * 4.0)); roughnessFactor = clamp(roughnessFactor * (0.85 + 0.3 * rings), 0.04, 1.0);",
+    rough:
+      "float rings = fNoise(vec3(p.y * 150.0, p.x * 4.0, p.z * 4.0)); roughnessFactor = clamp(roughnessFactor * (0.85 + 0.3 * rings), 0.04, 1.0);",
     normal: "normal = normalize(normal + 0.012 * fGrad(p * 60.0));",
   });
 }
@@ -139,7 +140,10 @@ export function sculptureMaterials(night = false) {
 export function themeSwitch(root: THREE.Object3D, ticks: Tick[], apply: (dark: boolean) => void) {
   const probe = new THREE.Mesh(
     new THREE.BufferGeometry().setAttribute("position", new THREE.Float32BufferAttribute(new Float32Array(9), 3)),
-    themed(new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: false }), { light: { opacity: 1 }, dark: { opacity: 0.5 } }),
+    themed(new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: false }), {
+      light: { opacity: 1 },
+      dark: { opacity: 0.5 },
+    }),
   );
   probe.visible = false;
   probe.userData.frameIgnore = true;

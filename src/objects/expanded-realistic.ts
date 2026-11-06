@@ -357,7 +357,6 @@ function projectUv(geometry: THREE.BufferGeometry, scale = 2) {
   return geometry;
 }
 
-
 /** A sanded acrylic hard court, blue, with its baseline. */
 function court(root: THREE.Object3D) {
   const map = paintTexture(

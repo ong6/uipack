@@ -222,7 +222,12 @@ class Theatre {
     // of its outline, a light rim that keeps the edge readable on a dark card.
     const outer = rect(-FRAME_X, FLOOR - 0.2, FRAME_X, 1.44);
     this.add(
-      card(withHoles(shape(rect(-FRAME_X - 0.05, FLOOR - 0.25, FRAME_X + 0.05, 1.49)), [opening(arch, 0.02)]), C.cream, FRONT - 0.012, 0.012),
+      card(
+        withHoles(shape(rect(-FRAME_X - 0.05, FLOOR - 0.25, FRAME_X + 0.05, 1.49)), [opening(arch, 0.02)]),
+        C.cream,
+        FRONT - 0.012,
+        0.012,
+      ),
     );
     this.add(card(withHoles(shape(outer), [opening(arch, 0)]), frame, FRONT));
     // Two nested trims stepping back: narrow, so each reads as a cut layer rather than more frame.

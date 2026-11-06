@@ -1,5 +1,5 @@
-import { chooseObjectVariant, normalizeObjectVariant, objectVariants, objectEditions, hasObjectLook, objectDirections, directionSymbols, objectLooks, objectDirectionIndex, transferObjectVariant } from './chunk-GYLWOS3N.js';
-export { chooseObjectVariant, directionSymbols, hasObjectLook, normalizeObjectVariant, objectDirectionIndex, objectDirections, objectEditions, objectLooks, objectVariants, parseObjectVariant, transferObjectVariant } from './chunk-GYLWOS3N.js';
+import { chooseObjectVariant, normalizeObjectVariant, objectVariants, objectEditions, hasObjectLook, objectDirections, directionSymbols, objectLooks, objectDirectionIndex, transferObjectVariant } from './chunk-NARSUG2R.js';
+export { chooseObjectVariant, directionSymbols, hasObjectLook, normalizeObjectVariant, objectDirectionIndex, objectDirections, objectEditions, objectLooks, objectVariants, parseObjectVariant, transferObjectVariant } from './chunk-NARSUG2R.js';
 import { studioObjectPalettes } from './chunk-VNW5HB27.js';
 import { CanvasView } from './chunk-MKST5NJE.js';
 import { keepFocusedInView, usePrefersReducedMotion, REDUCED_MOTION_QUERY } from './chunk-LWCZ6GEJ.js';
@@ -48,7 +48,7 @@ function mountObjectScene(canvas, options) {
     onReady(false);
   };
   canvas.addEventListener("webglcontextlost", handleContextLost);
-  Promise.all([import('three'), import('./scenes-O32JZW67.js'), import('./look-THOY3OIA.js')]).then(async ([THREE, { createObject, disposeObject }, look]) => {
+  Promise.all([import('three'), import('./scenes-OYBUI5LE.js'), import('./look-THOY3OIA.js')]).then(async ([THREE, { createObject, disposeObject }, look]) => {
     if (disposed) return;
     materialTextures = look.materialTextures;
     try {

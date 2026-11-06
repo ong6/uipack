@@ -1,6 +1,6 @@
 'use strict';
 
-var chunkGZ2AJZYQ_cjs = require('./chunk-GZ2AJZYQ.cjs');
+var chunkHPYRAZ5N_cjs = require('./chunk-HPYRAZ5N.cjs');
 var chunkROALLHW7_cjs = require('./chunk-ROALLHW7.cjs');
 var chunkTLBFVTUY_cjs = require('./chunk-TLBFVTUY.cjs');
 var chunkR272FBXD_cjs = require('./chunk-R272FBXD.cjs');
@@ -49,7 +49,7 @@ function mountObjectScene(canvas, options) {
     onReady(false);
   };
   canvas.addEventListener("webglcontextlost", handleContextLost);
-  Promise.all([import('three'), import('./scenes-MVZQIASI.cjs'), import('./look-XR7F7LXC.cjs')]).then(async ([THREE, { createObject, disposeObject }, look]) => {
+  Promise.all([import('three'), import('./scenes-2NQ3E4LB.cjs'), import('./look-XR7F7LXC.cjs')]).then(async ([THREE, { createObject, disposeObject }, look]) => {
     if (disposed) return;
     materialTextures = look.materialTextures;
     try {
@@ -389,7 +389,7 @@ function ObjectStage({
   const flagsRef = react.useRef({ active, paused: false, completed: false, reduced: false, zoom });
   const sceneRef = react.useRef(null);
   const paletteKey = palette ? JSON.stringify(palette) : "";
-  const resolvedVariant = chunkGZ2AJZYQ_cjs.normalizeObjectVariant(kind, variant === "random" ? chunkGZ2AJZYQ_cjs.objectLooks[kind][0] : variant);
+  const resolvedVariant = chunkHPYRAZ5N_cjs.normalizeObjectVariant(kind, variant === "random" ? chunkHPYRAZ5N_cjs.objectLooks[kind][0] : variant);
   react.useEffect(() => {
     flagsRef.current.zoom = zoom;
     sceneRef.current?.resize();
@@ -460,9 +460,9 @@ function ObjectStage({
       "data-kind": kind,
       "data-variant": resolvedVariant,
       "data-edition": edition,
-      "data-art-direction": chunkGZ2AJZYQ_cjs.objectDirections[chunkGZ2AJZYQ_cjs.objectDirectionIndex(kind, resolvedVariant)].id,
+      "data-art-direction": chunkHPYRAZ5N_cjs.objectDirections[chunkHPYRAZ5N_cjs.objectDirectionIndex(kind, resolvedVariant)].id,
       "data-controls": controls,
-      "data-variant-label": chunkGZ2AJZYQ_cjs.objectVariants[kind][resolvedVariant],
+      "data-variant-label": chunkHPYRAZ5N_cjs.objectVariants[kind][resolvedVariant],
       children: [
         /* @__PURE__ */ jsxRuntime.jsx(Fallback, { kind, label }),
         active && /* @__PURE__ */ jsxRuntime.jsx("canvas", { ref: canvasRef, className: styles.canvas, "data-ready": ready ? "true" : "false", "aria-hidden": "true" }),
@@ -491,17 +491,17 @@ function ObjectScene(props) {
   react.useEffect(() => {
     setPick({ roll: Math.random(), turns: 0 });
   }, []);
-  const randomVariant = pick === null ? null : chunkGZ2AJZYQ_cjs.chooseObjectVariant(props.kind, () => pick.roll, pick.turns);
+  const randomVariant = pick === null ? null : chunkHPYRAZ5N_cjs.chooseObjectVariant(props.kind, () => pick.roll, pick.turns);
   const canVary = props.variant === void 0 || props.variant === "random";
   const controls = props.controls ?? "full";
   const chosenVariant = canVary ? randomVariant : props.variant;
-  const variant = chosenVariant === null ? null : chunkGZ2AJZYQ_cjs.normalizeObjectVariant(props.kind, chosenVariant);
+  const variant = chosenVariant === null ? null : chunkHPYRAZ5N_cjs.normalizeObjectVariant(props.kind, chosenVariant);
   const anotherLook = () => setPick((current) => current && { ...current, turns: current.turns + 1 });
   return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-object-frame", "data-theme": props.theme ?? "light", "data-controls": controls, children: [
     controls === "full" && variant !== null && /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-object-edition", children: [
       /* @__PURE__ */ jsxRuntime.jsxs("span", { children: [
-        chunkGZ2AJZYQ_cjs.objectVariants[props.kind][variant],
-        variant === 0 && props.kind !== "contact" && props.edition && chunkGZ2AJZYQ_cjs.hasObjectLook(props.kind, 0) ? ` \xB7 ${chunkGZ2AJZYQ_cjs.objectEditions[props.kind][props.edition]}` : ""
+        chunkHPYRAZ5N_cjs.objectVariants[props.kind][variant],
+        variant === 0 && props.kind !== "contact" && props.edition && chunkHPYRAZ5N_cjs.hasObjectLook(props.kind, 0) ? ` \xB7 ${chunkHPYRAZ5N_cjs.objectEditions[props.kind][props.edition]}` : ""
       ] }),
       canVary && /* @__PURE__ */ jsxRuntime.jsx("button", { type: "button", onClick: anotherLook, "aria-label": "Another look", children: "\u21BB" })
     ] }),
@@ -537,15 +537,15 @@ function ObjectDirectionPicker({
   onChange,
   kind
 }) {
-  return /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-object-directions", role: "group", "aria-label": "3D art direction", children: chunkGZ2AJZYQ_cjs.objectDirections.map(
-    (direction, index) => kind && !chunkGZ2AJZYQ_cjs.hasObjectLook(kind, index) ? null : /* @__PURE__ */ jsxRuntime.jsxs(
+  return /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-object-directions", role: "group", "aria-label": "3D art direction", children: chunkHPYRAZ5N_cjs.objectDirections.map(
+    (direction, index) => kind && !chunkHPYRAZ5N_cjs.hasObjectLook(kind, index) ? null : /* @__PURE__ */ jsxRuntime.jsxs(
       "button",
       {
         type: "button",
         "aria-pressed": value === index,
         onClick: () => onChange(index),
         children: [
-          /* @__PURE__ */ jsxRuntime.jsx("span", { "aria-hidden": "true", children: chunkGZ2AJZYQ_cjs.directionSymbols[index] }),
+          /* @__PURE__ */ jsxRuntime.jsx("span", { "aria-hidden": "true", children: chunkHPYRAZ5N_cjs.directionSymbols[index] }),
           direction.name
         ]
       },
@@ -609,12 +609,12 @@ function ObjectInspector({
   onVariantChange,
   onEditionChange
 }) {
-  const variant = chunkGZ2AJZYQ_cjs.normalizeObjectVariant(kind, requested);
+  const variant = chunkHPYRAZ5N_cjs.normalizeObjectVariant(kind, requested);
   const contact = kind === "contact";
-  const directions = chunkGZ2AJZYQ_cjs.objectDirections.map((direction, index) => ({
+  const directions = chunkHPYRAZ5N_cjs.objectDirections.map((direction, index) => ({
     direction,
     index,
-    look: chunkGZ2AJZYQ_cjs.objectLooks[kind].find((look) => chunkGZ2AJZYQ_cjs.objectDirectionIndex(kind, look) === index)
+    look: chunkHPYRAZ5N_cjs.objectLooks[kind].find((look) => chunkHPYRAZ5N_cjs.objectDirectionIndex(kind, look) === index)
   })).filter((entry) => entry.look !== void 0);
   return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-object-inspector", children: [
     /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
@@ -626,10 +626,10 @@ function ObjectInspector({
           "button",
           {
             type: "button",
-            "aria-pressed": chunkGZ2AJZYQ_cjs.objectDirectionIndex(kind, variant) === index,
+            "aria-pressed": chunkHPYRAZ5N_cjs.objectDirectionIndex(kind, variant) === index,
             onClick: () => onVariantChange(look),
             children: [
-              /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-direction-symbol", "aria-hidden": "true", children: chunkGZ2AJZYQ_cjs.directionSymbols[index] }),
+              /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-direction-symbol", "aria-hidden": "true", children: chunkHPYRAZ5N_cjs.directionSymbols[index] }),
               /* @__PURE__ */ jsxRuntime.jsxs("span", { children: [
                 /* @__PURE__ */ jsxRuntime.jsx("strong", { children: direction.name }),
                 " ",
@@ -641,14 +641,14 @@ function ObjectInspector({
         )
       )) })
     ] }),
-    chunkGZ2AJZYQ_cjs.hasObjectLook(kind, 0) && chunkGZ2AJZYQ_cjs.objectDirectionIndex(kind, variant) === 0 && /* @__PURE__ */ jsxRuntime.jsxs("label", { className: "uipack-edition-select", children: [
+    chunkHPYRAZ5N_cjs.hasObjectLook(kind, 0) && chunkHPYRAZ5N_cjs.objectDirectionIndex(kind, variant) === 0 && /* @__PURE__ */ jsxRuntime.jsxs("label", { className: "uipack-edition-select", children: [
       contact ? "Inbox edition" : "Studio edition",
       /* @__PURE__ */ jsxRuntime.jsx(
         "select",
         {
           value: contact ? variant % 3 : edition,
           onChange: (e) => (contact ? onVariantChange : onEditionChange)(Number(e.target.value)),
-          children: chunkGZ2AJZYQ_cjs.objectEditions[kind].map((name, index) => /* @__PURE__ */ jsxRuntime.jsx("option", { value: index, children: name }, name))
+          children: chunkHPYRAZ5N_cjs.objectEditions[kind].map((name, index) => /* @__PURE__ */ jsxRuntime.jsx("option", { value: index, children: name }, name))
         }
       ),
       /* @__PURE__ */ jsxRuntime.jsx("small", { children: contact ? "Three original inbox finishes." : "The original looks, kept together in Studio." })
@@ -664,7 +664,7 @@ function ObjectGallery({
   modelUrl,
   onChange
 }) {
-  const variant = chunkGZ2AJZYQ_cjs.normalizeObjectVariant(kind, requested);
+  const variant = chunkHPYRAZ5N_cjs.normalizeObjectVariant(kind, requested);
   const scene = objectScenes.find((item) => item.id === kind);
   return /* @__PURE__ */ jsxRuntime.jsxs(
     AnimationWorkspace,
@@ -677,7 +677,7 @@ function ObjectGallery({
           {
             type: "button",
             "aria-pressed": kind === item.id,
-            onClick: () => onChange(item.id, chunkGZ2AJZYQ_cjs.transferObjectVariant(kind, item.id, variant), edition),
+            onClick: () => onChange(item.id, chunkHPYRAZ5N_cjs.transferObjectVariant(kind, item.id, variant), edition),
             children: [
               item.title,
               /* @__PURE__ */ jsxRuntime.jsx("span", { "aria-hidden": "true", children: "\u2197" })
@@ -716,7 +716,7 @@ function ObjectGallery({
             }
           )
         ] }),
-        /* @__PURE__ */ jsxRuntime.jsx("p", { className: "uipack-gallery-description", children: chunkGZ2AJZYQ_cjs.objectDirectionIndex(kind, variant) === 0 ? scene.description : chunkGZ2AJZYQ_cjs.objectDirections[chunkGZ2AJZYQ_cjs.objectDirectionIndex(kind, variant)].description })
+        /* @__PURE__ */ jsxRuntime.jsx("p", { className: "uipack-gallery-description", children: chunkHPYRAZ5N_cjs.objectDirectionIndex(kind, variant) === 0 ? scene.description : chunkHPYRAZ5N_cjs.objectDirections[chunkHPYRAZ5N_cjs.objectDirectionIndex(kind, variant)].description })
       ]
     }
   );
@@ -724,47 +724,47 @@ function ObjectGallery({
 
 Object.defineProperty(exports, "chooseObjectVariant", {
   enumerable: true,
-  get: function () { return chunkGZ2AJZYQ_cjs.chooseObjectVariant; }
+  get: function () { return chunkHPYRAZ5N_cjs.chooseObjectVariant; }
 });
 Object.defineProperty(exports, "directionSymbols", {
   enumerable: true,
-  get: function () { return chunkGZ2AJZYQ_cjs.directionSymbols; }
+  get: function () { return chunkHPYRAZ5N_cjs.directionSymbols; }
 });
 Object.defineProperty(exports, "hasObjectLook", {
   enumerable: true,
-  get: function () { return chunkGZ2AJZYQ_cjs.hasObjectLook; }
+  get: function () { return chunkHPYRAZ5N_cjs.hasObjectLook; }
 });
 Object.defineProperty(exports, "normalizeObjectVariant", {
   enumerable: true,
-  get: function () { return chunkGZ2AJZYQ_cjs.normalizeObjectVariant; }
+  get: function () { return chunkHPYRAZ5N_cjs.normalizeObjectVariant; }
 });
 Object.defineProperty(exports, "objectDirectionIndex", {
   enumerable: true,
-  get: function () { return chunkGZ2AJZYQ_cjs.objectDirectionIndex; }
+  get: function () { return chunkHPYRAZ5N_cjs.objectDirectionIndex; }
 });
 Object.defineProperty(exports, "objectDirections", {
   enumerable: true,
-  get: function () { return chunkGZ2AJZYQ_cjs.objectDirections; }
+  get: function () { return chunkHPYRAZ5N_cjs.objectDirections; }
 });
 Object.defineProperty(exports, "objectEditions", {
   enumerable: true,
-  get: function () { return chunkGZ2AJZYQ_cjs.objectEditions; }
+  get: function () { return chunkHPYRAZ5N_cjs.objectEditions; }
 });
 Object.defineProperty(exports, "objectLooks", {
   enumerable: true,
-  get: function () { return chunkGZ2AJZYQ_cjs.objectLooks; }
+  get: function () { return chunkHPYRAZ5N_cjs.objectLooks; }
 });
 Object.defineProperty(exports, "objectVariants", {
   enumerable: true,
-  get: function () { return chunkGZ2AJZYQ_cjs.objectVariants; }
+  get: function () { return chunkHPYRAZ5N_cjs.objectVariants; }
 });
 Object.defineProperty(exports, "parseObjectVariant", {
   enumerable: true,
-  get: function () { return chunkGZ2AJZYQ_cjs.parseObjectVariant; }
+  get: function () { return chunkHPYRAZ5N_cjs.parseObjectVariant; }
 });
 Object.defineProperty(exports, "transferObjectVariant", {
   enumerable: true,
-  get: function () { return chunkGZ2AJZYQ_cjs.transferObjectVariant; }
+  get: function () { return chunkHPYRAZ5N_cjs.transferObjectVariant; }
 });
 exports.AnimationWorkspace = AnimationWorkspace;
 exports.ObjectDirectionPicker = ObjectDirectionPicker;
