@@ -21,6 +21,7 @@ Reusable SVG figures, primitives, 3D animations, and presentation composition ex
 - Dense diagrams need an authored narrow layout or an internally scrollable readable drawing. Do not compress labels into unreadable text or allow page-wide overflow.
 - Figures and animation players offer Open canvas in articles, docs and the gallery; on a `uipack/web` page their chrome is quiet by default (no Open canvas, no one-entry legend; `chrome="full"` opts back in). Preserve modal focus containment, Escape, return focus, close controls, and scroll restoration.
 - Presentation layouts need words, hierarchy, whitespace, and a narrative purpose. Use animation as one part of a composition.
+- The `/web` sample page's copy and the Foundations guides are owned by the front-end showcase work (`playground/WebShowcase.tsx` sample data, `playground/tidyFacts.ts`, `playground/FoundationsShowcase.tsx`, `playground/guideFacts.ts`). Other work changes library parts, not that copy; when a new part needs to appear on `/web`, add it with words and numbers from `tidyFacts.ts` (a new claim is an edit there) and keep `e2e/showcase-content.spec.ts` and `test/foundations-drift.test.tsx` green. A gallery demo that shows the sample product's words carries `data-sample`. A guide states a budget from `guideFacts.ts` or `src/deck/budgets.ts`, never as a bare literal.
 
 ## Engineering and verification
 

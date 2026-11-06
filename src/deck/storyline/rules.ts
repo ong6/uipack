@@ -106,7 +106,7 @@ export const LINT_RULES: Readonly<Record<LintRule, { severity: LintSeverity; che
     check: "Every presented slide has speaker notes: cues when presented, a talk track when read alone.",
   },
   "number-source": {
-    severity: "warn",
+    severity: "tip",
     check:
       "A number in a title or a point names its source in the notes: a named artifact ('the search latency dashboard', 'load test 12', 'the Q3 user survey') or a URL, with no hedge ('trust me', 'someone mentioned', 'said so'); or in the slide's `source`.",
   },

@@ -302,7 +302,7 @@ export const LINT_CHECKS: readonly LintCheck[] = [
       if (!said && slides.some((s) => sayOf(s.notes)))
         report(
           "tip",
-          'The deck compares before and after but never says so. Say it once, in a cue or a point: "these numbers come from two windows, before and after".',
+          'The deck compares before and after but never says so. Say it once, in a plain sentence in the evidence slide\'s notes: "this compares two windows, before and after".',
         );
     },
   },
@@ -411,8 +411,8 @@ export const LINT_CHECKS: readonly LintCheck[] = [
         if (![headline, ...(slide.points ?? [])].some(hasClaimNumber)) continue;
         if (namedSource(notesText(slide.notes)) || (slide.source && slide.source.trim())) continue;
         report(
-          "warn",
-          'The slide has a number but no source. Name the artifact it came from ("the search latency dashboard", "load test 12", "the Q3 user survey", a URL) and its window in the notes, or set the slide\'s `source`. Hearsay ("someone mentioned", "trust me") doesn\'t count.',
+          "tip",
+          'The slide has a number but no source. If the input names one, give the artifact ("the search latency dashboard", "load test 12", a URL) and its window in the notes, or set the slide\'s `source`. If it names none, state the number as given: never borrow another number\'s source, and don\'t announce the gap ("still to confirm"). Hearsay ("someone mentioned", "trust me") doesn\'t count as a source.',
           slide.id,
         );
       }

@@ -64,13 +64,41 @@ export function sectionOrder(style: UiStyleId, available: readonly string[], lay
 
 export const isUiStyle = (value: unknown): value is UiStyleId => uiStyles.some((s) => s.id === value);
 
+/** Options shared by `styleBootScript`, `styleBootPlugin` and `readStyle`. */
+export interface StyleBootOptions {
+  /** The query parameter that picks the style. Default "style". */
+  param?: string;
+  /** The query parameter that picks the theme. Default "theme". */
+  themeParam?: string;
+  /** localStorage key for a remembered style; read only when `persist` is true. */
+  storageKey?: string;
+  /** localStorage key for a remembered theme (a theme toggle writes it). */
+  themeStorageKey?: string;
+  /** The style without a (valid) `?style=`. Default "technical". */
+  fallback?: UiStyleId;
+  /** Extra values `?style=` accepts, mapped to a style id: `{ "1": "technical", blueprint: "technical" }`. */
+  aliases?: Record<string, UiStyleId>;
+  /**
+   * Read a remembered style from localStorage when the URL names none. Default false: a visit
+   * without `?style=` gets `fallback`, never a stale style some earlier page stored. Turn it on
+   * only for a page with its own style switcher that writes `storageKey`.
+   */
+  persist?: boolean;
+}
+
+const styleMap = (aliases: Record<string, UiStyleId> = {}) => {
+  const map: Record<string, UiStyleId> = { ...aliases };
+  for (const s of uiStyles) map[s.id] = s.id;
+  return map;
+};
+
 /**
  * A blocking inline script for <head> that sets the style and the theme on <html> before the first
  * paint, so the page never flashes another style or theme. Put its output in a <script> before any
- * stylesheet.
+ * stylesheet (with Vite, `styleBootPlugin()` does it).
  *
  * Style: `?style=` (a style id, or a key of `aliases`, e.g. `{ "1": "technical" }`), then
- * localStorage, then `fallback`; written to `data-ui-style`.
+ * localStorage only if `persist`, then `fallback`; written to `data-ui-style`.
  * Theme: `?theme=light|dark`, then localStorage (`themeStorageKey`), else nothing, so the page
  * follows the system (`prefers-color-scheme`); `?theme=system` clears a stored choice. Written to
  * both `data-theme` (read by uipack/web and the figures) and `data-ui-theme` (the role layer).
@@ -82,24 +110,58 @@ export function styleBootScript({
   themeStorageKey = "uipack-theme",
   fallback = "technical",
   aliases = {},
-}: {
-  param?: string;
-  themeParam?: string;
-  storageKey?: string;
-  themeStorageKey?: string;
-  fallback?: UiStyleId;
-  /** Extra values `?style=` accepts, mapped to a style id: `{ "1": "technical", blueprint: "technical" }`. */
-  aliases?: Record<string, UiStyleId>;
-} = {}): string {
-  const map: Record<string, UiStyleId> = { ...aliases };
-  for (const s of uiStyles) map[s.id] = s.id;
+  persist = false,
+}: StyleBootOptions = {}): string {
+  const map = styleMap(aliases);
   const j = JSON.stringify;
+  const stored = persist ? `g(L.getItem(${j(storageKey)}))||` : "";
   return (
     `(function(){try{var q=new URLSearchParams(location.search),d=document.documentElement,m=${j(map)},L=localStorage,` +
     `g=function(k){return k&&Object.prototype.hasOwnProperty.call(m,k)?m[k]:null},` +
-    `s=g(q.get(${j(param)}))||g(L.getItem(${j(storageKey)}))||${j(fallback)};d.setAttribute("data-ui-style",s);` +
+    `s=g(q.get(${j(param)}))||${stored}${j(fallback)};d.setAttribute("data-ui-style",s);` +
     `var t=q.get(${j(themeParam)});if(t==="system"){L.removeItem(${j(themeStorageKey)});t=null}` +
     `if(t!=="light"&&t!=="dark")t=L.getItem(${j(themeStorageKey)});` +
     `if(t==="light"||t==="dark"){d.setAttribute("data-theme",t);d.setAttribute("data-ui-theme",t)}}catch(e){}})();`
   );
+}
+
+/** The slice of a Vite plugin `styleBootPlugin` returns (typed here so uipack needs no Vite types). */
+export interface StyleBootPlugin {
+  name: string;
+  transformIndexHtml: { order: "pre"; handler: (html: string) => string };
+}
+
+/**
+ * A Vite plugin that inlines `styleBootScript(options)` into index.html: in place of a
+ * `<!--uipack-boot-->` comment if the page has one, else as the first thing in <head>, before any
+ * stylesheet. `plugins: [styleBootPlugin({ aliases: { "1": "technical" } }), react()]`.
+ */
+export function styleBootPlugin(options: StyleBootOptions = {}): StyleBootPlugin {
+  const tag = `<script>${styleBootScript(options)}</script>`;
+  return {
+    name: "uipack-style-boot",
+    transformIndexHtml: {
+      order: "pre",
+      handler: (html) =>
+        html.includes("<!--uipack-boot-->")
+          ? html.replace("<!--uipack-boot-->", tag)
+          : html.replace(/<head(\s[^>]*)?>/i, (head) => `${head}\n    ${tag}`),
+    },
+  };
+}
+
+/**
+ * The page's style, for the React root: `data-ui-style` on <html> if the boot script set it, else
+ * `?style=` read with the same aliases, else `fallback`. Pass the options you gave the boot script.
+ * `createRoot(el).render(<App uiStyle={readStyle({ aliases })} />)`.
+ */
+export function readStyle({ param = "style", fallback = "technical", aliases = {} }: StyleBootOptions = {}): UiStyleId {
+  const map = styleMap(aliases);
+  const pick = (k: string | null | undefined) => (k && Object.prototype.hasOwnProperty.call(map, k) ? map[k] : null);
+  if (typeof document !== "undefined") {
+    const set = pick(document.documentElement.getAttribute("data-ui-style"));
+    if (set) return set;
+  }
+  const search = typeof location !== "undefined" ? location.search : "";
+  return pick(new URLSearchParams(search).get(param)) ?? fallback;
 }

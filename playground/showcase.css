@@ -356,7 +356,7 @@ body {
 .collection-intro {
   max-width: 72ch;
   margin: 0 0 20px;
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.6;
   color: var(--show-muted);
 }

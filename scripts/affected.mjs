@@ -54,7 +54,9 @@ const AREAS = [
   [/^src\/presentations\//, ["deck", "showcase"]],
   [/^src\/mechanism\//, ["mechanism"]],
   [/^src\/web\//, ["web"]],
-  [/^playground\/(WebShowcase|web-showcase|web-seo|webTidyFlow|DeckShowcase|deck-showcase)/, ["web", "deck"]],
+  [/^playground\/(WebShowcase|web-showcase|web-seo|webTidyFlow|DeckShowcase|deck-showcase)/, ["web", "deck", "showcase-content"]],
+  // The sample product's facts and the guides' stated budgets: the content guard.
+  [/^playground\/(tidyFacts|guideFacts)/, ["showcase-content"]],
   [/^src\/objects\//, ["objects", "art-directions", "contact-directions"]],
   [/^src\/slides\//, ["slides"]],
   [/^src\/browser\/|^assets\//, ["assets"]],
@@ -65,7 +67,7 @@ const AREAS = [
   // Root parts, theme, presets and the figures page: every figure-level spec.
   [/^src\/[^/]+\.(tsx?|css)$|^src\/presets\/|^playground\/figures\//, FIGURES],
   // The Foundations guide pages: their outline, scale, alignment and overflow, and the nav rows.
-  [/^playground\/(Foundations|foundations)|^docs\/system\//, ["foundations", "nav", "page-audit"]],
+  [/^playground\/(Foundations|foundations)|^docs\/system\//, ["foundations", "nav", "page-audit", "showcase-content"]],
   [/^playground\/(ShowcaseShell|showcase\.css|catalog|routes|nav|main|index\.html)/, SHELL],
   // The /styles and /presentations pages (CatalogShowcase): style cards, written specs, slide starters.
   [/^playground\/(CatalogShowcase|StylePreviews|presentations\.css)/, ["web", "page-audit", "showcase"]],

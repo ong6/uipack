@@ -165,3 +165,279 @@
     }
   }
 }
+
+/* ---------- Component treatments: one markup, each style's drawing ----------
+   Each style draws the same parts in its own vernacular, on the same boxes and in the same places
+   (docs/system/style.md, "Component treatments"): Technical an engineering drawing (tables as a
+   drawing schedule, the worked case as a dimensioned detail with numbered balloons, lists as
+   drawing notes, stats in a title block). A style built from a spec adds its block here, keyed on
+   the page's style (WebPage / WebSurface data-ui-style); a nested style scope gets that style's
+   roles but keeps the page's treatment. Only borders, fills, faces, pseudo content and inner
+   padding change: never a box's place, a column count or the reading order. */
+@layer uipack.ornaments {
+  .uipack-web-faq__list {
+    counter-reset: uipack-faq;
+  }
+  .uipack-web-faq__item {
+    counter-increment: uipack-faq;
+  }
+
+  /* ===== Technical: an engineering drawing ===== */
+  /* Tables: a drawing schedule. Ruled on every cell, an ink frame, a tinted head, item numbers. */
+  @container uipack-table (min-width: 441px) {
+    .uipack-web[data-ui-style="technical"] .uipack-web-table table {
+      border: 1px solid var(--web-ink);
+      counter-reset: uipack-row;
+    }
+    .uipack-web[data-ui-style="technical"] .uipack-web-table :is(th, td),
+    .uipack-web[data-ui-style="technical"] .uipack-web-table :is(th, td):is(:first-child, :last-child) {
+      padding: 7px 10px;
+      border: 1px solid var(--web-hairline);
+      font-size: 0.875rem;
+    }
+    .uipack-web[data-ui-style="technical"] .uipack-web-table thead th {
+      padding-top: 8px;
+      background: var(--web-secondary);
+      border-bottom: 1px solid var(--web-ink);
+      color: var(--web-ink-medium);
+    }
+    .uipack-web[data-ui-style="technical"] .uipack-web-table tbody tr {
+      counter-increment: uipack-row;
+    }
+    .uipack-web[data-ui-style="technical"] .uipack-web-table tbody th::before {
+      content: counter(uipack-row, decimal-leading-zero);
+      display: inline-block;
+      width: 1.75rem;
+      color: var(--web-ink-low);
+      font-size: 0.6875rem;
+    }
+    .uipack-web[data-ui-style="technical"] .uipack-web-table tr[data-highlight] :is(th, td):first-child {
+      padding-inline-start: 10px;
+    }
+  }
+  /* The worked case: a dimensioned detail. Drafting film under it, each rule a ruled callout with
+     a numbered balloon, each arrow a dimension line (an extension tick, a solid head), each result
+     a boxed dimension figure, the note a title-block cell. */
+  .uipack-web[data-ui-style="technical"] .uipack-web-worked {
+    background: var(--ui-corner-marks), var(--ui-canvas-pattern), var(--web-surface);
+    counter-reset: uipack-worked;
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-worked__lines li {
+    counter-increment: uipack-worked;
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-worked__given {
+    padding: 10px 12px;
+    border: 1px dashed var(--web-ink-low);
+    background: var(--web-surface);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-worked__rule {
+    position: relative;
+    padding: 8px 12px 8px 42px;
+    border: 1px solid var(--web-ink);
+    background: var(--web-surface);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-worked__rule::before {
+    content: counter(uipack-worked);
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    translate: 0 -50%;
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 1px var(--web-ink);
+    font: 600 0.6875rem / 1 var(--web-font-mono);
+    color: var(--web-ink);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-worked__arrow {
+    border-top: 1px solid var(--web-ink);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-worked__arrow::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: -6px;
+    height: 11px;
+    border-left: 1px solid var(--web-ink);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-worked__arrow::after {
+    top: -4px;
+    right: -1px;
+    width: 0;
+    height: 0;
+    border: 4px solid transparent;
+    border-left: 9px solid var(--web-ink);
+    border-right: 0;
+    transform: none;
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-worked__result {
+    padding: 6px 10px;
+    border: 1px solid var(--web-ink);
+    background: var(--web-surface);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-worked__note {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 12px;
+    padding: 8px 10px;
+    border: 1px solid var(--web-rule);
+    background: var(--web-surface);
+    font-size: 0.8125rem;
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-worked__note::before {
+    content: "NOTE";
+    font: 600 0.6875rem / 1.6 var(--web-font-mono);
+    letter-spacing: var(--web-label-tracking);
+    color: var(--web-accent-ink);
+  }
+  /* Lists: drawing notes, numbered in mono; values in a ruled cell. */
+  .uipack-web[data-ui-style="technical"] .uipack-web-list {
+    counter-reset: uipack-note;
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-list li {
+    counter-increment: uipack-note;
+    padding: 9px 0;
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-list__text strong::before {
+    content: counter(uipack-note) ".";
+    display: inline-block;
+    min-width: 1.5rem;
+    font: 600 0.75rem / 1 var(--web-font-mono);
+    color: var(--web-accent-ink);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-list__text > span {
+    padding-inline-start: 1.5rem;
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-list__meta {
+    padding: 3px 7px;
+    border: 1px solid var(--web-rule);
+    background: var(--web-surface);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-list__mark {
+    border-radius: 0;
+  }
+  /* Stats: a title block. Ruled cells in an ink frame, the label first in mono caps. */
+  .uipack-web[data-ui-style="technical"] .uipack-web-proof__stats:not([data-count="1"]) {
+    gap: 1px;
+    padding: 0;
+    border: 1px solid var(--web-ink);
+    background: var(--web-ink);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-proof__stats:not([data-count="1"]) > div {
+    flex-direction: column;
+    gap: 10px;
+    padding: 14px 16px 16px;
+    border: 0;
+    background: var(--web-surface);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-proof__stats:not([data-count="1"]) dt {
+    order: -1;
+    max-width: none;
+    font: 500 0.6875rem / 1.4 var(--web-font-mono);
+    letter-spacing: var(--web-label-tracking);
+    text-transform: uppercase;
+    color: var(--web-ink-low);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-proof__stats[data-headline] dd {
+    font-size: calc(var(--web-step-5) * var(--web-display-scale));
+  }
+  /* A phone stacks the cells as rows with the label first: the label takes the row and the value
+     sits on the end edge, so the values line up in one column. */
+  @container web (max-width: 720px) {
+    .uipack-web[data-ui-style="technical"] .uipack-web-proof__stats:not([data-count="1"]) > div {
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
+    .uipack-web[data-ui-style="technical"] .uipack-web-proof__stats:not([data-count="1"]) dd {
+      text-align: end;
+    }
+  }
+  /* Hero facts: a title block strip, ruled cells in an ink frame, the label first. */
+  .uipack-web[data-ui-style="technical"] .uipack-web-hero__facts {
+    gap: 1px;
+    padding: 0;
+    border: 1px solid var(--web-ink);
+    background: var(--web-ink);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-hero__facts > div {
+    flex-direction: column;
+    padding: 8px 12px 10px;
+    border: 0;
+    background: var(--web-surface);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-hero__facts dt {
+    font-size: 0.6875rem;
+    letter-spacing: var(--web-label-tracking);
+    text-transform: uppercase;
+  }
+  /* FAQ: each question carries its item number, as a drawing's note does. */
+  .uipack-web[data-ui-style="technical"] .uipack-web-faq__q::before {
+    content: counter(uipack-faq, decimal-leading-zero);
+    display: inline-block;
+    min-width: 2.25rem;
+    font: 600 0.75rem / 1 var(--web-font-mono);
+    color: var(--web-accent-ink);
+    vertical-align: 0.12em;
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-faq__answer {
+    padding-inline-start: 2.25rem;
+  }
+  /* Product shot: a drawing sheet. Numbered balloons on the pins, leaders landing on a shoulder,
+     notes as Prussian tags, the caption a title-block strip. */
+  .uipack-web[data-ui-style="technical"] .uipack-web-shot__plate {
+    box-shadow:
+      inset 0 0 0 6px var(--web-surface),
+      inset 0 0 0 7px var(--web-ink);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-shot__pin {
+    left: -11px;
+    top: -11px;
+    width: 22px;
+    height: 22px;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--ui-media-ground);
+    background: var(--ui-media-ink);
+    box-shadow: none;
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-shot__pin::before {
+    content: counter(uipack-shot);
+    font: 600 0.6875rem / 1 var(--web-font-mono);
+    color: var(--ui-media-ground);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-shot__leader {
+    stroke-width: 1;
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-shot__note {
+    border: 1px solid var(--ui-media-ink);
+    background: var(--ui-media-ground);
+    color: var(--ui-media-ink);
+    font-family: var(--web-font-mono);
+    letter-spacing: 0.02em;
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-shot__tag {
+    border: 1px solid var(--ui-media-ink);
+    background: var(--ui-media-ground);
+    color: var(--ui-media-ink);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-shot__inset {
+    border-color: var(--web-ink);
+    background: var(--ui-canvas-pattern), var(--web-surface);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-shot__caption {
+    border-top-color: var(--web-ink);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    font-size: 0.75rem;
+  }
+
+  /* Below 520px every style's detail view is a plain row under the plate. */
+  @container web (max-width: 520px) {
+    .uipack-web[data-ui-style] .uipack-web-shot__inset {
+      border: 0;
+      border-top: var(--ui-rule-width) solid var(--web-rule);
+      box-shadow: none;
+    }
+  }
+}

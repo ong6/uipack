@@ -3,10 +3,14 @@ export {
   uiStyles,
   isUiStyle,
   styleBootScript,
+  styleBootPlugin,
+  readStyle,
   sectionOrder,
   sharedSectionOrder,
   type UiStyleId,
   type UiStyleMeta,
+  type StyleBootOptions,
+  type StyleBootPlugin,
 } from "./style";
 export { Legend, type LegendItem, type LegendProps } from "./Legend";
 export { Lane, type LaneProps } from "./Lane";

@@ -355,18 +355,29 @@ describe("GlassNav short CTA", () => {
 });
 
 describe("StarHero split and stamp", () => {
-  it("marks the split layout and sets the stamp in the copy, never on the proof", () => {
+  it("marks the split layout and sticks the stamp on the proof's corner, above the media", () => {
     const { container } = render(
-      <StarHero title="T" layout="split" stamp={{ value: "18%", label: "lower postage" }}>
+      <StarHero title="T" layout="split" stamp={{ value: "18%", label: "lower postage" }} media={<img alt="kit" />}>
         <p>proof</p>
       </StarHero>,
     );
     const hero = container.querySelector(".uipack-web-hero")!;
     expect(hero).toHaveAttribute("data-layout", "split");
     expect(hero).toHaveAttribute("data-has-proof");
-    const stamp = container.querySelector(".uipack-web-hero__stamp")!;
-    expect(stamp.closest(".uipack-web-hero__copy")).not.toBeNull();
+    const proof = container.querySelector(".uipack-web-hero__proof")!;
+    expect(proof).toHaveAttribute("data-stamped");
+    const stamp = container.querySelector(".uipack-web-hero__stamp") as HTMLElement;
+    expect(stamp.parentElement).toBe(proof);
     expect(stamp).toHaveTextContent("18%lower postage");
+    expect(stamp.style.getPropertyValue("--stamp-len")).toBe("3");
+    // The media comes first in the proof column, then the demo.
+    expect(proof.querySelector(".uipack-web-hero__media + p")).toHaveTextContent("proof");
+  });
+  it("keeps the stamp in the copy of a stacked hero, and media alone is proof enough", () => {
+    const { container } = render(<StarHero title="T" stamp={{ value: "3×", label: "faster" }} media={<img alt="kit" />} />);
+    expect(container.querySelector(".uipack-web-hero__stamp")!.closest(".uipack-web-hero__copy")).not.toBeNull();
+    expect(container.querySelector(".uipack-web-hero")).toHaveAttribute("data-has-proof");
+    expect(container.querySelector(".uipack-web-star")).toBeNull();
   });
   it("every registered style paints the stamp", () => {
     for (const { id } of uiStyles) {

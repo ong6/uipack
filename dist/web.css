@@ -289,7 +289,26 @@
     --ui-stamp-face: var(--ui-font-display);
     --ui-stamp-case: none;
     --ui-stamp-size: 2.25rem;
+    /* Square tag: the full box takes text (see web.css, the stamp). */
+    --ui-stamp-fit: 4.6rem;
+    --ui-stamp-label-width: 9em;
     --ui-stamp-shadow: inset 0 3px 0 var(--ui-accent);
+
+    /* Shared roles the web parts read (style.md): the spot fill (Technical: the accent). */
+    --ui-spot: var(--ui-accent);
+    --ui-on-spot: var(--ui-on-accent);
+    /* Product imagery (ProductShot, a hero illustration): a cyanotype, Prussian through cyan and
+       white to the one amber, so a thermal frame or a heat map reads as a blueprint print. */
+    --ui-media-ground: #0a2342;
+    --ui-media-cold: #0a2342;
+    --ui-media-mid: #1f5f9a;
+    --ui-media-warm: #b9dcf2;
+    --ui-media-hot: #f0c45a;
+    --ui-media-ink: #f3f6f9;
+    --ui-media-ramp: linear-gradient(90deg, var(--ui-media-cold), var(--ui-media-mid), var(--ui-media-warm), var(--ui-media-hot));
+    --ui-media-filter: grayscale(1) contrast(1.1);
+    --ui-media-tint: #0b2748;
+    --ui-media-blend: lighten;
 
     /* Roles whose Technical values are tuned for one medium, then --tune-* component values.
        Mechanism shades, object scenes and the docs surfaces derive from the roles above. */
@@ -1031,31 +1050,106 @@
     color: var(--ui-stamp-accent);
   }
   .uipack-web-hero__stamp-label {
-    max-width: 9em;
+    max-width: var(--ui-stamp-label-width, 9em);
     font: 600 0.6875rem / 1.3 var(--web-font-mono);
     letter-spacing: var(--web-label-tracking);
     text-transform: uppercase;
   }
-  /* Split hero: beside the actions on the copy column's end edge, its foot on theirs; the actions
-     keep clear of it (they wrap), so the copy column grows by nothing. */
+  /* The figure sizes itself to the value (--stamp-len, set from its characters), so "64%" or
+     "£40" clears the inner ring; the label is clamped at three lines. */
+  /* A round stamp (--ui-stamp-radius: 50%) only has its inscribed square for text, so its style
+     sets a smaller --ui-stamp-fit (the width the figure may take) and --ui-stamp-label-width. */
+  .uipack-web-hero__stamp-value {
+    font-size: min(var(--ui-stamp-size), calc(var(--ui-stamp-fit, 4.6rem) / (var(--stamp-len, 3) * 0.62)));
+  }
+  .uipack-web-hero__stamp-label {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    overflow: hidden;
+  }
+  /* Hero facts: a ruled row of two or three plain facts under the actions. */
+  .uipack-web-hero__facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
+    gap: var(--web-s2);
+    width: 100%;
+    max-width: 34rem;
+    margin: var(--web-s3) 0 0;
+    padding-top: var(--web-s2);
+    border-top: var(--ui-rule-width) var(--ui-perf, solid) var(--web-rule);
+    text-align: start;
+  }
+  .uipack-web-hero__facts > div {
+    display: flex;
+    flex-direction: column-reverse;
+    justify-content: flex-end;
+    gap: 4px;
+    min-width: 0;
+  }
+  .uipack-web-hero__facts > div + div {
+    padding-inline-start: var(--web-s2);
+    border-inline-start: var(--ui-stat-divider, 0 solid transparent);
+  }
+  .uipack-web-hero__facts dd {
+    margin: 0;
+    font: var(--web-display-weight) calc(var(--web-step-2) * var(--web-display-scale)) / 1.05 var(--web-font-display);
+    letter-spacing: var(--web-display-tracking);
+    text-transform: var(--web-display-case);
+    font-synthesis-weight: none;
+  }
+  .uipack-web-hero__facts dt {
+    font: 400 var(--web-step--1) / 1.4 var(--web-font-mono);
+    color: var(--web-ink-low);
+  }
+  @container web (max-width: 520px) {
+    /* One equal column per fact, however many there are. */
+    .uipack-web-hero__facts {
+      grid-template-columns: none;
+      grid-auto-flow: column;
+      grid-auto-columns: minmax(0, 1fr);
+      gap: 12px;
+      margin-top: var(--web-s1);
+    }
+    .uipack-web-hero__facts > div + div {
+      padding-inline-start: 12px;
+    }
+    .uipack-web-hero__facts dd {
+      font-size: calc(var(--web-step-1) * var(--web-display-scale));
+    }
+    .uipack-web-hero__facts dt {
+      font-size: 0.75rem;
+    }
+  }
+  /* Split hero: the stamp is stuck on the proof's top-end corner (the media's, when there is one),
+     overhanging it by 1.25rem, as a sticker on a print. It moves no box. */
+  .uipack-web-hero__proof {
+    position: relative;
+  }
+  .uipack-web-hero__media {
+    min-width: 0;
+    margin-bottom: var(--web-s3);
+  }
   @container web (min-width: 1024px) {
-    .uipack-web-hero[data-layout="split"][data-has-proof] .uipack-web-hero__stamp {
-      top: auto;
-      bottom: 0;
-      width: 8rem;
-      min-height: 8rem;
+    .uipack-web-hero__proof > .uipack-web-hero__stamp {
+      top: -1.25rem;
+      right: -1.25rem;
+      width: 7.75rem;
+      min-height: 7.75rem;
       padding: 12px;
     }
-    .uipack-web-hero[data-layout="split"][data-has-proof] .uipack-web-hero__stamp-value {
-      font-size: calc(var(--ui-stamp-size) * 0.8);
+    .uipack-web-hero__proof > .uipack-web-hero__stamp .uipack-web-hero__stamp-value {
+      font-size: min(calc(var(--ui-stamp-size) * 0.8), calc(var(--ui-stamp-fit, 4.6rem) / (var(--stamp-len, 3) * 0.62)));
     }
-    .uipack-web-hero[data-layout="split"][data-has-proof] .uipack-web-hero__stamp-label {
+    .uipack-web-hero__proof > .uipack-web-hero__stamp .uipack-web-hero__stamp-label {
+      max-width: var(--ui-stamp-label-width, 9em);
       font-size: 0.625rem;
     }
-    .uipack-web-hero[data-layout="split"][data-has-proof] .uipack-web-hero__actions:has(+ .uipack-web-hero__stamp) {
-      min-height: 8rem;
-      align-content: end;
-      padding-inline-end: calc(8rem + var(--web-s3));
+  }
+  @container web (max-width: 1023px) {
+    .uipack-web-hero__proof > .uipack-web-hero__stamp {
+      margin: 0 0 var(--web-s2);
     }
   }
   @container web (max-width: 1023px) {
@@ -2355,7 +2449,8 @@
     .uipack-web .uipack-web-proof__stats > div + div {
       border-top: 1px var(--ui-perf, solid) var(--web-hairline);
     }
-    .uipack-web .uipack-web-proof__stats dd {
+    .uipack-web .uipack-web-proof__stats dd,
+    .uipack-web[data-ui-style] .uipack-web-proof__stats[data-headline] dd {
       order: -1;
       font-size: calc(var(--web-step-3) * var(--web-display-scale));
     }
@@ -2398,7 +2493,11 @@
     border-inline-start: var(--ui-stat-divider, 0 solid transparent);
     padding-inline-start: var(--web-s3);
   }
+  .uipack-web-proof__stats > div {
+    min-width: 0;
+  }
   .uipack-web-proof__stats dt {
+    overflow-wrap: break-word;
     font: 400 var(--web-step--1) / 1.4 var(--web-font-mono);
     letter-spacing: 0.02em;
     color: var(--web-ink-low);
@@ -2743,9 +2842,10 @@
    and another style its own cells from the same rows. */
 @layer uipack.base {
   .uipack-web-window {
-    display: grid;
-    /* Stretched by a taller neighbour in a grid row, the rows stay packed at the top. */
-    align-content: start;
+    /* A column: stretched by a taller neighbour in a grid row, the body takes the extra height
+       (a list inside spreads its rows over it), so no window ends in an empty box. */
+    display: flex;
+    flex-direction: column;
     min-width: 0;
     overflow: hidden;
     border: var(--web-frame-border);
@@ -2833,8 +2933,18 @@
     white-space: nowrap;
   }
   .uipack-web-window__body {
+    flex: 1 0 auto;
+    display: flex;
+    flex-direction: column;
     min-width: 0;
     padding: var(--web-s2) var(--web-s3);
+  }
+  .uipack-web-window__body > * {
+    min-width: 0;
+  }
+  .uipack-web-grid__item > .uipack-web-window .uipack-web-window__body > .uipack-web-list:only-child {
+    flex: 1 0 auto;
+    grid-auto-rows: 1fr;
   }
   /* A lone footer is a caption of the output, not a ruled band of its own. */
   .uipack-web-window__caption {
@@ -2961,6 +3071,10 @@
     font-size: 0.9375rem;
     font-weight: 400;
     white-space: nowrap;
+  }
+  .uipack-web-table tbody :is(th, td):not([data-align="end"]) {
+    white-space: normal;
+    min-width: 7ch;
   }
   .uipack-web-table :is(th, td):first-child {
     padding-inline-start: 0;
@@ -3301,6 +3415,9 @@
   .uipack-web-worked__lines {
     position: relative;
     display: grid;
+    /* One set of columns for every line (subgrid), so the rule boxes share one width and the
+       results one edge. */
+    grid-template-columns: minmax(0, 1fr) minmax(2rem, 4rem) minmax(7.5rem, max-content);
     gap: var(--web-s2);
     margin: 0;
     padding: 0 0 0 var(--web-s3);
@@ -3318,9 +3435,9 @@
   .uipack-web-worked__lines li {
     position: relative;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(2rem, 4rem) minmax(7.5rem, max-content);
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
     align-items: center;
-    gap: var(--web-s2);
   }
   .uipack-web-worked__lines li::before {
     content: "";
@@ -3371,6 +3488,16 @@
       padding: var(--web-s2);
     }
   }
+  /* A phone-width sheet: each line's result goes under its rule. */
+  @container uipack-worked (max-width: 420px) {
+    .uipack-web-worked .uipack-web-worked__lines {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .uipack-web-worked .uipack-web-worked__result {
+      justify-items: start;
+      text-align: start;
+    }
+  }
   @container uipack-worked (max-width: 600px) {
     .uipack-web-worked__sheet {
       grid-template-columns: minmax(0, 1fr);
@@ -3383,9 +3510,9 @@
       padding-left: var(--web-s2);
     }
     /* The result column fits its value with a unit ("4.8 kg"); the rule takes what is left. */
-    .uipack-web-worked__lines li {
+    .uipack-web-worked__lines {
       grid-template-columns: minmax(0, 1fr) minmax(5.5rem, max-content);
-      gap: 12px;
+      column-gap: 12px;
     }
     .uipack-web-worked__lines li::before {
       left: calc(-1 * var(--web-s2));
@@ -3587,6 +3714,349 @@
     }
   }
 }
+
+/* ---------- Product shot, key columns, proof caveat, section aside ---------- */
+@layer uipack.base {
+  /* ProductShot: a plate (the picture, its pins, readouts and detail view) over a caption strip.
+     The style draws the frame, pins, leaders and notes (web-styles.css); here is the geometry. */
+  .uipack-web-shot {
+    display: grid;
+    min-width: 0;
+    margin: 0;
+    border: var(--web-frame-border);
+    border-radius: var(--web-radius);
+    background: var(--web-surface);
+    box-shadow: var(--web-shadow);
+    text-align: start;
+  }
+  .uipack-web-shot__stage {
+    position: relative;
+    min-width: 0;
+  }
+  .uipack-web-shot__plate {
+    position: relative;
+    aspect-ratio: var(--shot-aspect, 5 / 2);
+    overflow: hidden;
+    border-radius: var(--web-radius-inner) var(--web-radius-inner) 0 0;
+    background: var(--ui-media-ground);
+    color: var(--ui-media-ink);
+  }
+  .uipack-web-shot__media {
+    position: absolute;
+    inset: 0;
+  }
+  .uipack-web-shot__media > :is(svg, img, canvas, video) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  /* A photo takes the style's media treatment (Technical: a cyanotype print). A role-painted drawing already speaks the style. */
+  .uipack-web-shot__media[data-kind="image"] img {
+    filter: var(--ui-media-filter, none);
+  }
+  .uipack-web-shot__media[data-kind="image"]::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--ui-media-tint, transparent);
+    mix-blend-mode: var(--ui-media-blend, normal);
+    pointer-events: none;
+  }
+  .uipack-web-shot__hud {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    display: grid;
+    justify-items: start;
+    gap: 6px;
+    max-width: 45%;
+  }
+  .uipack-web-shot__tag {
+    padding: 3px 7px;
+    background: var(--ui-media-ink);
+    color: var(--ui-media-ground);
+    font: 600 0.6875rem / 1.3 var(--web-font-mono);
+    letter-spacing: var(--web-label-tracking);
+    text-transform: uppercase;
+  }
+  .uipack-web-shot__readouts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+    margin: 0;
+    padding: 3px 7px;
+    background: color-mix(in srgb, var(--ui-media-ground) 72%, transparent);
+    font: 500 0.75rem / 1.3 var(--web-font-mono);
+  }
+  .uipack-web-shot__readouts > div {
+    display: flex;
+    gap: 6px;
+  }
+  .uipack-web-shot__readouts dt {
+    opacity: 0.8;
+  }
+  .uipack-web-shot__readouts dd {
+    margin: 0;
+    font-weight: 600;
+  }
+  /* Callouts: a pin at (x, y), an elbow leader, a note at the leader's end. Each is a zero-size
+     anchor, so nothing in the plate moves. */
+  .uipack-web-shot__callouts {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    pointer-events: none;
+    counter-reset: uipack-shot;
+  }
+  .uipack-web-shot__callouts li {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    width: 0;
+    height: 0;
+    counter-increment: uipack-shot;
+    --leader-w: 3rem;
+    --leader-h: 1.5rem;
+  }
+  .uipack-web-shot__pin {
+    position: absolute;
+    left: -8px;
+    top: -8px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 2px solid var(--ui-media-ink);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--ui-media-ground) 60%, transparent);
+  }
+  .uipack-web-shot__leader {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: var(--leader-w);
+    height: var(--leader-h);
+    overflow: visible;
+    fill: none;
+    stroke: var(--ui-media-ink);
+    stroke-width: 1.25;
+  }
+  .uipack-web-shot__note {
+    position: absolute;
+    left: var(--leader-w);
+    top: calc(-1 * var(--leader-h));
+    translate: 6px -50%;
+    display: grid;
+    gap: 1px;
+    width: max-content;
+    max-width: 13rem;
+    padding: 5px 8px;
+    background: var(--ui-media-ink);
+    color: var(--ui-media-ground);
+    font: 600 0.75rem / 1.25 var(--web-font-text);
+  }
+  .uipack-web-shot__note span {
+    font: 500 0.75rem / 1.25 var(--web-font-mono);
+  }
+  .uipack-web-shot__callouts li[data-side="start"] .uipack-web-shot__leader {
+    left: auto;
+    right: 0;
+    scale: -1 1;
+  }
+  .uipack-web-shot__callouts li[data-side="start"] .uipack-web-shot__note {
+    left: auto;
+    right: var(--leader-w);
+    translate: -6px -50%;
+  }
+  .uipack-web-shot__callouts li[data-rise="down"] .uipack-web-shot__leader {
+    bottom: auto;
+    top: 0;
+    scale: 1 -1;
+  }
+  .uipack-web-shot__callouts li[data-rise="down"][data-side="start"] .uipack-web-shot__leader {
+    scale: -1 -1;
+  }
+  .uipack-web-shot__callouts li[data-rise="down"] .uipack-web-shot__note {
+    top: var(--leader-h);
+  }
+  .uipack-web-shot__inset {
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+    display: grid;
+    gap: 4px;
+    width: 21%;
+    padding: 6px;
+    border: 1px solid var(--web-rule);
+    background: var(--web-surface);
+    color: var(--web-ink);
+  }
+  .uipack-web-shot__inset-label {
+    font: 600 0.625rem / 1.2 var(--web-font-mono);
+    letter-spacing: var(--web-label-tracking);
+    text-transform: uppercase;
+    color: var(--web-ink-low);
+  }
+  @container web (max-width: 520px) {
+    .uipack-web-shot__inset-art {
+      order: -1;
+    }
+  }
+  .uipack-web-shot__inset-art {
+    aspect-ratio: 3 / 2;
+    line-height: 0;
+  }
+  .uipack-web-shot__inset-art > svg {
+    width: 100%;
+    height: 100%;
+  }
+  .uipack-web-shot__caption {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px var(--web-s2);
+    padding: 10px var(--web-s2);
+    border-top: var(--ui-rule-width) solid var(--web-rule);
+    font: 400 var(--web-step--1) / 1.4 var(--web-font-mono);
+    color: var(--web-ink-medium);
+  }
+  .uipack-web-shot__scale {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--web-ink-low);
+    white-space: nowrap;
+  }
+  .uipack-web-shot__scale i {
+    width: 72px;
+    height: 8px;
+    background: var(--ui-media-ramp);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--web-ink) 25%, transparent);
+  }
+  @container web (max-width: 520px) {
+    .uipack-web-shot__callouts li {
+      --leader-w: 1.75rem;
+      --leader-h: 1rem;
+    }
+    .uipack-web-shot__note {
+      max-width: 9rem;
+      padding: 3px 6px;
+      font-size: 0.6875rem;
+    }
+    /* The detail view leaves the plate for a row under it: label, then the drawing. */
+    .uipack-web-shot__inset {
+      position: static;
+      grid-template-columns: 6.5rem minmax(0, 1fr);
+      align-items: center;
+      column-gap: var(--web-s2);
+      width: auto;
+      padding: 8px var(--web-s2);
+      border: 0;
+      border-top: var(--ui-rule-width) solid var(--web-rule);
+      box-shadow: none;
+    }
+    .uipack-web-shot__hud {
+      top: 8px;
+      left: 8px;
+    }
+    .uipack-web-shot__readouts {
+      font-size: 0.6875rem;
+    }
+  }
+
+  /* DataTable key column (priority "key"): below 440px it is never scrolled away. In fit and
+     scroll mode it is pinned to the end edge; in stack mode it sits on the name's line, large. */
+  @container uipack-table (max-width: 440px) {
+    .uipack-web-table:not([data-narrow="stack"]) [data-priority="key"] {
+      position: sticky;
+      right: 0;
+      z-index: 1;
+      background: var(--web-surface);
+      box-shadow: -10px 0 10px -8px color-mix(in srgb, var(--web-ink) 30%, transparent);
+    }
+    .uipack-web-table[data-narrow="stack"] tr:has(> [data-priority="key"]) > th {
+      grid-column: 1;
+      grid-row: 1;
+    }
+    .uipack-web-table[data-narrow="stack"] tr > td[data-priority="key"] {
+      grid-column: 2;
+      grid-row: 1;
+      justify-content: flex-end;
+      align-self: baseline;
+      font-weight: 600;
+      font-size: 1rem;
+      color: var(--web-ink);
+    }
+    .uipack-web-table[data-narrow="stack"] td[data-priority="key"] .uipack-web-table__label {
+      display: none;
+    }
+  }
+
+  /* Proof: a caveat under the numbers; three or four stats as the headline row. */
+  .uipack-web-proof__caveat {
+    margin: 0;
+    font: 400 var(--web-step--1) / 1.5 var(--web-font-mono);
+    color: var(--web-ink-low);
+  }
+  .uipack-web .uipack-web-proof__stats[data-headline] {
+    grid-template-columns: repeat(var(--stats, 3), minmax(0, 1fr));
+    gap: var(--web-s3);
+  }
+  .uipack-web .uipack-web-proof__stats[data-headline] dd {
+    font-size: calc(var(--web-step-6) * var(--web-display-scale));
+  }
+  .uipack-web .uipack-web-proof__stats[data-headline] dt {
+    max-width: 18ch;
+    font: 400 var(--web-step-0) / 1.4 var(--web-font-text);
+    letter-spacing: 0;
+    color: var(--web-ink-medium);
+  }
+  @container web (max-width: 720px) {
+    .uipack-web .uipack-web-proof__stats[data-headline] {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--web-s3) var(--web-s2);
+    }
+    .uipack-web .uipack-web-proof__stats[data-headline] > div {
+      display: flex;
+      flex-direction: column-reverse;
+      justify-content: flex-end;
+      gap: var(--web-s1);
+      padding: 0;
+      border: 0;
+    }
+    .uipack-web .uipack-web-proof__stats[data-headline] > div:nth-child(odd) {
+      padding-inline-start: 0;
+    }
+    .uipack-web .uipack-web-proof__stats[data-headline] > div:nth-child(even) {
+      border-inline-start: var(--ui-stat-divider, 0 solid transparent);
+      padding-inline-start: var(--web-s2);
+    }
+    .uipack-web .uipack-web-proof__stats[data-headline] dd {
+      order: 0;
+      font-size: calc(var(--web-step-5) * var(--web-display-scale));
+    }
+    .uipack-web .uipack-web-proof__stats[data-headline] dt {
+      font-size: var(--web-step--1);
+    }
+  }
+
+  /* Section aside: more for the head (a note, a CTA). In the FAQ the head column travels with
+     the questions, so its CTA stays in view. */
+  .uipack-web-section__aside {
+    display: grid;
+    justify-items: start;
+    gap: var(--web-s2);
+    margin-top: var(--web-s1);
+  }
+  @container web (min-width: 1024px) {
+    .uipack-web-faq .uipack-web-section__head {
+      position: sticky;
+      top: var(--web-scroll-offset);
+    }
+  }
+}
 /* uipack/web ornament slots. A layout leaves named slots; a style paints them through its roles
    (src/styles: --ui-backdrop, --ui-marker-*, --ui-section-rule…). Nothing here takes space or
    moves a box, so a style swap keeps every region, box and the reading order: the backdrop is an
@@ -3751,6 +4221,282 @@
       :is(.uipack-web-feature, .uipack-web-spotlight)
       > :not(:first-child):not(.uipack-web-feature__icon) {
       grid-column: 2;
+    }
+  }
+}
+
+/* ---------- Component treatments: one markup, each style's drawing ----------
+   Each style draws the same parts in its own vernacular, on the same boxes and in the same places
+   (docs/system/style.md, "Component treatments"): Technical an engineering drawing (tables as a
+   drawing schedule, the worked case as a dimensioned detail with numbered balloons, lists as
+   drawing notes, stats in a title block). A style built from a spec adds its block here, keyed on
+   the page's style (WebPage / WebSurface data-ui-style); a nested style scope gets that style's
+   roles but keeps the page's treatment. Only borders, fills, faces, pseudo content and inner
+   padding change: never a box's place, a column count or the reading order. */
+@layer uipack.ornaments {
+  .uipack-web-faq__list {
+    counter-reset: uipack-faq;
+  }
+  .uipack-web-faq__item {
+    counter-increment: uipack-faq;
+  }
+
+  /* ===== Technical: an engineering drawing ===== */
+  /* Tables: a drawing schedule. Ruled on every cell, an ink frame, a tinted head, item numbers. */
+  @container uipack-table (min-width: 441px) {
+    .uipack-web[data-ui-style="technical"] .uipack-web-table table {
+      border: 1px solid var(--web-ink);
+      counter-reset: uipack-row;
+    }
+    .uipack-web[data-ui-style="technical"] .uipack-web-table :is(th, td),
+    .uipack-web[data-ui-style="technical"] .uipack-web-table :is(th, td):is(:first-child, :last-child) {
+      padding: 7px 10px;
+      border: 1px solid var(--web-hairline);
+      font-size: 0.875rem;
+    }
+    .uipack-web[data-ui-style="technical"] .uipack-web-table thead th {
+      padding-top: 8px;
+      background: var(--web-secondary);
+      border-bottom: 1px solid var(--web-ink);
+      color: var(--web-ink-medium);
+    }
+    .uipack-web[data-ui-style="technical"] .uipack-web-table tbody tr {
+      counter-increment: uipack-row;
+    }
+    .uipack-web[data-ui-style="technical"] .uipack-web-table tbody th::before {
+      content: counter(uipack-row, decimal-leading-zero);
+      display: inline-block;
+      width: 1.75rem;
+      color: var(--web-ink-low);
+      font-size: 0.6875rem;
+    }
+    .uipack-web[data-ui-style="technical"] .uipack-web-table tr[data-highlight] :is(th, td):first-child {
+      padding-inline-start: 10px;
+    }
+  }
+  /* The worked case: a dimensioned detail. Drafting film under it, each rule a ruled callout with
+     a numbered balloon, each arrow a dimension line (an extension tick, a solid head), each result
+     a boxed dimension figure, the note a title-block cell. */
+  .uipack-web[data-ui-style="technical"] .uipack-web-worked {
+    background: var(--ui-corner-marks), var(--ui-canvas-pattern), var(--web-surface);
+    counter-reset: uipack-worked;
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-worked__lines li {
+    counter-increment: uipack-worked;
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-worked__given {
+    padding: 10px 12px;
+    border: 1px dashed var(--web-ink-low);
+    background: var(--web-surface);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-worked__rule {
+    position: relative;
+    padding: 8px 12px 8px 42px;
+    border: 1px solid var(--web-ink);
+    background: var(--web-surface);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-worked__rule::before {
+    content: counter(uipack-worked);
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    translate: 0 -50%;
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 1px var(--web-ink);
+    font: 600 0.6875rem / 1 var(--web-font-mono);
+    color: var(--web-ink);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-worked__arrow {
+    border-top: 1px solid var(--web-ink);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-worked__arrow::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: -6px;
+    height: 11px;
+    border-left: 1px solid var(--web-ink);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-worked__arrow::after {
+    top: -4px;
+    right: -1px;
+    width: 0;
+    height: 0;
+    border: 4px solid transparent;
+    border-left: 9px solid var(--web-ink);
+    border-right: 0;
+    transform: none;
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-worked__result {
+    padding: 6px 10px;
+    border: 1px solid var(--web-ink);
+    background: var(--web-surface);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-worked__note {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 12px;
+    padding: 8px 10px;
+    border: 1px solid var(--web-rule);
+    background: var(--web-surface);
+    font-size: 0.8125rem;
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-worked__note::before {
+    content: "NOTE";
+    font: 600 0.6875rem / 1.6 var(--web-font-mono);
+    letter-spacing: var(--web-label-tracking);
+    color: var(--web-accent-ink);
+  }
+  /* Lists: drawing notes, numbered in mono; values in a ruled cell. */
+  .uipack-web[data-ui-style="technical"] .uipack-web-list {
+    counter-reset: uipack-note;
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-list li {
+    counter-increment: uipack-note;
+    padding: 9px 0;
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-list__text strong::before {
+    content: counter(uipack-note) ".";
+    display: inline-block;
+    min-width: 1.5rem;
+    font: 600 0.75rem / 1 var(--web-font-mono);
+    color: var(--web-accent-ink);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-list__text > span {
+    padding-inline-start: 1.5rem;
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-list__meta {
+    padding: 3px 7px;
+    border: 1px solid var(--web-rule);
+    background: var(--web-surface);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-list__mark {
+    border-radius: 0;
+  }
+  /* Stats: a title block. Ruled cells in an ink frame, the label first in mono caps. */
+  .uipack-web[data-ui-style="technical"] .uipack-web-proof__stats:not([data-count="1"]) {
+    gap: 1px;
+    padding: 0;
+    border: 1px solid var(--web-ink);
+    background: var(--web-ink);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-proof__stats:not([data-count="1"]) > div {
+    flex-direction: column;
+    gap: 10px;
+    padding: 14px 16px 16px;
+    border: 0;
+    background: var(--web-surface);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-proof__stats:not([data-count="1"]) dt {
+    order: -1;
+    max-width: none;
+    font: 500 0.6875rem / 1.4 var(--web-font-mono);
+    letter-spacing: var(--web-label-tracking);
+    text-transform: uppercase;
+    color: var(--web-ink-low);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-proof__stats[data-headline] dd {
+    font-size: calc(var(--web-step-5) * var(--web-display-scale));
+  }
+  /* A phone stacks the cells as rows with the label first: the label takes the row and the value
+     sits on the end edge, so the values line up in one column. */
+  @container web (max-width: 720px) {
+    .uipack-web[data-ui-style="technical"] .uipack-web-proof__stats:not([data-count="1"]) > div {
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
+    .uipack-web[data-ui-style="technical"] .uipack-web-proof__stats:not([data-count="1"]) dd {
+      text-align: end;
+    }
+  }
+  /* Hero facts: a title block strip, ruled cells in an ink frame, the label first. */
+  .uipack-web[data-ui-style="technical"] .uipack-web-hero__facts {
+    gap: 1px;
+    padding: 0;
+    border: 1px solid var(--web-ink);
+    background: var(--web-ink);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-hero__facts > div {
+    flex-direction: column;
+    padding: 8px 12px 10px;
+    border: 0;
+    background: var(--web-surface);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-hero__facts dt {
+    font-size: 0.6875rem;
+    letter-spacing: var(--web-label-tracking);
+    text-transform: uppercase;
+  }
+  /* FAQ: each question carries its item number, as a drawing's note does. */
+  .uipack-web[data-ui-style="technical"] .uipack-web-faq__q::before {
+    content: counter(uipack-faq, decimal-leading-zero);
+    display: inline-block;
+    min-width: 2.25rem;
+    font: 600 0.75rem / 1 var(--web-font-mono);
+    color: var(--web-accent-ink);
+    vertical-align: 0.12em;
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-faq__answer {
+    padding-inline-start: 2.25rem;
+  }
+  /* Product shot: a drawing sheet. Numbered balloons on the pins, leaders landing on a shoulder,
+     notes as Prussian tags, the caption a title-block strip. */
+  .uipack-web[data-ui-style="technical"] .uipack-web-shot__plate {
+    box-shadow:
+      inset 0 0 0 6px var(--web-surface),
+      inset 0 0 0 7px var(--web-ink);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-shot__pin {
+    left: -11px;
+    top: -11px;
+    width: 22px;
+    height: 22px;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--ui-media-ground);
+    background: var(--ui-media-ink);
+    box-shadow: none;
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-shot__pin::before {
+    content: counter(uipack-shot);
+    font: 600 0.6875rem / 1 var(--web-font-mono);
+    color: var(--ui-media-ground);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-shot__leader {
+    stroke-width: 1;
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-shot__note {
+    border: 1px solid var(--ui-media-ink);
+    background: var(--ui-media-ground);
+    color: var(--ui-media-ink);
+    font-family: var(--web-font-mono);
+    letter-spacing: 0.02em;
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-shot__tag {
+    border: 1px solid var(--ui-media-ink);
+    background: var(--ui-media-ground);
+    color: var(--ui-media-ink);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-shot__inset {
+    border-color: var(--web-ink);
+    background: var(--ui-canvas-pattern), var(--web-surface);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-shot__caption {
+    border-top-color: var(--web-ink);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    font-size: 0.75rem;
+  }
+
+  /* Below 520px every style's detail view is a plain row under the plate. */
+  @container web (max-width: 520px) {
+    .uipack-web[data-ui-style] .uipack-web-shot__inset {
+      border: 0;
+      border-top: var(--ui-rule-width) solid var(--web-rule);
+      box-shadow: none;
     }
   }
 }

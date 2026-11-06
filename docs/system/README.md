@@ -92,9 +92,11 @@ style as a prop (`<DeckPlayer uiStyle="technical">`; omitted, Technical). Conten
 `SLOT_BUDGETS`, checked by `lintDeck` as `slot-budget`. Each style's recommended order is
 `uiStyles[].prefers`, used only with `WebPage layout="style"`. The cascade layers are
 `uipack.tokens`, `uipack.base`, `uipack.layout` and `uipack.ornaments`; the head script is
-`styleBootScript({ aliases })`, which sets `data-ui-style` (from `?style=`, a style id or an alias,
-then storage) and, only when `?theme=` or a stored choice says so, both `data-theme` and
-`data-ui-theme` (synonyms on a web page); otherwise the page follows the system theme.
+`styleBootScript({ aliases })` (with Vite, `styleBootPlugin({ aliases })` inlines it into
+index.html), which sets `data-ui-style` (from `?style=`, a style id or an alias, then the
+fallback; a stored style only with `persist: true`) and, only when `?theme=` or a stored choice says so, both `data-theme` and
+`data-ui-theme` (synonyms on a web page); otherwise the page follows the system theme. The React root reads the same choice with
+`readStyle({ aliases })`.
 
 
 ## Media at a glance

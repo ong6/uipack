@@ -83,10 +83,14 @@ const notFoundPage: PageDef = {
 
 /** The second nav row: a page's sub-views (the decks) sit together under the page's name. */
 function pageRuns(pages: readonly PageDef[]) {
-  const runs: { title?: string; pages: PageDef[] }[] = [];
+  const runs: { title?: string; run?: string; pages: PageDef[] }[] = [];
   for (const p of pages) {
     const last = runs[runs.length - 1];
-    if (p.query && last?.title && last.pages[0].path === p.path) last.pages.push(p);
+    // A named run (Foundations' guides, then its reference pages) sits after its label.
+    if (p.run) {
+      if (last?.run === p.run) last.pages.push(p);
+      else runs.push({ title: p.run, run: p.run, pages: [p] });
+    } else if (p.query && last?.title && !last.run && last.pages[0].path === p.path) last.pages.push(p);
     else runs.push({ title: p.query ? (p.title ?? p.label) : undefined, pages: [p] });
   }
   return runs;
@@ -254,6 +258,7 @@ export function ShowcaseShell({ active, children }: { active: LibraryPage | "not
                   <Fragment key={p.id}>
                     {/* Sub-views of one page sit indented under a label naming it. */}
                     {p.query && all[i - 1]?.path !== p.path && <span className="showcase-menu__sub">{p.title ?? p.label}</span>}
+                    {p.run && all[i - 1]?.run !== p.run && <span className="showcase-menu__sub">{p.run}</span>}
                     <a
                       href={pageHref(p, theme)}
                       className={p.query ? "is-sub" : undefined}

@@ -35,6 +35,9 @@ fails if a style leaves a core role out.
 | `--ui-data-1` … `-4`, `--ui-on-data-1` … `-4` | Categorical slots and the label on each | `--uipack-cx-s1` … |
 | `--ui-inv-paper` / `-surface` / `-ink` / `-ink-2` / `-line` / `-accent` | The invert variant inside the style (deck `invert`, `tone="ink"`) | `[data-tone="ink"]`, the web quote card |
 | `--ui-band-fill` / `-ink` / `-ink-2` / `-cta`, `--ui-on-band-cta`, `--ui-band-pattern` | The web closing band (`ClosingCta`): its ground, text, button and pattern | `--web-band-*` |
+| `--ui-spot`, `--ui-on-spot` | The accent as a large flat fill (a sticker, a marked row, a lens in a drawing) and type on it. Technical: the accent. A style whose accent is too light for text sets `--ui-accent` to a darker text tone and keeps the bright one here | treatments, product drawings |
+| `--ui-media-ground` / `-cold` / `-mid` / `-warm` / `-hot` / `-ink`, `--ui-media-ramp` | Product imagery: a four-stop tonal ramp for drawn pictures (a thermal frame, a heat map, a scan), its ground and the ink of marks over it. Technical a cyanotype (Prussian, cyan, white, amber) | `ProductShot`, bespoke product drawings |
+| `--ui-media-filter`, `--ui-media-tint`, `--ui-media-blend` | How a photo in a `ProductShot` is printed: Technical a cyanotype (greyscale lightened over Prussian) | `ProductShot src` |
 
 **Type, shape, motion and scalars**
 
@@ -69,7 +72,7 @@ move a box, so a style changes how a page looks and never where anything sits
 | `--ui-cta-shadow(-hover)` | The primary button | None (a 3px amber halo on hover) |
 | `--ui-cta-fill`, `--ui-on-cta` | The primary button's fill and label | Prussian ink in light, gold in dark |
 | `--ui-band-*` | The closing band | Plain Prussian band (no grid: the grid is the hero's and the figure's), gold button |
-| `--ui-stamp-*` (fill, ink, accent, border, inner, radius, rotate, face, case, size, shadow) | `StarHero stamp`: the page's one measured number, in the copy | A revision tag: square, ruled, amber top bar, the figure in the heading face |
+| `--ui-stamp-*` (fill, ink, accent, border, inner, radius, rotate, face, case, size, shadow, fit, label-width) | `StarHero stamp`: the page's one measured number, on the proof's corner (split) or in the copy. `fit` is the width the figure may take and `label-width` the label's measure: a round stamp keeps its text to its inscribed square, so it sets both smaller | A revision tag: square, ruled, amber top bar, the figure in the heading face; fit 4.6rem, label 9em |
 
 **Treatment roles (web components).** Range comes from how a style draws the same parts, not from
 moving them: the layout is one, the treatment is the style's. Every style fills these.
@@ -87,6 +90,23 @@ moving them: the layout is one, the treatment is the style's. Every style fills 
 | `--ui-cell-*` (fill, ink, line, peak, on-peak, off-ink, radius) | Product surfaces: table highlights, schedule cells, status chips, worked rules | Square cells on surface-2, Prussian-ink peaks |
 | `--ui-window-dots`, `--ui-window-bar` | `ProductWindow` and `DemoPlayer` chrome | No traffic lights, clear bar |
 | `--ui-web-flow-request` | The request token of a figure on a web page | The style's flow request (cyan, the main flow) |
+
+**Component treatments (per-style CSS on the same markup).** Roles change values; some parts also
+change how they are drawn: pseudo content, which edges are ruled, inner padding, the face of a
+column. Those live in `src/web/web-styles.css` keyed on the page's style and never move a box,
+change a column count or reorder content. A nested `Section uiStyle` gets that style's roles but
+the page's treatment. A style built from a spec adds its column here and its block there.
+
+| Part | Technical: an engineering drawing |
+| --- | --- |
+| `DataTable` | A drawing schedule: every cell ruled, ink frame, tinted head, item numbers `01`… |
+| `WorkedExample` | A dimensioned detail on drafting film: rules as ruled callouts with numbered balloons, arrows as dimension lines, results boxed, a `NOTE` title-block cell |
+| `ItemList` | Drawing notes: numbered `1.` in mono, values in a ruled cell |
+| `Proof` stats | A title block: ruled cells in an ink frame, label first in mono caps |
+| `StarHero facts` | A title-block strip: ruled cells in an ink frame, label first |
+| `FAQ` | Each question numbered `01` |
+| `ProductShot` | A drawing sheet: an inner keyline, numbered balloon pins, Prussian tag notes, a title-block caption |
+| Bands | Plain |
 
 **Every style fills every role.** A few roles have Technical values tuned for one medium
 (`--ui-node`, `--ui-line-solid`, `--ui-inv-node`, `--ui-accent-ink`, `--ui-data-neg-ink`,

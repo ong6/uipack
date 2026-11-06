@@ -4,8 +4,10 @@ import {
   BeforeAfter,
   DataTable,
   DemoPlayer,
+  FAQ,
   FileTable,
   ItemList,
+  ProductShot,
   ProductWindow,
   Proof,
   RecordCard,
@@ -15,7 +17,7 @@ import {
 } from "../src/web";
 import { pipelineParts } from "../src/presets";
 import { PricingPlans } from "../src/web";
-import { styleBootScript } from "../src/style";
+import { readStyle, styleBootPlugin, styleBootScript } from "../src/style";
 
 describe("product surfaces", () => {
   it("DataTable: real rows, a marked row, bars to scale, a focusable named scroll region", () => {
@@ -346,5 +348,137 @@ describe("styleBootScript", () => {
   });
   it("ignores unknown and prototype keys", () => {
     expect(run("?style=constructor").attrs["data-ui-style"]).toBe("technical");
+  });
+});
+
+describe("key columns, proof caveat, FAQ aside, product shot", () => {
+  const cols = [
+    { key: "spot", label: "Cold spot" },
+    { key: "cost", label: "Cost", align: "end" as const },
+    { key: "saves", label: "Saves", align: "end" as const },
+    { key: "payback", label: "Payback", align: "end" as const, priority: "key" as const },
+  ];
+  const rows = [{ spot: "Loft hatch", cost: "£12", saves: "£38", payback: "3.8 mo" }];
+  it("DataTable stacks four or more columns on a phone, so the key value is never scrolled away", () => {
+    const { container } = render(<DataTable label="Fixes" columns={cols} rows={rows} />);
+    expect(container.querySelector(".uipack-web-table")).toHaveAttribute("data-narrow", "stack");
+    const key = [...container.querySelectorAll("[data-priority=key]")];
+    expect(key.map((c) => c.tagName)).toEqual(["TH", "TD"]);
+    expect(key[1]).toHaveTextContent("3.8 mo");
+    const plain = cols.map((c) => ({ ...c, priority: undefined }));
+    const { container: c2 } = render(<DataTable label="Fixes" columns={plain} rows={rows} />);
+    expect(c2.querySelector(".uipack-web-table")).toHaveAttribute("data-narrow", plain.length > 3 ? "stack" : "fit");
+    const three = plain.slice(0, 3);
+    const { container: c3 } = render(<DataTable label="Fixes" columns={three} rows={rows} />);
+    expect(c3.querySelector(".uipack-web-table")).toHaveAttribute("data-narrow", "fit");
+  });
+  it("Proof sets three stats without a lead as the headline row, with the caveat under them", () => {
+    const { container } = render(
+      <Proof
+        stats={[
+          { value: "1,120", label: "homes" },
+          { value: "7", label: "cold spots" },
+          { value: "64%", label: "made a fix" },
+        ]}
+        caveat="Estimated, not metered."
+      />,
+    );
+    const dl = container.querySelector(".uipack-web-proof__stats") as HTMLElement;
+    expect(dl).toHaveAttribute("data-headline");
+    expect(dl.style.getPropertyValue("--stats")).toBe("3");
+    expect(container.querySelector(".uipack-web-proof__numbers > .uipack-web-proof__caveat")).toHaveTextContent(
+      "Estimated, not metered.",
+    );
+    const { container: withLead } = render(
+      <Proof
+        lead={{ value: "7", label: "spots" }}
+        stats={[
+          { value: "1", label: "a" },
+          { value: "2", label: "b" },
+        ]}
+      />,
+    );
+    expect(withLead.querySelector(".uipack-web-proof__stats")).not.toHaveAttribute("data-headline");
+  });
+  it("FAQ carries an aside in its head column", () => {
+    render(
+      <FAQ items={[{ question: "Q?", answer: "A." }]} intro="Four things." aside={<a href="#buy">Order</a>} jsonLd={false} />,
+    );
+    const head = screen.getByText("Four things.").closest(".uipack-web-section__head")!;
+    expect(within(head as HTMLElement).getByRole("link", { name: "Order" })).toBeInTheDocument();
+  });
+  it("ProductShot frames a drawing with pins, readouts, a detail view and a ramp key", () => {
+    const { container } = render(
+      <ProductShot
+        label="Thermal view of a loft hatch"
+        tag="Thermal view"
+        readouts={[{ label: "Room", value: "19.6 °C" }]}
+        callouts={[
+          { x: 30, y: 50, label: "Hatch", value: "12.2 °C" },
+          { x: 80, y: 10, label: "Light" },
+        ]}
+        inset={{ label: "The kit", children: <svg /> }}
+        caption="Sample scan"
+        scale={{ start: "12 °C", end: "20 °C" }}
+        aspect="2 / 1"
+      >
+        <svg data-testid="art" />
+      </ProductShot>,
+    );
+    expect(screen.getByRole("figure", { name: "Thermal view of a loft hatch" })).toBeInTheDocument();
+    expect(container.querySelector(".uipack-web-shot__media")).toHaveAttribute("data-kind", "drawing");
+    const pins = [...container.querySelectorAll(".uipack-web-shot__callouts li")] as HTMLElement[];
+    expect(pins.map((p) => [p.dataset.side, p.dataset.rise])).toEqual([
+      ["end", "up"],
+      ["start", "down"],
+    ]);
+    expect(pins[0].style.getPropertyValue("--x")).toBe("30%");
+    expect(container.querySelector(".uipack-web-shot__inset")).toHaveTextContent("The kit");
+    expect(container.querySelector("figcaption")).toHaveTextContent("Sample scan12 °C20 °C");
+    const { container: photo } = render(<ProductShot label="The kit" src="/kit.jpg" />);
+    expect(photo.querySelector("img")).toHaveAttribute("alt", "The kit");
+    expect(photo.querySelector(".uipack-web-shot__media")).toHaveAttribute("data-kind", "image");
+  });
+});
+
+describe("style boot helpers", () => {
+  const run = (search: string, stored: Record<string, string>, opts?: Parameters<typeof styleBootScript>[0]) => {
+    const attrs: Record<string, string> = {};
+    const fake = {
+      location: { search },
+      localStorage: { getItem: (k: string) => stored[k] ?? null, removeItem: () => undefined },
+      document: { documentElement: { setAttribute: (k: string, v: string) => (attrs[k] = v) } },
+    };
+    new Function("location", "localStorage", "document", styleBootScript(opts))(fake.location, fake.localStorage, fake.document);
+    return attrs;
+  };
+  it("reads a stored style only when the page persists, and never an unregistered one", () => {
+    // One registered style today, so the stored read shows in the script itself.
+    expect(styleBootScript()).not.toContain('getItem("uipack-style")');
+    expect(styleBootScript({ persist: true })).toContain('getItem("uipack-style")');
+    expect(run("", { "uipack-style": "technical" }, { persist: true })["data-ui-style"]).toBe("technical");
+    expect(run("", { "uipack-style": "graphical" }, { persist: true })["data-ui-style"]).toBe("technical");
+  });
+  it("styleBootPlugin inlines the script at the placeholder, else first in <head>", () => {
+    const p = styleBootPlugin({ aliases: { "3": "technical" } });
+    expect(p.transformIndexHtml.order).toBe("pre");
+    const placed = p.transformIndexHtml.handler("<head><!--uipack-boot--><link rel=stylesheet></head>");
+    expect(placed).toMatch(/^<head><script>\(function\(\)\{.*"3":"technical".*<\/script><link/);
+    const first = p.transformIndexHtml.handler('<html><head lang="en"><meta charset="utf-8"></head></html>');
+    expect(first.indexOf("<script>")).toBeLessThan(first.indexOf("<meta"));
+  });
+  it("readStyle honours aliases from the URL and prefers what the boot script set", () => {
+    const html = document.documentElement;
+    html.removeAttribute("data-ui-style");
+    window.history.replaceState(null, "", "/?style=2");
+    expect(readStyle({ aliases: { "2": "technical" } })).toBe("technical");
+    window.history.replaceState(null, "", "/?style=landing");
+    expect(readStyle()).toBe("technical");
+    html.setAttribute("data-ui-style", "technical");
+    expect(readStyle({ aliases: { "2": "technical" } })).toBe("technical");
+    html.setAttribute("data-ui-style", "graphical");
+    expect(readStyle()).toBe("technical");
+    html.removeAttribute("data-ui-style");
+    window.history.replaceState(null, "", "/");
   });
 });
