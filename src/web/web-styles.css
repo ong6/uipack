@@ -343,6 +343,16 @@
   .uipack-web[data-ui-style="technical"] .uipack-web-proof__stats[data-headline] dd {
     font-size: calc(var(--web-step-5) * var(--web-display-scale));
   }
+  /* A phone stacks the cells as rows with the label first: the label takes the row and the value
+     sits on the end edge, so the values line up in one column. */
+  @container web (max-width: 720px) {
+    .uipack-web[data-ui-style="technical"] .uipack-web-proof__stats:not([data-count="1"]) > div {
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
+    .uipack-web[data-ui-style="technical"] .uipack-web-proof__stats:not([data-count="1"]) dd {
+      text-align: end;
+    }
+  }
   /* Hero facts: a title block strip, ruled cells in an ink frame, the label first. */
   .uipack-web[data-ui-style="technical"] .uipack-web-hero__facts {
     gap: 1px;
