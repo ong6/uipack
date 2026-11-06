@@ -168,14 +168,19 @@ export function toneMappingFor(rig: LightRig) {
   return { aces: THREE.ACESFilmicToneMapping, agx: THREE.AgXToneMapping, neutral: THREE.NeutralToneMapping }[rig.toneMapping];
 }
 
-/** Add the rig's hemisphere, key (with its shadow map settings), optional fill and rim to a scene. */
-export function addRigLights(scene: THREE.Scene, rig: LightRig) {
+/**
+ * Add the rig's hemisphere, key (with its shadow map settings), optional fill and rim to a scene.
+ * `phone` (a stage under 768px wide) halves the shadow map and its blur radius in texels: the same
+ * penumbra in world units, a quarter of the depth pass, on a canvas a third as wide.
+ */
+export function addRigLights(scene: THREE.Scene, rig: LightRig, phone = false) {
   scene.add(new THREE.HemisphereLight(rig.hemisphere.sky, rig.hemisphere.ground, rig.hemisphere.intensity));
   const key = new THREE.DirectionalLight(rig.key.color, rig.key.intensity);
   key.position.set(...rig.key.position);
   key.castShadow = rig.key.shadow;
-  key.shadow.mapSize.set(rig.key.shadowMapSize, rig.key.shadowMapSize);
-  key.shadow.radius = rig.key.shadowRadius;
+  const texels = phone ? 0.5 : 1;
+  key.shadow.mapSize.set(rig.key.shadowMapSize * texels, rig.key.shadowMapSize * texels);
+  key.shadow.radius = rig.key.shadowRadius * texels;
   Object.assign(key.shadow.camera, { left: -4, right: 4, top: 4, bottom: -4 });
   key.shadow.normalBias = 0.025;
   key.shadow.bias = -0.0003;

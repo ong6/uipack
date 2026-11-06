@@ -1,5 +1,5 @@
 import { studioObjectPalettes } from "../styles/scene-palettes";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useReducer, useRef, useState } from "react";
 import {
   objectDirectionIndex,
   normalizeObjectVariant,
@@ -191,6 +191,9 @@ function ObjectStage({
   const [paused, setPaused] = useState(false);
   const [completed, setCompleted] = useState(false);
   const reduced = usePrefersReducedMotion();
+  // A re-render re-reads the reduced-motion query (useSyncExternalStore's snapshot), for when the
+  // scene's loop sees the setting change before the query's change event reaches the hook.
+  const [, recheckReduced] = useReducer((n: number) => n + 1, 0);
   // What the running scene reads every frame. React state mirrors paused and completed for the
   // controls; these are the copies the loop sees without waiting for a render.
   const flagsRef = useRef<ObjectStageFlags>({ active, paused: false, completed: false, reduced: false, zoom });
@@ -246,6 +249,7 @@ function ObjectStage({
         setCompleted(false);
         setPaused(false);
       },
+      onReducedMotion: recheckReduced,
     });
     sceneRef.current = scene;
     return () => {
