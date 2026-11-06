@@ -483,7 +483,7 @@
 }
 .fdn-checker__icon {
   flex: none;
-  font-weight: 700;
+  font-weight: 600;
 }
 /* Over budget is an error: the error role, an icon and the words, so it reads without colour. */
 .fdn-checker__result[data-verdict="over"] {
@@ -558,7 +558,7 @@
   padding: 2px 8px;
   border: 1px solid var(--show-rule);
   border-radius: 4px;
-  font: 500 12px/1.5 var(--show-font-mono);
+  font: 400 12px/1.5 var(--show-font-mono);
 }
 .fdn-sequence li + li::before {
   content: "→ ";
@@ -979,7 +979,7 @@
 }
 .fdn-pager__dir {
   color: var(--show-muted);
-  font: 500 12px/1.5 var(--show-font-mono);
+  font: 400 12px/1.5 var(--show-font-mono);
 }
 .fdn-pager__link:not(.fdn-pager__link--next) .fdn-pager__dir::before {
   content: "← ";

@@ -799,7 +799,7 @@ body {
   border: 1px solid var(--show-rule);
   border-radius: 4px;
   color: var(--show-ink);
-  font: 500 13px/1.5 var(--show-font-mono);
+  font: 400 13px/1.5 var(--show-font-mono);
   user-select: all;
   overflow-wrap: anywhere;
 }
