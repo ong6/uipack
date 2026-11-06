@@ -5,6 +5,9 @@ import { test, expect } from "./fixtures";
 for (const theme of ["light", "dark"] as const)
   for (const width of [390, 1440]) {
     test(`assets gallery renders every card, fits and stays quiet ${theme} ${width}`, async ({ page }) => {
+      // 115 live previews mount as the page scrolls; on CI's software rendering the scroll-to-bottom
+      // poll below can take most of its own 60 s, so the test gets room for it.
+      test.setTimeout(90_000);
       const errors: string[] = [];
       page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
       page.on("pageerror", (e) => errors.push(e.message));
