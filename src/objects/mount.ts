@@ -9,6 +9,8 @@ import { REDUCED_MOTION_QUERY } from "../env";
 
 const REST_START_MS = 5400;
 const MOBILE_FRAME_MS = 1000 / 30;
+/** A phone-width stage: capped at 30 frames a second, with a lighter shadow map (look.ts). */
+const PHONE_QUERY = "(max-width: 767px)";
 
 /** The stage's state, owned by the component and read by the scene on every frame. */
 export interface ObjectStageFlags {
@@ -36,6 +38,12 @@ export interface ObjectSceneOptions {
   onCompleted: () => void;
   /** Replay reset the paused and completed flags; mirror them in the UI. */
   onReplayed: () => void;
+  /**
+   * The loop saw reduced motion turn on before the stage did, and settled. The query's change
+   * event can arrive seconds later on a busy main thread, so the stage re-reads the setting now
+   * and hides its motion control with the motion.
+   */
+  onReducedMotion?: () => void;
 }
 
 /** Drives a mounted scene. Every method is a no-op until the scene has loaded, and after dispose. */
@@ -71,7 +79,8 @@ function disposeScene(scene: import("three").Scene, textures: (material: import(
 }
 
 export function mountObjectScene(canvas: HTMLCanvasElement, options: ObjectSceneOptions): ObjectSceneHandle {
-  const { kind, colors, variant, edition, modelUrl, theme, flags, host, onReady, onCompleted, onReplayed } = options;
+  const { kind, colors, variant, edition, modelUrl, theme, flags, host, onReady, onCompleted, onReplayed, onReducedMotion } =
+    options;
   let disposed = false;
   let contextLost = false;
   let frame: number | null = null;
@@ -159,7 +168,8 @@ export function mountObjectScene(canvas: HTMLCanvasElement, options: ObjectScene
           look.addContactShadow(object, contactShadow);
         }
         world.add(object);
-        look.addRigLights(world, rig);
+        const phone = window.matchMedia(PHONE_QUERY).matches;
+        look.addRigLights(world, rig, phone);
 
         // Framing: measure the subject once (over its loop when it loops), then fit on every resize.
         const camera =
@@ -180,7 +190,7 @@ export function mountObjectScene(canvas: HTMLCanvasElement, options: ObjectScene
         let lastPaintAt = -Infinity;
         // The last paint was the reduced-motion rest pose: settling again would paint the same frame.
         let restPainted = false;
-        const frameInterval = window.matchMedia("(max-width: 767px)").matches ? MOBILE_FRAME_MS : 0;
+        const frameInterval = phone ? MOBILE_FRAME_MS : 0;
         const paint = (sceneTime: number, time: number) => {
           object.userData.animate?.(sceneTime);
           gl.render(world, camera);
@@ -203,8 +213,12 @@ export function mountObjectScene(canvas: HTMLCanvasElement, options: ObjectScene
           // thread can keep painting long before that effect runs (on CI's software WebGL a
           // Realistic loop painted 190 more frames in 5 s). So a playing loop also checks the query
           // itself and settles on its next frame; the stage's effect then agrees (and, the rest pose
-          // already painted, paints nothing more).
-          if (!flags.reduced && reducedQuery?.matches) flags.reduced = true;
+          // already painted, paints nothing more). It tells the stage too, which would otherwise
+          // keep showing Pause until that change event arrives.
+          if (!flags.reduced && reducedQuery?.matches) {
+            flags.reduced = true;
+            onReducedMotion?.();
+          }
           if (document.hidden || !inViewport) {
             lastTickAt = undefined;
             return;

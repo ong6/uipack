@@ -92,6 +92,13 @@ const EXPAND = 64;
 function expanded(geometry: THREE.BufferGeometry) {
   return geometry.scale(1 / EXPAND, 1 / EXPAND, 1 / EXPAND);
 }
+/**
+ * A phone-width stage (the query mount.ts caps at 30 frames a second). Its canvas is a third as
+ * wide, where a long lens's falloff and the lid's wear read as nothing, so the set skips them: the
+ * floor and wall fill most of the frame, and their per-pixel cost is most of the frame's.
+ */
+const phoneStage = () => typeof window !== "undefined" && window.matchMedia?.("(max-width: 767px)").matches;
+
 function defocus<M extends THREE.MeshStandardMaterial>(material: M, object: THREE.Mesh, strength = 6) {
   object.frustumCulled = false;
   const focus = { value: 8 };
@@ -102,13 +109,15 @@ function defocus<M extends THREE.MeshStandardMaterial>(material: M, object: THRE
     camera.getWorldPosition(lens);
     focus.value = lens.distanceTo(origin);
   };
+  const phone = phoneStage();
   material.onBeforeCompile = (shader) => {
-    shader.uniforms.focusDepth = focus;
-    const bias = "dofBias";
     shader.vertexShader = shader.vertexShader.replace(
       "#include <begin_vertex>",
       `#include <begin_vertex>\ntransformed *= ${EXPAND.toFixed(1)};`,
     );
+    if (phone) return;
+    shader.uniforms.focusDepth = focus;
+    const bias = "dofBias";
     shader.fragmentShader = shader.fragmentShader
       .replace("#include <common>", "#include <common>\nuniform float focusDepth;")
       .replace(
@@ -130,7 +139,7 @@ function defocus<M extends THREE.MeshStandardMaterial>(material: M, object: THRE
           .join(`texture2D( normalMap, vNormalMapUv, ${bias} )`),
       );
   };
-  material.customProgramCacheKey = () => `realistic-defocus-${strength}`;
+  material.customProgramCacheKey = () => `realistic-defocus-${phone ? "phone" : strength}`;
   return material;
 }
 
@@ -382,7 +391,7 @@ function steelLid(root: THREE.Object3D) {
   );
   const normalMap = normalTexture(128, (u, v) => fbm(u * 24, v * 24, 24, 2, 9), 1.6, tile(16, 32));
   const plane = surface(root, map, normalMap, 0.5 / 0.78, 0.6);
-  (plane.material as THREE.MeshStandardMaterial).roughnessMap = wearMap(40, 11, 4);
+  if (!phoneStage()) (plane.material as THREE.MeshStandardMaterial).roughnessMap = wearMap(40, 11, 4);
   return plane;
 }
 
@@ -1231,7 +1240,11 @@ export function realistic(kind: Kind, ticks: Tick[]) {
   lamp.position.set(...lampAt[kind]);
   root.add(lamp);
   const dark = themeProbe(root);
-  ticks.push(() => (lamp.intensity = dark() ? 9 : 0));
+  ticks.push(() => {
+    // Off by day: hidden rather than at zero, so the day shader carries one light fewer per pixel.
+    lamp.visible = dark();
+    lamp.intensity = lamp.visible ? 9 : 0;
+  });
   const { pitch, yaw = 0, fill, maxWidth } = subjectCamera[kind];
   root.userData.look = {
     ...realisticLook,
