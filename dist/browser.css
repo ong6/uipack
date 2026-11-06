@@ -301,8 +301,8 @@
        white to the one amber, so a thermal frame or a heat map reads as a blueprint print. */
     --ui-media-ground: #0a2342;
     --ui-media-cold: #0a2342;
-    --ui-media-mid: #1f5f9a;
-    --ui-media-warm: #b9dcf2;
+    --ui-media-mid: #0b77a3; /* the palette's request cyan */
+    --ui-media-warm: #8fd6ff; /* the palette's pale cyan */
     --ui-media-hot: #f0c45a;
     --ui-media-ink: #f3f6f9;
     --ui-media-ramp: linear-gradient(90deg, var(--ui-media-cold), var(--ui-media-mid), var(--ui-media-warm), var(--ui-media-hot));
