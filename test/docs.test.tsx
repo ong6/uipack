@@ -65,7 +65,8 @@ describe("product documentation", () => {
     const html = renderToString(<DocsMarkdown source={source} />);
     expect(html).toContain("<table>");
     expect(html).toContain("<blockquote>");
-    expect(html).toContain("<code>paper mode</code>");
+    // A short inline token is marked to stay on one line (docs.css).
+    expect(html).toContain('<code class="uipack-docs__token">paper mode</code>');
     expect(html).toContain('id="first-step"');
     expect(html).toContain('href="#details"');
     expect(html).not.toContain("private-review-path");

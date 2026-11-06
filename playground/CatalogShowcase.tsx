@@ -175,7 +175,8 @@ export default function CatalogShowcase() {
           <p className="collection-intro">
             An illustration can take one of these looks. They draw the picture only; the page, the slide and the type around it
             stay Technical. Mechanism draws isometric machines in Technical&rsquo;s palette; each 3D subject offers two or three
-            of the art directions, each with its own models, materials, perspective and motion.
+            of the art directions, each with its own models, materials, perspective and motion. The 3D looks also carry their own
+            illustration palettes, outside the Cyanotype UI palette (Studio alone reads it).
           </p>
           <div className="style-grid">
             {mechanism && <StyleCard style={mechanism} theme={theme} wide />}

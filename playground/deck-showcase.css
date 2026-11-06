@@ -81,6 +81,15 @@
 .deck-showcase__reference kbd {
   font: 400 13px/1.4 var(--show-font-mono);
 }
+/* A key name never splits ("Shift+Space", "PageUp"); a narrow column breaks between keys. */
+.deck-showcase__reference kbd {
+  white-space: nowrap;
+}
+@media (max-width: 480px) {
+  .deck-showcase__reference table:has(kbd) th {
+    width: 46%;
+  }
+}
 /* The player's own controls (the bar, the overview, speaker and read views) are playground controls
    here: the shell's control font and radius (showcase.css). The library has no hook for a control's
    font, and --deck-radius-sm also rounds slide thumbnails, so these set the controls alone; slide

@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { DeckPlayer } from "../src/deck";
 // The slide faces are self-hosted (src/web/fonts.css): Technical's IBM Plex Sans and Mono, so
 // slide fit is the same on every machine.
@@ -287,7 +287,13 @@ export default function DeckShowcase() {
                 {keys.map(([k, v]) => (
                   <tr key={k}>
                     <th scope="row">
-                      <kbd>{k}</kbd>
+                      {/* One kbd per key, each kept whole: a narrow column breaks between keys. */}
+                      {k.split(" ").map((key, i) => (
+                        <Fragment key={i}>
+                          {i > 0 && " "}
+                          {key === "/" ? key : <kbd>{key}</kbd>}
+                        </Fragment>
+                      ))}
                     </th>
                     <td>{v}</td>
                   </tr>

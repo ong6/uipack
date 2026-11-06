@@ -464,6 +464,10 @@ function LayerToggle() {
           style built from a spec and registered in <code>uiStyles</code> would be one more value for that prop, with no change to
           the content or the layout.
         </p>
+        <p>
+          The number's colour differs on purpose: a slide spends its one accent on the fact it states, while Technical draws web
+          stats in ink and keeps amber for its marks (the eyebrow dot, the headline's underline).
+        </p>
       </Implementers>
     </section>
   );
@@ -850,7 +854,7 @@ function WritingPage() {
                       ? `presented: at most ${TITLE_WORDS.presented} words (aim for 2–5); read alone: at most ${TITLE_WORDS["read-alone"]}, on at most ${b.maxLines} lines`
                       : budgetText(b)}
                   </td>
-                  <td>{overflowText[b.overflow] ?? b.overflow}</td>
+                  <td className="fdn-nowrap">{overflowText[b.overflow] ?? b.overflow}</td>
                 </tr>
               ))}
             </tbody>

@@ -37,7 +37,9 @@
   color: var(--show-ink);
 }
 
-/* The notes site's palette and token map (app/globals.css, .fig-html). */
+/* The notes site's palette and token map (app/globals.css, .fig-html). Its faces map to the
+   style's Plex (the playground loads no other face): the host differences shown are width,
+   colours, link style and the sans label font. */
 .article-host[data-host="notes"] {
   --bg: #fffdf9;
   --surface: #f6f2ea;
@@ -56,8 +58,8 @@
   --uipack-surface-raised: var(--surface);
   --uipack-border: var(--faint);
   --uipack-accent: var(--fig-accent);
-  --uipack-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Inter, Helvetica, Arial, sans-serif;
-  --uipack-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  --uipack-sans: var(--show-font-sans);
+  --uipack-mono: var(--show-font-mono);
   --uipack-label-font: var(--uipack-sans);
 }
 [data-theme="dark"] .article-host[data-host="notes"] {
@@ -73,7 +75,7 @@
 .article-host__prose {
   max-width: 40rem;
   margin: 0 auto;
-  /* The default host is the style's text face; ?host=notes swaps in the notes site's serif below. */
+  /* The style's text face for every host: ?host=notes changes colours and links, not the face. */
   font-family: var(--show-font-sans);
   font-size: 19px;
   line-height: 1.7;
@@ -81,9 +83,6 @@
 }
 /* A section heading clearly above the 19px body (the notes site sets 1.3rem; this frame steps it
    up to 22px so the heading never reads as body text). */
-.article-host[data-host="notes"] .article-host__prose {
-  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Charter, Georgia, serif;
-}
 .article-host__prose h3 {
   font-size: 1.375rem;
   margin: 1.9rem 0 0.6rem;
@@ -91,6 +90,11 @@
 }
 .article-host__prose p {
   margin: 1.15rem 0;
+}
+/* Short card and callout copy ends on more than one word. */
+.article-host .uipack-callout__body,
+.article-host .uipack-notecard__desc {
+  text-wrap: pretty;
 }
 .article-host__prose ul {
   padding-left: 1.4rem;

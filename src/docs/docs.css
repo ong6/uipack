@@ -378,6 +378,10 @@
   padding: 16px;
 }
 
+.uipack-docs__prose .uipack-docs__token {
+  white-space: nowrap;
+}
+
 .uipack-docs__prose pre code {
   background: transparent;
   padding: 0;

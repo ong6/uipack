@@ -280,12 +280,11 @@ export function ShowcaseShell({ active, children }: { active: LibraryPage | "not
         {group && (
           <p className="showcase-context">
             <span>{group.label}</span>
-            {active !== "styles" && (
-              <>
-                <span aria-hidden="true">·</span>
-                <a href={`/styles?theme=${theme}`}>{styleName} style</a>
-              </>
-            )}
+            <span aria-hidden="true">·</span>
+            {/* On /styles itself the line still names the style, marked as the current page. */}
+            <a href={`/styles?theme=${theme}`} aria-current={active === "styles" ? "page" : undefined}>
+              {styleName} style
+            </a>
           </p>
         )}
         <div className="showcase-title">

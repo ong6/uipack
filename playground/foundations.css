@@ -184,10 +184,32 @@
   color: var(--show-accent);
 }
 
-/* The rendered system docs. */
+/* The rendered system docs. Prose keeps a 76ch measure; a table takes the whole column, so a
+   short column ("Must never contain") is not squeezed into one-word lines. */
 .fdn-guide {
   padding: 0;
+}
+.fdn-guide .uipack-docs__prose > :not(.uipack-docs__table, ol, ul),
+.fdn-guide .uipack-docs__prose > :is(ol, ul):not(:has(.uipack-docs__table)) {
   max-width: 76ch;
+}
+/* Docs prose at the page's body size (the library default is a 17px docs page), with the guide
+   intros at 14px above it. */
+.fdn-guide .uipack-docs__prose {
+  font-size: 16px;
+  line-height: 1.6;
+}
+/* Short code tokens stay whole: the docs mark theirs (.uipack-docs__token, docs.css); the page's
+   own tables hold only short names. A bold lead-in and its line end on more than one word. */
+.fdn-table code {
+  white-space: nowrap;
+}
+.fdn-guide .uipack-docs__prose li:has(> strong:first-child) {
+  text-wrap-style: balance;
+}
+/* Short value cells (the Overflow column) keep their phrase on one line at desktop. */
+.fdn-table .fdn-nowrap {
+  white-space: nowrap;
 }
 
 /* Style roles: a card per style, light and dark swatch columns. */
