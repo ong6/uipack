@@ -5,7 +5,18 @@ import * as THREE from "three";
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 import { themed, type ObjectLook } from "./look";
 import { TAU, vec, type Tick } from "./procedural";
-import { block, cylinder, group, mergeable, mesh, paintTexture, placed, sphere, tube } from "./expanded-kit";
+import {
+  block,
+  cylinder,
+  group,
+  mergeable,
+  mesh,
+  paintTexture,
+  placed,
+  sphere,
+  themeProbe,
+  tube,
+} from "./expanded-kit";
 import type { KindWithLook } from "./variants";
 
 type Kind = Exclude<KindWithLook<3>, "contact">;
@@ -21,15 +32,18 @@ export const cartoonLook: ObjectLook = {
       rim: { color: 0xffffff, intensity: 1.1, position: [4, 3, -4] },
     },
     dark: {
-      hemisphere: { sky: 0x5a6cb0, ground: 0x18203a, intensity: 1.1 },
-      key: { color: 0xa9bcff, intensity: 1.25, position: [3.5, 6, 3] },
-      rim: { color: 0x9fb8ff, intensity: 2.2 },
+      // Moonlight is a clean blue-teal, not periwinkle: periwinkle light on the warm soil, wood and
+      // white steam turned them all mauve.
+      hemisphere: { sky: 0x5f82a4, ground: 0x1a2a30, intensity: 1.15 },
+      key: { color: 0xbcd3ee, intensity: 1.25, position: [3.5, 6, 3] },
+      rim: { color: 0xa8caff, intensity: 2.2 },
       // A warm porch-light fill from the camera side, so faces keep their features at night.
       fill: { color: 0xffd8a8, intensity: 0.85, position: [1.5, 2.5, 7] },
     },
   },
   camera: { projection: "perspective", fov: 30, pitch: 28 },
-  framing: { fill: 0.78, maxWidth: 0.88, lift: 0.0, sample: "loop" },
+  // Fits the shared frame box (frameProxy), not each scene's props.
+  framing: { fill: 0.9, maxWidth: 0.9, lift: 0.0, sample: "loop" },
   castShadows: true,
 };
 
@@ -53,13 +67,57 @@ const palette = {
   glow: 0xffd27a,
 };
 
-/** The night version of a day colour: darker and pulled toward moonlit blue. Characters keep more of their colour, so faces read. */
+/**
+ * The night version of a day colour. Hue is kept and value dropped, with only a little cool-teal
+ * shift (the moonlight and its rim do the tinting): pulling warm browns toward blue turned the soil
+ * and the plum props into a purple mud. Characters keep their full saturation, a touch lifted, so
+ * they stay the brightest, cleanest colour in the scene.
+ */
 function night(color: number, character = false) {
-  const day = new THREE.Color(color);
-  return day
-    .lerp(new THREE.Color(0x2c3a6e), character ? 0.18 : 0.38)
-    .multiplyScalar(character ? 0.96 : 0.82)
+  const hsl = { h: 0, s: 0, l: 0 };
+  new THREE.Color(color).getHSL(hsl);
+  if (character) return new THREE.Color().setHSL(hsl.h, Math.min(1, hsl.s * 1.05), Math.min(0.62, hsl.l * 0.92 + 0.06)).getHex();
+  // Warm earth (soil, wood) loses more saturation than the rest, or it goes maroon under the moon.
+  const earthy = hsl.h > 0.03 && hsl.h < 0.12 && hsl.l < 0.55;
+  // Purples (the plum props) keep more of their value, or they sink into the navy as mud.
+  const purple = hsl.h > 0.68 && hsl.h < 0.86;
+  return new THREE.Color()
+    .setHSL(
+      earthy ? hsl.h + 0.045 : hsl.h,
+      hsl.s * (earthy ? 0.45 : purple ? 0.9 : 0.8),
+      hsl.l * (earthy ? 0.74 : purple ? 0.9 : 0.66),
+    )
+    .lerp(new THREE.Color(0x1f3b4a), 0.14)
     .getHex();
+}
+
+/** Moonlight seen from behind the island, in view space: up, a little left and back. */
+const MOON = new THREE.Vector3(-0.45, 0.8, -0.4).normalize();
+/**
+ * A toon moon-rim: a hard-edged cool band on the silhouette edges that face the moon, the classic
+ * cel-shaded night kicker. `strength` is shared by every material in a scene and set per theme by a
+ * tick (0 by day), so the lit shapes separate from the night card.
+ */
+function withMoonRim<M extends THREE.MeshToonMaterial>(material: M, strength: { value: number }) {
+  material.onBeforeCompile = (shader) => {
+    shader.uniforms.moonRim = strength;
+    shader.uniforms.moonDir = { value: MOON };
+    shader.fragmentShader = shader.fragmentShader
+      .replace("#include <common>", "#include <common>\nuniform float moonRim;\nuniform vec3 moonDir;")
+      .replace(
+        "#include <opaque_fragment>",
+        `{
+          vec3 n = normalize(normal);
+          float edge = 1.0 - clamp(dot(n, normalize(vViewPosition)), 0.0, 1.0);
+          float facing = smoothstep(-0.05, 0.25, dot(n, moonDir));
+          float band = smoothstep(0.52, 0.58, edge) * facing;
+          outgoingLight += vec3(0.62, 0.74, 1.0) * band * moonRim * (0.35 + 0.65 * max(max(diffuseColor.r, diffuseColor.g), diffuseColor.b));
+        }
+        #include <opaque_fragment>`,
+      );
+  };
+  material.customProgramCacheKey = () => "cartoon-moon-rim";
+  return material;
 }
 
 interface Toons {
@@ -67,10 +125,12 @@ interface Toons {
     color: number,
     options?: { glow?: number; dayGlow?: number; transparent?: number; character?: boolean },
   ): THREE.MeshToonMaterial;
+  /** The scene's shared moon-rim strength, for toon materials built outside the factory. */
+  rim: { value: number };
 }
 
 /** A material factory sharing one three-step gradient and caching by colour. */
-function toonFactory(): Toons {
+function toonFactory(rim: { value: number }): Toons {
   const gradient = paintTexture(
     4,
     1,
@@ -83,11 +143,11 @@ function toonFactory(): Toons {
   gradient.minFilter = gradient.magFilter = THREE.NearestFilter;
   gradient.generateMipmaps = false;
   const cache = new Map<string, THREE.MeshToonMaterial>();
-  return (color, options = {}) => {
+  const make = (color: number, options: Parameters<Toons>[1] = {}) => {
     const key = `${color}:${options.glow ?? ""}:${options.dayGlow ?? ""}:${options.transparent ?? ""}:${options.character ?? ""}`;
     const cached = cache.get(key);
     if (cached) return cached;
-    const material = new THREE.MeshToonMaterial({ color, gradientMap: gradient });
+    const material = withMoonRim(new THREE.MeshToonMaterial({ color, gradientMap: gradient }), rim);
     if (options.transparent !== undefined) {
       material.transparent = true;
       material.opacity = options.transparent;
@@ -101,6 +161,7 @@ function toonFactory(): Toons {
     cache.set(key, material);
     return material;
   };
+  return Object.assign(make, { rim });
 }
 
 /* ---------------------------------------------------------------- The island */
@@ -134,8 +195,13 @@ function slab(shape: THREE.Shape, depth: number, top: number, bevel: number) {
   return geometry;
 }
 
+/** Every island is the same size, so the six cards line up as one set (only the outline's wobble differs). */
+const ISLAND_RX = 1.6,
+  ISLAND_RZ = 1.15;
 /** A floating island: grass cap, two soil strata and a rocky point. Top of the grass at y 0. */
-function island(root: THREE.Object3D, toon: Toons, rx: number, rz: number, seed: number) {
+function island(root: THREE.Object3D, toon: Toons, seed: number) {
+  const rx = ISLAND_RX,
+    rz = ISLAND_RZ;
   mesh(root, slab(blob(rx, rz, seed), 0.08, -0.06, 0.06), toon(palette.grass));
   mesh(root, slab(blob(rx, rz, seed, 0.97), 0.3, -0.16, 0.05), toon(palette.soil));
   mesh(root, slab(blob(rx, rz, seed + 1, 0.74), 0.26, -0.5, 0.06), toon(palette.soilDark));
@@ -231,7 +297,7 @@ type Scene = (world: THREE.Group, ticks: Tick[], toon: Toons) => void;
 const scenes: Record<Kind, Scene> = {
   /** Night workshop: a little robot taps at a workbench under a desk lamp; an idea pops above it. */
   ai(world, ticks, toon) {
-    island(world, toon, 1.45, 1.05, 2);
+    island(world, toon, 2);
     const bench = group(world, 0.05, 0, -0.1);
     block(bench, [1.7, 0.1, 0.7], toon(palette.wood), [0, 0.56, 0], 0.04);
     for (const x of [-0.75, 0.75])
@@ -278,7 +344,7 @@ const scenes: Record<Kind, Scene> = {
       arms.push(pivot);
     }
     // The idea: a bulb that pops out above the head, holds, and pops back.
-    const idea = group(world, -1.05, 1.75, 0.2);
+    const idea = group(world, -0.82, 1.6, 0.2);
     sphere(idea, 0.12, toon(palette.sun, { glow: palette.sun, dayGlow: 0.6 }), [0, 0, 0], 14);
     cylinder(idea, 0.055, 0.08, toon(palette.cream), [0, -0.13, 0], 10);
     tree(world, toon, -1.05, -0.35, 0.9);
@@ -291,14 +357,14 @@ const scenes: Record<Kind, Scene> = {
       const pop = Math.max(0, Math.sin(angle * 2 - 0.6));
       const scale = pop < 0.02 ? 0 : Math.min(1, pop * 3) * (1 + 0.15 * Math.sin(pop * 18));
       idea.scale.set(scale, scale * (1 + 0.1 * Math.cos(angle * 8)), scale);
-      idea.position.y = 1.65 + 0.12 * pop;
+      idea.position.y = 1.52 + 0.1 * pop;
       bulbMaterial.emissiveIntensity = Math.sin(angle * 8) > 0 ? 1.6 : 0.1;
     });
   },
 
   /** Courtside club: two bean players rally on a clay court; the ball squashes on every hit. */
   tennis(world, ticks, toon) {
-    island(world, toon, 1.6, 1.15, 5);
+    island(world, toon, 5);
     const court = group(world, 0, 0.02, 0);
     court.rotation.y = -0.18;
     block(court, [2.3, 0.05, 1.3], toon(0xe0784a), [0, 0, 0], 0.04);
@@ -315,12 +381,15 @@ const scenes: Record<Kind, Scene> = {
       x % 4 === 0 || y % 4 === 0 ? [45, 42, 58, 255] : [45, 42, 58, 40],
     );
     netTexture.magFilter = THREE.NearestFilter;
-    const netMaterial = new THREE.MeshToonMaterial({
-      map: netTexture,
-      transparent: true,
-      side: THREE.DoubleSide,
-      depthWrite: false,
-    });
+    const netMaterial = withMoonRim(
+      new THREE.MeshToonMaterial({
+        map: netTexture,
+        transparent: true,
+        side: THREE.DoubleSide,
+        depthWrite: false,
+      }),
+      toon.rim,
+    );
     const net = mesh(court, new THREE.PlaneGeometry(1.4, 0.24), netMaterial, 0, 0.16, 0);
     net.rotation.y = Math.PI / 2;
     block(court, [0.05, 0.045, 1.42], line, [0, 0.29, 0], 0.02);
@@ -334,12 +403,15 @@ const scenes: Record<Kind, Scene> = {
       x % 4 === 1 || y % 4 === 1 ? [255, 250, 236, 255] : [0, 0, 0, 0],
     );
     stringTexture.magFilter = THREE.NearestFilter;
-    const stringMaterial = new THREE.MeshToonMaterial({
-      map: stringTexture,
-      gradientMap: toon(palette.white).gradientMap as THREE.Texture,
-      alphaTest: 0.5,
-      side: THREE.DoubleSide,
-    });
+    const stringMaterial = withMoonRim(
+      new THREE.MeshToonMaterial({
+        map: stringTexture,
+        gradientMap: toon(palette.white).gradientMap as THREE.Texture,
+        alphaTest: 0.5,
+        side: THREE.DoubleSide,
+      }),
+      toon.rim,
+    );
     themed(stringMaterial, { dark: { color: night(0xffffff) } });
     const frameGeometry = new THREE.TorusGeometry(0.075, 0.014, 8, 28);
     frameGeometry.scale(1, 1.28, 1);
@@ -350,7 +422,8 @@ const scenes: Record<Kind, Scene> = {
     const stringGeometry = new THREE.PlaneGeometry(0.15, 0.19);
     const rackets = players.map((player, p) => {
       const racket = group(player.right, 0.08, -0.16, 0.04);
-      racket.scale.setScalar(1.2);
+      // Half again the old size, so the strung head reads at the 1x card.
+      racket.scale.setScalar(1.8);
       cylinder(racket, 0.019, 0.13, toon(p ? palette.sun : palette.cream), [0, 0.0, 0], 8);
       cylinder(racket, 0.024, 0.025, toon(palette.ink), [0, -0.07, 0], 8);
       mesh(racket, throatGeometry, toon(palette.sky));
@@ -390,9 +463,10 @@ const scenes: Record<Kind, Scene> = {
 
   /** Reading nook: a reader in an armchair under a big tree, a lamp, a sleeping cat and a butterfly. */
   reading(world, ticks, toon) {
-    island(world, toon, 1.5, 1.08, 17);
+    island(world, toon, 17);
     // The big tree behind.
     const oak = group(world, 0.55, 0, -0.45);
+    oak.scale.setScalar(0.9);
     cylinder(oak, 0.13, 1.1, toon(palette.wood), [0, 0.55, 0], 10, 0.18);
     for (const [x, y, z, r] of [
       [0, 1.35, 0, 0.5],
@@ -466,17 +540,48 @@ const scenes: Record<Kind, Scene> = {
   },
 };
 
-/** Subjects whose tall props (the idea bulb, the ticker arrow) need more headroom: the camera backs off 10%. */
-const subjectFill: Partial<Record<Kind, number>> = { ai: 0.7 };
+/**
+ * The framed volume, the same for every subject: rings round the island's rim and soil, its rocky
+ * tip, and a narrower crown of headroom for the tall props (the idea bulb, the ticker arrow, the
+ * steam clouds, the oak). Every prop stays inside this envelope, so it alone sets the fit and every
+ * card puts the same-sized island in the same place. A line set with colour writes off: never seen,
+ * no shadow.
+ */
+const FRAME_RINGS: [y: number, rx: number, rz: number][] = [
+  [0.06, 1.82, 1.32],
+  [-0.5, 1.58, 1.12],
+  [1.0, 1.7, 1.15],
+  [1.85, 1.5, 0.75],
+];
+const FRAME_TIP = -1.26;
+function frameProxy() {
+  const points: number[] = [0, FRAME_TIP, 0, 0, FRAME_TIP, 0];
+  for (const [y, rx, rz] of FRAME_RINGS)
+    for (let i = 0; i < 32; i++) {
+      const a = (i / 32) * TAU,
+        b = ((i + 1) / 32) * TAU;
+      points.push(rx * Math.cos(a), y, rz * Math.sin(a), rx * Math.cos(b), y, rz * Math.sin(b));
+    }
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute("position", new THREE.Float32BufferAttribute(points, 3));
+  const proxy = new THREE.LineSegments(geometry, new THREE.LineBasicMaterial({ colorWrite: false, depthWrite: false }));
+  proxy.rotation.y = -0.35;
+  return proxy;
+}
 
 export function cartoon(kind: Kind, ticks: Tick[]) {
   const root = new THREE.Group();
-  const fill = subjectFill[kind];
-  if (fill) root.userData.look = { ...cartoonLook, framing: { ...(cartoonLook.framing || {}), fill } } satisfies ObjectLook;
+  root.userData.look = cartoonLook;
   const world = group(root);
   world.rotation.y = -0.35;
-  scenes[kind](world, ticks, toonFactory());
-  // The island bobs gently on the breeze.
-  ticks.push((angle) => (world.position.y = 0.03 * Math.sin(angle)));
+  const rim = { value: 0 };
+  scenes[kind](world, ticks, toonFactory(rim));
+  root.add(frameProxy());
+  const dark = themeProbe(root);
+  ticks.push((angle) => {
+    rim.value = dark() ? 1 : 0;
+    // The island bobs gently on the breeze.
+    world.position.y = 0.03 * Math.sin(angle);
+  });
   return root;
 }

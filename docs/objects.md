@@ -41,9 +41,9 @@ when it falls back.
 | 0 | Studio objects | Product photography: one object on a seamless sweep, the same low 36° lens and soft key for every subject; state shows through physical cues, never screen text | Racket, can and a bouncing ball (the packaged ball model), market abacus, inference hardware, Z-folded atlas; Contact's three inbox editions |
 | 1 | Paper worlds | Cut-card toy theatres: an open proscenium with nested arches and four to six extruded flats stepped back in depth, lit by one warm key whose shadow falls between the layers; frames alternate viridian and persimmon on a cream mat | Alpine passage with a train, pop-up castle from an open book |
 | 2 | Kinetic sculptures | Polished brass armatures, glazed ceramic bodies (glaze pooling, raw foot rings) and porcelain column feet on a turned slate base; the base never moves, the mechanism does | Neural orrery with a ceramic chip weight, market balance with a domed porcelain dial, celadon globe in a brass meridian |
-| 3 | Cartoon worlds | A floating toy island per subject with soil strata, toon-shaded chunky props and bean characters; day in light mode, night (moonlight, lit windows, a warm fill on faces) in dark | Night workshop, courtside club, reading nook; Contact's little post office |
-| 4 | Realistic close-ups | Low, near macro still lifes on a real surface (hard court, a board, walnut) that runs out of frame, long lens, grazing window light by day; at night a warm desk-lamp practical with falloff and a cool rim | Match point (ball on the baseline, racket as bokeh), heatsink and fan, glasses on an open book |
-| 5 | Abstract forms | Refractive glass sculptures in front of flat colour bands with a tinted caustic shadow; in dark a glowing back-light seen only through the glass keeps it luminous | Thought lattice (a prism splitting a beam), risk rhythm |
+| 3 | Cartoon worlds | A floating toy island per subject with soil strata, toon-shaded chunky props and bean characters; every island the same size and place (a shared frame envelope); day in light mode, night in dark (clean blue-teal moonlight, a toon moon-rim on the silhouettes, lit windows, a warm fill on faces, characters kept at full saturation) | Night workshop, courtside club, reading nook; Contact's little post office |
+| 4 | Realistic close-ups | Low, near macro still lifes on a real surface (hard court, powder-coated steel, quarter-sawn walnut) that runs out of frame, long lens, grazing window light by day; at night a warm desk-lamp practical with falloff and a cool rim. Materials carry roughness variation, hairline scratches on metal and felt nap | Match point (ball on the baseline, racket as bokeh), hot swap (a rack server front: rack ear, hot-swap sleds, one pulled out over its SSD board), glasses on an open book |
+| 5 | Abstract forms | Refractive glass sculptures in front of thick lacquered colour bars, a different rhythm per subject, and a tinted caustic shadow; the glass refracts an unseen studio, bright-field strips by day and dark-field light strips on navy at night | Thought lattice (a prism splitting a white beam into the three hues), risk rhythm (a rising price line) |
 
 ### Directions per subject
 
@@ -219,7 +219,7 @@ Gallery selections are explicit and stable across reload, replay, theme and Open
 The player uses a generated room environment for stable reflections, with no HDR download.
 Paper has eased physical edges and a paper airplane aligned to its flight tangent. Kinetic
 plinths have level bases and machined rims. Studio gains more legible reflected material light.
-Realistic studies use a deterministic procedural roughness texture. Abstract studies use
+Realistic studies use deterministic procedural roughness (wear) maps. Abstract studies use
 transmission and clearcoat; these are real-time art-directed illustrations, not photographic scans.
 Each new scene is original code-authored geometry under the library license; no external assets.
 

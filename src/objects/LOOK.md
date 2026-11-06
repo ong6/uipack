@@ -96,6 +96,10 @@ pose only (`sample: "rest"`), and re-fitted on every resize, so phones and slide
   orthographic view. Pitch is what makes plinths and floors read as surfaces; when you add it,
   remove the matching tilt from the root.
 - Close-up crops (realistic macro): raise `fill` above 0.8 and `maxWidth` above 1.
+- A set whose cards must match (cartoon's islands) can frame a fixed invisible proxy instead of its
+  props: a `LineSegments` envelope with `colorWrite: false` that every prop stays inside, so it
+  alone sets the fit (lines cast no shadow and never render). Check that `data-fill` matches across
+  the set.
 
 ## Performance budget
 
