@@ -1,7 +1,7 @@
 import { test } from "@playwright/test";
 const configs: Record<string, Record<string, string>> = {
   base: {}, aa0: { aa0: "1" }, nosh: { nosh: "1" }, sm1024: { sm1024: "1" }, full: { full: "1" },
-  old: { full: "1", sm1024: "1" }, nowall: { nowall: "1" }, noground: { noground: "1" }, aa0nosh: { aa0: "1", nosh: "1" },
+  old: { full: "1", sm1024: "1" }, nowall: { nowall: "1" }, noground: { noground: "1" }, shfreeze: { shfreeze: "1" }, sh4: { sh4: "1" }, basic: { basic: "1" },
 };
 test.setTimeout(900_000);
 test("probe", async ({ browser }) => {

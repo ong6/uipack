@@ -160,7 +160,7 @@ export function mountObjectScene(canvas: HTMLCanvasElement, options: ObjectScene
           });
         if (rig.key.shadow && !(typeof localStorage!=="undefined"&&localStorage.getItem("nosh"))) {
           gl.shadowMap.enabled = true;
-          gl.shadowMap.type = THREE.PCFShadowMap;
+          gl.shadowMap.type = (typeof localStorage!=="undefined"&&localStorage.getItem("basic")) ? THREE.BasicShadowMap : THREE.PCFShadowMap;
         }
         const restTime = object.userData.restTime ?? REST_START_MS;
         if (contactShadow) {
@@ -193,6 +193,8 @@ export function mountObjectScene(canvas: HTMLCanvasElement, options: ObjectScene
         const frameInterval = phone ? MOBILE_FRAME_MS : 0;
         const paint = (sceneTime: number, time: number) => {
           object.userData.animate?.(sceneTime);
+          if ((typeof localStorage!=="undefined"&&localStorage.getItem("shfreeze"))) { gl.shadowMap.autoUpdate = false; if (frames === 0) gl.shadowMap.needsUpdate = true; }
+          if ((typeof localStorage!=="undefined"&&localStorage.getItem("sh4"))) { gl.shadowMap.autoUpdate = false; if (frames % 4 === 0) gl.shadowMap.needsUpdate = true; }
           gl.render(world, camera);
           canvas.dataset.drawCalls = String(gl.info.render.calls);
           canvas.dataset.triangles = String(gl.info.render.triangles);
