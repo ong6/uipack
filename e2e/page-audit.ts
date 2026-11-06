@@ -306,6 +306,45 @@ export async function checkControlFaces(page: Page) {
   expect(fallback, "no button, select or text field falls back to the browser's default face").toEqual([]);
 }
 
+/**
+ * Visible text uses the style's faces only: the first family of every element with its own text
+ * matches the first family of the computed --ui-font-text, --ui-font-display or --ui-font-label (IBM
+ * Plex Sans and Plex Mono in Technical), so an undefined host variable or a hard-coded system stack
+ * fails here instead of quietly rendering in system-ui. Skips screen-reader-only text, the ?host=notes
+ * stand-in (which copies another site's faces on purpose) and 3D canvases (no DOM text). Run after a
+ * check that scrolls the page, so lazy sections have mounted.
+ */
+export async function checkTextFaces(page: Page) {
+  const offenders = await page.evaluate(() => {
+    const first = (stack: string) => stack.split(",")[0].trim().replace(/^["']|["']$/g, "");
+    const root = getComputedStyle(document.body);
+    const faces = new Set(
+      ["--ui-font-text", "--ui-font-display", "--ui-font-label"]
+        .map((v) => first(root.getPropertyValue(v)))
+        .filter(Boolean),
+    );
+    const hidden = (el: Element) => {
+      for (let e: Element | null = el; e; e = e.parentElement) {
+        const s = getComputedStyle(e);
+        if (s.clipPath === "inset(50%)" || s.clip === "rect(0px, 0px, 0px, 0px)") return true;
+      }
+      return false;
+    };
+    return [...document.querySelectorAll("body *")]
+      .filter((el) => [...el.childNodes].some((n) => n.nodeType === Node.TEXT_NODE && n.textContent!.trim()))
+      .filter((el) => !el.closest("script, style, noscript, template, [data-host='notes']"))
+      .filter((el) => {
+        const s = getComputedStyle(el);
+        return el.getClientRects().length > 0 && s.visibility !== "hidden" && s.opacity !== "0" && !hidden(el);
+      })
+      .map((el) => ({ el, face: first(getComputedStyle(el).fontFamily) }))
+      .filter(({ face }) => !faces.has(face))
+      .map(({ el, face }) => `${el.tagName.toLowerCase()}.${[...el.classList].join(".")} "${(el.textContent ?? "").trim().slice(0, 30)}": ${face}`)
+      .slice(0, 20);
+  });
+  expect(offenders, "visible text uses only the style's faces (no system fallback stacks)").toEqual([]);
+}
+
 /** The 390px header: compact, desktop nav rows hidden, 44px menu and theme buttons, the menu button naming the page whole. */
 export async function checkCompactHeader(page: Page, label: string) {
   await expect(title(page)).toHaveText(h1Of(label));

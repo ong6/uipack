@@ -10,13 +10,14 @@ import {
   checkHeadingScale,
   checkNoOverflow,
   checkPairedBoxes,
+  checkTextFaces,
   tabOf,
 } from "./page-audit";
 
 // Every playground page, from the catalog, loaded once per width with every page-level check run on
-// that load: the heading outline and tab title, the heading scale, control faces, card, control and
-// paired-box alignment, heading orphans, the compact phone header, focus rings, and no page overflow
-// in both themes.
+// that load: the heading outline and tab title, the heading scale, control and text faces, card,
+// control and paired-box alignment, heading orphans, the compact phone header, focus rings, and no
+// page overflow in both themes.
 test.describe.configure({ mode: "parallel" });
 
 // Mobile routes the owner asked to keep clean: no page-wide overflow at 390 and 768, in both themes.
@@ -69,6 +70,7 @@ for (const { label, path } of ALL) {
         }
         if (FOCUS_RING_PAGES[1440].includes(path)) await checkFocusRingsNotClipped(page);
         await checkControlFaces(page);
+        await checkTextFaces(page);
       });
 
       await test.step("390", async () => {
