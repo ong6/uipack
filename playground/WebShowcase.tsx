@@ -1012,7 +1012,7 @@ function BackgroundsSection({ theme }: { theme: "light" | "dark" }) {
           <GridItem span={[12, 8, 4]}>
             <div className="web-bg-tile web-gutters-stage" data-bg-tile="gutters">
               {/* The stage's transform contains the fixed gutters, standing in for the viewport. */}
-              <DriftingGutters contentWidth="56%" top={0} minViewport={0} drift={24} />
+              <DriftingGutters contentWidth="var(--web-gutters-demo-column)" top={0} minViewport={0} drift={24} />
               <div className="web-gutters-column">
                 <Eyebrow>gutters</Eyebrow>
                 <Heading level={3} size={2}>

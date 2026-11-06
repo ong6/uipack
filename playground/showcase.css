@@ -369,6 +369,11 @@ body {
 :where(.showcase-frame) :where(h1, h2, h3, h4, h5, h6, td, th) {
   text-wrap-style: balance;
 }
+/* These defaults are unlayered, so they beat uipack/web's layered part rules whatever the
+   specificity: a UiPack eyebrow (a short label set as a <p>) gets its balance back here. */
+:where(.showcase-frame) :where(.uipack-web-eyebrow) {
+  text-wrap-style: balance;
+}
 /* Bold is the style's 600 (the loaded weight), not the UA's bolder/bold (700 or 900). */
 :where(.showcase-frame) :where(strong, b, h1, h2, h3, h4, h5, h6, th) {
   font-weight: 600;

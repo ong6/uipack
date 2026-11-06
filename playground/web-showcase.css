@@ -309,10 +309,19 @@
   padding: var(--web-s3);
 }
 .web-gutters-stage {
+  /* The column's share of the tile; the gutters take the rest (DriftingGutters contentWidth). */
+  --web-gutters-demo-column: 56%;
   position: relative;
   overflow: hidden;
   /* A transform makes this box the containing block for the fixed gutters. */
   transform: translateZ(0);
+}
+/* On a phone a 56% column leaves the text ~150px: the column widens and the gutters narrow to a
+   strip of dots either side, still drifting. */
+@media (max-width: 480px) {
+  .web-gutters-stage {
+    --web-gutters-demo-column: 80%;
+  }
 }
 /* Top-anchored like the other tiles, and as tall as they are (240px), so it carries no empty band. */
 .web-gutters-column {
@@ -321,7 +330,7 @@
   display: grid;
   align-content: start;
   gap: var(--web-s1);
-  width: 56%;
+  width: var(--web-gutters-demo-column);
   min-height: 240px;
   margin-inline: auto;
   padding: var(--web-s3);
@@ -777,11 +786,19 @@
   margin: 0;
   padding: 0 16px;
   color: var(--web-ink);
-  font: italic 400 var(--web-step-2) / 1.1 var(--web-font-display);
+  font: 400 var(--web-step-2) / 1.1 var(--web-font-display);
 }
 .web-fp-reveal span {
   animation-name: web-fp-rise;
   animation-delay: calc(var(--i) * 0.18s);
+}
+/* The key phrase takes the style's emphasis (Technical: amber underline, no italic face). */
+.web-fp-reveal span:nth-last-child(-n + 2) {
+  font-style: var(--ui-em-style, normal);
+  color: var(--ui-em-color, inherit);
+  text-decoration: var(--ui-em-decoration, none);
+  text-underline-offset: 0.14em;
+  text-decoration-skip-ink: none;
 }
 @keyframes web-fp-rise {
   0%,
