@@ -77,8 +77,17 @@
 .fdn-unit__deck .uipack-deck {
   --deck-chrome: 220px;
 }
-/* The web card stretches to the slide's height (deck and controls) and centres the section in that
-   frame, so the two renderings of one unit read as a pair of equal frames. */
+/* Side by side, the web card takes the slide stage's height (measured into --fdn-stage-h) and centres
+   the section in it, so the two renderings of one unit read as a pair of equal frames. */
+.fdn-unit {
+  align-items: start;
+}
+@media (min-width: 961px) {
+  .fdn-unit__web {
+    box-sizing: border-box;
+    min-height: var(--fdn-stage-h, auto);
+  }
+}
 .fdn-unit__web {
   display: flex;
   flex-direction: column;

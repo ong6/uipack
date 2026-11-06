@@ -328,8 +328,8 @@ function Choice<T extends string>({
 function StyleLayer() {
   return (
     <p className="fdn-fixed">
-      <span className="fdn-fixed__label">Style:</span> <a href="/foundations/style">{uiStyles[0].name}</a> (the one
-      implemented style) · written specs:{" "}
+      <span className="fdn-fixed__label">Style:</span> <a href="/foundations/style">{uiStyles[0].name}</a> (the one implemented
+      style) · written specs:{" "}
       {writtenStyleSpecs.map((spec, i) => (
         <span key={spec.id}>
           {i > 0 && ", "}
@@ -413,6 +413,20 @@ function LayerToggle() {
   const [writing, setWriting] = useState<keyof typeof writings>("search");
   const [layout, setLayout] = useState<LayoutId>("fact");
   const content = writings[writing];
+  // The web card matches the slide's stage (not the stage plus its controls), so the two frames of
+  // one unit end on one line.
+  const unitRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const unit = unitRef.current;
+    const stage = unit?.querySelector<HTMLElement>(".uipack-deck-stage");
+    if (!unit || !stage) return;
+    const sync = () => unit.style.setProperty("--fdn-stage-h", `${stage.getBoundingClientRect().height}px`);
+    sync();
+    const observer = new ResizeObserver(sync);
+    observer.observe(stage);
+    return () => observer.disconnect();
+  }, [writing, layout]);
+
   return (
     <section>
       <h2>Swap one layer at a time</h2>
@@ -442,7 +456,7 @@ function LayerToggle() {
         />
         <StyleLayer />
       </div>
-      <div className="fdn-unit">
+      <div className="fdn-unit" ref={unitRef}>
         <div className="fdn-unit__deck">
           <DeckPlayer
             key={`${writing}-${layout}`}
