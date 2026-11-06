@@ -1,36 +1,17 @@
-import { libraryPages, type LibraryPage } from "./catalog";
+import { libraryPages, pageDefs, type LibraryPage } from "./catalog";
 
 /**
- * The playground module (`playground/<name>.tsx`, default export) that renders each
- * `libraryPages` entry, loaded lazily as its own chunk. Keyed by page id, so a page added to
- * catalog.ts fails the typecheck until it is mapped here. Pages that share a module read the path
+ * The playground module (`playground/<name>.tsx`, default export) that renders each page, loaded
+ * lazily as its own chunk: the manifest's `showcase` until the page's Markdown is written, then
+ * MarkdownShowcase, which renders the page's `file`. Pages that share a module read the path
  * (FiguresShowcase serves "/", "/charts" and "/assets"); the deck sub-views share a path and a module.
  * Every module is named `<Name>Showcase`: main.tsx's import.meta.glob loads only `*Showcase`
  * (test/catalog.test.tsx checks every name here).
  * The build reads this table too, to preload the current page's chunk from index.html (vite.config.ts).
  */
-export const pageModules = {
-  figures: "FiguresShowcase",
-  charts: "FiguresShowcase",
-  article: "ArticleShowcase",
-  deck: "DeckShowcase",
-  "deck-bento": "DeckShowcase",
-  "deck-consulting": "DeckShowcase",
-  presentations: "CatalogShowcase",
-  animations: "SlideShowcase",
-  mechanism: "MechanismShowcase",
-  web: "WebShowcase",
-  docs: "DocsShowcase",
-  foundations: "FoundationsShowcase",
-  "foundations-style": "FoundationsShowcase",
-  "foundations-writing": "FoundationsShowcase",
-  "foundations-layout": "FoundationsShowcase",
-  "foundations-mix": "FoundationsShowcase",
-  "foundations-recipes": "FoundationsShowcase",
-  "foundations-dont": "FoundationsShowcase",
-  styles: "CatalogShowcase",
-  assets: "FiguresShowcase",
-} as const satisfies Record<LibraryPage, string>;
+export const pageModules = Object.fromEntries(pageDefs.map((p) => [p.id, p.showcase ?? "MarkdownShowcase"])) as Readonly<
+  Record<LibraryPage, string>
+>;
 
 /** Older or shorthand paths that open a page: /slides (3D animations), /diagrams, /drill (the drill-down section), /index.html. */
 const aliases: Record<string, LibraryPage> = {

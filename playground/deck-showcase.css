@@ -710,3 +710,12 @@
 .uipack-deck-points.deck-bento-cover-points {
   margin-top: 64px;
 }
+
+/* Presenting, the slide gets the window: the docs sidebar steps aside until the deck leaves the
+   present view (DeckShowcase sets data-presenting), and comes back with it. */
+.showcase-frame:has(.deck-showcase[data-presenting]) > .uipack-docs[data-width] > .uipack-docs__grid {
+  grid-template-columns: minmax(0, 1fr);
+}
+.showcase-frame:has(.deck-showcase[data-presenting]) .uipack-docs__sidebar {
+  display: none;
+}

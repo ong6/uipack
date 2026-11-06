@@ -61,49 +61,9 @@
   align-items: center;
   min-height: 44px;
 }
-/* Written specs: styles with no implementation, so a card without a preview, its link to the spec. */
-main > section > h2.style-specs__heading {
+/* The catalog's second heading (StyleCatalog, the /styles demo) opens a new part of the catalog. */
+.style-catalog > h2.style-specs__heading {
   margin-top: 56px;
-}
-.style-specs {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
-  gap: 24px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.style-spec {
-  display: flex;
-  flex-direction: column;
-  padding: 24px 28px;
-  border: 1px dashed var(--show-rule);
-  border-radius: var(--show-radius);
-}
-.style-spec h3 {
-  font-size: 20px;
-  font-weight: 600;
-  line-height: 1.25;
-  letter-spacing: -0.2px;
-  margin: 0 0 8px;
-}
-.style-spec p {
-  max-width: 60ch;
-  margin: 0;
-  line-height: 1.6;
-  color: var(--show-muted);
-}
-.style-spec a {
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-  margin-top: auto;
-  color: var(--show-accent);
-}
-@media (max-width: 760px) {
-  .style-spec {
-    padding: 20px;
-  }
 }
 /* A real preview per style, drawn by the style itself (or a still for the WebGL directions).
    Every preview shares one 2:1 frame so the titles below line up across a row. */

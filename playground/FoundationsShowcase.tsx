@@ -26,9 +26,8 @@ import { pipeline } from "../src/presets";
 import { uiStyles, type UiStyleId } from "../src/style";
 import { routePath } from "./routes";
 import { guideSources, wordRules, words } from "./guideFacts";
-import { libraryPages, writtenStyleSpecs } from "./catalog";
+import { writtenStyleSpecs } from "./catalog";
 import { useShowcaseTheme } from "./ShowcaseShell";
-import overviewDoc from "../docs/system/README.md?raw";
 import styleDoc from "../docs/system/style.md?raw";
 import writingDoc from "../docs/system/writing.md?raw";
 import layoutDoc from "../docs/system/layout.md?raw";
@@ -79,9 +78,6 @@ function splitDoc(source: string): { lead: string; sections: DocSection[] } {
 }
 
 const MEDIA = ["Diagrams", "Slides", "Web", "Motion", "3D"] as const;
-
-/** The overview's section on the three layers ("Three independent layers"), shown on its own. */
-const LAYERS_SECTION = /^Three\b.*\blayers\b/i;
 
 /** Opens a closed disclosure when the address points at something inside it. */
 function useHashOpens() {
@@ -199,9 +195,6 @@ function FullSpec({
 
 /* ---------------------------------------------------------------- guide frame */
 
-/** The seven guides in reading order, from the catalog (one source for labels and intros). */
-const guides = libraryPages.filter((p) => p.group === "foundations" && p.path.startsWith("/foundations"));
-
 /**
  * Code names for the reader who builds with the library: a closed aside, so the guide scans as
  * ideas and examples and the API is one click away.
@@ -231,37 +224,6 @@ function Checklist({ items }: { items: string[] }) {
         ))}
       </ul>
     </section>
-  );
-}
-
-/** Previous and next guide, with where this one sits in the series. */
-function GuidePager({ path }: { path: string }) {
-  const i = guides.findIndex((g) => g.path === path);
-  if (i < 0) return null;
-  const prev = guides[i - 1];
-  const next = guides[i + 1];
-  return (
-    <nav className="fdn-pager" aria-label="Foundations guides">
-      <p className="fdn-pager__count">
-        Guide {i + 1} of {guides.length}
-      </p>
-      <div className="fdn-pager__links">
-        {prev ? (
-          <a href={prev.path} rel="prev" className="fdn-pager__link">
-            <span className="fdn-pager__dir">Previous</span>
-            <span className="fdn-pager__title">{prev.label}</span>
-          </a>
-        ) : (
-          <span />
-        )}
-        {next && (
-          <a href={next.path} rel="next" className="fdn-pager__link fdn-pager__link--next">
-            <span className="fdn-pager__dir">Next</span>
-            <span className="fdn-pager__title">{next.label}</span>
-          </a>
-        )}
-      </div>
-    </nav>
   );
 }
 
@@ -409,7 +371,11 @@ function UnitSection({ c, layout }: { c: Content; layout: LayoutId }) {
   );
 }
 
-function LayerToggle() {
+/**
+ * The live swap demo (`uipack-demo layer-swap` in docs/system/README.md, the Overview page): one
+ * unit as a slide and a web section, with the writing and the layout swapped independently.
+ */
+export function LayerToggle() {
   const { theme } = useShowcaseTheme();
   const [writing, setWriting] = useState<keyof typeof writings>("search");
   const [layout, setLayout] = useState<LayoutId>("fact");
@@ -485,78 +451,6 @@ function LayerToggle() {
         </p>
       </Implementers>
     </section>
-  );
-}
-
-function ContractSection() {
-  const { theme } = useShowcaseTheme();
-  const layers = splitDoc(overviewDoc).sections.find((sec) => LAYERS_SECTION.test(sec.title));
-  if (!layers) return null;
-  // The doc ends the section with its code names; the page sets them apart.
-  const [prose, code = ""] = layers.body.split(/^\*\*For implementers\.\*\*\s*/m);
-  return (
-    <section>
-      <h2>The contract between the layers</h2>
-      <div className="uipack-docs fdn-guide" data-palette="technical" data-theme={theme}>
-        <DocsMarkdown source={prose} headingOffset={1} />
-      </div>
-      {code && (
-        <Implementers>
-          <div className="uipack-docs fdn-guide" data-palette="technical" data-theme={theme}>
-            <DocsMarkdown source={code} headingOffset={1} />
-          </div>
-        </Implementers>
-      )}
-    </section>
-  );
-}
-
-/** The guides after this one, as an index: what each teaches, in reading order. */
-function GuideIndex() {
-  return (
-    <section>
-      <h2>The guides</h2>
-      <p className="collection-intro">
-        Read them in order, or jump to the layer you are working on. Each ends with a checklist and a link to its full
-        specification.
-      </p>
-      <ol className="fdn-index">
-        {guides.slice(1).map((g, i) => (
-          <li key={g.path}>
-            <a href={g.path}>
-              <span className="fdn-index__num">{String(i + 2).padStart(2, "0")}</span>
-              <span className="fdn-index__title">{g.label}</span>
-              <span className="fdn-index__intro">{g.intro}</span>
-            </a>
-          </li>
-        ))}
-      </ol>
-    </section>
-  );
-}
-
-function Overview() {
-  return (
-    <>
-      <LayerToggle />
-      <ContractSection />
-      <GuideIndex />
-      <Checklist
-        items={[
-          "Each unit makes one claim you could say in a sentence.",
-          "Colours, faces and decoration come from the style, never from the layout or the words.",
-          "The words live in a content object, not inside the layout.",
-          "Every slot is within its text budget; the linter reports nothing.",
-          "Layouts and components name a role, never a value, so a new style needs no layout change.",
-        ]}
-      />
-      <FullSpec
-        source={overviewDoc}
-        page="Foundations overview"
-        file="README.md"
-        skip={[LAYERS_SECTION, "Skills that use this spec"]}
-      />
-    </>
   );
 }
 
@@ -1672,7 +1566,6 @@ function SpecLinks({ path }: { path: string }) {
 /* ---------------------------------------------------------------- router */
 
 const pagesByPath: Record<string, () => ReactNode> = {
-  "/foundations": Overview,
   "/foundations/style": StylePage,
   "/foundations/writing": WritingPage,
   "/foundations/layout": LayoutPage,
@@ -1683,7 +1576,7 @@ const pagesByPath: Record<string, () => ReactNode> = {
 
 export default function FoundationsShowcase() {
   const path = routePath(location.pathname);
-  const Page = pagesByPath[path] ?? Overview;
+  const Page = pagesByPath[path] ?? StylePage;
   useLabelledTables();
   // Sections sit straight under the shell's <main>, like every page (showcase.css styles `main > section > h2`).
   return (
@@ -1691,7 +1584,6 @@ export default function FoundationsShowcase() {
       <OnThisPage />
       <Page />
       {linkedSources.includes(path) && <SpecLinks path={path} />}
-      <GuidePager path={pagesByPath[path] ? path : "/foundations"} />
     </>
   );
 }

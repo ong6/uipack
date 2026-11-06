@@ -1,10 +1,12 @@
 import react from "@vitejs/plugin-react";
 import type { IncomingMessage, ServerResponse } from "node:http";
-import { realpathSync } from "node:fs";
+import { readFileSync, realpathSync } from "node:fs";
+import { extname, resolve } from "node:path";
 import { defineConfig, type Plugin } from "vite";
 import type { OutputBundle, OutputChunk } from "rollup";
 import { pageModules, routes } from "./playground/routes";
 import { tidySeo } from "./playground/web-seo";
+import { servedFiles } from "./playground/docs-links";
 
 const CRAWL_TYPES: Record<string, string> = {
   "robots.txt": "text/plain; charset=utf-8",
@@ -37,6 +39,46 @@ function crawlFiles(): Plugin {
     generateBundle() {
       const { files } = tidySeo(process.env.UIPACK_PLAYGROUND_ORIGIN ?? "https://tidy.example");
       for (const [fileName, source] of Object.entries(files)) this.emitFile({ type: "asset", fileName, source });
+    },
+  };
+}
+
+const RAW_TYPES: Record<string, string> = {
+  ".md": "text/markdown; charset=utf-8",
+  ".png": "image/png",
+  ".jpg": "image/jpeg",
+  ".svg": "image/svg+xml",
+  ".gif": "image/gif",
+  ".webp": "image/webp",
+};
+
+/**
+ * Serves each docs page's Markdown file as plain text at its repo path ("View as Markdown":
+ * /docs/system/README.md, /README.md), plus the images those files show, so the rendered page and
+ * the file an agent reads are one source. Only the files the docs manifest names (and their
+ * images) are served, in dev and preview; a build emits the same files.
+ */
+function docsRawFiles(): Plugin {
+  const root = process.cwd();
+  const read = (file: string) => readFileSync(resolve(root, file), "utf8");
+  const files = () => new Set(servedFiles(read));
+  const serve = (req: IncomingMessage, res: ServerResponse, next: () => void) => {
+    let name = (req.url ?? "").split(/[?#]/)[0].replace(/^\//, "");
+    try {
+      name = decodeURIComponent(name);
+    } catch {
+      return next();
+    }
+    if (!files().has(name)) return next();
+    res.setHeader("Content-Type", RAW_TYPES[extname(name)] ?? "application/octet-stream");
+    res.end(readFileSync(resolve(root, name)));
+  };
+  return {
+    name: "uipack-playground-docs-raw",
+    configureServer: (server) => void server.middlewares.use(serve),
+    configurePreviewServer: (server) => void server.middlewares.use(serve),
+    generateBundle() {
+      for (const fileName of files()) this.emitFile({ type: "asset", fileName, source: readFileSync(resolve(root, fileName)) });
     },
   };
 }
@@ -96,7 +138,7 @@ function routePreloads(): Plugin {
 }
 
 export default defineConfig({
-  plugins: [react(), crawlFiles(), routePreloads()],
+  plugins: [react(), crawlFiles(), docsRawFiles(), routePreloads()],
   root: "playground",
   publicDir: false,
   appType: "spa",

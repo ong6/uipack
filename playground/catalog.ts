@@ -1,6 +1,7 @@
 // Data-only modules, not the uipack/objects barrel: this file is in the playground's entry chunk.
 import { objectDirections } from "../src/objects/variants";
 import { objectScenes } from "../src/objects/scene-list";
+import { docsManifest, type DocsPageEntry } from "./docs-manifest";
 /**
  * Content type and visual style are independent axes. Technical is the one style (pages, documents,
  * slides, figures); Mechanism and the 3D art directions are illustration looks drawn within it.
@@ -59,214 +60,28 @@ export const writtenStyleSpecs = [
   },
 ] as const;
 
-/** Navigation groups, in display order. A group opens on its default page. Add a group here; add pages below. */
-export const libraryGroups = [
-  { id: "diagrams", label: "Diagrams", defaultPage: "figures" },
-  { id: "presentations", label: "Presentations", defaultPage: "deck" },
-  { id: "motion", label: "Motion & 3D", defaultPage: "animations" },
-  { id: "web-group", label: "Web", defaultPage: "web" },
-  { id: "foundations", label: "Foundations", defaultPage: "foundations" },
-] as const;
-export type LibraryGroup = (typeof libraryGroups)[number]["id"];
+/**
+ * Navigation groups and pages come from the docs manifest (docs-manifest.ts): the sidebar groups in
+ * order, each opening on its first page. Add a page there; this file only types it for the shell.
+ */
+type ManifestPage = (typeof docsManifest)[number]["pages"][number];
+export type LibraryGroup = (typeof docsManifest)[number]["id"];
+export const libraryGroups = docsManifest.map((g) => ({ id: g.id as LibraryGroup, label: g.label, defaultPage: g.pages[0].id }));
 
 /**
- * One entry of the second nav row. Several entries may share a `path` and differ by `query`
- * (a sub-view, such as a deck): the entry is current when every listed query param matches
- * the URL, and `isDefault` marks the one that is current otherwise. `title` overrides the h1
- * when the label names only the sub-view.
+ * One page. Several entries may share a `path` and differ by `query` (a sub-view, such as a deck):
+ * the entry is current when every listed query param matches the URL, and `isDefault` marks the
+ * one that is current otherwise. `title` overrides the h1 when the label names only the sub-view.
  */
-export interface PageDef {
-  id: string;
+export interface PageDef extends DocsPageEntry {
   group: LibraryGroup;
-  label: string;
-  title?: string;
-  path: string;
-  query?: Readonly<Record<string, string>>;
-  isDefault?: boolean;
-  intro: string;
-  /** The page hosts a complete sample page with its own h1 (the /web sample), so the shell's title is not a heading. */
-  hostsPage?: boolean;
-  /** The `visualStyles` name the page's content uses, shown in the shell's context line; default "Technical". */
-  styleName?: string;
-  /**
-   * A labelled run in the second nav row and the menu sheet: Foundations lists its seven guides
-   * (the run the guide pager counts) apart from its reference pages.
-   */
-  run?: string;
 }
 
-/**
- * Every page, in display order within its group. `label` is the nav text and the page's h1;
- * `intro` is the one-sentence line under it. A new page adds an entry here and its module in
- * `pageModules` (routes.ts); docs/contributing.md has the recipe.
- */
-export const libraryPages = [
-  {
-    id: "figures",
-    group: "diagrams",
-    label: "Architecture diagrams",
-    path: "/",
-    intro:
-      "The figure design system: each diagram pattern once, from the bare canvas to a figure you drill into, with the parts it is built from.",
-  },
-  {
-    id: "charts",
-    group: "diagrams",
-    label: "Charts",
-    path: "/charts",
-    intro: "Layered and comparative charts for articles, previewed at a host's real figure width.",
-  },
-  {
-    id: "article",
-    group: "diagrams",
-    label: "Article parts",
-    path: "/article",
-    intro: "Prose-friendly parts for long reads, shown inside a host article's text column.",
-  },
-  {
-    id: "deck",
-    group: "presentations",
-    label: "Tech talk",
-    title: "Deck player",
-    path: "/deck",
-    query: { deck: "moves" },
-    isDefault: true,
-    intro:
-      "Tech talk deck: a team lead argues that reviews should open with their answer, with evidence, a pilot and a dated ask. Written to present: short titles, the numbers in points, cue notes in the speaker view (S). Every slide advances except one morph (the same number becoming a table row) and one zoom (into the slide the ghost deck flags). Swipe on a touch screen, or click the deck and use the arrow keys.",
-  },
-  {
-    id: "deck-bento",
-    group: "presentations",
-    label: "Bento",
-    title: "Deck player",
-    path: "/deck",
-    query: { deck: "bento" },
-    intro:
-      "Bento review deck: a quarterly review on one bento slide. Next moves a camera between the containers, and each one shows denser detail when it is in focus.",
-  },
-  {
-    id: "deck-consulting",
-    group: "presentations",
-    label: "Consulting",
-    title: "Deck player",
-    path: "/deck",
-    query: { deck: "consulting" },
-    intro:
-      "Consulting deck: a decision request in consulting style, with dense charts, callouts, a so-what panel and sources. Written to be read without the presenter, so every title is a full-sentence conclusion.",
-  },
-  {
-    id: "presentations",
-    group: "presentations",
-    label: "Slide starters",
-    path: "/presentations",
-    intro: "Slide layouts with their speech notes, then a complete five-chapter narrative built from them.",
-  },
-  {
-    id: "animations",
-    group: "motion",
-    label: "3D animations",
-    path: "/animations",
-    intro: "Live 3D scenes with camera moves, animated flows and presentation controls.",
-  },
-  {
-    id: "mechanism",
-    group: "motion",
-    label: "Mechanism",
-    path: "/mechanism",
-    intro: "Mechanical drawings that explain how a system moves, one part at a time.",
-  },
-  {
-    id: "web",
-    group: "web-group",
-    label: "Web UI",
-    path: "/web",
-    hostsPage: true,
-    intro: "A product page in Technical, the one implemented style, then every part it is made of.",
-  },
-  {
-    id: "docs",
-    group: "web-group",
-    label: "Docs layout",
-    path: "/docs",
-    intro: "A three-column product documentation shell with responsive navigation and Markdown prose.",
-  },
-  {
-    id: "foundations",
-    group: "foundations",
-    run: "Guides",
-    label: "Overview",
-    path: "/foundations",
-    intro:
-      "UiPack draws explanations: diagrams, slides, web pages, motion and 3D. Start here: style, writing and layout are three separate layers. Swap the writing and the layout live below; the style layer is the role contract Technical fills.",
-  },
-  {
-    id: "foundations-style",
-    group: "foundations",
-    run: "Guides",
-    label: "Style roles",
-    path: "/foundations/style",
-    intro:
-      "The roles every style fills, the ornament slots it paints, Technical's values in light and dark, and the written specs that fill the same contract.",
-  },
-  {
-    id: "foundations-writing",
-    group: "foundations",
-    run: "Guides",
-    label: "Writing",
-    path: "/foundations/writing",
-    intro: "Words are typed data: a claim per unit, a text budget per slot, and one place for each kind of sentence.",
-  },
-  {
-    id: "foundations-layout",
-    group: "foundations",
-    run: "Guides",
-    label: "Layout",
-    path: "/foundations/layout",
-    intro: "Regions, archetypes and narrow forms: where each slot sits and in what order it is read.",
-  },
-  {
-    id: "foundations-mix",
-    group: "foundations",
-    run: "Guides",
-    label: "Mix and match",
-    path: "/foundations/mix",
-    intro: "What each layer owns, and the four places one layer still leaks into another.",
-  },
-  {
-    id: "foundations-recipes",
-    group: "foundations",
-    run: "Guides",
-    label: "Recipes",
-    path: "/foundations/recipes",
-    intro: "Six common jobs, each as a style, an archetype sequence and a content template, with the live page.",
-  },
-  {
-    id: "foundations-dont",
-    group: "foundations",
-    run: "Guides",
-    label: "Do and don't",
-    path: "/foundations/do-and-dont",
-    intro: "Paired examples of the rules, and the checklist of generic AI-landing tropes to keep out.",
-  },
-  {
-    id: "styles",
-    group: "foundations",
-    run: "Reference",
-    label: "Styles",
-    path: "/styles",
-    intro:
-      "Technical, the one implemented style; the illustration looks drawn within it; and the styles written as specs for agents to build.",
-  },
-  {
-    id: "assets",
-    group: "foundations",
-    run: "Reference",
-    label: "Icons & marks",
-    path: "/assets",
-    intro: "Searchable icons, marks, canvas backgrounds and motion tokens, each with a preview and a copy button.",
-  },
-] as const;
-export type LibraryPage = (typeof libraryPages)[number]["id"];
+/** Every page, in reading order, with its group: the manifest flattened. */
+export const libraryPages = docsManifest.flatMap((g) =>
+  g.pages.map((p) => ({ ...p, group: g.id as LibraryGroup })),
+) as readonly (ManifestPage & { group: LibraryGroup })[];
+export type LibraryPage = ManifestPage["id"];
 
 /** The same list, typed for code that reads the optional fields. */
 export const pageDefs: readonly PageDef[] = libraryPages;

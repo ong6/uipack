@@ -881,57 +881,6 @@
   font-size: 12.5px;
 }
 
-/* The guide index on the overview: one row per guide, number, name and what it teaches. */
-.fdn-index {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
-  gap: 12px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.fdn-index a {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  /* Rows pack to the top: a stretched card never spreads its title and description apart, so
-     titles and descriptions start on one line across the row. */
-  align-content: start;
-  gap: 2px 12px;
-  height: 100%;
-  box-sizing: border-box;
-  padding: 16px 18px;
-  border: 1px solid var(--show-rule);
-  border-radius: var(--show-radius);
-  background: var(--show-surface);
-  color: var(--show-ink);
-  text-decoration: none;
-  transition:
-    border-color 140ms ease,
-    background-color 140ms ease;
-}
-.fdn-index a:hover {
-  border-color: var(--show-ink);
-}
-.fdn-index a:focus-visible {
-  outline: 2px solid var(--show-accent);
-  outline-offset: 2px;
-}
-.fdn-index__num {
-  grid-row: span 2;
-  color: var(--show-accent);
-  font: 600 13px/1.6 var(--show-font-mono);
-}
-.fdn-index__title {
-  font-size: 17px;
-  font-weight: 600;
-  line-height: 1.35;
-}
-.fdn-index__intro {
-  color: var(--show-muted);
-  font-size: 14px;
-  line-height: 1.5;
-}
-
 /* Before you ship: real checkboxes with 44px rows. */
 .fdn-checklist {
   display: grid;
@@ -966,70 +915,6 @@
 }
 .fdn-checklist input:checked + span {
   color: var(--show-muted);
-}
-
-/* Previous and next guide. */
-.fdn-pager {
-  margin-top: 56px;
-  padding-top: 24px;
-  border-top: 1px solid var(--show-rule);
-}
-.fdn-pager__count {
-  margin: 0 0 12px;
-  color: var(--show-muted);
-  font: var(--show-eyebrow-font);
-  letter-spacing: var(--show-eyebrow-tracking);
-  text-transform: uppercase;
-}
-.fdn-pager__links {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-.fdn-pager__link {
-  display: grid;
-  gap: 2px;
-  padding: 14px 18px;
-  border: 1px solid var(--show-rule);
-  border-radius: var(--show-radius);
-  background: var(--show-surface);
-  color: var(--show-ink);
-  text-decoration: none;
-  transition: border-color 140ms ease;
-}
-.fdn-pager__link:hover {
-  border-color: var(--show-ink);
-}
-.fdn-pager__link:focus-visible {
-  outline: 2px solid var(--show-accent);
-  outline-offset: 2px;
-}
-.fdn-pager__link--next {
-  grid-column: 2;
-  text-align: right;
-}
-.fdn-pager__dir {
-  color: var(--show-muted);
-  font: 400 12px/1.5 var(--show-font-mono);
-}
-.fdn-pager__link:not(.fdn-pager__link--next) .fdn-pager__dir::before {
-  content: "← ";
-}
-.fdn-pager__link--next .fdn-pager__dir::after {
-  content: " →";
-}
-.fdn-pager__title {
-  color: var(--show-accent);
-  font-size: 17px;
-  font-weight: 600;
-}
-@media (max-width: 480px) {
-  .fdn-pager__links {
-    grid-template-columns: minmax(0, 1fr);
-  }
-  .fdn-pager__link--next {
-    grid-column: 1;
-  }
 }
 
 /* A single do/don't pair at a readable width. */

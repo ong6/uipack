@@ -75,7 +75,7 @@ for (const { label, path } of ALL) {
 
       await test.step("390", async () => {
         await open(page, path, 390);
-        await checkCompactHeader(page, label);
+        await checkCompactHeader(page, label, path);
         await checkHeadingScale(page, 22);
         await checkAlignment(page);
         await checkPairedBoxes(page);

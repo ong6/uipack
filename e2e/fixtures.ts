@@ -93,13 +93,14 @@ export async function waitForStable<T>(read: () => Promise<T>, { every = 100, ti
 }
 
 /**
- * Waits until a playground page has rendered: the shell is up, the page's lazy chunk has replaced
- * its "Loading …" status line (main.tsx), and the fonts are in. Measure layout or walk focus only
+ * Waits until a playground page has rendered: the shell is up, the page's lazy chunk (and a
+ * Markdown page's file and demos) has replaced its "Loading …" status line, and the fonts are in. Measure layout or walk focus only
  * after this; the status line is visible after 300ms, so "something under the title is visible"
  * is not the same condition.
  */
 export async function waitForPage(page: Page) {
-  await baseExpect(page.locator(".showcase-title")).toBeVisible();
+  // The shell's main, then the page's title: the manifest's on a showcase page, the file's own h1 on a Markdown page.
+  await baseExpect(page.locator("main .showcase-title, main .uipack-docs__prose h1").first()).toBeVisible();
   await baseExpect(page.locator(".showcase-loading")).toHaveCount(0);
   await page.evaluate(() => document.fonts.ready);
 }

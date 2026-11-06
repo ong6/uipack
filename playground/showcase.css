@@ -34,17 +34,29 @@ body {
   background: var(--show-bg);
   color: var(--show-ink);
 }
-/* The frame holds the banner (header and menu sheet) and <main>; main holds the context line,
-   the title and the page. Both stack with the same 32px gap. */
+/* The frame holds the docs layout (src/docs, width="wide"): the banner (header and menu sheet),
+   then the sidebar, <main> and, on a Markdown page, "On this page". Main stacks the page bar,
+   the title and the page with one 32px gap. */
 .showcase-frame {
-  max-width: 1280px;
+  max-width: 1600px;
   margin: 0 auto;
-  padding: 24px 16px 64px;
-  display: grid;
-  gap: 32px;
+  padding: 16px 24px 64px;
+}
+.showcase-frame > .uipack-docs {
+  padding: 0;
+}
+.showcase-frame .showcase-header {
+  margin-bottom: 32px;
+}
+/* The header is not sticky, so the sidebar and contents stick near the top. */
+.showcase-frame :is(.uipack-docs__sidebar, .uipack-docs__toc) {
+  top: 24px;
+  max-height: calc(100vh - 48px);
 }
 .showcase-shell {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
   gap: 32px;
   min-width: 0;
 }
@@ -52,27 +64,20 @@ body {
 .showcase-shell:focus {
   outline: none;
 }
-/* The first Tab stop on every page: hidden until it has focus, then a button-sized link at the top. */
-.showcase-skip {
-  position: absolute;
-  top: 8px;
-  left: 16px;
-  z-index: 100;
+.showcase-frame .showcase-shell > .uipack-docs__pagination {
+  margin-top: 32px;
+}
+/* The skip link (DocsLayout's): a button-sized link at the top once it has focus. */
+.showcase-frame a.uipack-docs__skip:focus {
   display: flex;
   align-items: center;
   min-height: 44px;
-  padding: 0 16px;
   box-sizing: border-box;
   border: 2px solid var(--show-accent);
   border-radius: var(--show-control-radius);
   background: var(--show-surface);
   color: var(--show-ink);
   font: 600 14px var(--show-font-sans);
-  text-decoration: none;
-  transform: translateY(calc(-100% - 16px));
-}
-.showcase-skip:focus {
-  transform: none;
   outline: 2px solid var(--show-accent);
   outline-offset: 2px;
 }
@@ -82,7 +87,8 @@ body {
 /* The heading scale (docs/design-direction.md): page title 40, section heading 24 (22 on
    phones), card and figure titles 18–20 at 600. e2e/page-audit.spec.ts holds every page to it. */
 .showcase-shell > section > h2,
-.showcase-shell .deck-showcase__reference > section > h2 {
+.showcase-shell .deck-showcase__reference > section > h2,
+.showcase-shell .uipack-docs__block[data-block="uipack-demo"] > section > h2 {
   font-family: var(--show-font-display);
   font-size: 24px;
   line-height: 1.25;
@@ -97,6 +103,7 @@ body {
   display: grid;
   gap: 0;
   min-width: 0;
+  padding-bottom: 12px;
   border-bottom: 1px solid var(--show-rule);
 }
 .showcase-header__bar {
@@ -123,84 +130,6 @@ body {
   border-radius: var(--show-control-radius);
   cursor: pointer;
 }
-/* Two rows of links: groups, then the active group's pages. Rows scroll sideways
-   when they do not fit, so the header never widens the page. */
-.showcase-groups,
-.showcase-pages {
-  display: flex;
-  gap: 4px;
-  min-width: 0;
-  overflow-x: auto;
-  overscroll-behavior-x: contain;
-  scrollbar-width: none;
-}
-.showcase-groups::-webkit-scrollbar,
-.showcase-pages::-webkit-scrollbar {
-  display: none;
-}
-.showcase-groups a,
-.showcase-pages a {
-  flex: none;
-  display: flex;
-  align-items: center;
-  min-height: 44px;
-  box-sizing: border-box;
-  padding: 0 12px;
-  font: 400 13px var(--show-font-mono);
-  color: var(--show-muted);
-  text-decoration: none;
-  white-space: nowrap;
-  border-bottom: 2px solid transparent;
-}
-.showcase-groups a {
-  font-weight: 600;
-  letter-spacing: 0.04em;
-}
-.showcase-groups a:first-child,
-.showcase-pages a:first-child {
-  padding-left: 0;
-}
-.showcase-pages {
-  border-top: 1px solid var(--show-rule);
-}
-/* A page's sub-views (the decks) follow its name and end at a divider, so they read as one
-   page's views rather than sibling pages. The menu sheet does the same with an indent. */
-.showcase-pages__run {
-  display: flex;
-  flex: none;
-  align-items: center;
-  gap: 4px;
-}
-.showcase-pages__run::after {
-  content: "";
-  flex: none;
-  width: 1px;
-  height: 20px;
-  margin: 0 8px 0 4px;
-  background: var(--show-rule);
-}
-.showcase-pages__label {
-  flex: none;
-  padding-right: 4px;
-  font: 600 12px var(--show-font-mono);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  white-space: nowrap;
-  color: var(--show-muted);
-}
-.showcase-groups a[aria-current="page"],
-.showcase-pages a[aria-current="page"] {
-  color: var(--show-accent);
-  border-bottom-color: var(--show-accent);
-}
-.showcase-groups a:hover,
-.showcase-pages a:hover {
-  color: var(--show-ink);
-}
-.showcase-frame .showcase-groups a:focus-visible,
-.showcase-frame .showcase-pages a:focus-visible {
-  outline-offset: -3px;
-}
 .showcase-frame a:focus-visible,
 .showcase-frame button:focus-visible,
 .showcase-frame summary:focus-visible {
@@ -209,8 +138,9 @@ body {
 }
 .showcase-context {
   display: flex;
+  align-items: center;
   gap: 8px;
-  margin: -16px 0 0;
+  margin: 0;
   font: 12px var(--show-font-mono);
   color: var(--show-muted);
 }
@@ -263,12 +193,6 @@ body {
   border-left: 3px solid var(--show-accent);
   background: var(--show-surface);
   color: var(--show-ink);
-}
-@media (max-width: 540px) {
-  .showcase-groups a,
-  .showcase-pages a {
-    padding: 0 10px;
-  }
 }
 .catalog-filters {
   display: flex;
@@ -424,61 +348,26 @@ body {
 .showcase-menu__bar button {
   font: inherit;
 }
+/* Compact navigation (data-nav="compact" on the frame, set by ShowcaseShell below 900px, or below
+   1440px on a page that hosts a whole sample site): the sidebar steps aside and the header's menu
+   button opens every page in a sheet. Below 720px the theme toggle keeps only its icon and the
+   page bar drops its context line. */
+.showcase-frame[data-nav="compact"] .uipack-docs__sidebar {
+  display: none;
+}
+/* Outranks docs.css's wide grid (loaded after this file). */
+.showcase-frame[data-nav="compact"] > .uipack-docs[data-width] > .uipack-docs__grid {
+  grid-template-columns: minmax(0, 1fr);
+}
 @media (max-width: 719px) {
-  .showcase-header {
-    padding-bottom: 8px;
-  }
   .showcase-header__bar {
     gap: 8px;
   }
   .showcase-header__actions {
     flex: 1 1 0;
   }
-  .showcase-groups,
-  .showcase-pages,
   .showcase-context {
     display: none;
-  }
-  .showcase-title {
-    margin-top: -16px;
-  }
-  .showcase-menu-button {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    min-height: 44px;
-    min-width: 0;
-    max-width: 100%;
-    padding: 0 12px;
-    box-sizing: border-box;
-    border: 1px solid var(--show-ink);
-    border-radius: var(--show-control-radius);
-    background: var(--show-surface);
-    color: var(--show-ink);
-    font: 600 13px var(--show-font-mono);
-    cursor: pointer;
-  }
-  /* Two lines: the group small above, the page name as the button's text. Only the group may
-     shorten; the page name keeps its full width. */
-  .showcase-menu-button__where {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    min-width: 0;
-    text-align: left;
-  }
-  .showcase-menu-button__group {
-    max-width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font: 400 12px/14px var(--show-font-mono);
-    color: var(--show-muted);
-  }
-  .showcase-menu-button__page {
-    white-space: nowrap;
-    font: 600 14px/18px var(--show-font-sans);
   }
   .showcase-header button.theme {
     display: grid;
@@ -496,80 +385,118 @@ body {
   .theme__icon {
     display: block;
   }
-  .showcase-menu[open] {
-    display: block;
-    position: fixed;
-    inset: 0 0 auto 0;
-    margin: 0;
-    width: 100%;
-    max-width: none;
-    max-height: 100dvh;
-    overflow-y: auto;
-    box-sizing: border-box;
-    padding: 0 16px 24px;
-    border: 0;
-    border-bottom: 1px solid var(--show-rule);
-    background: var(--show-bg);
-    color: var(--show-ink);
-  }
-  .showcase-menu::backdrop {
-    background: rgba(0, 0, 0, 0.45);
-  }
-  .showcase-menu__bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    min-height: 56px;
-    font: 600 13px var(--show-font-mono);
-    color: var(--show-muted);
-  }
-  .showcase-menu__bar button {
-    min-height: 44px;
-    padding: 0 16px;
-    border: 1px solid var(--show-rule);
-    border-radius: var(--show-control-radius);
-    background: transparent;
-    color: inherit;
-    font: inherit;
-    cursor: pointer;
-  }
-  .showcase-menu__group {
-    border-top: 1px solid var(--show-rule);
-    padding-top: 12px;
-    margin-top: 12px;
-  }
-  .showcase-menu__group p {
-    margin: 0 0 4px;
-    font: 600 12px var(--show-font-mono);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--show-muted);
-  }
-  .showcase-menu__group a {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    box-sizing: border-box;
-    min-height: 48px;
-    padding: 0 12px;
-    border-left: 3px solid transparent;
-    color: var(--show-ink);
-    font-size: 16px;
-    text-decoration: none;
-  }
-  .showcase-menu__group a[aria-current="page"] {
-    border-left-color: var(--show-accent);
-    background: var(--show-surface);
-    font-weight: 600;
-  }
-  .showcase-menu__group a[aria-current="page"]::after {
-    content: "✓ Current";
-    font: 600 12px var(--show-font-mono);
-    color: var(--show-accent);
-  }
-  .chart-frame__bar button {
-    min-height: 44px;
-  }
+}
+.showcase-frame[data-nav="compact"] .showcase-menu-button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 44px;
+  min-width: 0;
+  max-width: 100%;
+  padding: 0 12px;
+  box-sizing: border-box;
+  border: 1px solid var(--show-ink);
+  border-radius: var(--show-control-radius);
+  background: var(--show-surface);
+  color: var(--show-ink);
+  font: 600 13px var(--show-font-mono);
+  cursor: pointer;
+}
+/* Two lines: the group small above, the page name as the button's text. Only the group may
+   shorten; the page name keeps its full width. */
+.showcase-frame[data-nav="compact"] .showcase-menu-button__where {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+  text-align: left;
+}
+.showcase-frame[data-nav="compact"] .showcase-menu-button__group {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font: 400 12px/14px var(--show-font-mono);
+  color: var(--show-muted);
+}
+.showcase-frame[data-nav="compact"] .showcase-menu-button__page {
+  white-space: nowrap;
+  font: 600 14px/18px var(--show-font-sans);
+}
+.showcase-frame[data-nav="compact"] .showcase-menu[open] {
+  display: block;
+  position: fixed;
+  inset: 0 0 auto 0;
+  margin: 0;
+  width: 100%;
+  max-width: none;
+  max-height: 100dvh;
+  overflow-y: auto;
+  box-sizing: border-box;
+  padding: 0 16px 24px;
+  border: 0;
+  border-bottom: 1px solid var(--show-rule);
+  background: var(--show-bg);
+  color: var(--show-ink);
+}
+.showcase-frame[data-nav="compact"] .showcase-menu::backdrop {
+  background: rgba(0, 0, 0, 0.45);
+}
+.showcase-frame[data-nav="compact"] .showcase-menu__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 56px;
+  font: 600 13px var(--show-font-mono);
+  color: var(--show-muted);
+}
+.showcase-frame[data-nav="compact"] .showcase-menu__bar button {
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--show-rule);
+  border-radius: var(--show-control-radius);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.showcase-frame[data-nav="compact"] .showcase-menu__group {
+  border-top: 1px solid var(--show-rule);
+  padding-top: 12px;
+  margin-top: 12px;
+}
+.showcase-frame[data-nav="compact"] .showcase-menu__group p {
+  margin: 0 0 4px;
+  font: 600 12px var(--show-font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--show-muted);
+}
+.showcase-frame[data-nav="compact"] .showcase-menu__group a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+  min-height: 48px;
+  padding: 0 12px;
+  border-left: 3px solid transparent;
+  color: var(--show-ink);
+  font-size: 16px;
+  text-decoration: none;
+}
+.showcase-frame[data-nav="compact"] .showcase-menu__group a[aria-current="page"] {
+  border-left-color: var(--show-accent);
+  background: var(--show-surface);
+  font-weight: 600;
+}
+.showcase-frame[data-nav="compact"] .showcase-menu__group a[aria-current="page"]::after {
+  content: "✓ Current";
+  font: 600 12px var(--show-font-mono);
+  color: var(--show-accent);
+}
+.showcase-frame[data-nav="compact"] .chart-frame__bar button {
+  min-height: 44px;
 }
 
 /* Touch targets in page chrome. */
@@ -582,16 +509,14 @@ body {
 }
 
 /* Sub-views of one page (decks) sit indented under a label in the menu sheet. */
-@media (max-width: 719px) {
-  .showcase-menu__sub {
-    display: block;
-    padding: 12px 12px 4px;
-    font: 600 12px var(--show-font-mono);
-    color: var(--show-muted);
-  }
-  .showcase-menu__group a.is-sub {
-    padding-left: 32px;
-  }
+.showcase-frame[data-nav="compact"] .showcase-menu__sub {
+  display: block;
+  padding: 12px 12px 4px;
+  font: 600 12px var(--show-font-mono);
+  color: var(--show-muted);
+}
+.showcase-frame[data-nav="compact"] .showcase-menu__group a.is-sub {
+  padding-left: 32px;
 }
 /* On the narrowest phones the brand keeps only its mark, so the page name still fits whole. The
    link stays a 44px target: padding reaches into the page margin and the gap, not the layout. */

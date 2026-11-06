@@ -617,7 +617,8 @@ test.describe("SpanChart stress rows at 896px", () => {
   }
 
   test("full labels at a wide host keep 8px apart", async ({ page }) => {
-    await page.setViewportSize({ width: 1440, height: 900 });
+    // The full-width frame is the docs column beside the sidebar: 1600 gives it the 1290px a wide host has.
+    await page.setViewportSize({ width: 1600, height: 900 });
     await page.goto(at("full", "span-chart"));
     const chart = page.locator("#ai-stack");
     await expect(col(chart, "control").locator(".uipack-span__full")).toBeVisible();

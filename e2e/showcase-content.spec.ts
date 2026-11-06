@@ -1,4 +1,4 @@
-import { libraryPages } from "../playground/catalog";
+import { pageDefs as libraryPages } from "../playground/catalog";
 import { tidyFacts } from "../playground/tidyFacts";
 import { wordRules } from "../playground/guideFacts";
 import { expect, test, type Page } from "./fixtures";
@@ -80,7 +80,8 @@ test.describe("/web sample content", () => {
 
 test("every Foundations guide links to where its full rules live", async ({ page }) => {
   test.setTimeout(90_000);
-  const guides = libraryPages.filter((p) => p.group === "foundations" && p.path.startsWith("/foundations"));
+  // A guide still drawn by its showcase module; a Markdown guide (the Overview) is its doc.
+  const guides = libraryPages.filter((p) => p.group === "foundations" && p.path.startsWith("/foundations") && p.showcase);
   const missing: string[] = [];
   for (const g of guides) {
     await page.goto(`${g.path}?theme=light`);

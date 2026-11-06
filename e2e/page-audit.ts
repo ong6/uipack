@@ -2,6 +2,7 @@
 // loaded: page-audit.spec.ts loads each page once per width and runs all of them, so adding a page
 // to the catalog (or a check here) covers it everywhere. The catalog-derived names (groups, labels,
 // h1 and tab text) are shared with nav.spec.ts.
+import { readFileSync } from "node:fs";
 import { libraryGroups, pageDefs, pagePath } from "../playground/catalog";
 import { expect, type Page } from "./fixtures";
 
@@ -14,8 +15,31 @@ export const GROUPS = libraryGroups.map((g) => ({
 }));
 export const ALL = GROUPS.flatMap((g) => g.pages.map(([label, path]) => ({ group: g.label, label, path })));
 
+// A page whose Markdown is written renders its file (MarkdownShowcase); the file's `#` is its h1.
+const byPath = (path: string) => pageDefs.find((p) => pagePath(p) === path || p.path === path);
+export const isMarkdownPage = (path: string) => {
+  const p = byPath(path);
+  return !!p && !p.showcase;
+};
+/** A Markdown page's h1, as the file writes it (inline code and link syntax dropped). */
+export function markdownH1(path: string) {
+  const line = /^# (.+)$/m.exec(readFileSync(byPath(path)!.file, "utf8"))?.[1] ?? "";
+  return line
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
+    .replace(/[`*_]/g, "")
+    .trim();
+}
+
 // /web hosts a complete sample landing page: its hero is the one h1 and the shell title is plain text.
-export const title = (page: Page) => page.locator(".showcase-title h1, .showcase-title .showcase-title__name");
+// A Markdown page's h1 is the file's own (DocsMarkdown adds a "#" anchor link after its text).
+export const title = (page: Page) =>
+  page.locator(".showcase-title h1, .showcase-title .showcase-title__name, main .uipack-docs__prose h1");
+
+/** The page's title: the manifest's label on a showcase page, the file's `#` heading on a Markdown page. */
+export async function expectPageTitle(page: Page, label: string, path: string) {
+  if (isMarkdownPage(path)) await expect(title(page)).toHaveAccessibleName(markdownH1(path));
+  else await expect(title(page)).toHaveText(h1Of(label));
+}
 
 // Sub-views (the decks) are catalog entries with a query and a title: they share one page, and the
 // h1 names the page before the sub-view.
@@ -30,13 +54,16 @@ export const tabOf = (label: string) => {
   return pageTitle ? `${label} · ${pageTitle} · uipack` : `${label} · uipack`;
 };
 
-export const groupsNav = (page: Page) => page.getByRole("navigation", { name: "Library groups" });
-export const pagesNav = (page: Page) => page.getByRole("navigation", { name: "Library pages" });
+/** The sidebar (DocsLayout's navigation, generated from the docs manifest), shown from 900px. */
+export const sidebar = (page: Page) => page.getByRole("navigation", { name: "Library", exact: true });
+/** The sidebar's current page link. */
+export const currentLink = (page: Page) => sidebar(page).locator('[aria-current="page"]');
 
 // Heading levels in document order, ignoring hidden headings.
 export async function outline(page: Page) {
   return page.evaluate(() =>
-    [...document.querySelectorAll<HTMLElement>("h1, h2, h3, h4, h5, h6")]
+    // The page's own outline: main's headings (the sidebar's group names are navigation, not the page).
+    [...document.querySelectorAll<HTMLElement>("main :is(h1, h2, h3, h4, h5, h6)")]
       .filter((h) => h.getClientRects().length > 0)
       .map((h) => ({ level: Number(h.tagName[1]), text: h.textContent?.trim() ?? "" })),
   );
@@ -45,8 +72,9 @@ export async function outline(page: Page) {
 /** One h1 (the shell's, naming the page), an intro, sentence-case h2s, no skipped heading levels, a named main. */
 export async function checkHeadingOutline(page: Page, label: string, path: string) {
   await expect(page.locator("h1")).toHaveCount(1);
-  await expect(title(page)).toHaveText(h1Of(label));
-  await expect(page.locator(".showcase-title > p:not(.showcase-title__name)")).not.toBeEmpty();
+  await expectPageTitle(page, label, path);
+  // A showcase page has the manifest's intro under its h1; a Markdown page's first line is its own.
+  if (!isMarkdownPage(path)) await expect(page.locator(".showcase-title > p:not(.showcase-title__name)")).not.toBeEmpty();
   const headings = await outline(page);
   expect(headings.filter((h) => h.level === 1)).toHaveLength(1);
   let previous = 0;
@@ -56,6 +84,7 @@ export async function checkHeadingOutline(page: Page, label: string, path: strin
   }
   // Every main is named by the page: by its h1, or on /web (whose h1 is the sample's hero) by its label.
   if (path === "/web") await expect(page.getByRole("main", { name: "Web UI" })).toBeVisible();
+  else if (isMarkdownPage(path)) await expect(page.getByRole("main", { name: label })).toBeVisible();
   else
     for (const h of headings.filter((h) => h.level === 2))
       expect(h.text, "h2 reads as a title, not a path or a counter").not.toMatch(/[/·]|^[a-z]/);
@@ -69,15 +98,19 @@ const TITLES = ".uipack__title, .style-card h3, .uipack-animation-heading h3";
 
 /** Section headings are `section`px (24 at desktop, 22 on phones); card and figure titles are 18–20px / 600. */
 export async function checkHeadingScale(page: Page, section: number) {
+  // A Markdown page is docs prose, with the docs scale (src/docs/docs.css, e2e/docs.spec.ts).
+  if (await page.locator("main.showcase-shell--docs").count()) return;
   await expect(page.locator(".showcase-shell section > h2").first()).toBeVisible();
   const m = await page.evaluate(
     ({ sample, titles }) => {
       const size = (el: Element) => parseFloat(getComputedStyle(el).fontSize);
       const visible = (el: Element) => el.getClientRects().length > 0;
       const page = document.querySelector(".showcase-title h1, .showcase-title .showcase-title__name");
-      const sections = [...document.querySelectorAll(".showcase-shell h2")].filter((h) => visible(h) && !h.closest(sample));
+      // Sample content inside the page; the shell's own docs layout (outside main) is not a sample.
+      const inSample = (el: Element, selector: string) => !!el.closest(selector)?.closest("main");
+      const sections = [...document.querySelectorAll(".showcase-shell h2")].filter((h) => visible(h) && !inSample(h, sample));
       const cards = [...document.querySelectorAll(titles)].filter(
-        (h) => visible(h) && !h.closest(sample.replace(".uipack-docs, ", "")),
+        (h) => visible(h) && !inSample(h, sample.replace(".uipack-docs, ", "")),
       );
       return {
         page: page ? size(page) : null,
@@ -351,13 +384,12 @@ export async function checkTextFaces(page: Page) {
 }
 
 /** The 390px header: compact, desktop nav rows hidden, 44px menu and theme buttons, the menu button naming the page whole. */
-export async function checkCompactHeader(page: Page, label: string) {
-  await expect(title(page)).toHaveText(h1Of(label));
+export async function checkCompactHeader(page: Page, label: string, path: string) {
+  await expectPageTitle(page, label, path);
   const header = await page.locator(".showcase-header").boundingBox();
   expect(header!.height).toBeLessThanOrEqual(64);
-  // The two desktop rows are not shown.
-  await expect(groupsNav(page)).toBeHidden();
-  await expect(pagesNav(page)).toBeHidden();
+  // The desktop sidebar is not shown; the menu button lists the pages instead.
+  await expect(sidebar(page)).toBeHidden();
   for (const b of [page.locator(".showcase-menu-button"), page.locator("button.theme")]) {
     const box = (await b.boundingBox())!;
     expect(box.height).toBeGreaterThanOrEqual(44);
@@ -410,8 +442,10 @@ export async function checkFocusRingsNotClipped(page: Page) {
       const reach = parseFloat(s.outlineWidth) + parseFloat(s.outlineOffset);
       const r = el.getBoundingClientRect();
       const c = clip.getBoundingClientRect();
-      // Items scrolled out of a row are not on screen to clip.
+      // Items scrolled out of a row, or below a tall scrolling column (the sidebar), are not on
+      // screen to clip: focus scrolls them in.
       if (r.right < c.left || r.left > c.right) return null;
+      if (r.top < c.top || r.bottom > c.bottom) return null;
       const room = Math.min(r.left - c.left, c.right - r.right, r.top - c.top, c.bottom - r.bottom);
       return room < reach - 0.5 && r.left >= c.left - 0.5 && r.right <= c.right + 0.5
         ? `${el.tagName.toLowerCase()}.${[...el.classList].join(".")} "${(el.textContent ?? "").trim().slice(0, 20)}" needs ${reach}px, has ${room.toFixed(1)}px in ${clip.tagName.toLowerCase()}.${[...clip.classList].join(".")}`
