@@ -102,13 +102,20 @@ function useMediaQuery(query: string) {
 function sidebarSections(theme: string): DocsSection[] {
   return libraryGroups.map((g) => {
     const items: DocsNavItem[] = [];
+    const byId = new Map<string, DocsNavItem>();
     for (const p of pageDefs.filter((p) => p.group === g.id)) {
       const last = items[items.length - 1];
       const href = pageHref(p, theme);
-      if (p.query && last?.items && last.title === (p.title ?? p.label)) last.items.push({ title: p.label, href });
+      const parent = p.parent ? byId.get(p.parent) : undefined;
+      if (parent) (parent.items ??= []).push({ title: p.label, href });
+      else if (p.query && last?.items && last.title === (p.title ?? p.label)) last.items.push({ title: p.label, href });
       else if (p.query)
         items.push({ title: p.title ?? p.label, href: `${p.path}?theme=${theme}`, items: [{ title: p.label, href }] });
-      else items.push({ title: p.label, href });
+      else {
+        const item: DocsNavItem = { title: p.label, href };
+        byId.set(p.id, item);
+        items.push(item);
+      }
     }
     return { title: g.label, items };
   });
@@ -128,7 +135,7 @@ export function ShowcaseShell({ active, children }: { active: LibraryPage | "not
   // A page with sub-views (a deck, say) resolves to the entry its query names.
   const notFound = active === "not-found";
   const page = notFound ? notFoundPage : resolvePage(active, location.search);
-  const markdown = !notFound && !page.showcase;
+  const markdown = !notFound;
   // The visual style the page's content uses, named in the context line.
   const styleName = page.styleName ?? "Technical";
   const group = notFound ? undefined : libraryGroups.find((g) => g.id === page.group)!;
@@ -242,7 +249,7 @@ export function ShowcaseShell({ active, children }: { active: LibraryPage | "not
                     {p.query && all[i - 1]?.path !== p.path && <span className="showcase-menu__sub">{p.title ?? p.label}</span>}
                     <a
                       href={pageHref(p, theme)}
-                      className={p.query ? "is-sub" : undefined}
+                      className={p.query || p.parent ? "is-sub" : undefined}
                       aria-current={page.id === p.id ? "page" : undefined}
                     >
                       {p.label}

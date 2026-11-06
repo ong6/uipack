@@ -12,15 +12,29 @@
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { relative, dirname, join } from "node:path";
 import { pathToFileURL } from "node:url";
-import { SLOT_BUDGETS, TITLE_WORDS, type SlotBudget, type SlotName } from "../src/deck/budgets";
-import { wordRules } from "../playground/guideFacts";
+import { SLOT_BUDGETS, TITLE_WORDS, WORD_GUIDES, type SlotBudget, type SlotName } from "../src/deck/budgets";
+import { SLIDE_ROLES } from "../src/deck/storyline/roles";
+import { STORYLINE_TEMPLATES } from "../src/deck/storyline/templates";
+import { LINT_RULES } from "../src/deck/storyline/rules";
+import { WORDS_PER_MINUTE } from "../src/speech";
+import { FIGURE_GRID } from "../src/geometry";
+import { CANVAS_HEIGHT, CANVAS_WIDTH } from "../src/deck/transitions";
+import { GRID_COLUMNS, SPACE, TYPE_BASE_PX, TYPE_RATIO } from "../src/web/tokens";
+import { sectionOrder, uiStyles } from "../src/style";
+import { tidyChrome, tidySections } from "../playground/tidyFacts";
+import { figureRows } from "../playground/figure-rows";
+import { LAYER_SECTION_PARTS } from "../examples/articleSectionParts";
 import { docsManifest, docsPages, siteRegistry, type DocsPageEntry } from "../playground/docs-manifest";
 import { frontmatter } from "./check-spec";
 import { CORE_ROLES, lightDark, parseValueSet } from "./style-contract";
 
 const pagesOf = (g: (typeof docsManifest)[number]): readonly DocsPageEntry[] => g.pages;
-/** A page as the site names it: "Deck player: Bento" for a sub-view. */
-const pageName = (p: DocsPageEntry) => (p.title ? `${p.title}: ${p.label}` : p.label);
+/** A page as the site names it: "Deck player: Bento" for a sub-view, "Article parts: Verification" for a sub-page. */
+const pageName = (p: DocsPageEntry): string => {
+  if (p.title) return `${p.title}: ${p.label}`;
+  const parent = p.parent && docsPages.find((q) => q.id === p.parent);
+  return parent ? `${parent.label}: ${p.label}` : p.label;
+};
 
 // npm runs scripts from the repo root, and so does vitest.
 const root = process.cwd();
@@ -39,7 +53,7 @@ const SLOT_ROWS: { slots: SlotName[]; name?: string; note?: string }[] = [
   { slots: ["headline"] },
   { slots: ["title"], note: " (overview and screen readers)" },
   { slots: ["lede"], name: "lede (optional)" },
-  { slots: ["point"], name: "point (body line)", note: `; ${wordRules.pointsPerSlide.join("–")} a slide` },
+  { slots: ["point"], name: "point (body line)", note: `; ${WORD_GUIDES.pointsPerSlide.join("–")} a slide` },
   { slots: ["label"] },
   { slots: ["quote"] },
   { slots: ["attribution"] },
@@ -64,7 +78,7 @@ function budgetText(slot: SlotName, b: SlotBudget) {
   return parts.join(", ");
 }
 
-/** The slot budget table in docs/system/writing.md, from `SLOT_BUDGETS` and `TITLE_WORDS`. */
+/** The slot budget table in docs/system/writing/general.md, from `SLOT_BUDGETS` and `TITLE_WORDS`. */
 export function slotBudgetTable() {
   const covered = SLOT_ROWS.flatMap((r) => r.slots);
   const missing = (Object.keys(SLOT_BUDGETS) as SlotName[]).filter((s) => !covered.includes(s));
@@ -74,7 +88,7 @@ export function slotBudgetTable() {
     let budget: string;
     if (slots[0] === "headline") {
       const b = budgets[0];
-      budget = `presented: at most ${TITLE_WORDS.presented} words (aim for ${wordRules.presentedTitleAim.join("–")}); read-alone: at most ${TITLE_WORDS["read-alone"]}, on at most ${b.maxLines} lines`;
+      budget = `presented: at most ${TITLE_WORDS.presented} words (aim for ${WORD_GUIDES.presentedTitle.aim.join("–")}); read-alone: at most ${TITLE_WORDS["read-alone"]}, on at most ${b.maxLines} lines`;
     } else if (slots.length > 1) {
       budget = `at most ${budgets.map((b) => b.maxChars).join(" / ")} characters`;
     } else {
@@ -173,6 +187,148 @@ export function registryTable(from: string) {
   return ["| Site | Repo | Spec | Families | Pins uipack | Notes |", "| --- | --- | --- | --- | --- | --- |", ...rows].join("\n");
 }
 
+/* ------------------------------------------------------------------ writing guidance */
+
+const dash = (r: readonly number[]) => r.join("–");
+
+/** The headline rule in one sentence, the same words everywhere it appears (writing, talks, overview). */
+export function headlineRule() {
+  const t = WORD_GUIDES.presentedTitle;
+  return [
+    `- **Presented** (a speaker in the room): aim for ${dash(t.aim)} words; the check stops at ${t.max} (\`title-length\`). A verdict you would say aloud.`,
+    `- **Read alone** (a pre-read, a forwarded deck, a figure): the claim as one sentence of ${dash(WORD_GUIDES.readAloneTitle)} words.`,
+    `- **Web section head:** ${dash(WORD_GUIDES.webSectionHead)} plain words naming what the reader gets.`,
+  ].join("\n");
+}
+
+/** Every guidance range the writing docs state, with the check behind it where one exists. */
+export function wordGuides() {
+  const g = WORD_GUIDES;
+  const rows = [
+    ["Presented slide title", `aim for ${dash(g.presentedTitle.aim)} words`, `\`title-length\` stops at ${g.presentedTitle.max}`],
+    [
+      "Read-alone title, figure title",
+      `${dash(g.readAloneTitle)} words, one sentence`,
+      `\`title-length\` stops at ${g.readAloneTitle[1]}`,
+    ],
+    ["Web section head", `${dash(g.webSectionHead)} words`, "not linted"],
+    ["Label in a drawing", `${dash(g.drawingLabel)} words`, `\`slot-budget\` stops at ${SLOT_BUDGETS.label.maxWords}`],
+    ["Slide points", `${dash(g.pointsPerSlide)} a slide, each at most ${g.pointWords} words`, "`slot-budget`"],
+    ["Speaker cues (`say`, presented)", `at most ${g.cueWords} words`, "`notes-cues`"],
+  ];
+  return ["| Text | Length | The check |", "| --- | --- | --- |", ...rows.map((r) => `| ${r.join(" | ")} |`)].join("\n");
+}
+
+/** The slide roles (SLIDE_ROLES): what each one answers and its job. */
+export function slideRoles() {
+  const rows = Object.entries(SLIDE_ROLES).map(([id, r]) => `| \`${id}\` | ${r.question} | ${r.job} |`);
+  return ["| Role | Answers | Its job |", "| --- | --- | --- |", ...rows].join("\n");
+}
+
+/** The storyline templates (STORYLINE_TEMPLATES): when to use each, its size and its beats in order. */
+export function storylines() {
+  const rows = STORYLINE_TEMPLATES.map((t) => {
+    const beats = t.beats.map((b) => (b.optional ? `(${b.role})` : b.role)).join(" → ");
+    return `| ${t.name} | ${t.use} | ${dash([t.slides.min, t.slides.max])} | ${dash([t.minutes.min, t.minutes.max])} | ${beats} |`;
+  });
+  return [
+    "| Storyline | Use it for | Slides | Minutes | Beats in order (optional in brackets) |",
+    "| --- | --- | --- | --- | --- |",
+    ...rows,
+  ].join("\n");
+}
+
+/** The pace a read-alone talk track is timed at (WORDS_PER_MINUTE, which `talk-time` reads). */
+export function talkPace() {
+  return `- **Pace:** about ${WORDS_PER_MINUTE} words a minute; \`talk-time\` times the track at that pace against the deck's \`minutes\`.\n- **A slide:** about a minute when presented, so about ${WORDS_PER_MINUTE} words of track when read alone.`;
+}
+
+/** Every rule `lintDeck` runs (LINT_RULES), with its severity and what it checks. */
+export function lintRules() {
+  const rows = Object.entries(LINT_RULES).map(([id, r]) => `| \`${id}\` | ${r.severity} | ${r.check.replace(/\|/g, "\\|")} |`);
+  return ["| Rule | Severity | What it checks |", "| --- | --- | --- |", ...rows].join("\n");
+}
+
+/* ------------------------------------------------------------------ layout facts */
+
+/** The slide canvas and its safe area, from CANVAS_WIDTH/HEIGHT and the slide frame in deck.css. */
+export function slideCanvas() {
+  const css = readFileSync(join(root, "src/deck/deck.css"), "utf8");
+  const rule = /\.uipack-deck-slide \{[^}]*?padding: (\d+)px (\d+)px (\d+)px;/.exec(css);
+  if (!rule) throw new Error("docs:sync: no padding on .uipack-deck-slide in src/deck/deck.css");
+  const [, top, sides, bottom] = rule;
+  return `- **Canvas:** ${CANVAS_WIDTH}×${CANVAS_HEIGHT}, scaled to fit its frame.\n- **Safe area:** ${top} top, ${sides} each side, ${bottom} bottom (canvas pixels).`;
+}
+
+/** The web grid and spacing scale (GRID_COLUMNS, SPACE, the type scale's base and ratio). */
+export function webGrid() {
+  return [
+    `- **Columns:** ${GRID_COLUMNS.wide} at a container of 1024px and up, ${GRID_COLUMNS.medium} from 640px, ${GRID_COLUMNS.narrow} below.`,
+    `- **Spacing:** ${SPACE.filter(Boolean).join(", ")} px; nothing between the steps.`,
+    `- **Type:** a ${TYPE_BASE_PX}px base on a ${TYPE_RATIO} ratio.`,
+  ].join("\n");
+}
+
+/** Technical's opt-in section order (`uiStyles[].prefers`, used only with `WebPage layout="style"`). */
+export function webStyleOrder() {
+  return uiStyles.map((s) => `- **${s.name}:** ${s.prefers.join(" → ")}`).join("\n");
+}
+
+/** The /web sample's sections in render order, with the exports each is built from (tidySections). */
+export function webSectionOrder() {
+  const ids = sectionOrder(
+    "technical",
+    tidySections.map((s) => s.id),
+    "shared",
+  );
+  const lines = ids.map((id, i) => {
+    const s = tidySections.find((x) => x.id === id)!;
+    return `${i + 1}. **${s.name}** (\`${s.id}\`): ${s.parts.map((p) => `\`${p}\``).join(", ")}`;
+  });
+  return [
+    `- Above the sections, the nav: ${tidyChrome.nav.map((p) => `\`${p}\``).join(", ")}.`,
+    "",
+    ...lines,
+    "",
+    `- Below them, the footer: ${tidyChrome.footer.map((p) => `\`${p}\``).join(", ")}.`,
+  ].join("\n");
+}
+
+/** The figure grid (FIGURE_GRID in src/geometry.ts). */
+export function figureGrid() {
+  const g = FIGURE_GRID;
+  return [
+    `- **Grid:** ${g.step}px. Node positions, widths and gaps are multiples of ${g.step}; columns share x and rows share y (\`grid()\` rounds to it).`,
+    `- **Margins:** ${g.margin} inside the \`viewBox\`.`,
+    `- **Gaps:** ${g.flowGap} between nodes in a flow (${g.minFlowGap} at least, to leave room for arrow labels), ${g.groupGap} between groups; group padding ${g.groupPadding}.`,
+    `- **Nodes:** ${g.nodeHeight} tall with a label, ${g.nodeHeightWithSub} with a sub-label.`,
+    `- **Narrow:** below ${g.narrowBelow}px a figure shows its authored narrow drawing.`,
+  ].join("\n");
+}
+
+/** The diagram patterns (playground/figure-rows.ts), simplest first: the claim shape each one draws. */
+export function figurePatterns() {
+  const rows = figureRows.map(([, title]) => {
+    const [name, shape] = title.split(/:\s*/);
+    return `| ${shape ? shape.charAt(0).toUpperCase() + shape.slice(1) : "—"} | ${name} |`;
+  });
+  return ["| Claim shape | Pattern |", "| --- | --- |", ...rows].join("\n");
+}
+
+/** The diagram catalogue's index: each pattern linked to its section, the claim it draws and its parts. */
+export function figureIndex() {
+  const rows = figureRows.map(([id, title, tags]) => {
+    const [name, shape] = title.split(/:\s*/);
+    return `| [${name}](#${id}) | ${shape ?? ""} | ${tags.join(", ")} |`;
+  });
+  return ["| Pattern | Draws | Built from |", "| --- | --- | --- |", ...rows].join("\n");
+}
+
+/** A long article's layer section, in the order LayerSection renders its parts. */
+export function articleSectionOrder() {
+  return LAYER_SECTION_PARTS.map((p, i) => `${i + 1}. \`${p.part}\`: ${p.what}`).join("\n");
+}
+
 /* ------------------------------------------------------------------ blocks */
 
 /** Each generated block's writer; `file` is the repo path of the Markdown file holding it. */
@@ -183,6 +339,20 @@ export const generators: Record<string, (file: string) => string> = {
   "contract-roles": () => contractRoles(),
   "diagram-family": () => diagramFamily(),
   "site-registry": (file) => registryTable(file),
+  "headline-rule": () => headlineRule(),
+  "word-guides": () => wordGuides(),
+  "slide-roles": () => slideRoles(),
+  storylines: () => storylines(),
+  "lint-rules": () => lintRules(),
+  "talk-pace": () => talkPace(),
+  "slide-canvas": () => slideCanvas(),
+  "web-grid": () => webGrid(),
+  "web-style-order": () => webStyleOrder(),
+  "web-section-order": () => webSectionOrder(),
+  "figure-patterns": () => figurePatterns(),
+  "figure-grid": () => figureGrid(),
+  "figure-index": () => figureIndex(),
+  "article-section-order": () => articleSectionOrder(),
 };
 
 const BLOCK = /(<!-- generated:([\w-]+) -->\n)([\s\S]*?)(<!-- \/generated -->)/g;

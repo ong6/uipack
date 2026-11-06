@@ -41,7 +41,7 @@ Each token a figure reads, the role it takes today and its value in light and da
 Figures also fix, in their component CSS: a 6px node radius inside the drawing, a 1.25 connector stroke with one arrowhead in the request direction, the shape
 of each flow (square request, circle response, diamond change), an 11px rendered type floor and the
 filled-chip wash (28% in dark, `--uipack-chip-tint`). The full drawing rules are in the core
-[style rules, Diagrams](../system/style.md#diagrams) and [layout rules](../system/layout.md#diagrams).
+[style rules, Diagrams](../system/style.md#diagrams) and [layout rules](../system/layout/README.md#figures).
 
 ## Where the code stands
 

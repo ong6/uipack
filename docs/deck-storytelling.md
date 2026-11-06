@@ -9,7 +9,7 @@ Write every deck for one of two modes, and lint it in that mode (`lintDeck(slide
 | | **Presented** (default) | **Read-alone** |
 |---|---|---|
 | When | You give it and talk freely from the slides | It travels without you: a pre-read, a forwarded deck, a consulting-style customer readout |
-| Title | 2–5 words: a verdict that sounds spoken (a bare label only on agenda, section and mechanism slides) | The real conclusion as one sentence, 3–14 words |
+| Title | A verdict that sounds spoken: aim for 2–5 words; the check stops at 6 (a bare label only on agenda, section and mechanism slides) | The real conclusion as one sentence, 3–14 words |
 | Body | 2–4 fragments that carry the numbers and cues, or one piece of evidence | Points, a chart or a table that proves the title |
 | Eyebrow, lede | None by default | None by default |
 | Notes | Cues for what the slide can't hold (why, so-what, trade-off, bridge), said in your own words | The talk track in full sentences |
@@ -34,14 +34,14 @@ The code lives behind [`src/deck/storyline.ts`](../src/deck/storyline.ts), with 
 | **Answer first** | Open with the conclusion: the status, the recommendation or the thesis (Minto's pyramid). The rest of the deck supports it. | If the meeting ended after slide two, would they know the point? |
 | **Slide one names the outcome** | Leadership funds results. Name the outcome on slide one, such as "Search got twice as fast since March"; the system's name ("the new caching tier") goes on slide two, as the reason. | Would a director who has never heard of the system repeat slide one to their boss? |
 | **Be specific** | An answer, evidence, problem or recommendation slide quantifies its claim, in the title or (presented) a point: a number with what it measures, a multiple ("twice", "a third"), a number word with its unit ("three weeks", "one engineer") or a before and after ("3 meetings → 1"). "In a good place", "two teams worked hard", "no regressions and lots of wins" and a product version ("Kafka 3") could describe any quarter. A plan slide carries a date or a number. | Could the same slide appear in last quarter's deck? Then it says nothing. |
-| **Short titles you talk from** | Presented: a spoken verdict, 2–5 words ("Android crashes down by two thirds", "Freshness: 40 → 6 min"; the "Topic: a → b" form on one or two slides, not three), never a sentence to read out. Mix the forms; the occasional question about something not yet known ("Could cutover slip?") is welcome. A bare topic label ("Index freshness") is only for agenda, section and mechanism slides; on a content slide it makes the room wait for the point. Read-alone: the full claim, 3–14 words. Never a word that names the slide's kind ("Results", "Next steps"). | Could you say the title in your own words and point at the numbers under it? |
+| **Short titles you talk from** | Presented: a spoken verdict, aiming for 2–5 words with the check stopping at 6 ("Android crashes down by two thirds", "Freshness: 40 → 6 min"; the "Topic: a → b" form on one or two slides, not three), never a sentence to read out. Mix the forms; the occasional question about something not yet known ("Could cutover slip?") is welcome. A bare topic label ("Index freshness") is only for agenda, section and mechanism slides; on a content slide it makes the room wait for the point. Read-alone: the full claim, 3–14 words. Never a word that names the slide's kind ("Results", "Next steps"). | Could you say the title in your own words and point at the numbers under it? |
 | **Ghost deck** | Read only the titles, in order. Presented, they outline the argument; read-alone, they tell it. | Run `storylineOf`; does it read as a story? |
 | **One idea per slide, said once** | One claim, and a body that proves it without repeating the title. Two claims means two slides. Each slide adds something: slide one may preview the answer and the ask, but a later slide adds the baseline, the source or the cost, never the same line again. | Can you state the slide in one sentence, and what it adds to the one before? |
 | **Evidence slides show one thing** | A short spoken headline and one piece of evidence: a chart, a number with its baseline, a screenshot (Evans, Willison). | Can you point at it while you say the claim? |
-| **Evidence with sources** | Every number has a baseline, a window and a source: on the slide when it changes the decision, otherwise in the notes. Each covers only the number it was given for; sources sit in one place, the evidence slide's source line or notes, where a number given without one is listed once as "source not given"; never a neighbour's source, a `TODO` or a "still to confirm" on other slides. Qualifiers are copied exactly ("up to 15 minutes", "about 40"). Nothing goes in that the input doesn't say: no guessed causes, scopes or reassurances, and no gap stated as a fact about the team ("we haven't costed a fix"). A before/after says "after" or "since", never "lifted" or "cut", and the evidence slide's notes say once, in a plain sentence, that it compares two windows. Method and sources live in notes, captions and source lines, never as stock phrases in the prose (see [Writing](system/writing.md#rules-for-every-medium)). | "Where's that from?" has an answer, and it's the right one. |
+| **Evidence with sources** | Every number has a baseline, a window and a source: on the slide when it changes the decision, otherwise in the notes. Each covers only the number it was given for; sources sit in one place, the evidence slide's source line or notes, where a number given without one is listed once as "source not given"; never a neighbour's source, a `TODO` or a "still to confirm" on other slides. Qualifiers are copied exactly ("up to 15 minutes", "about 40"). Nothing goes in that the input doesn't say: no guessed causes, scopes or reassurances, and no gap stated as a fact about the team ("we haven't costed a fix"). A before/after says "after" or "since", never "lifted" or "cut", and the evidence slide's notes say once, in a plain sentence, that it compares two windows. Method and sources live in notes, captions and source lines, never as stock phrases in the prose (see [Writing](system/writing/general.md#rules-for-every-kind)). | "Where's that from?" has an answer, and it's the right one. |
 | **A specific ask** | End on a decision or action with its object ("approve Spanish and French"; a bare "approve by 15 January" has no object) and, when the facts give one, its cost, on the ask slide itself; a named owner (a team or role: "platform leads", "the payments team", "VP Eng", an @handle; not "we", "the team", a first name or "owner TBD") and a firm calendar date ("next quarter", "Monday-ish" and "next Monday maybe" are not), and what happens on a no or a missed date (a stated purpose gives it: "so it ships in spring" means a later yes misses spring). Not "Questions?" | Could someone act on it tomorrow, and would they know it's theirs? |
 | **Design serves the claim** | The dominant visual element is the evidence for the title. Cut decoration, logos and anything the title doesn't need, eyebrows and ledes included. | Cover the title: does the visual still point at it? |
-| **Written by a person** | No "X, not Y" on every slide, no clauses balanced on a semicolon, no comparison bolted onto every claim, no tidy closing clause or kicker line ending a section, no source disclaimers in the prose, no three items where one example would do, no coined term used as if established, no three-part template repeated slide after slide ([the full list](system/writing.md#rules-for-every-medium)). | Read the deck aloud: does any line sound like a slogan? |
+| **Written by a person** | No "X, not Y" on every slide, no clauses balanced on a semicolon, no comparison bolted onto every claim, no tidy closing clause or kicker line ending a section, no source disclaimers in the prose, no three items where one example would do, no coined term used as if established, no three-part template repeated slide after slide ([the full list](system/writing/general.md#rules-for-every-kind)). | Read the deck aloud: does any line sound like a slogan? |
 
 For a decision deck, use SCQA: **S**ituation (what the room accepts), **C**omplication (what changed), **Q**uestion (what to do), **A**nswer (the recommendation). With an exec audience, put the A first and let S and C follow as support.
 
@@ -214,58 +214,63 @@ When a deck goes out without its speaker (a pre-read, a deck forwarded up the ch
 
 `lintDeck(slides, { mode?, template?, minutes?, answerFirst? })` reads `{ id, title, role?, notes?, headline?, source?, eyebrow?, lede?, points?, slots? }[]`. A `DeckSlide` already fits. When the overview `title` differs from what the slide shows, pass the on-slide title as `headline`. `mode` is `"presented"` (default) or `"read-alone"`; the rules below say where it changes a check.
 
-| Rule | Severity | Check |
-|---|---|---|
+The rules and what each checks, as `LINT_RULES` states them (generated):
+
+<!-- generated:lint-rules -->
+| Rule | Severity | What it checks |
+| --- | --- | --- |
 | `deck-empty` | error | The deck has at least one slide. |
 | `duplicate-id` | error | Slide IDs are unique (they appear in URLs and presenter sync). |
 | `title-present` | error | Every slide has a title. |
-| `title-claim` | error / warn / tip | Presented: a content slide's title is a spoken verdict. A bare topic label (no quantity, date, colon, arrow or verb: "Crash rate", "Same work on iOS", "Slower starts?") warns, except on a cover, section, mechanism, demo or appendix slide; a word that only names the slide's kind ("Background", "Results", "Next steps", "Agenda") warns, and a title that opens like a topic ("Overview of…", "How … works") gets a tip. Read-alone: the title is a claim of three or more words; a short label-like phrase warns, and so does a title of any length that opens like a topic: "Overview of…", "How … works", "Status…", "Some of…", "Introduction to…", "Update on…", "Thanks…", "Questions…"; a "Label: claim" title gets a tip. On a cover every finding is softened to a tip. |
-| `title-length` | warn | Presented: at most 6 words (`TITLE_WORDS.presented`); past that the title is a sentence to read out, and the finding says to cut it or lint read-alone. Read-alone: at most 14 words. |
-| `title-specific` | warn | An `answer`, `evidence`, `problem` or `recommendation` slide quantifies its claim, in the title or, when presented, a point or a declared slot (a fact slide's value): digits that aren't a date, quarter or version ("v2", "Kafka 3", "Python 3.12"), a multiple or fraction ("twice", "halved", "a third"), a number word with its unit ("three weeks", "nine months", "one engineer") or two quantities compared ("nine in ten", "from 40 to 6 minutes", "3 meetings → 1"). A bare count, "no regressions" and proper nouns don't: "Two teams worked hard and things are better", "One big improvement in search quality", "No regressions and lots of wins" and "The new Kafka pipeline is much better than before" fail. A `plan` slide needs a date or a number ("We will keep improving things going forward" fails). |
-| `one-idea` | tip | The title is a single sentence. |
-| `notes-present` | warn | Every presented slide has `say` notes: cues when presented, a talk track when read alone. |
-| `notes-cues` | warn / tip | Presented only: a slide's `say` runs at most about 60 words. Past that it is a script to recite; cut it to cue lines and put the bridge in `next`. A `say` made only of stage directions ("Walk the figure left to right", "Point at the 9, then the old 40") warns; one beside content cues is a tip to move it to `delivery`. |
-| `notes-echo` | warn | Presented only: a slide's `say` adds to its slide. When 55% or more of its content words (source lines aside, at least six words) are already in the title, points, lede, slots or source, it warns: cue why it matters, the so-what, the trade-off and the bridge instead. |
-| `slide-shape` | warn | The deck doesn't repeat one shape: with four or more content slides, it warns when every one has an eyebrow and a lede (either mode) or, when presented, every title is "Topic: verdict" or every one a full sentence. (Labels on content slides are `title-claim`'s finding.) |
-| `ai-tells` | warn / tip | A "X, not Y" contrast, or a comparison bolted onto a claim ("…, twice as fast as March"), in the titles, ledes or points of more than one slide warns. A semicolon balancing two clauses in a title, lede or point is a tip. |
-| `causal-claim` | warn / tip | In a deck with a before/after comparison ("61.2% → 63.0%", "was 40", "Sep vs Oct"), a title, lede or point that claims a cause ("lifted", "cut", "drove", "slashed", "caused", "led to", "because", "thanks to", "due to") warns, except on mechanism, plan and ask slides; say "after", "since" or "went from… to". When the deck has notes but nothing on it says once that it is a before/after ("this compares two windows"), a tip: say it once, in the evidence slide's notes. |
-| `number-source` | tip | A number in a title or a point (dates, quarters and versions excluded) names its source when the input gives one: a named artifact in the notes (a dashboard, query, test, survey, report, benchmark, log, experiment, trace or forecast with a name in front, "the search latency dashboard", "load test 12", "the Q3 user survey", or a name after it, "benchmark suite"; management accounts, a cost model or a URL), or the slide's `source`. Bare and hedged mentions don't count: "I measured this from my laptop once", "Per the test I ran once on staging, trust me", "From a report someone mentioned", "Finance said so in the dashboard chat". Plan and ask slides are exempt, because they hold targets. A number the input gave without a source stays as given; the tip is not a reason to invent one or to print "still to confirm". |
-| `roles-missing` | warn | No slide has a role. Roles are then read from the titles (slide one is the answer if it states a quantity or an outcome, else the cover; "Next steps" is the plan; a last slide asking for a decision with an owner or a date is the ask) and the answer-first, outcome-first, closing-ask and ask-concrete checks run on them. A deck closing on "Questions?", "Thank you" or "Q&A" hears that its ask is missing. Role rhythm needs real roles. |
-| `answer-first` | error / warn | An `answer` or `recommendation` slide exists and appears within the first three content slides. Off for the deep-dive template. |
-| `outcome-first` | tip | Slide one's title names an outcome (a number, a comparison, or a word like faster, cheaper, cut, saved, unblocked, on track); a bare system name gets the tip. Off where `answer-first` is off. |
-| `closing-ask` | error / warn | An `ask` slide exists and is the last presented slide. |
-| `ask-concrete` | warn | The ask, across its title, points, end-slide slots and notes, names an action, an owner and a date. The owner is a role ("Platform leads", "the payments director", "VP Eng", "Dana, our platform lead"), a named team ("Storage team", "the payments team"), "<Name> owns it" or an @handle; "we", "you", "the team", a bare capitalised word ("Please continue to Support this effort", "Thanks Bob"), a placeholder ("owner TBD", "Leads to approve") and "lead" as a verb ("We will lead the review") don't count. The date is on a calendar and said firmly: a month, a weekday, a numeric date, Q3 or H2, or today. "Next quarter", "soon", "going forward", "Monday-ish" and "Next Monday maybe" don't count. |
-| `ask-scope` | warn | Presented only: the ask slide itself (title, points, slots; not the notes) names what is approved or done, a decision verb with its object ("Approve by 15 January 2027" and "Decide by 14 March" have none; "Schema freeze from 20 May" does), and, when an answer, option, recommendation or plan slide states a cost (people, effort or money with a quantity), that cost too. |
+| `title-claim` | error | Presented: a content slide's title is a short verdict the speaker can say ('Crashes down by two thirds', 'Start time: 0.2 s slower'); a bare topic label ('Crash rate') warns except on a cover, section, mechanism, demo or appendix slide, and a word that names the slide's kind ('Background', 'Results', 'Next steps') warns everywhere. Read-alone: the title states a claim of three or more words, not a topic label. |
+| `title-length` | warn | Presented: aim for 2–5 words; the check stops at 6. A spoken verdict, never a sentence to read out. Read-alone: at most 14 words. |
+| `title-specific` | warn | An answer, evidence, problem or recommendation slide quantifies its claim, in the title or (presented) a point: a number that isn't a date or a version, a multiple or fraction ('twice', 'a third'), a number word with a unit ('three weeks', 'one engineer'), or a comparison of two quantities ('from 40 to 6 minutes'). A plan title carries a date or a number. A bare count ('two teams', 'one big improvement'), 'no regressions', adjectives and names don't count. |
+| `one-idea` | tip | The title is one sentence: one idea per slide. |
+| `notes-present` | warn | Every presented slide has speaker notes: cues when presented, a talk track when read alone. |
+| `number-source` | tip | A number in a title or a point names its source in the notes: a named artifact ('the search latency dashboard', 'load test 12', 'the Q3 user survey') or a URL, with no hedge ('trust me', 'someone mentioned', 'said so'); or in the slide's `source`. |
+| `roles-missing` | warn | Slides are tagged with roles. Without them, roles are inferred from the titles and only the answer-first and closing-ask checks run. |
+| `answer-first` | error | The answer or recommendation appears within the first three content slides. |
+| `outcome-first` | tip | Slide one names the business outcome (faster, cheaper, safer, by how much), not the system that produced it. |
+| `closing-ask` | error | The last presented slide is an ask. |
+| `ask-concrete` | warn | The ask names a decision or action, an owner (a team or role such as 'platform leads', 'the payments team', 'VP Eng' or an @handle; not 'we', 'the team', a bare name, 'owner TBD' or 'lead' as a verb) and a firm calendar date ('next quarter', 'Monday-ish' and 'next Monday maybe' are not). |
 | `role-repeat` | warn | No two adjacent slides share a role, except evidence, mechanism, demo and appendix. |
-| `deck-length` | warn / tip | About one to two minutes per presented slide; with only a template given, the slide count falls inside its range. |
-| `template-beats` | warn | With a `template`, every beat it doesn't mark optional has a slide in that role: a decision request without an options slide, or a postmortem without its plan, hears which beat is missing. |
-| `talk-time` | warn | The `say` text fits the time budget at 135 words a minute. Read-alone only: once every slide has a track, it also covers at least half of the budget (the `minutes` given, else the template's shortest length, capped at one minute per presented slide so a deck the brief fixes short isn't padded). Presented cues aren't timed: you speak in your own words. |
-| `slot-budget` | warn | Every slot the slide declares as data fits its text budget in `SLOT_BUDGETS` (table below): the headline runs to at most two lines at the heading's measure, an eyebrow is one to four words, a lede one sentence, a body point (`points`) a fragment of at most 8 words with no full stop and at most four a slide, a label never a sentence, a fact's value at most six characters. Slots written only in JSX are not seen; declare `points` on the slide, and the archetype factories (`pointsSlide`, `sectionSlide`, `quoteSlide`, `factSlide`, `endSlide`) declare theirs. |
+| `deck-length` | warn | About one to two minutes per presented slide. |
+| `talk-time` | warn | The notes fit the time budget at 135 words a minute. Read-alone decks' talk tracks also cover at least half of it (the minutes given, else the template's shortest length, capped at one minute per presented slide); a presented deck's cues aren't timed. |
+| `template-beats` | warn | With a template, every beat it requires has a slide in that role: a decision request has its options, a postmortem its plan. |
+| `slot-budget` | warn | Every slot the slide declares as data (title, eyebrow, headline lines, lede, body points, and archetype slots such as quote, value, owner and date) fits its text budget in SLOT_BUDGETS: an eyebrow is one to four words, a lede one sentence, a headline at most two lines, a body point a fragment of at most 8 words on one line and at most four a slide, a label no sentence. |
+| `notes-cues` | warn | Presented: each slide's `say` is cues, not a script: at most 60 words (why it matters, the so-what, the trade-off), with the bridge in `next`. A `say` of stage directions only ('Point at the 9', 'Walk the figure') warns; a stage direction beside content is a tip to move it to `delivery`. |
+| `notes-echo` | warn | Presented: a slide's notes add what the slide can't hold (why it matters, the so-what for this audience, the trade-off if the answer is no, the bridge), reasoned from the given facts. Notes whose content words are mostly (55% or more) already on the slide warn; source lines don't count. |
+| `ask-scope` | warn | Presented: the ask slide itself says what is approved or done (a decision verb with its object: 'approve Spanish and French', not 'approve by 15 January') and, when another slide states a cost, what it costs (a quantity that isn't a date: 'one engineer, about three weeks', or 'no extra cost'). |
+| `slide-shape` | warn | The deck doesn't repeat one shape on every slide: not eyebrow + headline + lede throughout, and (presented) not the same title form throughout ('Topic: verdict' or a full sentence on every slide). Mix labels, verdicts and the occasional question. |
+| `ai-tells` | warn | No templated rhetoric: a 'X, not Y' contrast or an appended comparison ('…, twice as fast as March') on more than one slide warns; a semicolon joining two clauses in a title, lede or point is a tip. |
+| `causal-claim` | warn | A deck that shows a before/after comparison ('61.2% → 63.0%', 'was 40', 'Sep vs Oct') claims no cause from it: a cause verb ('lifted', 'cut', 'drove', 'because') in a title, lede or point warns outside mechanism, plan and ask slides (say 'after', 'since', 'went from… to'). A tip when nothing on the slides, notes or source says once that the numbers come from two windows, before and after. |
+<!-- /generated -->
 
 ### Slot text budgets
 
 Each slot of the slide region map holds a fixed amount of text in every layout and every style. Measures are estimates for IBM Plex Sans at the slot's canvas size; `slotProblems(slot, text)` applies one.
 
+<!-- generated:slot-budgets -->
 | Slot | Budget | When it runs over |
 | --- | --- | --- |
-| `title` (overview name) | ≤ 14 words | ellipsis |
-| `eyebrow` (optional, off by default) | 1–4 words, one line (40 chars), no sentence | wraps |
-| `headline` | presented ≤ 6 words (aim for 2–5); read-alone ≤ 14 words; ≤ 2 lines at 44 chars, one sentence | wraps, balanced |
-| `lede` (optional, off by default) | ≤ 30 words, ≤ 3 lines at 60 chars, one sentence | wraps |
-| `point` (each of `points`) | ≤ 8 words, one line at 48 chars, a fragment with no full stop; 2–4 a slide | wraps |
-| `label` | ≤ 3 words, no sentence | wraps |
-| `quote` | ≤ 30 words, ≤ 4 lines at 40 chars, ≤ 2 sentences | wraps, balanced |
-| `attribution` | ≤ 8 words, one line | wraps |
-| `value` | ≤ 6 characters | wraps |
-| `unit` | ≤ 4 words | wraps |
-| `baseline` | ≤ 12 words, one line, one sentence | wraps |
-| `number` (section) | ≤ 3 characters | wraps |
-| `action` | 2–12 words, ≤ 2 lines, one sentence | wraps |
-| `owner` | 1–5 words (a team or role) | wraps |
-| `date` | 1–4 words | wraps |
-| `source` | ≤ 30 words, ≤ 2 lines | wraps |
+| eyebrow (optional) | 1–4 words, one line, never a sentence | wraps |
+| headline | presented: at most 6 words (aim for 2–5); read-alone: at most 14, on at most 2 lines | wraps, balanced |
+| title | at most 14 words (overview and screen readers) | ellipsis |
+| lede (optional) | at most 30 words, 3 lines, one sentence | wraps |
+| point (body line) | at most 8 words, one line, a fragment with no full stop; 2–4 a slide | wraps |
+| label | at most 3 words, never a sentence | wraps |
+| quote | at most 30 words, 4 lines, 2 sentences | wraps, balanced |
+| attribution | at most 8 words, one line, never a sentence | wraps |
+| value / number | at most 6 / 3 characters | wraps |
+| unit | at most 4 words, never a sentence | wraps |
+| baseline | at most 12 words, one line, one sentence | wraps |
+| action | 2–12 words, 2 lines, one sentence | wraps |
+| owner | 1–5 words, never a sentence | wraps |
+| date | 1–4 words, never a sentence | wraps |
+| source | at most 30 words, 2 lines | wraps |
+<!-- /generated -->
 
-These checks are heuristics. They catch a missing ask or a topic-label title, but they can't tell whether a claim is true. After the draft, reread it as the audience against the [review checklist](system/writing.md#rules-for-every-medium) (rule 11) and revise once; then rehearse it out loud and have someone else read the ghost deck cold.
+These checks are heuristics. They catch a missing ask or a topic-label title, but they can't tell whether a claim is true. After the draft, reread it as the audience against the [review checklist](system/writing/general.md#rules-for-every-kind) (rule 9) and revise once; then rehearse it out loud and have someone else read the ghost deck cold.
 
 ```ts
 import { lintDeck, storylineOf, templateOutline } from "uipack/deck";

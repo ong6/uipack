@@ -62,7 +62,7 @@ import "../src/web/web.css";
 import "../src/web/web-styles.css";
 import "../src/web/gutters.css";
 import "./web-showcase.css";
-import { keepFocusedInView, usePrefersReducedMotion } from "../src/env";
+import { usePrefersReducedMotion } from "../src/env";
 
 // Example content. The player owns timing and playback; these words belong to the playground.
 const inboxRows = [
@@ -134,23 +134,6 @@ const features = [
   },
 ];
 
-const principles = [
-  "One goal per page; the CTA sits in the hero, the nav and again at the end.",
-  "Show the product working. Proof of value beats decoration.",
-  "One star of the show, derived from the product story.",
-  "Visual rhyming: repeat one shape motif down the page.",
-  "Quiet depth: noise and glass, never loud.",
-  "Hierarchy by opacity: 100 / 87 / 66.",
-  "Type scale 16px × 1.25; 12 / 8 / 4 grid on 8-pt spacing.",
-  "60 / 30 / 10 colour; contrast 4.5:1 small text, 3:1 large.",
-  "Choose the headline font first, then pair it.",
-  "Make a radically different version before refining.",
-  "Start from an 80% snippet, then tune it.",
-  "Motion explains change and respects reduced motion.",
-];
-
-const docsUrl = "https://github.com/ong6/uipack/blob/main/docs/web-principles.md";
-
 function TypeScaleSpecimen() {
   return (
     <ol className="web-scale" aria-label="Type scale">
@@ -165,30 +148,6 @@ function TypeScaleSpecimen() {
         </li>
       ))}
     </ol>
-  );
-}
-
-const pageIndex = [
-  { href: "#web-example", label: "Example page" },
-  { href: "#web-type", label: "Type" },
-  { href: "#web-flashy", label: "Flashy" },
-  { href: "#web-lowkey", label: "Low-key" },
-  { href: "#web-motion", label: "Motion" },
-  { href: "#web-backgrounds", label: "Backgrounds" },
-  { href: "#web-principles", label: "Principles" },
-];
-
-function PageIndex() {
-  return (
-    <nav className="web-index" aria-label="On this page">
-      <ol onFocus={keepFocusedInView}>
-        {pageIndex.map((l) => (
-          <li key={l.href}>
-            <a href={l.href}>{l.label}</a>
-          </li>
-        ))}
-      </ol>
-    </nav>
   );
 }
 
@@ -502,27 +461,23 @@ function exampleSections(seo: ReturnType<typeof tidySeo>): WebPageProps["section
 /** The sample page's section ids in its own order (the keys of its sections). */
 export const exampleSectionIds = () => Object.keys(exampleSections(tidySeo("https://tidy.example")));
 
-export default function WebShowcase() {
-  const { theme, flip } = useShowcaseTheme();
+/**
+ * `web-sample` (docs/examples/landing-page.md): the Tidy sample page, built from `uipack/web`, with
+ * the head it publishes and the crawl files it generates. The page's h1 is the sample's hero.
+ */
+export function WebSample() {
+  const { theme } = useShowcaseTheme();
   // The demo page publishes a real head (title, description, canonical, Open Graph), JSON-LD for
   // the product and its Pricing offer, and an FAQ, all from playground/web-seo.ts.
   const seo = useMemo(() => tidySeo(location.origin), []);
-  // Its <title> stays in the generated head shown below; the tab keeps the playground's "Web UI · uipack".
+  // Its <title> stays in the generated head shown below; the tab keeps the playground's page name.
   const head = useMemo(() => seo.meta.filter((tag) => tag.tag !== "title"), [seo]);
   useHead(head);
-  const flashy = webEntries.filter((e) => e.tags.includes("Flashy"));
-  const lowKey = webEntries.filter((e) => e.tags.includes("Low-key"));
   const painted = usePainted();
   return (
     <>
       <SmoothScroll />
       <section data-route="web" id="web-example" className="web-anchor">
-        <p className="collection-intro">
-          UiPack is a design system that draws explanations: diagrams, slides, web pages, motion and 3D, in one style with one set
-          of writing and layout rules. New to it? <a href="/foundations">Start with the Foundations overview</a>. Below, one page
-          built from <code>uipack/web</code>, with one call to action in the hero, the nav and the end.
-        </p>
-        <PageIndex />
         {painted && (
           <>
             <WebPage
@@ -562,114 +517,102 @@ export default function WebShowcase() {
               />
             </WebPage>
             <GeneratedFiles seo={seo} />
-            <p className="collection-intro web-example__aside">
-              Wheel scrolling on this page is eased by <code>SmoothScroll</code>; touch and reduced motion keep native scrolling.
-            </p>
           </>
         )}
       </section>
+    </>
+  );
+}
 
-      {painted && (
-        <>
-          <TypeSpecimen theme={theme} />
+/**
+ * `web-parts` (docs/examples/landing-page.md): every part the sample is made of, in the sample's
+ * style: type, the flashy pieces, the low-key defaults, motion and backgrounds.
+ */
+export function WebParts() {
+  const { theme, flip } = useShowcaseTheme();
+  const flashy = webEntries.filter((e) => e.tags.includes("Flashy"));
+  const lowKey = webEntries.filter((e) => e.tags.includes("Low-key"));
+  const painted = usePainted();
+  if (!painted) return null;
+  return (
+    <>
+      <TypeSpecimen theme={theme} />
 
-          <FlashySection count={flashy.length}>
-            <WebSurface theme={theme} className="web-panel">
-              <Grid as="ul">
-                {flashy.map((entry) => (
-                  <GridItem as="li" key={entry.id} span={[3, 4, 4]}>
-                    <SpotlightCard>
-                      <FlashyPreview id={entry.id} />
-                      <Heading level={3} size={1}>
-                        <a
-                          href={
-                            entry.id === "reveal-text" ? "#web-proof" : entry.id === "spotlight-card" ? "#web-how" : "#web-top"
-                          }
-                        >
-                          {entry.title}
-                        </a>
-                      </Heading>
-                      <Body>{flashyNotes[entry.id]}</Body>
-                    </SpotlightCard>
-                  </GridItem>
-                ))}
-              </Grid>
-            </WebSurface>
-          </FlashySection>
+      <FlashySection count={flashy.length}>
+        <WebSurface theme={theme} className="web-panel">
+          <Grid as="ul">
+            {flashy.map((entry) => (
+              <GridItem as="li" key={entry.id} span={[3, 4, 4]}>
+                <SpotlightCard>
+                  <FlashyPreview id={entry.id} />
+                  <Heading level={3} size={1}>
+                    <a href={entry.id === "reveal-text" ? "#web-proof" : entry.id === "spotlight-card" ? "#web-how" : "#web-top"}>
+                      {entry.title}
+                    </a>
+                  </Heading>
+                  <Body>{flashyNotes[entry.id]}</Body>
+                </SpotlightCard>
+              </GridItem>
+            ))}
+          </Grid>
+        </WebSurface>
+      </FlashySection>
 
-          <section id="web-lowkey" className="web-anchor">
-            <h2>Low-key · {lowKey.length}</h2>
-            <p className="collection-intro">
-              The defaults that make a page read as designed: scale, hierarchy, one accent, and a grid.
-            </p>
-            <WebSurface theme={theme} className="web-panel web-lowkey">
-              <Grid>
-                <GridItem span={[7, 8, 4]}>
-                  <div className="web-block">
-                    <Eyebrow>Type scale · 16 × 1.25</Eyebrow>
-                    <TypeScaleSpecimen />
-                  </div>
-                </GridItem>
-                <GridItem span={[5, 8, 4]}>
-                  <div className="web-block">
-                    <Eyebrow>Hierarchy by opacity</Eyebrow>
-                    <div className="web-hierarchy">
-                      <Eyebrow>Eyebrow · 66%</Eyebrow>
-                      <Heading level={3} size={4}>
-                        Heading · 100%
-                      </Heading>
-                      <Subhead>Subhead at 87%, one step above body.</Subhead>
-                      <Body>Body at 66%. One ink colour, three emphasis levels, no extra greys to maintain.</Body>
-                    </div>
-                    <Eyebrow>Colour roles · 60 / 30 / 10</Eyebrow>
-                    <div
-                      className="web-roles"
-                      role="img"
-                      aria-label="Neutral 60 percent, secondary 30 percent, accent 10 percent"
-                    >
-                      <span data-role="neutral">60 neutral</span>
-                      <span data-role="secondary">30</span>
-                      <span data-role="accent">10</span>
-                    </div>
-                    <Eyebrow>CTA · accent is reserved for the goal</Eyebrow>
-                    <div className="web-buttons">
-                      <CtaButton>Start free</CtaButton>
-                      <CtaButton variant="secondary">See how it works</CtaButton>
-                    </div>
-                  </div>
-                </GridItem>
-                <GridItem span={[12, 8, 4]}>
-                  <div className="web-block">
-                    <Eyebrow>Grid · 12 / 8 / 4 columns, 32 / 24px gutters</Eyebrow>
-                    <Grid className="web-columns">
-                      {Array.from({ length: 12 }, (_, i) => (
-                        <GridItem key={i} span={[1, 1, 1]}>
-                          <span>{i + 1}</span>
-                        </GridItem>
-                      ))}
-                    </Grid>
-                  </div>
-                </GridItem>
-              </Grid>
-            </WebSurface>
-          </section>
+      <section id="web-lowkey" className="web-anchor">
+        <h2>Low-key · {lowKey.length}</h2>
+        <p className="collection-intro">
+          The defaults that make a page read as designed: scale, hierarchy, one accent, and a grid.
+        </p>
+        <WebSurface theme={theme} className="web-panel web-lowkey">
+          <Grid>
+            <GridItem span={[7, 8, 4]}>
+              <div className="web-block">
+                <Eyebrow>Type scale · 16 × 1.25</Eyebrow>
+                <TypeScaleSpecimen />
+              </div>
+            </GridItem>
+            <GridItem span={[5, 8, 4]}>
+              <div className="web-block">
+                <Eyebrow>Hierarchy by opacity</Eyebrow>
+                <div className="web-hierarchy">
+                  <Eyebrow>Eyebrow · 66%</Eyebrow>
+                  <Heading level={3} size={4}>
+                    Heading · 100%
+                  </Heading>
+                  <Subhead>Subhead at 87%, one step above body.</Subhead>
+                  <Body>Body at 66%. One ink colour, three emphasis levels, no extra greys to maintain.</Body>
+                </div>
+                <Eyebrow>Colour roles · 60 / 30 / 10</Eyebrow>
+                <div className="web-roles" role="img" aria-label="Neutral 60 percent, secondary 30 percent, accent 10 percent">
+                  <span data-role="neutral">60 neutral</span>
+                  <span data-role="secondary">30</span>
+                  <span data-role="accent">10</span>
+                </div>
+                <Eyebrow>CTA · accent is reserved for the goal</Eyebrow>
+                <div className="web-buttons">
+                  <CtaButton>Start free</CtaButton>
+                  <CtaButton variant="secondary">See how it works</CtaButton>
+                </div>
+              </div>
+            </GridItem>
+            <GridItem span={[12, 8, 4]}>
+              <div className="web-block">
+                <Eyebrow>Grid · 12 / 8 / 4 columns, 32 / 24px gutters</Eyebrow>
+                <Grid className="web-columns">
+                  {Array.from({ length: 12 }, (_, i) => (
+                    <GridItem key={i} span={[1, 1, 1]}>
+                      <span>{i + 1}</span>
+                    </GridItem>
+                  ))}
+                </Grid>
+              </div>
+            </GridItem>
+          </Grid>
+        </WebSurface>
+      </section>
 
-          <MotionSection theme={theme} flip={flip} />
-          <BackgroundsSection theme={theme} />
-
-          <section id="web-principles" className="web-anchor">
-            <h2>Principles · {principles.length}</h2>
-            <ol className="web-principles" role="list">
-              {principles.map((p) => (
-                <li key={p}>{p}</li>
-              ))}
-            </ol>
-            <p className="collection-intro">
-              Each rule has its number and source video in <a href={docsUrl}>docs/web-principles.md</a>.
-            </p>
-          </section>
-        </>
-      )}
+      <MotionSection theme={theme} flip={flip} />
+      <BackgroundsSection theme={theme} />
     </>
   );
 }

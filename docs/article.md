@@ -29,7 +29,9 @@ const html = renderToStaticMarkup(
 
 The playground renders every part on `/article`, inside a 40rem prose column with blog-like prose CSS; `?host=notes` maps the tokens to the notes site's palette. The example content is the Inference and Harness sections of [The AI stack, one constraint per layer](https://notes.junxiong.dev/ai-stack-roadmap), in [`examples/articleParts.tsx`](../examples/articleParts.tsx).
 
-![A layer section at a 40rem column, notes site palette, light](article-section-640-light.png)
+```uipack-demo article-parts wide
+Every part inside a host article's 40rem prose column, with a switch to the notes site's palette.
+```
 
 ## Visual language
 
@@ -280,15 +282,6 @@ Props: `label?` ("What changed"), `kicker?`, `children`, `id?`, `className?`.
 
 Props: `label?` ("Go deeper"), `links?: { href, title, domain?: string | false }[]`, `children?`, `id?`, `className?`. A list with neither links nor children throws.
 
-## Section rhythm
-
-Measured on the Inference section of the static notes-layout fixture (`scripts/build-article-fixtures.tsx`), in Chromium, from the top of its LayerHead to the top of the next one. The Learn row became text, the self-test lost its box, and consecutive parts moved to 0.9rem apart:
-
-| Viewport | Section before | Section after | TermList to LinkList before | after |
-| --- | --- | --- | --- | --- |
-| 1440 (664px column) | 1674.2px | 1555.5px | 649.8px | 531.1px |
-| 390 (350px column) | 2673.6px | 2493.5px | 978.9px | 797.7px |
-
 ## Helpers
 
 - `formatNoteDate("2026-08-30")` → "30 Aug 2026", read as a calendar date (no time zone shift); anything else is returned unchanged.
@@ -299,10 +292,5 @@ They have no React dependency in their logic, so a rehype plugin can import them
 
 ## Verification
 
-- Unit tests (`test/article.test.tsx`): markup, class contract against this file and the stylesheet, accessibility attributes, validation errors, no hooks.
-- Browser tests (`e2e/article.spec.ts`), Chromium and WebKit: the playground at 390, 896 and 1440 in both themes; a static page rendered with `renderToStaticMarkup` in a copy of the notes site's article layout and palette, with JavaScript off. They check page overflow, the grid's columns, equal card heights in a row, 44px targets, focus rings, contrast from computed colours, links, and that host prose CSS does not leak in.
-
-| Light | Dark |
-| --- | --- |
-| ![Layer section at 390px, light](article-section-390-light.png) | ![Layer section at 390px, dark](article-section-390-dark.png) |
-| ![Wide cluster at 896px, light](article-cluster-896-light.png) | ![Wide cluster at 896px, dark](article-cluster-896-dark.png) |
+How the parts are tested, the measured section rhythm and the screenshots are in
+[Article parts: verification](article-verification.md).

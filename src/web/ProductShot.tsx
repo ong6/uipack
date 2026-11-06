@@ -4,7 +4,7 @@ import type { CSSProperties, ReactNode } from "react";
    role-painted illustration (SVG or CSS drawn from --ui-media-* roles, so it repaints with the
    style), with pinned callouts, a readout, a small detail view and a caption strip. One layout in
    every style; the style draws the frame, the pins and leaders and the caption (Technical a drawing
-   sheet with numbered balloons). Recipe: docs/system/layout.md, "Product visuals". */
+   sheet with numbered balloons). Recipe: docs/system/layout/landing.md, "Product visuals". */
 
 export interface ProductShotCallout {
   /** The point the callout marks, in % of the plate: from the start edge (0–100) and from the top (0–100). */

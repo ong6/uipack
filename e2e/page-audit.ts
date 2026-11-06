@@ -15,12 +15,10 @@ export const GROUPS = libraryGroups.map((g) => ({
 }));
 export const ALL = GROUPS.flatMap((g) => g.pages.map(([label, path]) => ({ group: g.label, label, path })));
 
-// A page whose Markdown is written renders its file (MarkdownShowcase); the file's `#` is its h1.
+// Every page renders its Markdown file (MarkdownShowcase); the file's `#` is its h1. A file with
+// no `#` hosts a sample page whose own hero is the h1 (the example landing page, /web).
 const byPath = (path: string) => pageDefs.find((p) => pagePath(p) === path || p.path === path);
-export const isMarkdownPage = (path: string) => {
-  const p = byPath(path);
-  return !!p && !p.showcase;
-};
+export const isMarkdownPage = (path: string) => !!byPath(path);
 /** A Markdown page's h1, as the file writes it (inline code and link syntax dropped). */
 export function markdownH1(path: string) {
   const line = /^# (.+)$/m.exec(readFileSync(byPath(path)!.file, "utf8"))?.[1] ?? "";
@@ -37,7 +35,8 @@ export const title = (page: Page) =>
 
 /** The page's title: the manifest's label on a showcase page, the file's `#` heading on a Markdown page. */
 export async function expectPageTitle(page: Page, label: string, path: string) {
-  if (isMarkdownPage(path)) await expect(title(page)).toHaveAccessibleName(markdownH1(path));
+  if (isMarkdownPage(path) && !markdownH1(path)) await expect(page.locator("main h1").first()).toBeVisible();
+  else if (isMarkdownPage(path)) await expect(title(page)).toHaveAccessibleName(markdownH1(path));
   else await expect(title(page)).toHaveText(h1Of(label));
 }
 

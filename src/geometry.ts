@@ -137,5 +137,22 @@ export function trim(points: Point[], start = 0, end = 0): Point[] {
   return out;
 }
 
+/**
+ * The figure grid, in viewBox units: the spacing every hand-drawn figure and preset sits on, and
+ * the width below which a figure shows its authored narrow drawing (theme.css). The layout docs
+ * state these through `npm run docs:sync`.
+ */
+export const FIGURE_GRID = {
+  step: 8,
+  margin: 40,
+  flowGap: 40,
+  minFlowGap: 32,
+  groupGap: 64,
+  groupPadding: 24,
+  nodeHeight: 56,
+  nodeHeightWithSub: 72,
+  narrowBelow: 720,
+} as const;
+
 /** Snap a value to the 8px grid. */
-export const grid = (v: number, step = 8): number => Math.round(v / step) * step;
+export const grid = (v: number, step: number = FIGURE_GRID.step): number => Math.round(v / step) * step;

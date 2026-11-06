@@ -1,6 +1,6 @@
 /**
  * Slot text budgets: how much text each slot of the shared slide region map holds before it stops
- * reading at a glance (docs/system/writing.md, "Each word has one place to live"; layout.md,
+ * reading at a glance (docs/system/writing/general.md, "Slot budgets"; layout/deck-slide.md,
  * "Regions"). Every archetype fills these slots, so a budget holds in every layout and every style.
  * `lintDeck` reports a slot over budget as `slot-budget`.
  *
@@ -70,6 +70,15 @@ export const TITLE_WORDS: Readonly<Record<DeckMode, number>> = { presented: 6, "
 export const MAX_POINTS = 4;
 
 /**
+ * What a presented title aims for. The check (`title-length`) stops at `TITLE_WORDS.presented`;
+ * the docs and the lint message say both: "aim for 2–5 words; the check stops at 6".
+ */
+export const PRESENTED_TITLE_AIM: readonly [min: number, max: number] = [2, 5];
+
+/** Most words in a presented slide's `say`: cues, not a script (rule `notes-cues`). */
+export const NOTE_CUE_WORDS = 60;
+
+/**
  * The budget table. Sizes are canvas pixels on the 1920×1080 slide, so the measures hold at any
  * screen size. The headline row is the read-alone ceiling; a presented deck's titles stop at
  * `TITLE_WORDS.presented` words (rule `title-length`).
@@ -90,7 +99,7 @@ export const SLOT_BUDGETS: Readonly<Record<SlotName, SlotBudget>> = {
     overflow: "wrap",
   },
   headline: {
-    role: "Presented: a 2–5 word spoken verdict (a bare label only on agenda, section and mechanism slides). Read-alone: the conclusion as one sentence",
+    role: `Presented: a ${PRESENTED_TITLE_AIM.join("–")} word spoken verdict (a bare label only on agenda, section and mechanism slides). Read-alone: the conclusion as one sentence`,
     minWords: 1,
     maxWords: 14,
     maxLines: 2,
@@ -166,6 +175,35 @@ export const SLOT_BUDGETS: Readonly<Record<SlotName, SlotBudget>> = {
     charsPerLine: 110,
     overflow: "wrap",
   },
+};
+
+type Range = readonly [min: number, max: number];
+
+/**
+ * Guidance ranges on top of the hard budgets above, in one place: the writing docs state them
+ * through generated blocks (`npm run docs:sync`), so no guide can contradict the linter. A range
+ * is what to aim for; where a check exists, its cap is the budget it reads.
+ */
+export const WORD_GUIDES: {
+  readonly presentedTitle: { readonly aim: Range; readonly max: number };
+  readonly readAloneTitle: Range;
+  readonly webSectionHead: Range;
+  readonly drawingLabel: Range;
+  readonly pointsPerSlide: Range;
+  readonly pointWords: number;
+  readonly cueWords: number;
+} = {
+  presentedTitle: { aim: PRESENTED_TITLE_AIM, max: TITLE_WORDS.presented },
+  /** A title read without its speaker: the claim as one sentence. */
+  readAloneTitle: [3, TITLE_WORDS["read-alone"]],
+  /** A web section head: short and plain, naming what the reader gets. */
+  webSectionHead: [2, 5],
+  /** A label inside a drawing: two or three words, under the label slot's cap. */
+  drawingLabel: [2, SLOT_BUDGETS.label.maxWords!],
+  /** Body points on one slide (a count of points, not words). */
+  pointsPerSlide: [2, MAX_POINTS],
+  pointWords: SLOT_BUDGETS.point.maxWords!,
+  cueWords: NOTE_CUE_WORDS,
 };
 
 /** Words as a reader counts them: separators like "·" and "—" are not words. */

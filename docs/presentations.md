@@ -4,6 +4,12 @@
 
 For talks, use [`uipack/deck`](deck.md): it plays a whole deck with one transition grammar, a speaker view and PDF export. These starters are single 16:9 layouts.
 
+Choose a layout below to see the designed slide and the talk track that goes with it; the component takes the content, and these words belong to the example. Then a complete narrative (opening, argument, visual explanation, comparison and closing) composed from them. It is a composition example, not a slide editor: use `Figure` for 2D diagrams and `SlideScene` for 3D inside these layouts.
+
+```uipack-demo slide-starters wide
+The three starters with their talk tracks, then a five-chapter narrative composed from them, with a 3D scene and a figure.
+```
+
 ```tsx
 import { SlideStarter, type SlideStarterData } from "uipack/presentations";
 import "uipack/presentations.css";
@@ -27,7 +33,7 @@ const slide: SlideStarterData = {
 <SlideStarter slide={slide} theme="light" />;
 ```
 
-Write the slide words and the speech the way [Writing](system/writing.md#slides) describes for a presented deck: a short headline (the eyebrow is optional and off by default), fragments on screen, and `say` as a few cue lines rather than a script.
+Write the slide words and the speech the way [Writing](system/writing/talks.md) describes for a presented deck: a short headline (the eyebrow is optional and off by default), fragments on screen, and `say` as a few cue lines rather than a script.
 
 `SpeakerGuide` can be used separately. It derives a rough duration at 135 words per minute, copies the full talk track, announces copy success without moving focus, and does not render the script into the SVG. `showSpeech={false}` produces an audience-only preview.
 

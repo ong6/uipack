@@ -1,4 +1,4 @@
-/* The Foundations guide pages (FoundationsShowcase.tsx). Shell tokens for the page's own chrome;
+/* The live demos on the Rules pages (rulesDemos.tsx). Shell tokens for the demos' own chrome;
    samples (decks, web sections, swatches) read the style roles inside their own style host. */
 
 /* Controls: one radio group per layer, 44px targets. */
@@ -138,89 +138,6 @@
   line-height: 1.4;
 }
 
-/* Tables scroll inside their frame on a phone, with a shadow at the edge that still has columns
-   to show: the covers scroll with the content (local), the shadows stay put (scroll), so a shadow
-   shows only where more of the table is hidden. */
-.fdn-table,
-.fdn-guide .uipack-docs__table {
-  max-width: 100%;
-  overflow-x: auto;
-  background:
-    linear-gradient(to right, var(--show-surface) 30%, transparent) left / 32px 100% no-repeat local,
-    linear-gradient(to left, var(--show-surface) 30%, transparent) right / 32px 100% no-repeat local,
-    radial-gradient(farthest-side at 0 50%, color-mix(in srgb, var(--show-ink) 22%, transparent), transparent) left / 14px 100%
-      no-repeat scroll,
-    radial-gradient(farthest-side at 100% 50%, color-mix(in srgb, var(--show-ink) 22%, transparent), transparent) right / 14px
-      100% no-repeat scroll,
-    var(--show-surface);
-}
-.fdn-table {
-  border: 1px solid var(--show-rule);
-  border-radius: var(--show-radius);
-}
-.fdn-table:focus-visible {
-  outline: 2px solid var(--show-accent);
-  outline-offset: 2px;
-}
-.fdn-table table {
-  width: 100%;
-  min-width: 560px;
-  border-collapse: collapse;
-  font-size: 14px;
-  line-height: 1.5;
-}
-.fdn-table :is(th, td) {
-  padding: 10px 14px;
-  border-bottom: 1px solid var(--show-rule);
-  text-align: left;
-  vertical-align: top;
-}
-.fdn-table thead th {
-  color: var(--show-muted);
-  font: var(--show-eyebrow-font);
-  letter-spacing: var(--show-eyebrow-tracking);
-  text-transform: uppercase;
-}
-.fdn-table tbody tr:last-child :is(th, td) {
-  border-bottom: 0;
-}
-.fdn-table tbody th {
-  font-weight: 600;
-  white-space: nowrap;
-}
-.fdn-table a,
-.fdn-recipe > a {
-  color: var(--show-accent);
-}
-
-/* The rendered system docs. Prose keeps a 76ch measure; a table takes the whole column, so a
-   short column ("Must never contain") is not squeezed into one-word lines. */
-.fdn-guide {
-  padding: 0;
-}
-.fdn-guide .uipack-docs__prose > :not(.uipack-docs__table, ol, ul),
-.fdn-guide .uipack-docs__prose > :is(ol, ul):not(:has(.uipack-docs__table)) {
-  max-width: 76ch;
-}
-/* Docs prose at the page's body size (the library default is a 17px docs page), with the guide
-   intros at 14px above it. */
-.fdn-guide .uipack-docs__prose {
-  font-size: 16px;
-  line-height: 1.6;
-}
-/* Short code tokens stay whole: the docs mark theirs (.uipack-docs__token, docs.css); the page's
-   own tables hold only short names. A bold lead-in and its line end on more than one word. */
-.fdn-table code {
-  white-space: nowrap;
-}
-.fdn-guide .uipack-docs__prose li:has(> strong:first-child) {
-  text-wrap-style: balance;
-}
-/* Short value cells (the Overflow column) keep their phrase on one line at desktop. */
-.fdn-table .fdn-nowrap {
-  white-space: nowrap;
-}
-
 /* Style roles: a card per style, light and dark swatch columns. */
 .fdn-styles {
   display: grid;
@@ -228,7 +145,6 @@
   gap: 24px;
 }
 .fdn-style,
-.fdn-recipe,
 .fdn-pair {
   min-width: 0;
   padding: 20px;
@@ -237,7 +153,6 @@
   background: var(--show-surface);
 }
 .fdn-style h3,
-.fdn-recipe h3,
 .fdn-pair h3 {
   margin: 0 0 6px;
   font-size: 18px;
@@ -317,12 +232,6 @@
   font-size: 13px;
 }
 
-/* Ornament panels: the same markup, painted by each style. */
-.fdn-grid3 {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
-  gap: 16px;
-}
 /* The style layer under the live controls: a sentence, not a control (one implemented style), so
    it carries no chip or border that could read as a one-option switcher. */
 .fdn-fixed {
@@ -486,84 +395,6 @@
   --deck-chrome: 200px;
 }
 
-/* Recipes. */
-.fdn-recipes {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
-  gap: 16px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.fdn-recipe {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-.fdn-recipe dl {
-  display: grid;
-  gap: 10px;
-  margin: 0;
-}
-.fdn-recipe dt {
-  color: var(--show-muted);
-  font: var(--show-eyebrow-font);
-  letter-spacing: var(--show-eyebrow-tracking);
-  text-transform: uppercase;
-}
-.fdn-recipe dd {
-  margin: 2px 0 0;
-  font-size: 14px;
-  line-height: 1.5;
-}
-.fdn-recipe dd code {
-  font-size: 12px;
-  overflow-wrap: anywhere;
-}
-.fdn-recipe > a {
-  margin-top: auto;
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-}
-.fdn-sequence {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.fdn-sequence li {
-  padding: 2px 8px;
-  border: 1px solid var(--show-rule);
-  border-radius: 4px;
-  font: 400 12px/1.5 var(--show-font-mono);
-}
-.fdn-sequence li + li::before {
-  content: "→ ";
-  color: var(--show-muted);
-}
-
-/* Do and don't. */
-.fdn-pairs {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 520px), 1fr));
-  gap: 16px;
-}
-/* Pairs side by side share their rows (title, examples, note): the example boxes in one row are
-   as tall as the tallest, and the notes start on one line. */
-.fdn-pairs > .fdn-pair {
-  display: grid;
-  grid-row: span 3;
-  grid-template-rows: subgrid;
-  row-gap: 0;
-  align-content: start;
-}
-/* A pair with a wide example (the glow row) takes the whole row rather than leaving an empty cell. */
-.fdn-pairs > .fdn-pair--wide {
-  grid-column: 1 / -1;
-}
 .fdn-pair__row {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -602,9 +433,7 @@
   max-width: 280px;
   height: auto;
 }
-.fdn-node.fdn-chain {
-  max-width: 400px;
-}
+
 .fdn-node rect {
   fill: var(--ui-surface-raised);
   stroke: color-mix(in srgb, var(--ui-ink) 70%, transparent);
@@ -656,143 +485,10 @@
   font-size: 12px;
 }
 
-/* Per-medium tabs over one doc section at a time. */
-.fdn-tabs {
-  display: flex;
-  gap: 0;
-  overflow-x: auto;
-  scrollbar-width: none;
-  margin: 0 0 16px;
-  border-bottom: 1px solid var(--show-rule);
-}
-.fdn-tabs [role="tab"] {
-  flex: none;
-  min-height: 44px;
-  margin-bottom: -1px;
-  padding: 0 14px;
-  border: 1px solid transparent;
-  border-bottom: 2px solid transparent;
-  background: none;
-  color: var(--show-muted);
-  font: var(--show-control-font);
-  cursor: pointer;
-  transition:
-    color 140ms ease,
-    border-color 140ms ease;
-}
-.fdn-tabs [role="tab"]:hover {
-  color: var(--show-ink);
-}
-.fdn-tabs [role="tab"][aria-selected="true"] {
-  border-bottom-color: var(--show-accent);
-  color: var(--show-ink);
-}
-.fdn-tabs [role="tab"]:focus-visible {
-  outline: 2px solid var(--show-accent);
-  outline-offset: -2px;
-}
-.fdn-tabpanel {
-  min-height: 12rem;
-}
-
-/* The full spec, closed by default. */
-.fdn-spec {
-  border: 1px solid var(--show-rule);
-  border-radius: var(--show-radius);
-  background: var(--show-surface);
-}
-.fdn-spec > summary {
-  display: flex;
-  align-items: center;
-  min-height: 44px;
-  padding: 0 16px;
-  color: var(--show-ink);
-  font: var(--show-control-font);
-  cursor: pointer;
-}
-.fdn-spec > summary:focus-visible {
-  outline: 2px solid var(--show-accent);
-  outline-offset: 2px;
-}
-.fdn-spec[open] > summary {
-  border-bottom: 1px solid var(--show-rule);
-}
-.fdn-spec > .fdn-guide {
-  padding: 8px 16px 16px;
-}
-
 /* Tables on a phone: each row stacks into a card, the key column on top and every other value
    under its column name (data-label, set by useLabelledTables), so no column that decides the
    row scrolls out of view. Applies to the page's own tables and to the rendered docs. */
-@media (max-width: 640px) {
-  .fdn-table,
-  .fdn-guide .uipack-docs__table {
-    overflow: visible;
-    background: none;
-  }
-  .fdn-table table,
-  .fdn-guide .uipack-docs__table table {
-    min-width: 0;
-    width: 100%;
-  }
-  :is(.fdn-table, .fdn-guide .uipack-docs__table) :is(table, tbody, tr, th, td) {
-    display: block;
-  }
-  :is(.fdn-table, .fdn-guide .uipack-docs__table) thead {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
-  }
-  :is(.fdn-table, .fdn-guide .uipack-docs__table) tr {
-    padding: 12px 14px;
-    border-bottom: 1px solid var(--show-rule);
-  }
-  :is(.fdn-table, .fdn-guide .uipack-docs__table) tbody tr:last-child {
-    border-bottom: 0;
-  }
-  .fdn-guide .uipack-docs__table {
-    border: 1px solid var(--show-rule);
-    border-radius: var(--show-radius);
-  }
-  :is(.fdn-table, .fdn-guide .uipack-docs__table) :is(th, td) {
-    padding: 0;
-    border: 0;
-    background: none;
-  }
-  :is(.fdn-table, .fdn-guide .uipack-docs__table) tbody tr > :first-child {
-    margin-bottom: 4px;
-    font-size: 15px;
-    font-weight: 600;
-    white-space: normal;
-  }
-  :is(.fdn-table, .fdn-guide .uipack-docs__table) [data-label] + [data-label] {
-    margin-top: 8px;
-  }
-  :is(.fdn-table, .fdn-guide .uipack-docs__table) [data-label]::before {
-    content: attr(data-label);
-    display: block;
-    margin-bottom: 2px;
-    color: var(--show-muted);
-    font: var(--show-eyebrow-font);
-    letter-spacing: var(--show-eyebrow-tracking);
-    text-transform: uppercase;
-  }
-}
 
-/* For implementers: code names set apart from the prose, which leads with the plain idea. */
-.fdn-impl {
-  max-width: 76ch;
-  margin: 20px 0 0;
-  padding: 12px 16px;
-  border-left: 2px solid var(--show-rule);
-  background: color-mix(in srgb, var(--show-surface) 60%, transparent);
-  color: var(--show-muted);
-  font-size: 14px;
-  line-height: 1.6;
-}
 .fdn-impl__label {
   margin: 0;
   cursor: pointer;
@@ -801,9 +497,7 @@
   letter-spacing: var(--show-eyebrow-tracking);
   text-transform: uppercase;
 }
-.fdn-impl[open] .fdn-impl__label {
-  margin-bottom: 8px;
-}
+
 .fdn-impl__label:focus-visible {
   outline: 2px solid var(--show-accent);
   outline-offset: 2px;
@@ -813,57 +507,6 @@
 }
 .fdn-impl__body p + p {
   margin-top: 8px;
-}
-.fdn-impl code {
-  overflow-wrap: anywhere;
-}
-.fdn-impl .fdn-guide {
-  max-width: none;
-}
-.fdn-impl .fdn-guide :is(p, li) {
-  margin: 0;
-  color: var(--show-muted);
-  font-size: 14px;
-  line-height: 1.6;
-}
-.fdn-impl .fdn-guide code {
-  font-size: 12.5px;
-}
-
-/* Before you ship: real checkboxes with 44px rows. */
-.fdn-checklist {
-  display: grid;
-  gap: 0;
-  max-width: 76ch;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  border-top: 1px solid var(--show-rule);
-}
-.fdn-checklist li {
-  border-bottom: 1px solid var(--show-rule);
-}
-.fdn-checklist label {
-  display: grid;
-  grid-template-columns: 20px minmax(0, 1fr);
-  gap: 12px;
-  align-items: start;
-  min-height: 44px;
-  padding: 11px 0;
-  box-sizing: border-box;
-  font-size: 15px;
-  line-height: 1.5;
-  cursor: pointer;
-}
-.fdn-checklist input {
-  width: 18px;
-  height: 18px;
-  margin: 2px 0 0;
-  accent-color: var(--show-accent);
-  cursor: pointer;
-}
-.fdn-checklist input:checked + span {
-  color: var(--show-muted);
 }
 
 /* A single do/don't pair at a readable width. */
@@ -877,12 +520,7 @@
   text-decoration: underline wavy color-mix(in srgb, var(--ui-data-neg) 70%, transparent);
   text-underline-offset: 0.2em;
 }
-.fdn-chain text {
-  font-size: 16px;
-}
-.fdn-chain .fdn-node__sub {
-  font-size: 14px;
-}
+
 .fdn-chain__line {
   stroke: color-mix(in srgb, var(--ui-ink) 70%, transparent);
   stroke-width: 1.25;
@@ -891,93 +529,10 @@
   fill: color-mix(in srgb, var(--ui-ink) 70%, transparent);
 }
 
-/* A table followed by its worked pairs: a beat of space between them. */
-.fdn-table + .fdn-pairs {
-  margin-top: 24px;
-}
-
-/* Tables rendered from the system docs read like the guides' own tables: one frame, mono caps
-   column names, the key column in bold, no shaded header row. */
-.fdn-guide .uipack-docs__table {
-  border: 1px solid var(--show-rule);
-  border-radius: var(--show-radius);
-}
-.fdn-guide .uipack-docs__table table {
-  width: 100%;
-}
-.fdn-guide .uipack-docs__table thead th {
-  background: none;
-  color: var(--show-muted);
-  font: var(--show-eyebrow-font);
-  letter-spacing: var(--show-eyebrow-tracking);
-  text-transform: uppercase;
-}
-.fdn-guide .uipack-docs__table tbody tr:last-child :is(th, td) {
-  border-bottom: 0;
-}
-.fdn-guide .uipack-docs__table tbody td:first-child {
-  font-weight: 600;
-}
-
-/* On this page: the guide's sections as a wrapping row of links under the intro. */
-.fdn-toc {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 8px 16px;
-  margin: 0 0 32px;
-  padding: 12px 0;
-  border-block: 1px solid var(--show-rule);
-}
 .fdn-toc__label {
   font: var(--show-eyebrow-font);
   letter-spacing: var(--show-eyebrow-tracking);
   text-transform: uppercase;
-  color: var(--show-muted);
-}
-.fdn-toc ol {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 16px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.fdn-toc a {
-  display: inline-block;
-  padding: 6px 0;
-  color: var(--show-ink);
-  font-size: 15px;
-  text-decoration: underline;
-  text-decoration-color: var(--show-rule);
-  text-underline-offset: 4px;
-}
-.fdn-toc a:hover,
-.fdn-toc a:focus-visible {
-  text-decoration-color: var(--show-accent);
-}
-
-/* Where the full rules live: one link per doc section, its file path beside it. */
-.fdn-sources {
-  display: grid;
-  gap: 10px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.fdn-sources li {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 4px 12px;
-}
-.fdn-sources a {
-  color: var(--show-accent);
-  font-size: 16px;
-  font-weight: 500;
-}
-.fdn-sources code {
-  font: 500 13px var(--show-font-mono);
   color: var(--show-muted);
 }
 
@@ -993,4 +548,17 @@
 .fdn-pair figcaption {
   font: 600 13px/1.3 var(--show-font-mono);
   color: var(--show-ink);
+}
+
+/* The linter's own verdict under a pair: mono, quiet, the same words slotProblems returns. */
+.fdn-verdict {
+  margin: 8px 0 0;
+  color: var(--ui-ink-2);
+  font: 13px/1.5 var(--ui-font-label, ui-monospace, monospace);
+}
+
+/* The fonts a style loads, under its swatches. */
+.fdn-style__fonts {
+  margin: 12px 0 0;
+  font-size: 14px;
 }

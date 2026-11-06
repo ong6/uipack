@@ -28,7 +28,13 @@ const headings = extractDocsHeadings(markdown)
 </DocsLayout>;
 ```
 
-Colour comes from `--docs-*` tokens on `.uipack-docs`. `palette="warm"` (the default) is the paper-and-blue look existing hosts use; `palette="technical"` maps the same tokens to UI Pack's Technical palette (forest `#205f49` / mint `#71dcb2` accent, `#14201b` dark surfaces), as the `/docs` playground page does. A host can also set any `--docs-*` token itself. The breadcrumb row spans the grid's width, so it starts on the navigation column's edge.
+The shell, live, with real navigation and Markdown:
+
+```uipack-demo docs-layout wide
+An example product's docs page in DocsLayout: grouped sidebar, prose, on-this-page and the next link.
+```
+
+Colour comes from `--docs-*` tokens on `.uipack-docs`. `palette="warm"` (the default) is the paper-and-blue look existing hosts use; `palette="technical"` maps the same tokens to the Technical palette, as this site does. A host can also set any `--docs-*` token itself. The breadcrumb row spans the grid's width, so it starts on the navigation column's edge.
 
 Desktop uses a grouped left sidebar, a prose column capped at 680px, and an h2/h3 table of contents that marks the section being read (`aria-current="location"`, updated on a frame-throttled scroll listener). Below 900px the sidebar becomes a native disclosure with a chevron that turns when open (Escape inside it closes it and returns focus to its summary), and the table of contents is hidden. The layout includes a content skip link, sticky navigation landmarks, focus treatments, and previous/next links: Previous sits on the left and Next on the right whichever exists, with their text on the column edges. `DocsMarkdown` supports GFM tables, inline and fenced code, blockquote callouts, and stable anchors on h1–h6 headings. Prose links are underlined, lists keep their markers inside the column, and below 900px a table keeps at least 10rem per column and scrolls inside its wrapper instead of squeezing. Labels are at least 12px and small links have 32px targets.
 
@@ -79,4 +85,4 @@ A site that already has a banner uses these, all optional and off by default:
 
 A nav item takes `items` for one level of sub-pages (a page's views), listed indented under it.
 
-The playground is the reference host: `playground/ShowcaseShell.tsx` renders every page in this layout, its sidebar generated from `playground/docs-manifest.ts` (one entry per page: group, route, Markdown file, demo ids). A page renders its file through `DocsMarkdown` (`playground/MarkdownShowcase.tsx`, demos from `playground/demos.tsx`), or its showcase module until its Markdown is written. The dev server and the build serve each page's file as plain text at its repo path, which "View as Markdown" opens. `npm run docs:sync` regenerates the marked blocks (`<!-- generated:<name> -->…<!-- /generated -->`) and `llms.txt` from code and the manifest; `test/docs-manifest.test.tsx` fails when one is stale, a page has no file or a docs file has no page.
+The playground is the reference host: `playground/ShowcaseShell.tsx` renders every page in this layout, its sidebar generated from `playground/docs-manifest.ts` (one entry per page: group, route, Markdown file, demo ids). Every page renders its file through `DocsMarkdown` (`playground/MarkdownShowcase.tsx`, demos from `playground/demos.tsx`); only the deck's print and speaker windows render without the shell. The dev server and the build serve each page's file as plain text at its repo path, which "View as Markdown" opens. `npm run docs:sync` regenerates the marked blocks (`<!-- generated:<name> -->…<!-- /generated -->`) and `llms.txt` from code and the manifest; `test/docs-manifest.test.tsx` fails when one is stale, a page has no file or a docs file has no page.

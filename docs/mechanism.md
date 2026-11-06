@@ -7,6 +7,14 @@
 
 The style follows [Anatomy](https://github.com/wheresryan22/anatomy) by Ryan (MIT), pinned at commit `1482e8469b0a9e0d8cc18ea2740a01423d29ae80`: "the object is the explanation". It is drawn in the Technical palette, so it belongs to the same family as the figures.
 
+Choose a pose the way a slide would; the machine moves there from wherever it is. The thumbnails
+are `interactive={false}` and `frame={false}`: one still frame per pose, no loops and no card, as a
+deck renders its slide strip.
+
+```uipack-demo mechanism-gate wide
+The verification gate with Idle tour, Pass, Return and Apart poses, then one still thumbnail per pose.
+```
+
 ## When to use it
 
 | Explain | Use |

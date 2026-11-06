@@ -38,7 +38,8 @@ function Entry({ id, children }: { id: string; children: ReactNode }) {
   );
 }
 
-export default function ArticleShowcase() {
+/** `article-parts` (docs/article.md): every part inside a host article's prose column, with a host switch. */
+export function ArticleParts() {
   const host = useHost();
   return (
     <>

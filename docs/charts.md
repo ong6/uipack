@@ -25,13 +25,17 @@ const html = renderToStaticMarkup(
 
 Each SpanChart carries a small scoped `<style>` element with its own filter and layout rules, keyed by its `id`. Give every chart on a page a unique `id`.
 
-The playground renders both on `/` inside a frame at a host's real figure width: 896px by default, or `?frame=720|390|320|full`. The data is the AI-stack example in [`examples/aiStack.ts`](../examples/aiStack.ts).
+The demos below render each chart inside a frame at a host's real figure width: 896px by default, or `?frame=720|390|320|full`. The data is the AI-stack example in [`examples/aiStack.ts`](../examples/aiStack.ts).
 
 ![SpanChart at 896px, light](span-chart-896-light.png)
 
 ## SpanChart
 
-Rows are items, and columns are ordered layers, with the bottom of the stack on the left. Each item has one primary layer and zero or more other layers.
+Rows are items, and columns are ordered layers, with the bottom of the stack on the left. Each item has one primary layer and zero or more other layers. Use it for a comparison across the same layers; its filters keep one selection at a time.
+
+```uipack-demo span-chart wide
+The AI-stack span chart at a host's figure width, with its layer, size and deals filters.
+```
 
 - **Bars.** A row draws one flat bar per contiguous run of covered layers, with a 1px end radius. The primary cell is solid accent, the other cells are a tint with a 1px accent edge and 1px dividers, and gaps stay empty.
 - **Groups.** Rows are grouped by primary layer in column order, so the chart reads as a staircase. Each group heading is a tracked uppercase label ("CHIPS AND MEMORY 2 OF 6"). Beside a name column it carries a 3px accent underline on its line across the group's own column (inset 6px a side), so the staircase reads even when a group shows one row; the stacked layouts leave the mark out rather than give it a line of its own. Uppercase labels keep units and names as written: a word with a digit beside a letter, or a capital after its first letter ("32k", "TB/s", "GPUs"), is not uppercased.
@@ -170,7 +174,11 @@ Each message names the chart and the item, for example `SpanChart "ai-stack": it
 
 ## LayerStack
 
-A hero diagram for an article that walks a stack from the bottom up. Every band is a link to its section.
+A hero diagram for an article that walks a stack from the bottom up. Every band is a link to its section. Use it to explain how a system is built up, band by band.
+
+```uipack-demo layer-stack-chart wide
+The AI-stack layer stack at a host's figure width: bands that open one at a time, with zone notes and rails.
+```
 
 - **Order.** Layers are given bottom to top and numbered that way, with 01 at the bottom. They are drawn, tabbed and read top-down, so the eye, the keyboard and a screen reader meet them in the same order.
 - **Type.** The stack's smallest text (the band index, zone heads and their notes, rail and bracket labels, metric notes) is 12px.

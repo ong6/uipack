@@ -284,10 +284,10 @@ The container radius is 0 (square); inside a drawing, nodes keep the diagram fam
 
 | Setting | Technical |
 | --- | --- |
-| Voice and register | The house voice: plain, specific, answer first (core [writing rules](../system/writing.md)) |
+| Voice and register | The house voice: plain, specific, answer first (core [writing rules](../system/writing/README.md)) |
 | Density | 0.9 |
 | Page types | All four core types |
-| Section order | The author's order by default; its own opt-in order (`WebPage layout="style"`): hero → how → demo → proof → FAQ → pricing |
+| Section order | The author's order by default; its own opt-in order (`WebPage layout="style"`) is `uiStyles[].prefers`, listed in [landing layout, Order](../system/layout/landing.md#order) |
 | Families | Diagrams, unchanged |
 | Illustration looks | Mechanism and the 3D art directions draw within Technical (the catalog on this page) |
 

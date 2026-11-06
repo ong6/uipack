@@ -1121,6 +1121,8 @@ function templateOutline(template, { mode = "presented" } = {}) {
 // src/deck/budgets.ts
 var TITLE_WORDS = { presented: 6, "read-alone": 14 };
 var MAX_POINTS = 4;
+var PRESENTED_TITLE_AIM = [2, 5];
+var NOTE_CUE_WORDS = 60;
 var SLOT_BUDGETS = {
   title: {
     role: "Short name for the overview, counter and screen readers; never longer than a headline",
@@ -1137,7 +1139,7 @@ var SLOT_BUDGETS = {
     overflow: "wrap"
   },
   headline: {
-    role: "Presented: a 2\u20135 word spoken verdict (a bare label only on agenda, section and mechanism slides). Read-alone: the conclusion as one sentence",
+    role: `Presented: a ${PRESENTED_TITLE_AIM.join("\u2013")} word spoken verdict (a bare label only on agenda, section and mechanism slides). Read-alone: the conclusion as one sentence`,
     minWords: 1,
     maxWords: 14,
     maxLines: 2,
@@ -1214,6 +1216,13 @@ var SLOT_BUDGETS = {
     overflow: "wrap"
   }
 };
+({
+  presentedTitle: { max: TITLE_WORDS.presented },
+  /** A title read without its speaker: the claim as one sentence. */
+  readAloneTitle: [3, TITLE_WORDS["read-alone"]],
+  /** A label inside a drawing: two or three words, under the label slot's cap. */
+  drawingLabel: [2, SLOT_BUDGETS.label.maxWords],
+  pointWords: SLOT_BUDGETS.point.maxWords});
 var slotWords = (text) => text.split(/\s+/).filter((w) => /[\p{L}\p{N}]/u.test(w));
 function slotSentences(text) {
   const t = text.trim();
@@ -1265,7 +1274,7 @@ var LINT_RULES = {
   },
   "title-length": {
     severity: "warn",
-    check: "Presented: the title is at most 6 words, a spoken verdict, never a sentence to read out. Read-alone: at most 14 words."
+    check: `Presented: aim for ${PRESENTED_TITLE_AIM.join("\u2013")} words; the check stops at ${TITLE_WORDS.presented}. A spoken verdict, never a sentence to read out. Read-alone: at most ${TITLE_WORDS["read-alone"]} words.`
   },
   "title-specific": {
     severity: "warn",
@@ -1316,7 +1325,7 @@ var LINT_RULES = {
   },
   "notes-cues": {
     severity: "warn",
-    check: "Presented: each slide's `say` is cues, not a script: at most 60 words (why it matters, the so-what, the trade-off), with the bridge in `next`. A `say` of stage directions only ('Point at the 9', 'Walk the figure') warns; a stage direction beside content is a tip to move it to `delivery`."
+    check: `Presented: each slide's \`say\` is cues, not a script: at most ${NOTE_CUE_WORDS} words (why it matters, the so-what, the trade-off), with the bridge in \`next\`. A \`say\` of stage directions only ('Point at the 9', 'Walk the figure') warns; a stage direction beside content is a tip to move it to \`delivery\`.`
   },
   "notes-echo": {
     severity: "warn",
@@ -1626,7 +1635,7 @@ var labelAllowed = (deck, slide) => {
 };
 var bodyText = (slide) => [...slide.points ?? [], ...Object.values(slide.slots ?? {})].filter(Boolean);
 var wordCount = (text) => text.match(/\S+/g)?.length ?? 0;
-var MAX_CUE_WORDS = 60;
+var MAX_CUE_WORDS = NOTE_CUE_WORDS;
 var COST_ROLES = ["answer", "option", "recommendation", "plan"];
 var ECHO_SHARE = 0.55;
 var ECHO_MIN_WORDS = 6;
@@ -1718,7 +1727,7 @@ var LINT_CHECKS = [
         if (deck.mode === "presented")
           report(
             "warn",
-            `"${headline}" is ${words} words, a sentence to read out. Cut it to a 2\u20135 word verdict, put the numbers in the points and say the rest. (Sent without you? Lint it with mode "read-alone".)`,
+            `"${headline}" is ${words} words, a sentence to read out. Aim for a ${PRESENTED_TITLE_AIM.join("\u2013")} word verdict (the check stops at ${max}), put the numbers in the points and say the rest. (Sent without you? Lint it with mode "read-alone".)`,
             slide.id
           );
         else report("warn", `Title is ${words} words; keep it to ${MAX_TITLE_WORDS} or move detail to the body.`, slide.id);

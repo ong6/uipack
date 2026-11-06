@@ -2,7 +2,17 @@
 import { WORDS_PER_MINUTE } from "../../speech";
 import { QUANTIFIED_ROLES, REPEATABLE_ROLES, SLIDE_ROLES, type SlideRole } from "./roles";
 import { getStorylineTemplate, type StorylineTemplate } from "./templates";
-import { MAX_POINTS, SLOT_BUDGETS, TITLE_WORDS, slotLines, slotProblems, type DeckMode, type SlotName } from "../budgets";
+import {
+  MAX_POINTS,
+  NOTE_CUE_WORDS,
+  PRESENTED_TITLE_AIM,
+  SLOT_BUDGETS,
+  TITLE_WORDS,
+  slotLines,
+  slotProblems,
+  type DeckMode,
+  type SlotName,
+} from "../budgets";
 import { MAX_TITLE_WORDS, type LintFinding, type LintOptions, type LintRule, type LintSeverity, type StorySlide } from "./rules";
 import {
   TOPIC_LABELS,
@@ -89,7 +99,7 @@ const bodyText = (slide: StorySlide) =>
 const wordCount = (text: string) => text.match(/\S+/g)?.length ?? 0;
 
 /** Most words in a presented slide's `say` before it reads as a script rather than cues. */
-const MAX_CUE_WORDS = 60;
+const MAX_CUE_WORDS = NOTE_CUE_WORDS;
 /** Roles whose slides state what the work costs. */
 const COST_ROLES: readonly SlideRole[] = ["answer", "option", "recommendation", "plan"];
 /** Share of a presented slide's note words already on the slide at which the note only repeats it. */
@@ -192,7 +202,7 @@ export const LINT_CHECKS: readonly LintCheck[] = [
         if (deck.mode === "presented")
           report(
             "warn",
-            `"${headline}" is ${words} words, a sentence to read out. Cut it to a 2–5 word verdict, put the numbers in the points and say the rest. (Sent without you? Lint it with mode "read-alone".)`,
+            `"${headline}" is ${words} words, a sentence to read out. Aim for a ${PRESENTED_TITLE_AIM.join("–")} word verdict (the check stops at ${max}), put the numbers in the points and say the rest. (Sent without you? Lint it with mode "read-alone".)`,
             slide.id,
           );
         else report("warn", `Title is ${words} words; keep it to ${MAX_TITLE_WORDS} or move detail to the body.`, slide.id);

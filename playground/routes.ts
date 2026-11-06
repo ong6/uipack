@@ -2,23 +2,28 @@ import { libraryPages, pageDefs, type LibraryPage } from "./catalog";
 
 /**
  * The playground module (`playground/<name>.tsx`, default export) that renders each page, loaded
- * lazily as its own chunk: the manifest's `showcase` until the page's Markdown is written, then
- * MarkdownShowcase, which renders the page's `file`. Pages that share a module read the path
- * (FiguresShowcase serves "/", "/charts" and "/assets"); the deck sub-views share a path and a module.
- * Every module is named `<Name>Showcase`: main.tsx's import.meta.glob loads only `*Showcase`
- * (test/catalog.test.tsx checks every name here).
+ * lazily as its own chunk: MarkdownShowcase, which renders the page's `file` with its demos. (The
+ * deck's print and speaker windows render DeckShowcase without the shell; main.tsx picks it.)
+ * Every module is named `<Name>Showcase`: main.tsx's import.meta.glob loads only `*Showcase`.
  * The build reads this table too, to preload the current page's chunk from index.html (vite.config.ts).
  */
-export const pageModules = Object.fromEntries(pageDefs.map((p) => [p.id, p.showcase ?? "MarkdownShowcase"])) as Readonly<
+export const pageModules = Object.fromEntries(pageDefs.map((p) => [p.id, "MarkdownShowcase"])) as Readonly<
   Record<LibraryPage, string>
 >;
 
-/** Older or shorthand paths that open a page: /slides (3D animations), /diagrams, /drill (the drill-down section), /index.html. */
+/**
+ * Older or shorthand paths that open a page: /slides (3D animations), /diagrams and /drill (the
+ * diagram catalogue, which used to be "/"), /start (the home page), the Foundations guides folded
+ * into other pages, /index.html.
+ */
 const aliases: Record<string, LibraryPage> = {
   "/slides": "animations",
   "/diagrams": "figures",
   "/drill": "figures",
-  "/index.html": "figures",
+  "/start": "start",
+  "/foundations/mix": "foundations",
+  "/foundations/recipes": "recipes",
+  "/index.html": "start",
 };
 
 /** Path to page id. Pages that share a path (the decks) map to the first; the shell resolves the query. */

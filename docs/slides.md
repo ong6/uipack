@@ -4,6 +4,12 @@
 
 For talks, use [`uipack/deck`](deck.md): it plays a whole deck with one transition grammar, a speaker view and PDF export. `uipack/slides` is for 3D animations inside a slide or page.
 
+Pick a scene from the library, then step through its camera stops in the preview:
+
+```uipack-demo animation-library wide
+The scene library (search and filter by technique) beside a live preview with its camera stops and art directions.
+```
+
 ## Install
 
 UIPACK is installed from GitHub. These changes must be available in the commit or branch you install before the `slides` entry exists:

@@ -183,8 +183,8 @@ export function StyleCatalog() {
   );
 }
 
-/** /presentations: slide starters with their talk tracks, then a composed narrative. */
-export default function CatalogShowcase() {
+/** `slide-starters` (docs/presentations.md): slide starters with their talk tracks, then a composed narrative. */
+export function SlideStarters() {
   const { theme } = useShowcaseTheme();
   const [index, setIndex] = useState(0);
   const [starterIndex, setStarterIndex] = useState(0);
@@ -193,10 +193,6 @@ export default function CatalogShowcase() {
   return (
     <section>
       <h2>Slide and speech starters</h2>
-      <p className="collection-intro">
-        Choose a layout to see the designed slide and the talk track that goes with it. The reusable component accepts content;
-        these words belong to the playground example.
-      </p>
       <nav className="deck-chapters" aria-label="Slide starter layouts">
         {presentationStarters.map((slide, i) => (
           <button key={slide.id} aria-pressed={i === starterIndex} onClick={() => setStarterIndex(i)}>
@@ -206,9 +202,6 @@ export default function CatalogShowcase() {
       </nav>
       <SlideStarter slide={starter} theme={theme} />
       <h2 className="deck-example-heading">Complete narrative example</h2>
-      <p className="collection-intro">
-        Opening, argument, visual explanation, comparison and closing. Animation supports the story.
-      </p>
       <nav className="deck-chapters" aria-label="Presentation chapters">
         {chapters.map((c, i) => (
           <button key={c.name} aria-current={i === index ? "step" : undefined} onClick={() => setIndex(i)}>
@@ -272,10 +265,6 @@ export default function CatalogShowcase() {
           Next chapter
         </button>
       </div>
-      <p className="collection-intro">
-        This is a composition example, not a slide editor. Use Figure for 2D diagrams and SlideScene for 3D within these layouts.
-        Both support separate canvas inspection.
-      </p>
     </section>
   );
 }

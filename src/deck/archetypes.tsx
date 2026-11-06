@@ -3,7 +3,7 @@ import { Slide } from "./parts";
 import type { DeckSlide } from "./types";
 
 /*
- * Five slide archetypes over the shared region map (docs/system/layout.md, "Slides"): the headline
+ * Five slide archetypes over the shared region map (docs/system/layout/deck-slide.md, "Regions"): the headline
  * and the footer sit where they sit on every slide (and the optional eyebrow, when a slide has one);
  * each archetype fills only the body region its own way. Points is the default for a presented deck:
  * a short title and the fragments the speaker talks from. Colours, faces and radii come from the deck tokens, so each one
