@@ -10,6 +10,7 @@ var jsxRuntime = require('react/jsx-runtime');
 // src/objects/mount.ts
 var REST_START_MS = 5400;
 var MOBILE_FRAME_MS = 1e3 / 30;
+var PHONE_QUERY = "(max-width: 767px)";
 function disposeScene(scene, textures) {
   scene.traverse((item) => {
     item.userData.dispose?.();
@@ -24,7 +25,7 @@ function disposeScene(scene, textures) {
   });
 }
 function mountObjectScene(canvas, options) {
-  const { kind, colors, variant, edition, modelUrl, theme, flags, host, onReady, onCompleted, onReplayed } = options;
+  const { kind, colors, variant, edition, modelUrl, theme, flags, host, onReady, onCompleted, onReplayed, onReducedMotion } = options;
   let disposed = false;
   let contextLost = false;
   let frame = null;
@@ -49,23 +50,12 @@ function mountObjectScene(canvas, options) {
     onReady(false);
   };
   canvas.addEventListener("webglcontextlost", handleContextLost);
-  Promise.all([import('three'), import('./scenes-FREJATCQ.cjs'), import('./look-XR7F7LXC.cjs')]).then(async ([THREE, { createObject, disposeObject }, look]) => {
+  Promise.all([import('three'), import('./scenes-JSPG3WJC.cjs'), import('./look-DCEEQDPY.cjs')]).then(async ([THREE, { createObject, disposeObject }, look]) => {
     if (disposed) return;
     materialTextures = look.materialTextures;
     try {
-      const gl = new THREE.WebGLRenderer({
-        canvas,
-        alpha: true,
-        antialias: true,
-        powerPreference: "default"
-      });
-      renderer = gl;
-      gl.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
-      gl.outputColorSpace = THREE.SRGBColorSpace;
-      const world = new THREE.Scene();
-      scene = world;
       const object = await createObject(kind, colors, variant, edition, modelUrl);
-      if (disposed || contextLost) {
+      if (disposed) {
         disposeObject(object);
         return;
       }
@@ -77,8 +67,25 @@ function mountObjectScene(canvas, options) {
         camera: lens,
         contactShadow,
         castShadows,
-        transmissionBackdrop
+        transmissionBackdrop,
+        phoneMultisample
       } = look.resolveLook(object.userData.look, theme);
+      const phone = window.matchMedia(PHONE_QUERY).matches;
+      const gl = new THREE.WebGLRenderer({
+        canvas,
+        alpha: true,
+        antialias: !phone || phoneMultisample,
+        powerPreference: "default"
+      });
+      renderer = gl;
+      gl.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+      gl.outputColorSpace = THREE.SRGBColorSpace;
+      const world = new THREE.Scene();
+      scene = world;
+      if (contextLost) {
+        disposeObject(object);
+        return;
+      }
       environment = await look.buildEnvironment(gl, rig) ?? void 0;
       if (disposed || contextLost) {
         disposeObject(object);
@@ -107,7 +114,7 @@ function mountObjectScene(canvas, options) {
         look.addContactShadow(object, contactShadow);
       }
       world.add(object);
-      look.addRigLights(world, rig);
+      look.addRigLights(world, rig, phone);
       const camera = lens.projection === "perspective" ? new THREE.PerspectiveCamera(lens.fov, 1, 0.1, 100) : new THREE.OrthographicCamera(-3, 3, 3, -3, 0.1, 100);
       const rotation = look.cameraRotation(lens);
       const subject = framing ? look.measureSubject(object, rotation, look.framingTimes(object, framing, restTime)) : null;
@@ -122,7 +129,7 @@ function mountObjectScene(canvas, options) {
       let lastTickAt;
       let lastPaintAt = -Infinity;
       let restPainted = false;
-      const frameInterval = window.matchMedia("(max-width: 767px)").matches ? MOBILE_FRAME_MS : 0;
+      const frameInterval = phone ? MOBILE_FRAME_MS : 0;
       const paint = (sceneTime, time) => {
         object.userData.animate?.(sceneTime);
         gl.render(world, camera);
@@ -141,7 +148,10 @@ function mountObjectScene(canvas, options) {
       const render = (time = 0) => {
         frame = null;
         if (disposed || contextLost) return;
-        if (!flags.reduced && reducedQuery?.matches) flags.reduced = true;
+        if (!flags.reduced && reducedQuery?.matches) {
+          flags.reduced = true;
+          onReducedMotion?.();
+        }
         if (document.hidden || !inViewport) {
           lastTickAt = void 0;
           return;
@@ -386,6 +396,7 @@ function ObjectStage({
   const [paused, setPaused] = react.useState(false);
   const [completed, setCompleted] = react.useState(false);
   const reduced = chunkR272FBXD_cjs.usePrefersReducedMotion();
+  const [, recheckReduced] = react.useReducer((n) => n + 1, 0);
   const flagsRef = react.useRef({ active, paused: false, completed: false, reduced: false, zoom });
   const sceneRef = react.useRef(null);
   const paletteKey = palette ? JSON.stringify(palette) : "";
@@ -432,7 +443,8 @@ function ObjectStage({
       onReplayed: () => {
         setCompleted(false);
         setPaused(false);
-      }
+      },
+      onReducedMotion: recheckReduced
     });
     sceneRef.current = scene;
     return () => {

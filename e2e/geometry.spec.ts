@@ -15,7 +15,8 @@ async function open(page: Page, width: number) {
 // Node text fits with room to spare: at least 4 units between it and either side of the box,
 // so no label or subtitle reads as touching the border.
 // A connector label's page-coloured underlay covers its whole word, so no line shows through
-// either end (it is sized from the label face's advance, not measured).
+// either end (sized from the label face's advance, or from the measured word where the browser
+// sets it wider, as Linux Chromium does when it rounds advances to whole pixels).
 function labelPlateShort() {
   const out: string[] = [];
   for (const label of document.querySelectorAll<SVGGElement>('[data-section] svg [data-uipack="label"]')) {
