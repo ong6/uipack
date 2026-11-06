@@ -42,6 +42,15 @@ body {
   margin: 0 auto;
   padding: 16px 24px 64px;
 }
+/* A phone keeps the 16px side margins the gallery had before the docs shell: a 390px screen gives
+   its charts and figures 358px, the width their phone layouts are tuned to (SpanChart's twelve
+   column codes keep 8px apart there even where advances round to whole pixels; at 24px margins
+   they came to 7.5 on Linux). */
+@media (max-width: 719px) {
+  .showcase-frame {
+    padding-inline: 16px;
+  }
+}
 .showcase-frame > .uipack-docs {
   padding: 0;
 }
