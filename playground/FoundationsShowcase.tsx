@@ -26,17 +26,12 @@ import { pipeline } from "../src/presets";
 import { uiStyles, type UiStyleId } from "../src/style";
 import { routePath } from "./routes";
 import { guideSources, wordRules, words } from "./guideFacts";
-import { writtenStyleSpecs } from "./catalog";
 import { useShowcaseTheme } from "./ShowcaseShell";
 import styleDoc from "../docs/system/style.md?raw";
 import writingDoc from "../docs/system/writing.md?raw";
 import layoutDoc from "../docs/system/layout.md?raw";
 
 const REPO = "https://github.com/ong6/uipack/blob/main/docs";
-
-/** The written style specs and their how-to, on GitHub (docs/system/styles/). */
-const specHref = (spec: string) => `https://github.com/ong6/uipack/blob/main/${spec}`;
-const SPECS_README = `${REPO}/system/styles/README.md`;
 
 /**
  * A system doc as page prose: its h1 dropped (the page has one) and its links pointed at these
@@ -285,20 +280,14 @@ function Choice<T extends string>({
 }
 
 /**
- * The style layer, under the live controls: Technical is the one implemented style, so it is a
- * sentence, not a control; the written specs that fill the same contract are a link away.
+ * The style layer, under the live controls: the site spec, not a control. Here it is Technical,
+ * the uipack site's spec; another site's spec fills the same roles.
  */
 function StyleLayer() {
   return (
     <p className="fdn-fixed">
-      <span className="fdn-fixed__label">Style:</span> <a href="/foundations/style">{uiStyles[0].name}</a> (the one implemented
-      style) · written specs:{" "}
-      {writtenStyleSpecs.map((spec, i) => (
-        <span key={spec.id}>
-          {i > 0 && ", "}
-          <a href={specHref(spec.spec)}>{spec.name}</a>
-        </span>
-      ))}
+      <span className="fdn-fixed__label">Style:</span> <a href="/specs/technical">{uiStyles[0].name}</a> (this site&rsquo;s spec)
+      · <a href="/styles">one spec per site</a>
     </p>
   );
 }
@@ -400,7 +389,7 @@ export function LayerToggle() {
       <p className="collection-intro">
         One unit, shown twice: as a slide and as a web section. Writing changes the words; layout changes where the words sit.
         Swap each one and watch what stays still. Style, the third layer, sets colours, faces and decoration from one value set:
-        Technical is the one implemented style, and Landing and Graphical are written specs that fill the same role contract.
+        each site has one spec that fills the same role contract; this site&rsquo;s is Technical.
       </p>
       <div className="fdn-toggles">
         <Choice
@@ -522,9 +511,8 @@ function StylePage() {
         <h2>Roles in light and dark</h2>
         <p className="collection-intro">
           A role is a job a colour does, such as the page background, body text or the one highlighted thing. A style is one value
-          set that fills every role, so a role means the same in every style. Technical is the one implemented style; these
-          swatches are live, read from its value set in its light and dark halves. Landing and Graphical are written specs that
-          fill the same roles on paper.
+          set that fills every role, so a role means the same on every site. Each site has one spec; these swatches are this
+          site&rsquo;s, Technical, live from its value set in its light and dark halves.
         </p>
         <div className="fdn-styles">
           {uiStyles.map((s) => (
@@ -540,38 +528,12 @@ function StylePage() {
         </div>
       </section>
       <section>
-        <h2>Written specs fill the same contract</h2>
+        <h2>One spec per site fills the same contract</h2>
         <p className="collection-intro">
-          Landing and Graphical are written specs (<code>docs/system/styles/</code>): every role&rsquo;s light and dark value, the
-          faces, the ornaments and what the style is for, with no code behind them. An agent builds a new style from a spec in
-          three steps, and nothing else in the library changes.
-        </p>
-        <ol className="fdn-steps">
-          <li>
-            <strong>Add one value set</strong> in <code>src/styles/&lt;id&gt;.css</code>, keyed by{" "}
-            <code>{'[data-ui-style="<id>"]'}</code>, filling every role Technical fills.
-          </li>
-          <li>
-            <strong>Register it</strong> in <code>uiStyles</code> (<code>src/style.ts</code>) with its fonts and preload, and add
-            any new face to <code>src/web/fonts.css</code>.
-          </li>
-          <li>
-            <strong>Test it:</strong> the role tests check that it defines every role Technical does and holds contrast in both
-            themes; then look at it on a real page at 1440 and 390px.
-          </li>
-        </ol>
-        <ul className="fdn-specs">
-          {writtenStyleSpecs.map((spec) => (
-            <li key={spec.id} className="fdn-spec-card">
-              <p className="fdn-spec-card__kind">Written spec</p>
-              <h3>{spec.name}</h3>
-              <p>{spec.description}</p>
-              <a href={specHref(spec.spec)}>Read the {spec.name} spec</a>
-            </li>
-          ))}
-        </ul>
-        <p className="collection-intro">
-          <a href={SPECS_README}>How a spec becomes a style</a>, on GitHub.
+          A site spec gives every role a light and a dark value, the faces, the ornaments and the settings the site chooses. A
+          site that should look like another reuses that spec. uipack renders a spec&rsquo;s look once its values are one value
+          set in <code>src/styles</code>, registered in <code>uiStyles</code> and tested.{" "}
+          <a href="/styles">How to write a spec</a> · <a href="/specs/registry">every site and its spec</a>.
         </p>
       </section>
       <section>
@@ -610,8 +572,8 @@ function StylePage() {
           </table>
         </div>
         <p className="collection-intro">
-          The <a href="/styles">styles gallery</a> shows Technical beside Mechanism and the 3D art directions, and lists the
-          written specs.
+          The <a href="/specs/technical">Technical spec</a> shows it beside Mechanism and the 3D art directions; every site has
+          one spec (<a href="/styles">how to write one</a>).
         </p>
       </section>
       <Implementers>
@@ -862,8 +824,8 @@ function LayoutPage() {
         <p className="collection-intro">
           Points (the default for a presented deck), section, quote, fact, inverted points and end. The headline and footer stay
           in the same place on every slide, and so would an eyebrow on the rare slide that has one; only the body region changes.
-          Step through with the arrows and watch the map hold. The map belongs to the layout, so a style built from a written spec
-          would repaint these slides without moving a region.
+          Step through with the arrows and watch the map hold. The map belongs to the layout, so another site&rsquo;s spec would
+          repaint these slides without moving a region.
         </p>
         <div className="fdn-deck">
           <DeckPlayer id="foundations-archetypes" title="Slide archetypes" slides={archetypeDeck} theme={theme} />
@@ -910,12 +872,12 @@ const leaks = [
   ["Text length", "A 24-word headline wraps to three lines in any style and pushes the body down.", "Slot budgets, linted"],
   [
     "Fonts",
-    "A style's display face sets a heading's height: the Graphical spec's condensed caps run narrower and taller than Technical's Plex Sans.",
+    "A spec's display face sets a heading's height: condensed caps run narrower and taller than Technical's Plex Sans.",
     "Region order and columns stay fixed; heights may move",
   ],
   [
     "Density",
-    "Technical pads sections at 0.9; the Landing spec asks for 1 and the Graphical spec 0.95, so a page built in either grows vertically.",
+    "Technical pads sections at 0.9; a spec that sets density 1 gets a page that grows vertically.",
     "Density scales vertical section padding only; columns and boxes keep their widths",
   ],
   [
@@ -936,7 +898,7 @@ function MixPage() {
         <h2>What each layer owns</h2>
         <p className="collection-intro">
           Changing one layer leaves the other two where they were. Writing and layout swap live on Technical; the style layer is
-          the role contract, which Technical fills and the written specs fill on paper.
+          the role contract, which each site&rsquo;s spec fills (Technical here).
         </p>
         <div className="fdn-table" tabIndex={0} role="region" aria-label="What each layer owns">
           <table>
@@ -1068,14 +1030,6 @@ export const recipes: { name: string; style: string; sequence: string[]; templat
     link: "The product page",
   },
   {
-    name: "Landing page (generic)",
-    style: "Landing (a written spec: build the style first)",
-    sequence: ["hero + product output", "steps", "mechanism", "demo", "proof", "FAQ", "pricing", "closing"],
-    template: "hero { eyebrow, headline, subhead, cta }, features[3], faq[], offer",
-    href: specHref("docs/system/styles/landing.md"),
-    link: "The Landing spec",
-  },
-  {
     name: "Technical article",
     style: "Technical",
     sequence: ["layer head", "prose", "figure", "callout", "link list"],
@@ -1105,10 +1059,10 @@ function RecipesPage() {
   return (
     <>
       <section>
-        <h2>Six jobs, three layers each</h2>
+        <h2>Five jobs, three layers each</h2>
         <p className="collection-intro">
-          Pick the style, follow the sequence, fill the template, then check it against the live page. Technical is the one
-          implemented style; a job that needs another builds it from its written spec first.
+          Pick the style, follow the sequence, fill the template, then check it against the live page. The style is the
+          site&rsquo;s spec; Technical here.
         </p>
         <ul className="fdn-recipes">
           {recipes.map((r) => (
@@ -1143,7 +1097,7 @@ function RecipesPage() {
       </section>
       <Checklist
         items={[
-          "The style fits the job: Technical by default; a generic landing page or a poster first builds its style from the Landing or Graphical spec.",
+          "The style is the site's spec: Technical on this site, the site's own spec elsewhere.",
           "The sequence is followed, or you can say why it changed.",
           "Every template field is filled from real facts, with a TODO where one is missing.",
           "The draft is compared side by side with the live example.",
@@ -1261,7 +1215,7 @@ function ChainSketch() {
 const tropes = [
   [
     "Purple or indigo accent on a grey page",
-    "Technical's Prussian blue and one amber mark; another accent only from a style built from its written spec",
+    "The site spec's one accent (Technical: Prussian blue and one amber mark); never a second",
   ],
   ["Inter or Roboto everywhere", "IBM Plex Sans 600 headings on page, slide and figure; IBM Plex Mono labels"],
   [

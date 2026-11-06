@@ -35,6 +35,7 @@ describe("docs manifest", () => {
   it("a link to a file goes to the page that renders it", () => {
     expect(pageForFile("docs/system/README.md")?.id).toBe("foundations");
     expect(pageForFile("docs/system/style.md")?.id).toBe("foundations-style");
+    expect(pageForFile("docs/specs/technical.md")?.id).toBe("spec-technical");
   });
 });
 
@@ -96,7 +97,7 @@ describe("demos and links in the docs", () => {
     expect(resolveDocsUrl("docs/system/README.md", "style.md#diagrams", "link", "dark")).toBe(
       "/foundations/style?theme=dark#diagrams",
     );
-    expect(resolveDocsUrl("docs/system/styles/README.md", "../../../src/style.ts", "link", "light")).toBe(
+    expect(resolveDocsUrl("docs/specs/README.md", "../../src/style.ts", "link", "light")).toBe(
       "https://github.com/ong6/uipack/blob/main/src/style.ts",
     );
     expect(resolveDocsUrl("README.md", "docs/presets/agentLoop-light.png", "image", "light")).toBe(

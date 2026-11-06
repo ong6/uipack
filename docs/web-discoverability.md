@@ -336,8 +336,8 @@ control, and user-triggered agents may not follow it.
 Two methods, which disagree on mobile LCP by more than a factor of two. Use Lighthouse for the
 absolute number and the trace for comparing changes.
 
-These measurements (2026-10-23) were taken when `/web` rendered in the former Landing style, now a
-[written spec](system/styles/landing.md), with its Instrument Serif display faces. `/web` now renders
+These measurements (2026-10-23) were taken when `/web` rendered in the former Landing style, since
+removed (git history keeps its spec), with its Instrument Serif display faces. `/web` now renders
 in Technical, which fetches five IBM Plex files (about 101 KB) and preloads only Plex Sans 600; the
 method and the lessons below still apply, the absolute numbers have not been re-measured.
 

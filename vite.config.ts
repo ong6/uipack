@@ -19,7 +19,7 @@ const CRAWL_TYPES: Record<string, string> = {
  * so without this they fall back to index.html). Dev and preview build them for the requesting
  * origin, matching the page's own "View generated" panel; a build also emits them, for
  * `UIPACK_PLAYGROUND_ORIGIN` (default https://tidy.example). The playground pages stay
- * `noindex`; these files only describe the demo, as a real Landing site would serve them.
+ * `noindex`; these files only describe the demo, as a real site would serve them.
  * Paths under /.well-known/ get a 404 instead of the SPA fallback.
  */
 function crawlFiles(): Plugin {

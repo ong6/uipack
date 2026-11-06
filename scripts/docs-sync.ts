@@ -14,7 +14,9 @@ import { relative, dirname, join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { SLOT_BUDGETS, TITLE_WORDS, type SlotBudget, type SlotName } from "../src/deck/budgets";
 import { wordRules } from "../playground/guideFacts";
-import { docsManifest, docsPages, type DocsPageEntry } from "../playground/docs-manifest";
+import { docsManifest, docsPages, siteRegistry, type DocsPageEntry } from "../playground/docs-manifest";
+import { frontmatter } from "./check-spec";
+import { CORE_ROLES, lightDark, parseValueSet } from "./style-contract";
 
 const pagesOf = (g: (typeof docsManifest)[number]): readonly DocsPageEntry[] => g.pages;
 /** A page as the site names it: "Deck player: Bento" for a sub-view. */
@@ -126,12 +128,61 @@ export function llmsTxt() {
   ].join("\n");
 }
 
+/* ------------------------------------------------------------------ specs, families, registry */
+
+const code = (v: string) => `\`${v.replace(/\|/g, "\\|")}\``;
+
+/** A spec's Role values table: every role its style file (frontmatter `values`) sets, light and dark. */
+export function specRoles(file: string) {
+  const values = frontmatter(readFileSync(join(root, file), "utf8"))?.values;
+  if (typeof values !== "string" || !existsSync(join(root, values)))
+    throw new Error(`${file}: spec-roles needs frontmatter values: <style file>`);
+  const rows = [...parseValueSet(readFileSync(join(root, values), "utf8"))].map(([name, value]) => {
+    const [light, dark] = lightDark(value);
+    return `| ${code(`--ui-${name}`)} | ${code(light)} | ${code(dark)} |`;
+  });
+  return ["| Role | Light | Dark |", "| --- | --- | --- |", ...rows].join("\n");
+}
+
+/** The template's Role values table: every contract role, both cells a TODO to fill. */
+export function contractRoles() {
+  const rows = CORE_ROLES.map((role) => `| ${code(`--ui-${role}`)} | TODO: | TODO: |`);
+  return ["| Role | Light | Dark |", "| --- | --- | --- |", ...rows].join("\n");
+}
+
+/** The diagram family's tokens: what each figure token reads (src/theme.css) and Technical's value. */
+export function diagramFamily() {
+  const theme = readFileSync(join(root, "src/theme.css"), "utf8");
+  const block = theme.slice(theme.indexOf(".uipack {"), theme.indexOf("}", theme.indexOf(".uipack {")));
+  const technical = parseValueSet(readFileSync(join(root, "src/styles/technical.css"), "utf8"));
+  const rows = [...block.matchAll(/(--uipack-[a-z0-9-]+):\s*var\(--ui-([a-z0-9-]+)[^;]*;/g)].map(([, token, role]) => {
+    const [light, dark] = lightDark(technical.get(role) ?? "");
+    return `| ${code(token)} | ${code(`--ui-${role}`)} | ${code(light)} | ${code(dark)} |`;
+  });
+  return ["| Token | Reads today | Light | Dark |", "| --- | --- | --- | --- |", ...rows].join("\n");
+}
+
+/** docs/specs/registry.md's table, from `siteRegistry`. */
+export function registryTable(from: string) {
+  const rows = siteRegistry.map((s) => {
+    const spec = s.spec.includes(":")
+      ? `\`${s.spec}\` (${s.specStatus === "todo" ? "TODO" : "written"})`
+      : `[${s.spec}](${rel(from, s.spec)})`;
+    return `| ${s.site} | ${s.repo} | ${spec} | ${s.families.join(", ")} | \`${s.pins}\` | ${s.notes} |`;
+  });
+  return ["| Site | Repo | Spec | Families | Pins uipack | Notes |", "| --- | --- | --- | --- | --- | --- |", ...rows].join("\n");
+}
+
 /* ------------------------------------------------------------------ blocks */
 
 /** Each generated block's writer; `file` is the repo path of the Markdown file holding it. */
 export const generators: Record<string, (file: string) => string> = {
   "slot-budgets": () => slotBudgetTable(),
   "site-map": (file) => siteMap(file),
+  "spec-roles": (file) => specRoles(file),
+  "contract-roles": () => contractRoles(),
+  "diagram-family": () => diagramFamily(),
+  "site-registry": (file) => registryTable(file),
 };
 
 const BLOCK = /(<!-- generated:([\w-]+) -->\n)([\s\S]*?)(<!-- \/generated -->)/g;

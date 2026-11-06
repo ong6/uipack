@@ -340,57 +340,6 @@
   color: var(--show-accent);
   text-underline-offset: 0.2em;
 }
-/* The written specs: cards without swatches, dashed because nothing implements them yet. */
-.fdn-steps {
-  display: grid;
-  gap: 8px;
-  max-width: 72ch;
-  margin: 0 0 24px;
-  padding-left: 1.5em;
-  line-height: 1.6;
-}
-.fdn-specs {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
-  gap: 24px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.fdn-spec-card {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  padding: 20px 24px;
-  border: 1px dashed var(--show-rule);
-  border-radius: var(--show-radius);
-}
-.fdn-spec-card__kind {
-  margin: 0 0 4px;
-  color: var(--show-muted);
-  font: var(--show-eyebrow-font);
-  letter-spacing: var(--show-eyebrow-tracking);
-  text-transform: uppercase;
-}
-.fdn-spec-card h3 {
-  margin: 0 0 8px;
-}
-.fdn-spec-card p:not(.fdn-spec-card__kind) {
-  margin: 0;
-  max-width: 60ch;
-  color: var(--show-muted);
-  line-height: 1.6;
-}
-.fdn-spec-card a {
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-  margin-top: auto;
-  color: var(--show-accent);
-}
-.fdn-specs + .collection-intro {
-  margin-top: 16px;
-}
 /* One title at three measures: the line breaks follow the column. */
 .fdn-widths {
   display: grid;

@@ -10,6 +10,20 @@ import { useShowcaseTheme, useShowcaseToc } from "./ShowcaseShell";
 // Every Markdown file a page can render, each its own small chunk, loaded when its page opens.
 const sources = import.meta.glob<string>(["../docs/**/*.md", "../README.md"], { query: "?raw", import: "default" });
 
+/**
+ * A file's YAML frontmatter (a spec's `extends`, `uses`…) shown as a yaml block under its title, so
+ * readers see what an agent reads; GitHub renders it as a table, DocsMarkdown would not.
+ */
+function showFrontmatter(text: string) {
+  const m = /^---\n([\s\S]*?)\n---\n/.exec(text);
+  if (!m) return text;
+  const rest = text.slice(m[0].length);
+  const title = /^(# .*\n)/.exec(rest.trimStart());
+  const body = rest.trimStart();
+  const block = "```yaml\n" + m[1] + "\n```\n";
+  return title ? `${title[1]}\n${block}${body.slice(title[1].length)}` : block + body;
+}
+
 /** The page for this address: the manifest entry whose route it is. */
 function currentPage(): PageDef | undefined {
   const id = routes.get(routePath(location.pathname));
@@ -33,7 +47,7 @@ export default function MarkdownShowcase() {
     if (!load) return;
     let live = true;
     load().then(
-      (text) => live && setSource(withDemos(text, page?.demos)),
+      (text) => live && setSource(withDemos(showFrontmatter(text), page?.demos)),
       () => live && setFailed(true),
     );
     return () => {

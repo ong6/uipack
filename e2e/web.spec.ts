@@ -127,7 +127,7 @@ test.describe("/web collection", () => {
       await page.setViewportSize({ width: 390, height: 844 });
       await page.goto(`/web?theme=${theme}`);
       await expect(page.locator(".uipack-web").first()).toHaveAttribute("data-theme", theme);
-      await expect(page.locator(".showcase-menu-button")).toHaveAccessibleName("Components: Web UI");
+      await expect(page.locator(".showcase-menu-button")).toHaveAccessibleName("Examples: Web UI");
       // The context line names the page's style, Technical (the one implemented style); no switcher.
       await expect(page.locator(".showcase-context a")).toHaveText("Technical style");
       await expect(page.locator(".showcase-context").getByRole("group", { name: "Style" })).toHaveCount(0);
@@ -154,18 +154,13 @@ test.describe("/web collection", () => {
     });
   }
 
-  test("Styles renders its spec index and the style catalog demo; Technical links to Web UI", async ({ page }) => {
-    await page.goto("/styles");
-    // Landing and Graphical are specs only: no live card, a row in the doc's table linking to its spec page.
-    await expect(page.locator(".style-card", { hasText: /^Landing/ })).toHaveCount(0);
-    for (const [name, file] of [
-      ["Landing", "landing"],
-      ["Graphical", "graphical"],
-    ])
-      await expect(page.locator("main .uipack-docs__table").getByRole("link", { name, exact: true })).toHaveAttribute(
-        "href",
-        `/styles/${file}?theme=light`,
-      );
+  test("the Technical spec shows the style catalog demo; Technical links to Web UI, and no other site's look is a live card", async ({
+    page,
+  }) => {
+    await page.goto("/specs/technical");
+    // One spec per site: other sites' specs live in the registry, never as live cards here.
+    await expect(page.locator(".style-card", { hasText: /^Landing|^Graphical/ })).toHaveCount(0);
+    await expect(page.locator('.uipack-docs__block[data-block-id="style-catalog"]')).toBeVisible();
     const card = page.locator(".style-card", { hasText: "Technical" });
     await card.getByRole("link", { name: "Product page" }).click();
     await expect(page).toHaveURL(/\/web\?theme=light/);

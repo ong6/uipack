@@ -34,7 +34,7 @@ test("every page is reachable from the sidebar with the right current marker", a
 test("previous and next follow the sidebar's order", async ({ page }) => {
   await page.goto("/foundations/writing?theme=light");
   const pager = page.getByRole("navigation", { name: "Previous and next documentation pages" });
-  await expect(pager.getByRole("link", { name: /Previous.*Style roles/ })).toHaveAttribute(
+  await expect(pager.getByRole("link", { name: /Previous.*Style contract/ })).toHaveAttribute(
     "href",
     "/foundations/style?theme=light",
   );
@@ -294,16 +294,17 @@ test.describe("deck sub-views in the 390px menu", () => {
 
 test.describe("desktop sidebar groups", () => {
   test.use({ viewport: { width: 1280, height: 900 } });
-  test("Foundations lists the seven guides the pager walks, nothing else", async ({ page }) => {
+  test("Rules lists the guides the pager walks, nothing else", async ({ page }) => {
     await page.goto("/foundations/writing");
     const foundations = sidebar(page).locator(".uipack-docs__nav-section", {
-      has: page.getByRole("heading", { name: "Foundations" }),
+      has: page.getByRole("heading", { name: "Rules" }),
     });
     await expect(foundations.getByRole("link")).toHaveText([
       "Overview",
-      "Style roles",
+      "Style contract",
       "Writing",
       "Layout",
+      "What a spec may set",
       "Mix and match",
       "Recipes",
       "Do and don't",

@@ -72,7 +72,7 @@ export const docsManifest = [
   },
   {
     id: "foundations",
-    label: "Foundations",
+    label: "Rules",
     pages: [
       {
         id: "foundations",
@@ -87,12 +87,12 @@ export const docsManifest = [
       },
       {
         id: "foundations-style",
-        label: "Style roles",
+        label: "Style contract",
         path: "/foundations/style",
         file: "docs/system/style.md",
         showcase: "FoundationsShowcase",
         intro:
-          "The roles every style fills, the ornament slots it paints, Technical's values in light and dark, and the written specs that fill the same contract.",
+          "The roles every site spec fills and the ornament slots it paints, shown live with this site's values (Technical) in light and dark.",
       },
       {
         id: "foundations-writing",
@@ -111,6 +111,13 @@ export const docsManifest = [
         intro: "Regions, archetypes and narrow forms: where each slot sits and in what order it is read.",
       },
       {
+        id: "spec-settings",
+        label: "What a spec may set",
+        path: "/foundations/spec-settings",
+        file: "docs/system/spec-settings.md",
+        intro: "The boundary between a site spec and the core rules: what a spec chooses, and what holds on every site.",
+      },
+      {
         id: "foundations-mix",
         label: "Mix and match",
         path: "/foundations/mix",
@@ -124,7 +131,7 @@ export const docsManifest = [
         path: "/foundations/recipes",
         file: "docs/system/layout.md",
         showcase: "FoundationsShowcase",
-        intro: "Six common jobs, each as a style, an archetype sequence and a content template, with the live page.",
+        intro: "Five common jobs, each as a style, an archetype sequence and a content template, with the live page.",
       },
       {
         id: "foundations-dont",
@@ -249,16 +256,6 @@ export const docsManifest = [
         intro: "Mechanical drawings that explain how a system moves, one part at a time.",
       },
       {
-        id: "web",
-        summary: "The numbered rules for uipack/web pages in Technical, each with its source, motion and backgrounds included.",
-        label: "Web UI",
-        path: "/web",
-        file: "docs/web-principles.md",
-        showcase: "WebShowcase",
-        hostsPage: true,
-        intro: "A product page in Technical, the one implemented style, then every part it is made of.",
-      },
-      {
         id: "docs",
         label: "Docs layout",
         path: "/docs",
@@ -269,32 +266,69 @@ export const docsManifest = [
     ],
   },
   {
-    id: "styles",
-    label: "Styles",
+    id: "families",
+    label: "Families",
+    pages: [
+      {
+        id: "family-diagrams",
+        label: "Diagrams",
+        path: "/families/diagrams",
+        file: "docs/families/diagrams.md",
+        intro:
+          "The diagram family: figures, charts and drill-down look the same on every site; its fixed values, generated from code.",
+      },
+    ],
+  },
+  {
+    id: "specs",
+    label: "Specs",
     pages: [
       {
         id: "styles",
-        label: "Styles",
+        label: "How to write a spec",
         path: "/styles",
-        file: "docs/system/styles/README.md",
-        demos: [{ id: "style-catalog", at: "building-a-style-from-a-spec" }],
+        file: "docs/specs/README.md",
         intro:
-          "Technical, the one implemented style; the illustration looks drawn within it; and the styles written as specs for agents to build.",
+          "One spec per website, built from the core rules: the layers, how to write and check a spec, and how a spec becomes a live style.",
       },
       {
-        id: "styles-landing",
-        label: "Landing spec",
-        path: "/styles/landing",
-        file: "docs/system/styles/landing.md",
-        intro: "A written style spec for product marketing: label stock, one ledger-green accent and editorial serif headlines.",
+        id: "spec-template",
+        label: "Spec template",
+        path: "/specs/template",
+        file: "docs/specs/TEMPLATE.md",
+        intro: "The file a new site spec starts from: the frontmatter and the sections the checker requires.",
       },
       {
-        id: "styles-graphical",
-        label: "Graphical spec",
-        path: "/styles/graphical",
-        file: "docs/system/styles/graphical.md",
+        id: "spec-technical",
+        label: "Technical",
+        path: "/specs/technical",
+        file: "docs/specs/technical.md",
+        demos: [{ id: "style-catalog", at: "type" }],
         intro:
-          "A written style spec for launches and campaigns: a poster in black ink, one signal-orange accent and condensed caps.",
+          "The uipack site's spec: Cyanotype, Prussian ink and one amber mark, IBM Plex, with its role values generated from the style file.",
+      },
+      {
+        id: "spec-registry",
+        label: "Registry",
+        path: "/specs/registry",
+        file: "docs/specs/registry.md",
+        intro: "Every site uipack designs for: where its spec lives, the families it uses and the uipack commit it pins.",
+      },
+    ],
+  },
+  {
+    id: "examples",
+    label: "Examples",
+    pages: [
+      {
+        id: "web",
+        summary: "The numbered rules for uipack/web pages in Technical, each with its source, motion and backgrounds included.",
+        label: "Web UI",
+        path: "/web",
+        file: "docs/web-principles.md",
+        showcase: "WebShowcase",
+        hostsPage: true,
+        intro: "A product page in Technical, the one implemented style, then every part it is made of.",
       },
     ],
   },
@@ -381,3 +415,51 @@ export const docsFiles = [...new Set(docsPages.map((page) => page.file))];
 export const editUrl = (file: string) => `${REPO_URL}/edit/main/${file}`;
 /** A repo file on GitHub, for links the site has no page for. */
 export const blobUrl = (file: string) => `${REPO_URL}/blob/main/${file}`;
+
+/**
+ * Every site uipack designs for (docs/specs/registry.md is generated from this): where its spec
+ * lives, the shared families it uses and the uipack commit it pins. One spec per site; a site
+ * reusing another's look names that spec in its own spec's `extends`.
+ */
+export interface SiteEntry {
+  readonly site: string;
+  readonly repo: string;
+  /** The spec's path: repo-relative in uipack, or `<repo>:STYLE.md` in the site's own repo. */
+  readonly spec: string;
+  /** "written" when the spec exists; otherwise what is still to do. */
+  readonly specStatus: "written" | "todo";
+  readonly families: readonly string[];
+  /** The uipack commit the site installs; "current" for uipack itself. */
+  readonly pins: string;
+  readonly notes: string;
+}
+
+export const siteRegistry: readonly SiteEntry[] = [
+  {
+    site: "uipack (docs site and package defaults)",
+    repo: "ong6/uipack",
+    spec: "docs/specs/technical.md",
+    specStatus: "written",
+    families: ["diagrams"],
+    pins: "current",
+    notes: "Technical, the implemented style (src/styles/technical.css)",
+  },
+  {
+    site: "junxiong.dev",
+    repo: "ong6/junxiong-homepage",
+    spec: "junxiong-homepage:STYLE.md",
+    specStatus: "todo",
+    families: ["diagrams"],
+    pins: "e6b6ed7",
+    notes: "TODO: spec not written (on hold); a Chakra theme maps the --uipack-* variables",
+  },
+  {
+    site: "notes.junxiong.dev",
+    repo: "ong6/junxiong-notes",
+    spec: "junxiong-notes:STYLE.md",
+    specStatus: "todo",
+    families: ["diagrams"],
+    pins: "3886f0d",
+    notes: "TODO: spec not written (on hold); warm paper #fffdf9, rust accent #9a3412, serif and sans",
+  },
+];

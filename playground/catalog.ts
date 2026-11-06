@@ -38,27 +38,6 @@ export const visualStyles = [
     variant,
   })),
 ] as const;
-/**
- * Styles that exist as written specs only (docs/system/styles/): each fills the same role contract
- * as Technical, so an agent builds one by adding a value set in src/styles, registering it in
- * `uiStyles` (src/style.ts) and testing it. Nothing in the playground renders them.
- */
-export const writtenStyleSpecs = [
-  {
-    id: "landing",
-    name: "Landing",
-    description:
-      "Product marketing in label stock: warm ivory and kraft, one ledger-green accent, editorial serif headlines, ruled forms with perforated divisions and no shadows.",
-    spec: "docs/system/styles/landing.md",
-  },
-  {
-    id: "graphical",
-    name: "Graphical",
-    description:
-      "A poster: bone paper, black ink, one signal-orange accent, condensed display caps, hard edges and one disc motif for launches, events and campaigns.",
-    spec: "docs/system/styles/graphical.md",
-  },
-] as const;
 
 /**
  * Navigation groups and pages come from the docs manifest (docs-manifest.ts): the sidebar groups in

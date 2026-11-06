@@ -65,7 +65,7 @@ const AREAS = [
   [/^src\/docs\/|^playground\/Docs/, ["docs", "foundations", "nav"]],
   // The docs site: its manifest, the Markdown page, demos, links and generated blocks.
   [
-    /^playground\/(docs-manifest|docs-links|demos|MarkdownShowcase)|^scripts\/docs-sync|^docs\/(?!system\/)|^README\.md$|^llms\.txt$/,
+    /^playground\/(docs-manifest|docs-links|demos|MarkdownShowcase)|^scripts\/(docs-sync|check-spec|style-contract)|^docs\/(?!system\/)|^README\.md$|^llms\.txt$/,
     ["foundations", "nav", "page-audit"],
   ],
   [/^src\/(CanvasView|canvas)/, ["canvas", "canvas-gestures"]],
@@ -74,7 +74,7 @@ const AREAS = [
   // The Foundations guide pages: their outline, scale, alignment and overflow, and the nav rows.
   [/^playground\/(Foundations|foundations)|^docs\/system\//, ["foundations", "nav", "page-audit", "showcase-content"]],
   [/^playground\/(ShowcaseShell|showcase\.css|catalog|routes|nav|main|index\.html)/, SHELL],
-  // The /styles and /presentations pages (CatalogShowcase): style cards, written specs, slide starters.
+  // The /styles and /presentations pages (CatalogShowcase): slide starters and the style catalog demo.
   [/^playground\/(CatalogShowcase|StylePreviews|presentations\.css)/, ["web", "page-audit", "showcase"]],
   [/^dist\//, ["dist-smoke"]],
 ];

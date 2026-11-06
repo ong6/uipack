@@ -9,12 +9,13 @@ Read docs/system/README.md first (style, writing and layout as three layers). Ag
 - [What UiPack is](docs/README.md): UiPack is a design system that draws explanations: diagrams, slides, web pages, motion and 3D. This is the index of its documentation.
 - [Install and use](README.md): Install the package, draw a first figure, and the entries for charts, articles, 3D, web pages, decks and docs.
 
-## Foundations
+## Rules
 
 - [Overview](docs/system/README.md): The canonical design-system spec: the philosophy, the three independent layers (style, writing, layout) and the contract between them, with what each medium needs.
-- [Style roles](docs/system/style.md): The roles every style fills, the ornament slots it paints, Technical's values in light and dark, and the written specs that fill the same contract.
+- [Style contract](docs/system/style.md): The roles every site spec fills and the ornament slots it paints, shown live with this site's values (Technical) in light and dark.
 - [Writing](docs/system/writing.md): Words are typed data: a claim per unit, a text budget per slot, and one place for each kind of sentence.
 - [Layout](docs/system/layout.md): Regions, archetypes and narrow forms: where each slot sits and in what order it is read.
+- [What a spec may set](docs/system/spec-settings.md): The boundary between a site spec and the core rules: what a spec chooses, and what holds on every site.
 
 ## Components
 
@@ -28,14 +29,22 @@ Read docs/system/README.md first (style, writing and layout as three layers). Ag
 - [3D animations](docs/slides.md): Live 3D scenes with camera moves, animated flows and presentation controls.
 - [3D object scenes](docs/objects.md): Reusable, lazy 3D illustrations, their art directions and the player that shows them.
 - [Mechanism](docs/mechanism.md): Mechanical drawings that explain how a system moves, one part at a time.
-- [Web UI](docs/web-principles.md): The numbered rules for uipack/web pages in Technical, each with its source, motion and backgrounds included.
 - [Docs layout](docs/docs-layout.md): A three-column product documentation shell with responsive navigation and Markdown prose.
 
-## Styles
+## Families
 
-- [Styles](docs/system/styles/README.md): Technical, the one implemented style; the illustration looks drawn within it; and the styles written as specs for agents to build.
-- [Landing spec](docs/system/styles/landing.md): A written style spec for product marketing: label stock, one ledger-green accent and editorial serif headlines.
-- [Graphical spec](docs/system/styles/graphical.md): A written style spec for launches and campaigns: a poster in black ink, one signal-orange accent and condensed caps.
+- [Diagrams](docs/families/diagrams.md): The diagram family: figures, charts and drill-down look the same on every site; its fixed values, generated from code.
+
+## Specs
+
+- [How to write a spec](docs/specs/README.md): One spec per website, built from the core rules: the layers, how to write and check a spec, and how a spec becomes a live style.
+- [Spec template](docs/specs/TEMPLATE.md): The file a new site spec starts from: the frontmatter and the sections the checker requires.
+- [Technical](docs/specs/technical.md): The uipack site's spec: Cyanotype, Prussian ink and one amber mark, IBM Plex, with its role values generated from the style file.
+- [Registry](docs/specs/registry.md): Every site uipack designs for: where its spec lives, the families it uses and the uipack commit it pins.
+
+## Examples
+
+- [Web UI](docs/web-principles.md): The numbered rules for uipack/web pages in Technical, each with its source, motion and backgrounds included.
 
 ## Reference
 

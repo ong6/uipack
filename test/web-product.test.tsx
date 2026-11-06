@@ -334,7 +334,7 @@ describe("styleBootScript", () => {
     expect(attrs).toEqual({ "data-ui-style": "technical", "data-theme": "dark", "data-ui-theme": "dark" });
   });
   it("falls back to Technical for a style that is not registered, from the URL or from storage", () => {
-    // Landing and Graphical are written specs (docs/system/styles/), not registered styles.
+    // An unregistered style id (a removed spec, a typo) falls back to Technical.
     expect(run("?style=landing").attrs["data-ui-style"]).toBe("technical");
     expect(run("", { "uipack-style": "graphical" }).attrs["data-ui-style"]).toBe("technical");
     expect(run("?style=nope", {}, { aliases: { "1": "technical" } }).attrs["data-ui-style"]).toBe("technical");
