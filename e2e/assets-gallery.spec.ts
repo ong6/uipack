@@ -5,8 +5,8 @@ import { test, expect } from "./fixtures";
 for (const theme of ["light", "dark"] as const)
   for (const width of [390, 1440]) {
     test(`assets gallery renders every card, fits and stays quiet ${theme} ${width}`, async ({ page }) => {
-      // 115 live previews mount as the page scrolls; on CI's software rendering the scroll-to-bottom
-      // poll below can take most of its own 60 s, so the test gets room for it.
+      // 115 live previews mount as the page scrolls; on CI's software rendering the two polls below
+      // can take most of their 30 s each, so the test gets room for them.
       test.setTimeout(90_000);
       const errors: string[] = [];
       page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
@@ -21,21 +21,32 @@ for (const theme of ["light", "dark"] as const)
       );
       const cards = page.locator("[data-gallery-item]");
       expect(await cards.count()).toBeGreaterThan(100);
-      // Every preview mounts once it nears the viewport: scroll to the bottom (the page grows as
-      // previews mount), then none is left empty.
+      // Scroll to the bottom (the page can grow as previews mount); the poll reports where it is.
       await expect
         .poll(
           async () => {
             await page.evaluate(() => scrollBy(0, 900));
-            return page.evaluate(
-              () =>
-                scrollY + innerHeight >= document.documentElement.scrollHeight - 2 &&
-                [...document.querySelectorAll(".gallery-preview")].every((p) => p.children.length > 0),
-            );
+            return page.evaluate(() => {
+              const doc = document.documentElement;
+              const bottom = scrollY + innerHeight >= doc.scrollHeight - 2;
+              return bottom ? "bottom" : `at ${Math.round(scrollY + innerHeight)} of ${doc.scrollHeight}`;
+            });
           },
-          { timeout: 60_000, intervals: [100] },
+          { timeout: 30_000, intervals: [100] },
         )
-        .toBe(true);
+        .toBe("bottom");
+      // Then every preview has mounted; the poll names any card still empty.
+      await expect
+        .poll(
+          () =>
+            page.evaluate(() =>
+              [...document.querySelectorAll<HTMLElement>("[data-gallery-item]")]
+                .filter((card) => !card.querySelector(".gallery-preview")?.children.length)
+                .map((card) => card.dataset.galleryItem),
+            ),
+          { timeout: 30_000, intervals: [250] },
+        )
+        .toEqual([]);
       // Previews are pictures: hidden from assistive tech and out of the Tab order.
       expect(await page.locator(".gallery-preview:not([aria-hidden='true']), .gallery-preview:not([inert])").count()).toBe(0);
       expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
