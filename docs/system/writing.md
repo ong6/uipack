@@ -9,31 +9,31 @@ render in any layout that has matching slots, in any style. See [the system over
 1. **Write the claim before drawing.** One sentence: what the reader should conclude. "A question
    fans out to five knowledge bases in parallel, and only chunks above 0.35 similarity reach the
    model." Everything on the canvas serves that sentence.
-2. **Only the facts you were given.** Every number, scope, cause and reassurance traces to the
-   input. Arithmetic on given numbers is fine ("40 to 6 minutes" is "34 minutes sooner"); a guess
-   about what a metric includes, why it moved or what it rules out is not, however plausible ("the
-   p95 already counts retried requests"). A fact the piece needs but the input lacks is never filled
-   in, and finished copy never shows `TODO` (only a draft the owner asked to see as one). Never
-   state a gap as a fact about the team or the world ("we haven't costed a fix", "no other options
-   costed", "nothing else changed"): that is invented too. Leave it out, or, only when the decision
-   needs it, pin it to the data in the notes or caption ("iOS isn't in these numbers", "the brief
-   has no cost for a fix", "iOS 0.8%: source still to confirm"). A consequence the input gives as a
-   purpose can be stated: "approve by 9 January so it ships in spring" means a later yes misses
-   spring. Reasoning from the given facts is not a new fact: why a number matters, what follows
-   for this audience and what a no costs are what notes are for. A recommendation is said as one
-   ("we recommend"), never as a measured fact. A
-   before/after comparison claims no cause: say "after", "since", "went from… to", never "lifted",
-   "cut", "drove" or "because", and say once, briefly, that it is a before/after of two windows
-   (`causal-claim`). Say it once per deliverable, in the deck's notes or a caption, in plain words
-   ("this compares two months, and other things changed too"). It never goes in a customer headline
-   or subhead, and method and caveats never appear as stock phrases in the prose ("not a controlled
-   test", "same window and source", "my arithmetic").
+2. **Only the facts you were given, and silence where there are none.** Every number, scope,
+   cause and reassurance traces to the input. Arithmetic on given numbers is fine ("40 to 6
+   minutes" is "34 minutes sooner"); a guess about what a metric includes, why it moved or what it
+   rules out is not, however plausible ("the p95 already counts retried requests"). When the input
+   lacks a fact, leave it out. Don't fill it, don't print `TODO`, and don't announce the gap: "still
+   to confirm", "not yet known", "we haven't costed a fix" and "nothing else changed" all put the
+   writer's bookkeeping in front of the reader. Mention a gap only when the decision turns on it,
+   once, as a plain sentence in the notes ("iOS isn't in these numbers"). A before/after claims no
+   cause: say "after", "since" or "went from… to", never "lifted", "cut", "drove" or "because"
+   (`causal-claim`). Say once in the whole deliverable, in a plain sentence in the deck's
+   evidence-slide notes, that the numbers compare two windows ("this compares September with
+   October; other things changed too"). Nowhere else: not in the figure, the page or a title. Reasoning from the given facts is not a new fact:
+   why a number matters and what follows for this audience are what notes are for. A consequence
+   the input gives as a purpose can be stated ("approve by 9 January so it ships in spring": a
+   later yes misses spring). A recommendation is said as one ("we recommend"), never as a measured
+   fact.
 3. **Be specific.** Use a number and what it measures, a multiple ("twice"), or a
    before and after ("3 meetings → 1"). "In a good place" could describe any quarter.
-4. **Every number has a baseline, a window and a source, and each binds only to the number it
-   measures.** "The search latency dashboard, May vs June, all regions" given for p95 says nothing
-   about the error rate in the next sentence: its notes say the window and source are still to
-   confirm, never "same window and source". Keep the measure's own word and its qualifiers exactly:
+4. **A baseline, a window and a source travel with the number they were given for, and only
+   that number.** "The search latency dashboard, May vs June, all regions" given for p95 says
+   nothing about the error rate in the next sentence. A number given without them is stated as
+   given ("errors rose from 2% to 3%"): never borrow a neighbour's source, and don't scatter
+   disclaimers about the missing one. Sources live in one place per piece: the evidence slide's
+   source line or notes for a deck, the source line for a figure. List each number's source there
+   once, and a number the input gave without one as "source not given", there and nowhere else. Keep the measure's own word and its qualifiers exactly:
    a median stays a median (or its exact plain form, "half of requests"), "up to 15 minutes" never
    becomes "a short while" or "15 min", "about 40" keeps its "about". Put all three on the canvas when they change the
    decision, otherwise in the caption, notes or source line, stated once as a named artifact.
@@ -44,7 +44,7 @@ render in any layout that has matching slots, in any style. See [the system over
    | Label | Inside the drawing | 2–3 words; a mono sub-label for a value (`1536-dim`, `p95 198ms`) |
    | Arrow label | On the line | What travels or the rule (`decoded image`, `cosine · floor 0.35`), never a vague noun (`user sessions`, `data`) |
    | Eyebrow | Above the title; optional, and off on slides by default | 1–4 words, a category or section (`FIGURE 02 · RETRIEVAL`), never the claim |
-   | Title / headline | The top of the unit | A presented slide: 2–5 words, a verdict you'd say aloud (`Search: twice as fast since March`, `Starts got 0.2 s slower`); a bare label only on agenda, section and mechanism slides. A slide read without its speaker, a figure: the claim as a full sentence, 3–14 words. A web section: a short plain head (see [Web](#web)) |
+   | Title / headline | The top of the unit | A presented slide: 2–5 words, a verdict you'd say aloud (`Search got twice as fast`, `Starts got 0.2 s slower`); a bare label only on agenda, section and mechanism slides. A slide read without its speaker, a figure: the claim as a full sentence, 3–14 words. A web section: a short plain head (see [Web](#web)) |
    | Caption / lede | Under the figure (caption) or, rarely, a slide title (lede) | One plain sentence for the why or a caveat; slides have no lede by default |
    | Body | Slides and pages only | Slides: 2–4 fragments of at most 8 words, no full stops, carrying the numbers and cues (`p95 198 ms, half of March`, `5 indexes → 1`). Pages: short paragraphs |
    | Notes / narration | Speaker view, voice-over, `say` | A presented deck: a few short cue lines that add what the slide can't hold (why, so-what, trade-off, bridge). A read-alone deck, a voice-over: full sentences |
@@ -97,11 +97,14 @@ render in any layout that has matching slots, in any style. See [the system over
    - Every title states a point and can't mislead by omission ("three weeks" hiding a 400-article review)
    - Every point is unambiguous alone ("survey: ~6% responded"; "6% answered" hides the base)
    - Every note adds why, so-what, the trade-off or the bridge; none restates its slide
-   - The ask names action, object, cost, owner, date and what a no means
-   - Each number keeps its exact qualifier, source and window
-   - Nothing invented; no gap stated as fact
+   - The ask names action, object, cost, owner and date (and what a no means, if the input says)
+   - Each number keeps its exact qualifier, and its own source and window when given
+   - Nothing invented, and no gap announced that the decision doesn't need
+   - No phrase repeats across the pieces ("still to confirm", a caveat, a title shape on 3+ slides)
+   - The copy holds only the reader's words: no role tags ("(answer)"), no field labels
+     ("So-what:", "Delivery:"), no notes to the builder ("the figure fills the body"), no brief
+     instructions in the headings
    - No AI tells (rule 10)
-   - A before/after figure shows both states
    ```
 
 ## The content schema
@@ -173,14 +176,14 @@ yet.
 - **A statistic lives once, in the sub-label of the node it measures**, with its baseline:
   `p95 198ms · was 410ms` on the search node, `3% · was 5%` on the retry branch's node. On an arrow or a
   single path, it reads as if it covered only that path.
-- **Every path ends somewhere.** Each branch, the failure and exception ones included, reaches a
-  node or rejoins the flow. If the input doesn't say where a branch goes, end it at a node
-  labelled `Not yet known` and say so in the caption, rather than drawing an invented route or a
-  dead end.
+- **Draw only the paths the input describes.** Each branch, the failure and exception ones
+  included, reaches a node or rejoins the flow. If the input doesn't say where a branch goes, it
+  ends at its last known node, with its number in that node's sub-label (`Misrouted · 6%, was
+  4%`). Never invent a route, and never draw an unknown as a node.
 - **One scope per figure.** Every number in it shares the caption's population and window, and the
   source line names them. A part outside that scope (a planned or other-region step) carries it in
   its sub-label (`planned · not live`) and the caption says it is unmeasured; a number with a different
-  or unknown source says so in the source line.
+  source names its own in the source line, and one given without a source gets none (rule 4).
 - Step numbers (`01 / 02 / 03`) only when order matters, and the caption refers to them.
 - A `hint` (selection note) is one short sentence on what the part does.
 - **Name the parts, not the system.** Don't draw one box labelled "RAG pipeline". Draw the
@@ -208,11 +211,13 @@ the other way: the room waits for the speaker to learn the point, and a forwarde
 nothing. A short verdict keeps both.
 
 - **Answer first.** The conclusion is on slide one or two. Name the outcome on slide one, such as
-  "Search: twice as fast since March"; the system's name goes on slide two, as the reason. Slide
+  "Search got twice as fast since March"; the system's name goes on slide two, as the reason. Slide
   one's points carry the trade-off and the ask.
-- **Short spoken verdicts, mixed forms.** A verdict ("Android crashes down by two thirds"), a
-  "Topic: value" pair ("Start time: 0.2 s slower"), the occasional question about something not yet
-  known ("Will the cache hold?"), never one about a measured fact ("Slower starts?"). Labels
+- **Short spoken verdicts, mixed forms.** Most titles are something you'd say aloud ("Android
+  crashes down by two thirds", "Starts got a bit slower", "We need a German model"). The "Topic:
+  a → b" pair ("Start time: 1.4 → 1.6 s") is one form among several: use it on one or two slides,
+  not three. The occasional question about something not yet known ("Will the cache hold?") is
+  fine, never one about a measured fact ("Slower starts?"). Labels
   ("Crash rate") are for agenda, section and mechanism slides; `title-claim` flags one on a
   content slide. Never the same shape on every slide (`slide-shape`).
 - **The points carry the numbers.** Each is a fragment: a number with its baseline ("p95: 412 ms →

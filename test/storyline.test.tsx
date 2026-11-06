@@ -280,7 +280,7 @@ describe("lintDeck", () => {
       find(lintDeck(withSlide(good, "context", { title: "Uploads take 9 seconds at p95", ...patch })), "number-source");
 
     it("flags an unsourced number", () => {
-      expect(check({ notes: "They're slow." })).toEqual([expect.objectContaining({ slideId: "context", severity: "warn" })]);
+      expect(check({ notes: "They're slow." })).toEqual([expect.objectContaining({ slideId: "context", severity: "tip" })]);
     });
 
     it("accepts a source in notes or on the slide", () => {
