@@ -241,7 +241,8 @@ export const libraryPages = [
     group: "foundations",
     label: "Styles",
     path: "/styles",
-    intro: "Technical, the one implemented style; the illustration looks drawn within it; and the styles written as specs for agents to build.",
+    intro:
+      "Technical, the one implemented style; the illustration looks drawn within it; and the styles written as specs for agents to build.",
   },
   {
     id: "assets",

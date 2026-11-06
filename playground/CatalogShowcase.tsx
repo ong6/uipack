@@ -186,8 +186,8 @@ export default function CatalogShowcase() {
           </div>
           <h2 className="style-specs__heading">Written style specs</h2>
           <p className="collection-intro">
-            Technical is the one implemented style. Landing and Graphical are written specs that fill the same role contract;
-            an agent builds a new style from a spec by adding one value set in <code>src/styles</code>, registering it in{" "}
+            Technical is the one implemented style. Landing and Graphical are written specs that fill the same role contract; an
+            agent builds a new style from a spec by adding one value set in <code>src/styles</code>, registering it in{" "}
             <code>uiStyles</code>, and testing it (<a href={`${REPO}/docs/system/styles/README.md`}>how</a>).
           </p>
           <ul className="style-specs">

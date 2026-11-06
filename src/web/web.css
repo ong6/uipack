@@ -954,10 +954,14 @@
     }
     /* The heading lines up with the first question beside it: the list drops by the eyebrow's
        line and the head's gap, less the first item's rule and padding. */
-    .uipack-web-faq:not([data-align="center"]) .uipack-web-section__head:has(> .uipack-web-eyebrow:first-child) > .uipack-web-eyebrow {
+    .uipack-web-faq:not([data-align="center"])
+      .uipack-web-section__head:has(> .uipack-web-eyebrow:first-child)
+      > .uipack-web-eyebrow {
       line-height: 1.5;
     }
-    .uipack-web-faq:not([data-align="center"]) .uipack-web-section__inner:has(> .uipack-web-section__head > .uipack-web-eyebrow:first-child) > .uipack-web-faq__list {
+    .uipack-web-faq:not([data-align="center"])
+      .uipack-web-section__inner:has(> .uipack-web-section__head > .uipack-web-eyebrow:first-child)
+      > .uipack-web-faq__list {
       margin-top: calc(var(--web-step--1) * 1.5 + var(--web-s2) - var(--web-s3) - 1px);
     }
   }

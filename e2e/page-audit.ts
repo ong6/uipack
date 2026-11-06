@@ -316,12 +316,14 @@ export async function checkControlFaces(page: Page) {
  */
 export async function checkTextFaces(page: Page) {
   const offenders = await page.evaluate(() => {
-    const first = (stack: string) => stack.split(",")[0].trim().replace(/^["']|["']$/g, "");
+    const first = (stack: string) =>
+      stack
+        .split(",")[0]
+        .trim()
+        .replace(/^["']|["']$/g, "");
     const root = getComputedStyle(document.body);
     const faces = new Set(
-      ["--ui-font-text", "--ui-font-display", "--ui-font-label"]
-        .map((v) => first(root.getPropertyValue(v)))
-        .filter(Boolean),
+      ["--ui-font-text", "--ui-font-display", "--ui-font-label"].map((v) => first(root.getPropertyValue(v))).filter(Boolean),
     );
     const hidden = (el: Element) => {
       for (let e: Element | null = el; e; e = e.parentElement) {
@@ -339,7 +341,10 @@ export async function checkTextFaces(page: Page) {
       })
       .map((el) => ({ el, face: first(getComputedStyle(el).fontFamily) }))
       .filter(({ face }) => !faces.has(face))
-      .map(({ el, face }) => `${el.tagName.toLowerCase()}.${[...el.classList].join(".")} "${(el.textContent ?? "").trim().slice(0, 30)}": ${face}`)
+      .map(
+        ({ el, face }) =>
+          `${el.tagName.toLowerCase()}.${[...el.classList].join(".")} "${(el.textContent ?? "").trim().slice(0, 30)}": ${face}`,
+      )
       .slice(0, 20);
   });
   expect(offenders, "visible text uses only the style's faces (no system fallback stacks)").toEqual([]);

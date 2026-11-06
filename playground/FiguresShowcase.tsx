@@ -142,8 +142,8 @@ function Orientation() {
   return (
     <div className="home-about">
       <p className="home-about__what">
-        <strong>UiPack</strong> is a set of React and SVG parts for diagrams, charts, decks, web pages and 3D animations, drawn
-        in one Technical style, with style, writing and layout as separate layers.
+        <strong>UiPack</strong> is a set of React and SVG parts for diagrams, charts, decks, web pages and 3D animations, drawn in
+        one Technical style, with style, writing and layout as separate layers.
       </p>
       <div className="home-about__get">
         <span className="home-about__install">
