@@ -471,9 +471,9 @@ function measurePage(opt) {
   );
   const byParent = /* @__PURE__ */ new Map();
   for (const c of controls) byParent.set(c.parentElement, [...byParent.get(c.parentElement) ?? [], c]);
-  for (const [parent, list] of byParent) {
+  for (const [parent, list2] of byParent) {
     const lineMap = /* @__PURE__ */ new Map();
-    for (const c of list) {
+    for (const c of list2) {
       const r = c.getBoundingClientRect();
       const mid = Math.round(r.top + r.height / 2);
       const key = [...lineMap.keys()].find((k) => Math.abs(k - mid) < 6) ?? mid;
@@ -1456,7 +1456,7 @@ function findHints(text) {
   return HINT_PATTERNS.flatMap((re) => text.match(re)?.[0] ?? []);
 }
 function briefMarkdown(b) {
-  const list = (xs = []) => xs.map((x) => `- ${x}`).join("\n");
+  const list2 = (xs = []) => xs.map((x) => `- ${x}`).join("\n");
   return [
     `# Brief ${b.id} (version ${b.version}, frozen ${b.frozen})`,
     "",
@@ -1470,9 +1470,9 @@ function briefMarkdown(b) {
     "",
     "Use only these facts; add none.",
     "",
-    list(b.facts),
-    ...b.mustInclude?.length ? ["", "## Must include", "", list(b.mustInclude)] : [],
-    ...b.outOfScope?.length ? ["", "## Out of scope", "", list(b.outOfScope)] : [],
+    list2(b.facts),
+    ...b.mustInclude?.length ? ["", "## Must include", "", list2(b.mustInclude)] : [],
+    ...b.outOfScope?.length ? ["", "## Out of scope", "", list2(b.outOfScope)] : [],
     ""
   ].join("\n");
 }
@@ -1624,14 +1624,14 @@ var round = (x) => Math.round(x * 100) / 100;
 function tallyJudges(key, verdicts) {
   const problems = [];
   const rows = verdicts.flatMap((v) => {
-    const map = key.packets[v.packet];
-    if (!map) {
+    const map2 = key.packets[v.packet];
+    if (!map2) {
       problems.push(`verdict for unknown packet "${v.packet}"`);
       return [];
     }
     if (String(v.rubricVersion) !== String(key.rubric.version))
       problems.push(`${v.packet} scored rubric version ${v.rubricVersion}, the packet carried ${key.rubric.version}`);
-    const side = (label) => map[label];
+    const side = (label) => map2[label];
     const score = (o, s) => side("A") === s ? o.A : o.B;
     const pref = v.preference === "tie" ? "tie" : side(v.preference);
     return [
@@ -1822,6 +1822,159 @@ var CORE_ROLES = [
   "num-ring"
 ];
 
+// scripts/site-model.ts
+var PAGE_TYPES = [
+  { id: "landing", name: "Landing", use: "A product, launch or announcement page with one goal" },
+  { id: "documentation", name: "Documentation", use: "Product docs or a reference page in a navigable shell" },
+  { id: "article", name: "Article", use: "A long read or a blog post" },
+  { id: "deck", name: "Deck", use: "Slides, presented or read alone: an HTML deck is a page of the site" },
+  { id: "dashboard", name: "Dashboard", use: "A screen of live numbers, tables and status someone checks" }
+];
+var LAYOUT_ARCHETYPES = [
+  {
+    id: "product-landing",
+    pageType: "landing",
+    name: "Product landing",
+    file: "docs/system/layout/landing.md",
+    grid: "12 / 8 / 4 columns (container 1024px and up, 640px, below); gutters 32px wide, 24px below 1024px; one 1120px max width for every section",
+    regions: "Nav, hero, sections, closing band, footer",
+    order: "The author's; a style's `prefers` order only on opt-in",
+    hero: "Split: copy on 5 columns, the product's real output on 7, stacked below 1024px",
+    code: "`WebPage`, `StarHero`, `Section` (`uipack/web`)"
+  },
+  {
+    id: "docs-shell",
+    pageType: "documentation",
+    name: "Docs shell",
+    file: "docs/system/layout/documentation.md",
+    grid: "Sidebar, article column at the reading measure, On this page; one column below 900px",
+    regions: "Header, sidebar, context row, article, On this page, pager",
+    order: "h1, what the page is for, the values table, the detail, related pages",
+    hero: "None: the page's h1 and its first line",
+    code: "`DocsLayout`, `DocsMarkdown` (`uipack/docs`)"
+  },
+  {
+    id: "layer-article",
+    pageType: "article",
+    name: "Layered long read",
+    file: "docs/system/layout/article.md",
+    grid: "One text column at the reading measure; figures and `wide` clusters break out to the figure slot",
+    regions: "Title, lede, a run of sections, each from the article parts",
+    order: "Each section: head strip, heading, prose, terms, change note, callout, links, notes",
+    hero: "The title and a one-sentence lede; a figure only when it carries the claim",
+    code: "`LayerSection` parts (`uipack/article`)"
+  },
+  {
+    id: "slide-canvas",
+    pageType: "deck",
+    name: "Slide canvas",
+    file: "docs/system/layout/deck-slide.md",
+    grid: "A 1920\xD71080 canvas scaled to its frame, inside a fixed safe area",
+    regions: "Eyebrow (optional), headline, lede (optional), body, footer",
+    order: "The storyline's roles, one archetype per slide",
+    hero: "A cover slide: the outcome as the title",
+    code: "`DeckPlayer`, `Slide` and the archetype factories (`uipack/deck`)"
+  },
+  {
+    id: "one-question-dashboard",
+    pageType: "dashboard",
+    name: "One-question dashboard",
+    file: "docs/system/layout/dashboard.md",
+    grid: "The landing grid: 12 / 8 / 4 columns, 32 / 24px gutters",
+    regions: "Title row, headline numbers, the chart, records, time, source",
+    order: "Top to bottom in the order of the regions",
+    hero: "Three or four headline numbers of equal weight",
+    code: "`Proof`, `ProductWindow`, `DataTable`, the charts (`uipack/web`, `uipack/charts`)"
+  }
+];
+var CUSTOM_LAYOUT_ROWS = ["Grid", "Regions", "Section order", "Hero"];
+var WRITING_STYLE_ROWS = ["Tone and register", "Title form", "Copy density", "House words", "Budgets"];
+var COMPONENTS = [
+  {
+    id: "diagrams",
+    name: "Diagrams",
+    doc: "docs/components/diagrams.md",
+    members: "`Figure`, the presets, `DrillFigure`, `SpanChart` and `LayerStack` (`uipack`, `uipack/presets`, `uipack/drill`, `uipack/charts`)",
+    pick: "one",
+    looks: [
+      {
+        id: "blueprint",
+        name: "Blueprint",
+        mode: "fixed",
+        fixed: "Card surface, node shapes and 6px node radius, the four flow colours and packet shapes, label face, strokes, the 11px type floor",
+        takes: "Light or dark only"
+      }
+    ]
+  },
+  {
+    id: "3d",
+    name: "3D object scenes",
+    doc: "docs/components/3d.md",
+    members: "`ObjectScene` and its player (`uipack/objects`)",
+    pick: "several",
+    looks: [
+      {
+        id: "studio",
+        name: "Studio objects",
+        mode: "flex",
+        fixed: "Product photography: one object on a seamless sweep, one lens family, shaped key, real shadow",
+        takes: "Night room from the ink, rim from the accent; a `palette` prop overrides both"
+      },
+      {
+        id: "paper-theatre",
+        name: "Paper worlds",
+        mode: "fixed",
+        fixed: "Cut-card toy theatres, viridian and persimmon frames on cream, one warm lantern",
+        takes: "Light or dark only"
+      },
+      {
+        id: "kinetic",
+        name: "Kinetic sculptures",
+        mode: "fixed",
+        fixed: "Brass armatures, glazed stoneware, slate bases, a gallery spot at night",
+        takes: "Light or dark only"
+      },
+      {
+        id: "cartoon",
+        name: "Cartoon worlds",
+        mode: "fixed",
+        fixed: "Floating toy islands, toon ramp, day and night palettes of their own",
+        takes: "Light or dark only"
+      },
+      {
+        id: "realistic",
+        name: "Realistic close-ups",
+        mode: "fixed",
+        fixed: "Macro still lifes on real surfaces, depth of field, window light by day, a desk lamp at night",
+        takes: "Light or dark only"
+      },
+      {
+        id: "abstract",
+        name: "Abstract forms",
+        mode: "fixed",
+        fixed: "Refractive glass in front of lacquer bars, a spectral caustic",
+        takes: "Light or dark only"
+      }
+    ]
+  },
+  {
+    id: "mechanism",
+    name: "Mechanism",
+    doc: "docs/components/mechanism.md",
+    members: "`VerificationGate`, `GateMachine`, `MechanismFrame` (`uipack/mechanism`)",
+    pick: "one",
+    looks: [
+      {
+        id: "isometric",
+        name: "Isometric machine",
+        mode: "flex",
+        fixed: "Isometric solids shaded in four tones by facing, one lit part, motion by springs",
+        takes: "Tones from the paper and ink, the lit part from the accent, card labels in the label face"
+      }
+    ]
+  }
+];
+
 // scripts/check-spec.ts
 var UIPACK_ROOT = (() => {
   try {
@@ -1830,18 +1983,48 @@ var UIPACK_ROOT = (() => {
     return process.cwd();
   }
 })();
-var REQUIRED_KEYS = ["spec", "site", "extends", "uses", "status", "uipack"];
+var REQUIRED_KEYS = ["spec", "site", "extends", "pages", "layouts", "components", "status", "uipack"];
 var REQUIRED_SECTIONS = [
   "Identity",
   "Role values",
   "Type",
   "Density and rhythm",
   "Ornaments",
-  "Settings chosen",
-  "Page types",
+  "Layout",
+  "Writing style",
+  "Component looks",
   "Reuse",
   "Open TODOs"
 ];
+function splitTop(s) {
+  const out = [];
+  let depth = 0;
+  let cur = "";
+  for (const ch of s) {
+    if (ch === "[" || ch === "{") depth++;
+    if (ch === "]" || ch === "}") depth--;
+    if (ch === "," && depth === 0) {
+      out.push(cur.trim());
+      cur = "";
+    } else cur += ch;
+  }
+  if (cur.trim()) out.push(cur.trim());
+  return out;
+}
+function parseValue(value) {
+  if (value.startsWith("[") && value.endsWith("]")) return splitTop(value.slice(1, -1));
+  if (value.startsWith("{") && value.endsWith("}")) {
+    const map2 = {};
+    for (const pair of splitTop(value.slice(1, -1))) {
+      const kv = /^([\w-]+)\s*:\s*(.*)$/.exec(pair);
+      if (!kv) continue;
+      const v = parseValue(kv[2].trim());
+      map2[kv[1]] = typeof v === "string" || Array.isArray(v) ? v : JSON.stringify(v);
+    }
+    return map2;
+  }
+  return value;
+}
 function frontmatter(text) {
   const m = /^---\n([\s\S]*?)\n---\n/.exec(text);
   if (!m) return null;
@@ -1849,11 +2032,12 @@ function frontmatter(text) {
   for (const line of m[1].split("\n")) {
     const kv = /^([a-z][\w-]*):\s*(.*)$/.exec(line.trim());
     if (!kv) continue;
-    const value = kv[2].replace(/\s+#.*$/, "").trim();
-    out[kv[1]] = value.startsWith("[") ? value.slice(1, -1).split(",").map((s) => s.trim()).filter(Boolean) : value;
+    out[kv[1]] = parseValue(kv[2].replace(/\s+#.*$/, "").trim());
   }
   return out;
 }
+var list = (v) => Array.isArray(v) ? v : typeof v === "string" && v ? [v] : [];
+var map = (v) => v && typeof v === "object" && !Array.isArray(v) ? v : {};
 function sections(text) {
   const out = [];
   let fence = false;
@@ -1863,14 +2047,18 @@ function sections(text) {
   }
   return out;
 }
-function section(text, title) {
+function section(text, title, level = 2) {
+  const hashes = "#".repeat(level);
   const start = text.indexOf(`
-## ${title}
+${hashes} ${title}
 `);
   if (start < 0) return "";
-  const rest = text.slice(start + title.length + 5);
-  const end = rest.search(/\n## /);
+  const rest = text.slice(start + title.length + level + 3);
+  const end = rest.search(new RegExp(`\\n#{1,${level}} `));
   return end < 0 ? rest : rest.slice(0, end);
+}
+function rowLabels(text) {
+  return [...text.matchAll(/^\|\s*(?:\*\*)?([^|*]+?)(?:\*\*)?\s*\|/gm)].map((m) => m[1].trim());
 }
 function roleRows(text) {
   const rows = /* @__PURE__ */ new Map();
@@ -1880,14 +2068,27 @@ function roleRows(text) {
   }
   return rows;
 }
-function familyTokens(familyDoc) {
-  return [...familyDoc.matchAll(/^\|\s*`(--[a-z0-9-]+)`/gm)].map((m) => m[1]);
+function fixedTokens(componentDoc) {
+  return [...componentDoc.matchAll(/^\|\s*`(--[a-z0-9-]+)`/gm)].map((m) => m[1]);
+}
+function pickedLooks(fm) {
+  const out = {};
+  for (const [component, looks] of Object.entries(map(fm.components))) out[component] = list(looks);
+  if (!fm.components)
+    for (const family of list(fm.uses)) {
+      const component = COMPONENTS.find((c) => c.id === family);
+      out[family] = component ? [component.looks[0].id] : [];
+    }
+  return out;
 }
 function checkSpec(text, { root = UIPACK_ROOT } = {}) {
   const problems = [];
   const fm = frontmatter(text);
   if (!fm) return ["no frontmatter: start with the template's --- block"];
-  for (const key of REQUIRED_KEYS) if (!fm[key]) problems.push(`frontmatter: missing ${key}`);
+  const legacy = !fm.components && fm.uses;
+  for (const key of REQUIRED_KEYS)
+    if (!fm[key] && !(key === "components" && legacy)) problems.push(`frontmatter: missing ${key}`);
+  if (fm.components && fm.uses) problems.push("frontmatter: components: replaces uses:; keep only components");
   const titles = sections(text);
   for (const title of REQUIRED_SECTIONS) if (!titles.includes(title)) problems.push(`missing section "## ${title}"`);
   const rows = roleRows(text);
@@ -1902,21 +2103,67 @@ function checkSpec(text, { root = UIPACK_ROOT } = {}) {
   const ext = fm.extends;
   if (typeof ext === "string" && ext !== "core" && !specIds.includes(ext))
     problems.push(`extends: "${ext}" is neither core nor a spec in docs/specs`);
-  const uses = Array.isArray(fm.uses) ? fm.uses : fm.uses ? [fm.uses] : [];
-  for (const family of uses) {
-    const doc = join(root, "docs/families", `${family}.md`);
-    if (!existsSync(doc)) {
-      problems.push(`uses: no family "${family}" (docs/families/${family}.md)`);
+  const pages = list(fm.pages);
+  const layouts = map(fm.layouts);
+  const layoutText = section(text, "Layout");
+  for (const id of pages) {
+    const type = PAGE_TYPES.find((t) => t.id === id);
+    if (!type) {
+      problems.push(`pages: no page type "${id}" (${PAGE_TYPES.map((t) => t.id).join(", ")})`);
       continue;
     }
-    for (const token of familyTokens(readFileSync(doc, "utf8")))
-      if (rows.has(token)) problems.push(`${token} belongs to the ${family} family: a spec that uses it may not set it`);
+    const pick = layouts[id];
+    if (!pick) {
+      problems.push(`layouts: page type "${id}" has no layout (an archetype id, or custom)`);
+      continue;
+    }
+    const sub = section(layoutText.startsWith("\n") ? layoutText : `
+${layoutText}`, type.name, 3);
+    if (!sub.trim()) problems.push(`Layout: no "### ${type.name}" for page type "${id}"`);
+    if (pick === "custom") {
+      const labels = rowLabels(sub);
+      for (const row of CUSTOM_LAYOUT_ROWS)
+        if (!labels.includes(row)) problems.push(`Layout, ${type.name}: a custom layout needs a "${row}" row`);
+    } else {
+      const archetype = LAYOUT_ARCHETYPES.find((a) => a.id === pick);
+      if (!archetype) problems.push(`layouts: no archetype "${pick}" (docs/system/layout/README.md lists them)`);
+      else if (archetype.pageType !== id)
+        problems.push(`layouts: "${pick}" is a ${archetype.pageType} archetype, not a ${id} one`);
+    }
+  }
+  for (const id of Object.keys(layouts)) if (!pages.includes(id)) problems.push(`layouts: "${id}" is not in pages:`);
+  const writing = rowLabels(section(text, "Writing style"));
+  if (titles.includes("Writing style")) {
+    for (const row of WRITING_STYLE_ROWS) if (!writing.includes(row)) problems.push(`Writing style: no "${row}" row`);
+  }
+  for (const [componentId, looks] of Object.entries(pickedLooks(fm))) {
+    const component = COMPONENTS.find((c) => c.id === componentId);
+    if (!component) {
+      problems.push(`components: no component "${componentId}" (${COMPONENTS.map((c) => c.id).join(", ")})`);
+      continue;
+    }
+    if (!looks.length) problems.push(`components: ${componentId} picks no look`);
+    if (component.pick === "one" && looks.length > 1)
+      problems.push(`components: ${componentId} takes one look, got ${looks.length}`);
+    for (const lookId of looks) {
+      const look = component.looks.find((l) => l.id === lookId);
+      if (!look) {
+        problems.push(`components: ${componentId} offers no look "${lookId}" (${component.looks.map((l) => l.id).join(", ")})`);
+        continue;
+      }
+      if (look.mode !== "fixed") continue;
+      const doc = join(root, component.doc);
+      if (!existsSync(doc)) continue;
+      for (const token of fixedTokens(readFileSync(doc, "utf8")))
+        if (rows.has(token))
+          problems.push(`${token} is fixed by the ${look.name} look (${component.id}): a spec that picks it may not set it`);
+    }
   }
   if (fm.status === "implemented") {
     const values = fm.values;
     if (typeof values !== "string" || !existsSync(join(root, values)))
-      problems.push(`status implemented: values must name the style file (got "${values ?? ""}")`);
-  } else if (fm.status !== "draft") problems.push(`status: "${fm.status}" (draft or implemented)`);
+      problems.push(`status implemented: values must name the style file (got "${typeof values === "string" ? values : ""}")`);
+  } else if (fm.status !== "draft") problems.push(`status: "${String(fm.status)}" (draft or implemented)`);
   return problems;
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

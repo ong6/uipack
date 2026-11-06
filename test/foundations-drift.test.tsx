@@ -75,8 +75,14 @@ describe("the docs state only the system's own budgets", () => {
 
   it("the presented headline rule says the aim and the check in the same words everywhere", () => {
     const { aim, max } = WORD_GUIDES.presentedTitle;
-    const files = ["docs/system/writing/README.md", "docs/system/writing/talks.md", "docs/system/README.md"];
-    for (const f of files) expect(read(f), f).toContain(`aim for ${aim.join("–")} words; the check stops at ${max}`);
+    // The aims are Technical's writing style; the core states only the forms and their ceilings.
+    for (const f of ["docs/specs/technical.md", "docs/system/do-and-dont.md"])
+      expect(read(f), f).toContain(`aim for ${aim.join("–")} words; the check stops at ${max}`);
+    const core = ["docs/system/README.md", "docs/system/writing/README.md", "docs/system/writing/talks.md"];
+    for (const f of core) {
+      expect(read(f), f).toContain(`the check stops at ${TITLE_WORDS.presented} words`);
+      expect(read(f), f).not.toContain(`aim for ${aim.join("–")} words`);
+    }
   });
 
   it("the slot budget table matches SLOT_BUDGETS", () => {

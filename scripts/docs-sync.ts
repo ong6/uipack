@@ -25,7 +25,9 @@ import { tidyChrome, tidySections } from "../playground/tidyFacts";
 import { figureRows } from "../playground/figure-rows";
 import { LAYER_SECTION_PARTS } from "../examples/articleSectionParts";
 import { docsManifest, docsPages, siteRegistry, type DocsPageEntry } from "../playground/docs-manifest";
+import { objectDirections, objectLooks, objectVariants } from "../src/objects/variants";
 import { frontmatter } from "./check-spec";
+import { COMPONENTS, LAYOUT_ARCHETYPES, PAGE_TYPES } from "./site-model";
 import { CORE_ROLES, lightDark, parseValueSet } from "./style-contract";
 
 const pagesOf = (g: (typeof docsManifest)[number]): readonly DocsPageEntry[] => g.pages;
@@ -142,7 +144,7 @@ export function llmsTxt() {
   ].join("\n");
 }
 
-/* ------------------------------------------------------------------ specs, families, registry */
+/* ------------------------------------------------------------------ specs, component looks, registry */
 
 const code = (v: string) => `\`${v.replace(/\|/g, "\\|")}\``;
 
@@ -164,7 +166,7 @@ export function contractRoles() {
   return ["| Role | Light | Dark |", "| --- | --- | --- |", ...rows].join("\n");
 }
 
-/** The diagram family's tokens: what each figure token reads (src/theme.css) and Technical's value. */
+/** The Blueprint diagram look's tokens: what each figure token reads (src/theme.css) and Technical's value. */
 export function diagramFamily() {
   const theme = readFileSync(join(root, "src/theme.css"), "utf8");
   const block = theme.slice(theme.indexOf(".uipack {"), theme.indexOf("}", theme.indexOf(".uipack {")));
@@ -182,9 +184,93 @@ export function registryTable(from: string) {
     const spec = s.spec.includes(":")
       ? `\`${s.spec}\` (${s.specStatus === "todo" ? "TODO" : "written"})`
       : `[${s.spec}](${rel(from, s.spec)})`;
-    return `| ${s.site} | ${s.repo} | ${spec} | ${s.families.join(", ")} | \`${s.pins}\` | ${s.notes} |`;
+    return `| ${s.site} | ${s.repo} | ${spec} | ${s.components.join(", ")} | \`${s.pins}\` | ${s.notes} |`;
   });
-  return ["| Site | Repo | Spec | Families | Pins uipack | Notes |", "| --- | --- | --- | --- | --- | --- |", ...rows].join("\n");
+  return [
+    "| Site | Repo | Spec | Component looks | Pins uipack | Notes |",
+    "| --- | --- | --- | --- | --- | --- |",
+    ...rows,
+  ].join("\n");
+}
+
+/* ------------------------------------------------------------------ site model */
+
+/** The page types a spec can list in `pages:` (scripts/site-model.ts). */
+export function pageTypes() {
+  const rows = PAGE_TYPES.map((t) => {
+    const archetypes = LAYOUT_ARCHETYPES.filter((a) => a.pageType === t.id).map((a) => `\`${a.id}\``);
+    return `| \`${t.id}\` | ${t.use} | ${archetypes.join(", ") || "none yet"} |`;
+  });
+  return ["| Page type | Use it for | Archetypes |", "| --- | --- | --- |", ...rows].join("\n");
+}
+
+/** The layout archetype library (LAYOUT_ARCHETYPES), each linked to its doc; the full card is at the top of each doc. */
+export function layoutArchetypes(from: string) {
+  const rows = LAYOUT_ARCHETYPES.map((a) => `| [\`${a.id}\`](${rel(from, a.file)}) | ${a.pageType} | ${a.regions} | ${a.hero} |`);
+  return ["| Archetype | Page type | Regions | Hero |", "| --- | --- | --- | --- |", ...rows].join("\n");
+}
+
+/** One archetype's card, for the top of its own doc. */
+export function layoutArchetype(file: string) {
+  const cards = LAYOUT_ARCHETYPES.filter((a) => a.file === file);
+  if (!cards.length) throw new Error(`${file}: no archetype in scripts/site-model.ts names this file`);
+  return cards
+    .map((a) =>
+      [
+        `- **Archetype:** \`${a.id}\` (${a.name}), for the \`${a.pageType}\` page type.`,
+        `- **Grid:** ${a.grid}.`,
+        `- **Regions:** ${a.regions}.`,
+        `- **Section order:** ${a.order}.`,
+        `- **Hero:** ${a.hero}.`,
+        `- **Rendered by:** ${a.code}.`,
+      ].join("\n"),
+    )
+    .join("\n\n");
+}
+
+/** Every component and its looks, with each look's mode (COMPONENTS). */
+export function componentLooks(from: string) {
+  const rows = COMPONENTS.flatMap((c) =>
+    c.looks.map(
+      (l, i) =>
+        `| ${i === 0 ? `[${c.name}](${rel(from, c.doc)}) (\`${c.id}\`, picks ${c.pick})` : ""} | \`${l.id}\` ${l.name} | \`${l.mode}\` | ${l.fixed} | ${l.takes} |`,
+    ),
+  );
+  return [
+    "| Component | Look | Mode | The same on every site | Takes from the site |",
+    "| --- | --- | --- | --- | --- |",
+    ...rows,
+  ].join("\n");
+}
+
+/** One component's looks, for its own doc. */
+export function componentLookList(file: string) {
+  const c = COMPONENTS.find((x) => x.doc === file);
+  if (!c) throw new Error(`${file}: no component in scripts/site-model.ts names this doc`);
+  const rows = c.looks.map((l) => `| \`${l.id}\` | ${l.name} | \`${l.mode}\` | ${l.fixed} | ${l.takes} |`);
+  return [
+    `A spec picks ${c.pick === "one" ? "one look" : "one or more looks"}: \`components: { ${c.id}: ${c.pick === "one" ? c.looks[0].id : `[${c.looks.map((l) => l.id).join(", ")}]`} }\`.`,
+    "",
+    "| Look | Name | Mode | The same on every site | Takes from the site |",
+    "| --- | --- | --- | --- | --- |",
+    ...rows,
+  ].join("\n");
+}
+
+/** Which 3D looks each subject offers, its default first (objectLooks in src/objects/variants.ts). */
+export function objectLookTable() {
+  const ids = COMPONENTS.find((c) => c.id === "3d")!.looks.map((l) => l.id);
+  const header = `| Subject | ${ids.map((id) => `\`${id}\``).join(" | ")} |`;
+  const rows = Object.entries(objectLooks).map(([kind, variants]) => {
+    const cells = ids.map((id) => {
+      const offered = variants.filter((v) => (kind === "contact" && v < 3 ? "studio" : objectDirections[v].id) === id);
+      if (!offered.length) return "";
+      const first = variants[0] === offered[0] ? " (default)" : "";
+      return `${offered.map((v) => (objectVariants[kind as keyof typeof objectVariants] as Record<number, string>)[v].replace(/^[^·]*·\s*/, "")).join(", ")}${first}`;
+    });
+    return `| ${kind} | ${cells.join(" | ")} |`;
+  });
+  return [header, `| --- |${ids.map(() => " --- |").join("")}`, ...rows].join("\n");
 }
 
 /* ------------------------------------------------------------------ writing guidance */
@@ -198,6 +284,26 @@ export function headlineRule() {
     `- **Presented** (a speaker in the room): aim for ${dash(t.aim)} words; the check stops at ${t.max} (\`title-length\`). A verdict you would say aloud.`,
     `- **Read alone** (a pre-read, a forwarded deck, a figure): the claim as one sentence of ${dash(WORD_GUIDES.readAloneTitle)} words.`,
     `- **Web section head:** ${dash(WORD_GUIDES.webSectionHead)} plain words naming what the reader gets.`,
+  ].join("\n");
+}
+
+/** The title forms a spec chooses from per page type, with the core ceiling each one's check enforces. */
+export function titleForms() {
+  return [
+    `- **Short spoken verdict** (a speaker in the room): the check stops at ${TITLE_WORDS.presented} words (\`title-length\`, \`presented\` mode).`,
+    `- **Full-sentence claim** (read without its author: a pre-read, a forwarded deck, a figure): one sentence; the check stops at ${TITLE_WORDS["read-alone"]} words (\`read-alone\` mode).`,
+    `- **Plain name** (a web section head, a docs heading): names what the reader gets, never a sentence; held to the headline slot's ${SLOT_BUDGETS.headline.maxWords} words, not linted on the web yet.`,
+  ].join("\n");
+}
+
+/** The lengths the Blueprint diagram look fixes for every site: its labels and its title. */
+export function figureLengths() {
+  const g = WORD_GUIDES;
+  return [
+    "| Text | Length | The check |",
+    "| --- | --- | --- |",
+    `| Label in a drawing | ${dash(g.drawingLabel)} words | \`slot-budget\` stops at ${SLOT_BUDGETS.label.maxWords} |`,
+    `| Figure title | ${dash(g.readAloneTitle)} words, one sentence | \`title-length\` stops at ${g.readAloneTitle[1]} |`,
   ].join("\n");
 }
 
@@ -339,6 +445,14 @@ export const generators: Record<string, (file: string) => string> = {
   "contract-roles": () => contractRoles(),
   "diagram-family": () => diagramFamily(),
   "site-registry": (file) => registryTable(file),
+  "page-types": () => pageTypes(),
+  "layout-archetypes": (file) => layoutArchetypes(file),
+  "layout-archetype": (file) => layoutArchetype(file),
+  "component-looks": (file) => componentLooks(file),
+  "component-look-list": (file) => componentLookList(file),
+  "object-looks": () => objectLookTable(),
+  "title-forms": () => titleForms(),
+  "figure-lengths": () => figureLengths(),
   "headline-rule": () => headlineRule(),
   "word-guides": () => wordGuides(),
   "slide-roles": () => slideRoles(),

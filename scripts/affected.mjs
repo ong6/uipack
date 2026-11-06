@@ -67,7 +67,7 @@ const AREAS = [
   [/^src\/docs\/|^playground\/Docs/, ["docs", "foundations", "nav"]],
   // The docs site: its manifest, the Markdown page, demos, links and generated blocks.
   [
-    /^playground\/(docs-manifest|docs-links|demos|MarkdownShowcase)|^scripts\/(docs-sync|check-spec|style-contract)|^docs\/(?!system\/)|^README\.md$|^llms\.txt$/,
+    /^playground\/(docs-manifest|docs-links|demos|MarkdownShowcase)|^scripts\/(docs-sync|check-spec|style-contract|site-model)|^docs\/(?!system\/)|^README\.md$|^llms\.txt$/,
     ["foundations", "nav", "page-audit"],
   ],
   [/^src\/(CanvasView|canvas)/, ["canvas", "canvas-gestures"]],

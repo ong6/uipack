@@ -1,35 +1,84 @@
-# Layout: where things sit and in what order
+# Layout: the floors every site keeps, and the archetypes a spec picks
 
-This folder holds the layout rules, one file per page type, plus the rules every layout follows
-and the layout of figures, motion and 3D, which sit inside any page. Layout is the structure
-layer: canvas, grid, named regions, which content slot fills each region, the reading order and
-the beat order. It holds sizes in grid units and slot names, with no colours, faces or sentences,
-so any [content](../writing/general.md#the-content-schema) can fill it and any
-[style](../style.md#the-role-contract) can paint it.
+Layout is the structure layer: grid, named regions, which content slot fills each region, the
+reading order and the beat order. Each website has its own layout, set in its
+[spec](../../specs/README.md): for every page type it uses, the spec picks an archetype from the
+library below, extends one, or defines its own. This page holds the floors no layout may break, the
+library, and the layout of figures, motion and 3D, which sit inside any page. Layout holds sizes and
+slot names, never colours, faces or sentences.
 
-| Page type | Use it for | File |
+## Floors: what holds on every site
+
+1. **Reading order is the DOM order, the keyboard order and the build order.** A region that is
+   placed visually out of its source order (a sidebar on the start edge, a sticky FAQ head) keeps
+   its place in the reading order.
+2. **A real narrow layout.** Every page type has an authored layout at 390px: a single column, a
+   stacked drawing, a still. Never a desktop page scaled down, and never labels shrunk below the
+   type floor to fit.
+3. **No page-wide horizontal overflow** at any width from 320px up. A wide table or drawing scrolls
+   inside its own frame.
+4. **Tap targets** of at least 44px on touch and 24px with a fine pointer (tier 1 grades both:
+   `tapTargetPx` in `src/grade/spec.ts`).
+5. **Visible focus** on everything that takes it, in reading order; modal focus is contained and
+   returns where it came from.
+6. **The 8px base unit.** Spacing, gutters and section padding are multiples of 8 (4 for hairline
+   offsets inside a part). Kept core, not per site, because the parts are built on it: the
+   [Blueprint diagram look](../../components/diagrams.md), which every site shares, sits on an 8px
+   grid (below), and every part's internal padding comes from the same scale (`SPACE` in
+   `uipack/web`). A page on another base would misalign with every figure and part in it. A site
+   still chooses which steps it uses, its columns, gutters and max width, and its vertical rhythm
+   through density.
+7. **A style never moves a region.** The spec's palette, faces and ornaments paint the layout the
+   spec chose; headings may change height between widths or faces, regions and their order do not.
+   Long text is fixed in the words, never by shrinking the type.
+
+## How a spec sets layout
+
+In the frontmatter, the page types the site uses and a layout for each:
+
+```yaml
+pages: [landing, documentation, deck]
+layouts: { landing: product-landing, documentation: docs-shell, deck: custom }
+```
+
+Then one `### <Page type>` under the spec's `## Layout`: for a picked archetype, what the site
+changes when it extends it (a wider column, another hero pattern, a section order); for `custom`, a
+table with a **Grid** row (columns, gutters, max width), **Regions**, **Section order** and **Hero**.
+`scripts/check-spec.ts` fails a page type with no layout, an archetype that doesn't exist or belongs
+to another page type, and a custom layout missing a row.
+
+The page types:
+
+<!-- generated:page-types -->
+| Page type | Use it for | Archetypes |
 | --- | --- | --- |
-| Landing | A product, launch or announcement page with one goal | [landing.md](landing.md) |
-| Documentation and article | Product docs, a reference page, a long read | [documentation.md](documentation.md) |
-| Deck slide | One slide of a presented or read-alone deck | [deck-slide.md](deck-slide.md) |
-| Dashboard | A screen of live numbers, tables and status someone checks | [dashboard.md](dashboard.md) |
+| `landing` | A product, launch or announcement page with one goal | `product-landing` |
+| `documentation` | Product docs or a reference page in a navigable shell | `docs-shell` |
+| `article` | A long read or a blog post | `layer-article` |
+| `deck` | Slides, presented or read alone: an HTML deck is a page of the site | `slide-canvas` |
+| `dashboard` | A screen of live numbers, tables and status someone checks | `one-question-dashboard` |
+<!-- /generated -->
 
-Add a page type only when a real page needs one. Each page type has a [recipe](../../recipes/README.md)
-with the section order and the parts to build it from.
+## Archetype library
 
-## Rules for every layout
+Generated from `LAYOUT_ARCHETYPES` in `scripts/site-model.ts` by `npm run docs:sync`. Each archetype's
+file opens with its card (grid, regions, section order, hero, what renders it), then its rules and
+narrow form; extend one rather than copy it.
 
-1. **Pick the archetype from the claim's shape.** A flow through time goes left to right, layers
-   top to bottom, two actors get swimlanes, two options sit side by side, one number gets a hero
-   number.
-2. **Everything on a grid.** Positions are computed in code or a table, never nudged by eye.
-3. **Reading order is the build order,** and the keyboard order is the same.
-4. **Whitespace is part of the layout.** Crowded reads as careless; margins are minimums.
-5. **Every layout has a narrow form.** Author it (a stacked drawing, a single column, a still), or
-   keep a readable internal width that scrolls inside its frame. Never shrink labels below the type
-   floor, and never let the page overflow.
-6. **A style never moves a region.** Headings may change height between widths or faces; regions
-   and their order do not. Long text is fixed in the words, never by shrinking the type.
+<!-- generated:layout-archetypes -->
+| Archetype | Page type | Regions | Hero |
+| --- | --- | --- | --- |
+| [`product-landing`](landing.md) | landing | Nav, hero, sections, closing band, footer | Split: copy on 5 columns, the product's real output on 7, stacked below 1024px |
+| [`docs-shell`](documentation.md) | documentation | Header, sidebar, context row, article, On this page, pager | None: the page's h1 and its first line |
+| [`layer-article`](article.md) | article | Title, lede, a run of sections, each from the article parts | The title and a one-sentence lede; a figure only when it carries the claim |
+| [`slide-canvas`](deck-slide.md) | deck | Eyebrow (optional), headline, lede (optional), body, footer | A cover slide: the outcome as the title |
+| [`one-question-dashboard`](dashboard.md) | dashboard | Title row, headline numbers, the chart, records, time, source | Three or four headline numbers of equal weight |
+<!-- /generated -->
+
+Add an archetype when a real site needs a layout none of these give: its doc in this folder (an
+archetype card at the top, then regions, order and narrow form), its entry in `LAYOUT_ARCHETYPES`,
+and the parts that render it. Each page type also has a [recipe](../../recipes/README.md) with the
+parts to build it from.
 
 The same title at three widths: the words and the order hold, and the line breaks follow the
 measure, which is why a heading may change height and a region may not.
@@ -37,6 +86,29 @@ measure, which is why a heading may change height and a region may not.
 ```uipack-demo title-widths wide
 One title in one style at a wide, a medium and a narrow column: the line breaks move, the regions do not.
 ```
+
+## Where code still fixes a layout
+
+The archetypes are rendered by parts that hard-code some of their numbers, so a spec that changes
+them gets the change by overriding CSS, not by a prop, until these are lifted (no refactor now):
+
+- TODO: the 1120px section column is literal in `src/web/web.css`, `src/web/web-styles.css` and
+  `src/web/gutters.css` (`--gutters-content` is the only hook): a site with another max width
+  overrides each.
+- TODO: the 12 / 8 / 4 column counts (`GRID_COLUMNS`), their 1024 / 640 container breakpoints and
+  the 32 / 24px gutters (`.uipack-web-grid`) are constants in `src/web/tokens.ts` and the
+  `@container web` queries in `src/web/web.css`.
+- TODO: the split hero's 5 / 7 columns and its 1024px switch are in `src/web/web.css` (`StarHero`).
+- TODO: the 720 / 520 / 340px narrow switches of the nav, hero and product parts are literal
+  container queries in `src/web/web.css`.
+- TODO: the docs shell's 900px switch is `@media (max-width: 899px)` in `src/docs/docs.css`.
+- TODO: the slide canvas (1920×1080) and safe area (`padding: 112px 144px 88px`) are in
+  `src/deck/transitions.ts` and `src/deck/deck.css`.
+- TODO: a site's own section order is keyed by style, not by spec: `uiStyles[].prefers` and
+  `.layout` in `src/style.ts`, used by `sectionOrder` and `WebPage layout="style"`. Until a spec's
+  layout is data the page reads, a site passes its order as the page's `sections`.
+- TODO: the figure grid (`FIGURE_GRID` in `src/geometry.ts`) and its 720px narrow switch
+  (`src/theme.css`) belong to the Blueprint look and stay fixed by design.
 
 ## Figures
 

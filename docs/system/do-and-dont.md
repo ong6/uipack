@@ -7,6 +7,9 @@ themselves live in [Writing](writing/README.md), [Layout](layout/README.md) and
 
 ## Headlines: two modes
 
+The examples on this page are written in Technical's writing style (its title forms and aims below,
+from [its spec](../specs/technical.md#writing-style)); the rules each pair shows hold on every site.
+
 <!-- generated:headline-rule -->
 - **Presented** (a speaker in the room): aim for 2–5 words; the check stops at 6 (`title-length`). A verdict you would say aloud.
 - **Read alone** (a pre-read, a forwarded deck, a figure): the claim as one sentence of 3–14 words.

@@ -1,17 +1,22 @@
 # The UI Pack design system
 
 The core rules for anything UI Pack draws (diagrams, slides, web pages, motion and 3D): the
-philosophy, the three independent layers and the contract between them. Read this page first; the
-layer guides hold the detail:
+philosophy, the three independent layers, what every site keeps and what each site's spec sets.
+Each website has its own layout, writing style, theme, fonts and design direction, all in its
+[spec](../specs/README.md); the core rules keep only what must hold everywhere. Read this page
+first; the layer guides hold the detail:
 
-| Layer | Answers | Guide |
-| --- | --- | --- |
-| **Style** | How does it look? Colour, type, line, radius, texture, motion feel, 3D material. | [Style roles](style.md) |
-| **Writing** | What does it say? Claims, titles, labels, captions, narration, numbers and sources. | [Writing](writing/README.md), one file per kind of text |
-| **Layout** | Where does each thing sit, and in what order does it appear? Canvases, grids, regions, archetypes, beats, camera stops. | [Layout](layout/README.md), one file per page type |
+| Layer | Answers | Core (every site) | Each site's spec |
+| --- | --- | --- | --- |
+| **[Style](style.md)** | How does it look? Colour, type, line, radius, texture, motion feel, 3D material. | The [role contract](style.md), contrast, one accent, timings | Every role's value: palette, faces, radii, ornaments |
+| **[Writing](writing/README.md)** | What does it say? Claims, titles, labels, captions, narration, numbers and sources. | [Honesty and clarity rules](writing/README.md), slot ceilings | Tone, title form per page type, copy density, house words, tighter budgets |
+| **[Layout](layout/README.md)** | Where does each thing sit, and in what order does it appear? Grids, regions, archetypes, beats, camera stops. | [Floors](layout/README.md#floors-what-holds-on-every-site): reading order, narrow layout, no overflow, tap targets, focus, the 8px unit | Per page type: an [archetype](layout/README.md#archetype-library) picked, extended or defined |
 
-To build a page, start from its [recipe](../recipes/README.md): it names the writing and layout
-files that page relies on.
+Components sit across the layers: each has a few named [looks](../components/README.md), `fixed`
+(the same on every site, like the diagrams the blog and the main site share) or `flex` (taking the
+site's palette and faces), and a spec picks the ones it uses. The boundary in full is
+[What a spec may set](spec-settings.md). To build a page, start from its
+[recipe](../recipes/README.md): it names the writing and layout files that page relies on.
 
 ## Philosophy
 
@@ -33,18 +38,21 @@ UI Pack draws explanations. A visual exists to make one thing understood faster 
 7. **Readable everywhere it travels.** At 390px wide, in dark mode, with reduced motion, forwarded
    without the speaker and exported as a still. A layout that only works at 1440 isn't finished.
 8. **Layers are independent.** Style, writing and layout change separately (next section).
+9. **Each site is its own.** A site's layout, voice and look are its spec's; the core rules are the
+   floor every site stands on, never a house style imposed on the others.
 
 ## Three independent layers
 
 You can change any layer without touching the other two:
 
 - **Same words and layout, new style.** Each website has one spec that fills the same role
-  contract ([how to write one](../specs/README.md)); Technical is the uipack site's. uipack renders
+  contract ([how to write one](../specs/README.md)); Technical is the uipack site's. The spec's
+  layout and writing style are separate sections of it, so its values can change without them. uipack renders
   another spec by adding one value set in `src/styles`, registering it in `uiStyles`, and testing
   it. A deck or page built in Technical then renders in it with its headlines, notes, order and
   regions unchanged: only colours, faces and ornaments differ.
-- **Same style and words, new layout.** Turn a deck's comparison slide into a bento slide, or a
-  wide figure into its stacked narrow drawing.
+- **Same style and words, new layout.** Turn a deck's comparison slide into a bento slide, a wide
+  figure into its stacked narrow drawing, or pick another layout archetype in the spec.
 - **Same style and layout, new words.** A slide archetype or figure preset fed different content.
 
 What makes that work is a contract between the layers:
@@ -68,17 +76,18 @@ Four more rules keep the split honest where it would otherwise leak:
   line length and display scale are style roles. Shapes a style adds (Technical's drafting grid,
   for example) go in named ornament slots that never take space, so every region stays put.
 - **Every slot has a text budget.** The linter flags any slot over budget
-  ([Writing, slot budgets](writing/general.md#slot-budgets)). The headline rule:
+  ([Writing, slot budgets](writing/general.md#slot-budgets)); a spec may tighten a budget, never
+  loosen it. Titles take the form the spec chose per page type, each with a core ceiling:
 
-  <!-- generated:headline-rule -->
-- **Presented** (a speaker in the room): aim for 2–5 words; the check stops at 6 (`title-length`). A verdict you would say aloud.
-- **Read alone** (a pre-read, a forwarded deck, a figure): the claim as one sentence of 3–14 words.
-- **Web section head:** 2–5 plain words naming what the reader gets.
+  <!-- generated:title-forms -->
+- **Short spoken verdict** (a speaker in the room): the check stops at 6 words (`title-length`, `presented` mode).
+- **Full-sentence claim** (read without its author: a pre-read, a forwarded deck, a figure): one sentence; the check stops at 14 words (`read-alone` mode).
+- **Plain name** (a web section head, a docs heading): names what the reader gets, never a sentence; held to the headline slot's 14 words, not linted on the web yet.
 <!-- /generated -->
-- **A style never moves a section.** A web page keeps its author's section order and layout in
-  every style; a style changes colours, type and ornaments only, never the writing, the order or
-  what sits in the hero. A style's own recommended order is an explicit opt-in
-  ([Layout, landing](layout/landing.md#order)).
+- **A style never moves a section.** The order and the hero are the spec's layout, written down
+  under its `## Layout`; its style values change colours, type and ornaments only, never the
+  writing, the order or what sits in the hero. A style's own recommended order is an explicit
+  opt-in ([Layout, landing](layout/landing.md#order)).
 - **The web loads one style.** The library's CSS sits in cascade layers, so a page's own rules win
   without `!important`. A small script in the page head sets the style and theme before the first
   paint, and the style fetches only its own fonts, preloads only its display face and swaps it in
@@ -135,17 +144,35 @@ fallback; a stored style only with `persist: true`) and, only when `?theme=` or 
 `readStyle({ aliases })`.
 
 
+## Presentations are websites
+
+A deck is an HTML page of a site, so it reads the site's spec like any other page:
+
+- **Look.** The spec's slide faces (`--ui-slide-font-display`, `-text`, `-label`; by default its web
+  faces), palette and ornaments, through `<DeckPlayer uiStyle="<id>">` or the site's own roles.
+- **Layout.** The spec's `### Deck`: the [slide canvas](layout/deck-slide.md) archetype, or its
+  extension (eyebrows on, which slide archetypes, how often each transition).
+- **Writing.** The spec's writing style for talks: the title form for presented and read-alone decks,
+  tone and house words. The core [talk rules](writing/talks.md) hold either way.
+- **Components.** The looks the spec picked: a figure in a slide is the same Blueprint figure as on
+  the site's pages.
+
+**A talk series with its own look** gets its own spec, like a site: `pages: [deck]`,
+`layouts: { deck: slide-canvas }` (or `custom`), and its own Writing style. If it should look like a
+site with a few changes, it says `extends: <that site's spec>` and lists only what differs. It goes
+in the [registry](../specs/registry.md) under the repo that hosts the decks.
+
 ## Media at a glance
 
 Where each medium's rules live: its entry in the package, then the writing and layout files.
 
 | Medium | Entry | Default style | Writing core | Layout core |
 | --- | --- | --- | --- | --- |
-| Diagrams | `uipack` (`Figure`), `uipack/presets`, `uipack/drill`, `uipack/charts`, `uipack/article` | Technical | [Figure labels and captions](writing/figures.md) | [Figures](layout/README.md#figures) |
-| Slides | `uipack/deck` (new work), `uipack/presentations` (three starters) | Technical (deck tokens) | [Talks and slides](writing/talks.md), [read-alone decks](writing/documents.md#read-alone-decks) | [Deck slide](layout/deck-slide.md) |
-| Web | `uipack/web`, `uipack/docs` | Technical | [Web and landing copy](writing/web.md), [documents](writing/documents.md) | [Landing](layout/landing.md), [documentation](layout/documentation.md), [dashboard](layout/dashboard.md) |
+| Diagrams | `uipack` (`Figure`), `uipack/presets`, `uipack/drill`, `uipack/charts`, `uipack/article` | The [Blueprint look](../components/diagrams.md), fixed | [Figure labels and captions](writing/figures.md) | [Figures](layout/README.md#figures) |
+| Slides | `uipack/deck` (new work), `uipack/presentations` (three starters) | The site's spec (deck tokens); Technical here | [Talks and slides](writing/talks.md), [read-alone decks](writing/documents.md#read-alone-decks) | [Slide canvas](layout/deck-slide.md) |
+| Web | `uipack/web`, `uipack/docs`, `uipack/article` | The site's spec; Technical here | [Web and landing copy](writing/web.md), [documents](writing/documents.md) | [Product landing](layout/landing.md), [docs shell](layout/documentation.md), [article](layout/article.md), [dashboard](layout/dashboard.md) |
 | Motion | Packets, entrance, deck transitions, `uipack/web` motion | Inherits the host style's motion tokens | [Motion beats](writing/figures.md#motion-beats) | [Motion](layout/README.md#motion) |
-| 3D | `uipack/slides` (camera stories), `uipack/objects`, `uipack/mechanism` | Studio / Mechanism | [3D stops](writing/figures.md#3d-stops) | [3D](layout/README.md#3d) |
+| 3D | `uipack/slides` (camera stories), `uipack/objects`, `uipack/mechanism` | The [3D looks](../components/3d.md) and [Mechanism](../components/mechanism.md) the spec picks | [3D stops](writing/figures.md#3d-stops) | [3D](layout/README.md#3d) |
 
 ## Skills that use this spec
 
@@ -158,7 +185,7 @@ values:
 | `uipack-design` (ong6/skills) | The entry point: finds uipack and the site's spec, picks the job skill. | [`skills/`](../../skills/README.md) |
 | `system-diagram` (existing) | Executes diagrams. Its taste table defers to [Style roles, diagrams](style.md#diagrams) and [Layout, figures](layout/README.md#figures). | Diagram sections |
 | `3d-design`, `blender-authoring` (existing) | Execute 3D. Art direction comes from [Style roles, 3D](style.md#3d). | 3D sections |
-| `frontend-design`, `ux-design` | Execute web pages in Technical. Another site's look comes from its [spec](../specs/README.md). | Web sections, [Web principles](../web-principles.md) |
+| `frontend-design`, `ux-design` | Execute web pages. The site's look, layout and writing style come from its [spec](../specs/README.md). | Web sections, [Web principles](../web-principles.md) |
 | `create-fde-deck` (existing) | Customer field-engineering decks; its evidence ledger is a writing layer of its own and renders through `uipack/deck` layouts. | Slide sections |
 
 ## Related docs
@@ -167,8 +194,8 @@ values:
   polish and acceptance checks.
 - Per-style guides: [web principles](../web-principles.md), [Mechanism](../mechanism.md),
   [Object scenes and 3D art directions](../objects.md). Site specs: [how to write one](../specs/README.md),
-  [Technical](../specs/technical.md) and the [registry](../specs/registry.md); the shared
-  [diagram family](../families/diagrams.md).
+  [Technical](../specs/technical.md) and the [registry](../specs/registry.md); the
+  [component looks](../components/README.md).
 - Medium references: [Deck player](../deck.md), [Deck storytelling](../deck-storytelling.md),
   [Consulting slides](../deck-consulting.md), [Charts](../charts.md), [Article parts](../article.md),
   [Drill-down figures](../drill.md), [3D animations](../slides.md).

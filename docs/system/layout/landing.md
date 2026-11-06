@@ -1,10 +1,24 @@
-# Layout: landing page
+# Layout archetype: product landing
 
-The layout of a product, launch or announcement page built with `uipack/web`: the grid, the
-section archetypes, the order sections render in, and how product surfaces behave at a phone's
-width. It adds to the [rules for every layout](README.md#rules-for-every-layout). The words are
-[web and landing copy](../writing/web.md); the build steps are the
-[landing recipe](../../recipes/landing.md).
+The `product-landing` archetype: a product, launch or announcement page built with `uipack/web`,
+with its grid, section archetypes, order, and how product surfaces behave at a phone's width. A
+site's spec picks it for its `landing` page type (`layouts: { landing: product-landing }`) or
+extends it; every site keeps the [layout floors](README.md#floors-what-holds-on-every-site). The
+words follow the site's writing style and [web and landing copy](../writing/web.md); the build steps
+are the [landing recipe](../../recipes/landing.md).
+
+<!-- generated:layout-archetype -->
+- **Archetype:** `product-landing` (Product landing), for the `landing` page type.
+- **Grid:** 12 / 8 / 4 columns (container 1024px and up, 640px, below); gutters 32px wide, 24px below 1024px; one 1120px max width for every section.
+- **Regions:** Nav, hero, sections, closing band, footer.
+- **Section order:** The author's; a style's `prefers` order only on opt-in.
+- **Hero:** Split: copy on 5 columns, the product's real output on 7, stacked below 1024px.
+- **Rendered by:** `WebPage`, `StarHero`, `Section` (`uipack/web`).
+<!-- /generated -->
+
+**Extending it.** A spec may change the column's max width, the hero pattern (split or stacked, what
+proof it shows), the section order and which section archetypes it uses, and says so under its
+`### Landing`. It keeps the floors, the one goal and the hero's real product output.
 
 ## Grid and spacing
 
@@ -17,7 +31,8 @@ From `GRID_COLUMNS`, `SPACE` and the type tokens in `uipack/web`:
 <!-- /generated -->
 
 `Grid` and `GridItem span={[wide, medium, narrow]}` respond to their container. The hero, every
-section and the closing band share one 1120px column, so every left edge on the page lines up.
+section and the closing band share one 1120px column, so every left edge on the page lines up
+(the column is literal in the CSS: [Where code still fixes a layout](README.md#where-code-still-fixes-a-layout)).
 
 ## Section archetypes
 
@@ -39,13 +54,14 @@ Each archetype is a component:
 ## Order
 
 - **The author's order.** `WebPage` renders `sections` in the order the page lists them, and the
-  hero keeps whatever proof the page put there. A style changes tokens and ornaments only, so a
-  style built later from another site's [spec](../../specs/README.md) keeps the same order.
-  Alignment is the start edge by default.
+  hero keeps whatever proof the page put there. The site's spec sets the order it wants under its
+  `### Landing`; the page lists its sections in that order. A style (the spec's palette, faces and
+  ornaments) changes tokens and ornaments only, never the order. Alignment is the start edge by
+  default.
 - **A style's own sequence is opt-in.** `WebPage layout="style"` uses `uiStyles[].prefers` and
   `.layout` (what fills the hero, alignment, cards or rows). Ids a style doesn't name are kept,
-  after the ones it does. A site spec records any order it prefers
-  ([What a spec may set](../spec-settings.md)). Under the default layout, section render functions
+  after the ones it does. This is keyed by the implemented style, not by the spec yet (a TODO in
+  [the layout overview](README.md#where-code-still-fixes-a-layout)). Under the default layout, section render functions
   receive `defaults` of `{ hero: "demo", align: "start", steps: "cards" }`.
 
   <!-- generated:web-style-order -->

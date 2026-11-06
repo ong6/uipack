@@ -1,10 +1,21 @@
-# Layout: dashboard
+# Layout archetype: one-question dashboard
 
-The layout of a screen someone checks rather than reads: live numbers, a table of records, a
-schedule, status. It covers the regions, how tiles and tables share a row, and the phone's narrow
-form. It adds to the [rules for every layout](README.md#rules-for-every-layout). The build steps
-are the [dashboard recipe](../../recipes/dashboard.md). No page in this repo is a dashboard yet;
-the parts below are the ones UiPack ships for one.
+The `one-question-dashboard` archetype: a screen someone checks rather than reads, with live
+numbers, a table of records, a schedule and status. It covers the regions, how tiles and tables
+share a row, and the phone's narrow form. A site's spec picks it for its `dashboard` page type
+(`layouts: { dashboard: one-question-dashboard }`) or extends it; every site keeps the
+[layout floors](README.md#floors-what-holds-on-every-site). The build steps are the
+[dashboard recipe](../../recipes/dashboard.md). No page in this repo is a dashboard yet; the parts
+below are the ones UiPack ships for one.
+
+<!-- generated:layout-archetype -->
+- **Archetype:** `one-question-dashboard` (One-question dashboard), for the `dashboard` page type.
+- **Grid:** The landing grid: 12 / 8 / 4 columns, 32 / 24px gutters.
+- **Regions:** Title row, headline numbers, the chart, records, time, source.
+- **Section order:** Top to bottom in the order of the regions.
+- **Hero:** Three or four headline numbers of equal weight.
+- **Rendered by:** `Proof`, `ProductWindow`, `DataTable`, the charts (`uipack/web`, `uipack/charts`).
+<!-- /generated -->
 
 ## Grid and spacing
 

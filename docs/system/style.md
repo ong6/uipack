@@ -132,13 +132,16 @@ other style gets the derivation, and every style host resets them so they never 
 A role keeps its meaning on every site. Whatever hue a spec gives `--ui-accent`, it marks the single
 thing that matters. A spec may not add a second accent.
 
-## Specs and illustration looks
+## Specs and component looks
+
+Mechanism and the 3D directions are component looks: a spec picks them in `components:`, and each
+is `fixed` or `flex` ([every look](../components/README.md)).
 
 | What | For | Values | Guide |
 | --- | --- | --- | --- |
 | **Site specs** | One per website: its palette, faces, ornaments, voice | `src/styles/<id>.css` once implemented | [Registry](../specs/registry.md), [Technical](../specs/technical.md) |
-| **Mechanism** | One isometric machine whose working is the point | The site's roles mapped to four solid tones (derived; `--tune-mech-*` hooks), one lit part | [Mechanism](../mechanism.md) |
-| **3D art directions** | Object scenes | Studio (reads `--tune-object-*`), Paper worlds, Kinetic, Cartoon, Realistic, Abstract | [Object scenes](../objects.md) |
+| **Mechanism** (`flex`) | One isometric machine whose working is the point | The site's roles mapped to four solid tones (derived; `--tune-mech-*` hooks), one lit part | [Mechanism look](../components/mechanism.md), [Mechanism](../mechanism.md) |
+| **3D art directions** | Object scenes | Studio (`flex`, reads `--tune-object-*`); Paper worlds, Kinetic, Cartoon, Realistic, Abstract (`fixed`) | [3D looks](../components/3d.md), [Object scenes](../objects.md) |
 
 The `uiStyle` prop (`Figure`, `DeckPlayer`, `SlideStarter`, `WebSurface`, `Section`) and
 `data-ui-style` on any element set the style; the nearest one wins, and with nothing set it is
@@ -170,8 +173,8 @@ mono caps of at least 11px. Technical's faces are in [its spec](../specs/technic
 
 ## Diagrams
 
-The diagram style card: the [diagram family](../families/diagrams.md), the same on every site that
-uses it (only light and dark follow the host). Every figure, preset, chart and article part follows
+The diagram style card: the [Blueprint look](../components/diagrams.md), the same on every site that
+draws figures (only light and dark follow the host). Every figure, preset, chart and article part follows
 it. Values are in SVG
 user units for a `viewBox` drawn at about its rendered width.
 

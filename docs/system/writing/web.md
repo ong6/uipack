@@ -4,12 +4,15 @@ How to write a product, launch or announcement page: the goal, the hero, section
 the FAQ. It adds to the [general rules](general.md). The layout is
 [Landing](../layout/landing.md); the build steps are the [landing recipe](../../recipes/landing.md).
 
-## Lengths
+## Title form
 
-<!-- generated:headline-rule -->
-- **Presented** (a speaker in the room): aim for 2–5 words; the check stops at 6 (`title-length`). A verdict you would say aloud.
-- **Read alone** (a pre-read, a forwarded deck, a figure): the claim as one sentence of 3–14 words.
-- **Web section head:** 2–5 plain words naming what the reader gets.
+The site's spec chooses the form of its hero headline and section heads (Technical: plain names of
+a few words; [its writing style](../../specs/technical.md#writing-style)). The core ceilings:
+
+<!-- generated:title-forms -->
+- **Short spoken verdict** (a speaker in the room): the check stops at 6 words (`title-length`, `presented` mode).
+- **Full-sentence claim** (read without its author: a pre-read, a forwarded deck, a figure): one sentence; the check stops at 14 words (`read-alone` mode).
+- **Plain name** (a web section head, a docs heading): names what the reader gets, never a sentence; held to the headline slot's 14 words, not linted on the web yet.
 <!-- /generated -->
 
 ## One goal
@@ -28,7 +31,7 @@ approvals and approvers' names stay off the page.
 
 ## Sections
 
-- Heads are short and plain, naming what the reader gets ("Fewer crashes", "A slightly slower
+- Heads name what the reader gets, in the form the spec chose ("Fewer crashes", "A slightly slower
   start", "Android only"), never the section's kind ("Features") and never a sentence crammed with
   numbers.
 - The supporting line carries the number, once.

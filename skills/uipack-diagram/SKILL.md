@@ -1,7 +1,7 @@
 ---
 name: uipack-diagram
 description: >-
-  Draw a diagram with UiPack's diagram family: a system or architecture figure, a request flow, a
+  Draw a diagram in UiPack's Blueprint look: a system or architecture figure, a request flow, a
   before/after, a drill-down figure or a layered chart for a site, article, doc or slide. Use for
   "draw the flow", "diagram for this article", "architecture figure", "add a figure", "drill-down".
   Not for data charts of numbers alone, a whole page or deck (uipack-page), or a site's brand
@@ -14,9 +14,12 @@ Paths are relative to the uipack root: `node_modules/uipack/` in a site, or a ui
 
 ## The rule that differs from pages
 
-Diagrams are a **shared family**: a figure looks the same on every site. Read
-[docs/families/diagrams.md](../../docs/families/diagrams.md) first: it fixes the card surface,
-shapes, flow colours, label face, strokes and radii; only light and dark follow the host.
+Diagrams have one look, **Blueprint**, and it is `fixed`: a figure looks the same on every site
+(the blog and the main site share their figures). Read
+[docs/components/diagrams.md](../../docs/components/diagrams.md) first: it fixes the card surface,
+shapes, flow colours, label face, strokes and radii; only light and dark follow the host. The site's
+spec picks it (`components: { diagrams: blueprint }`) but never changes it, and its layout and
+writing style stop at the figure's frame: the labels and lengths below hold on every site.
 A site spec never recolours a figure, and neither do you: no brand accent on a connector, no
 site face in a label, no hex anywhere. A slide or page gives the figure a region; it never
 restyles it.

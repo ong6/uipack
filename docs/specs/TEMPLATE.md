@@ -2,7 +2,9 @@
 spec: TODO-site-id
 site: TODO the website, e.g. example.com
 extends: core
-uses: [diagrams]
+pages: [landing, documentation]
+layouts: { landing: product-landing, documentation: docs-shell }
+components: { diagrams: blueprint }
 status: draft
 uipack: TODO the uipack commit the site pins
 values: TODO the style file once implemented (src/styles/<id>.css), or none
@@ -16,9 +18,13 @@ from the live site stays a `TODO:` line with what would decide it. `scripts/chec
 the shape; [How to write a site spec](README.md) explains each part.
 
 Frontmatter: `spec` is the id other specs extend; `extends` is `core`, or the id of a spec whose
-look this site reuses; `uses` lists the [shared families](../families/diagrams.md) the site draws
-with; `status` is `draft` or `implemented`; `uipack` is the pinned commit; `values` is the style
-file when uipack renders this look.
+look this site reuses; `pages` lists the [page types](../system/layout/README.md#how-a-spec-sets-layout)
+the site has (a deck counts: it is a page of the site); `layouts` gives each one an
+[archetype](../system/layout/README.md#archetype-library) id or `custom`; `components` picks the
+[component looks](../components/README.md) the site uses (`3d: [studio, realistic]` for several);
+`status` is `draft` or `implemented`; `uipack` is the pinned commit; `values` is the style file
+when uipack renders this look. Replace the example `pages`, `layouts` and `components` with the
+site's own.
 
 ## Identity
 
@@ -148,16 +154,50 @@ section rule, frames, card corners, nav, ambient switches, the primary button, t
 the stamp) and the treatment roles (`--ui-perf`, `--ui-card-*`, `--ui-num-*`, `--ui-quote-*`,
 `--ui-cell-*`, `--ui-window-*`). Only slots: nothing here takes space or moves a box.
 
-## Settings chosen
+## Layout
 
-TODO: for each setting a spec [may set](../system/spec-settings.md), the choice: voice and register,
-density, the page types, any permitted section-order deviation. Anything not listed keeps the core
-rule.
+One `###` per page type in `pages:`. For a picked archetype, say what the site keeps and what it
+changes when it extends it (max width, hero pattern, section order, which section archetypes it
+uses). For `custom`, fill the four rows the checker requires. Every layout keeps the
+[floors](../system/layout/README.md#floors-what-holds-on-every-site).
 
-## Page types
+### Landing
 
-TODO: which of the core page types the site uses (landing, documentation or article, deck slide,
-dashboard) and any it never uses.
+TODO: `product-landing` as is, or what this site changes: the column's max width, the hero
+pattern, the section order.
+
+### Documentation
+
+TODO: `docs-shell` as is, or what this site changes: the measure, the regions it shows.
+
+A custom layout (`layouts: { <page type>: custom }`) instead gives:
+
+| Setting | This site |
+| --- | --- |
+| Grid | TODO: columns, gutters (multiples of 8px), max width, the narrow form |
+| Regions | TODO: the named regions, in reading order |
+| Section order | TODO: the sections, in order |
+| Hero | TODO: what fills the first screen |
+
+## Writing style
+
+What this site's words sound like. The [core writing rules](../system/writing/README.md#core-and-site)
+hold under every choice; budgets may tighten the [slot ceilings](../system/writing/general.md#slot-budgets),
+never loosen them.
+
+| Setting | This site |
+| --- | --- |
+| Tone and register | TODO: how formal, how warm, first person or not |
+| Title form | TODO: per page type, one of [short spoken verdict, full-sentence claim, plain name](../system/writing/README.md#title-forms) |
+| Copy density | TODO: paragraph length, how much a section says, bullets or prose |
+| House words | TODO: words to prefer and avoid, how the product is named |
+| Budgets | TODO: any aim or limit tighter than the ceilings, or "the ceilings" |
+
+## Component looks
+
+TODO: for each component in `components:`, why that look fits the site; for 3D, the subjects the
+site shows and the look each one is pinned to ([which subjects offer each look](../components/3d.md#which-subjects-offer-each-look)).
+A `fixed` look's values are not this spec's to set.
 
 ## Reuse
 

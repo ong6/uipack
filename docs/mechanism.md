@@ -13,7 +13,7 @@ The verification gate with Idle tour, Pass, Return and Apart poses, then one sti
 ![The verification gate, light](mechanism-1440-light.png)
 ![The verification gate on a phone, dark](mechanism-390-dark.png)
 
-The style follows [Anatomy](https://github.com/wheresryan22/anatomy) by Ryan (MIT), pinned at commit `1482e8469b0a9e0d8cc18ea2740a01423d29ae80`: "the object is the explanation". It is drawn in the Technical palette, so it belongs to the same family as the figures.
+The style follows [Anatomy](https://github.com/wheresryan22/anatomy) by Ryan (MIT), pinned at commit `1482e8469b0a9e0d8cc18ea2740a01423d29ae80`: "the object is the explanation". It is drawn in the Technical palette here; as a `flex` component look it takes any site's paper, ink and accent ([the isometric machine look](components/mechanism.md)).
 
 ## When to use it
 

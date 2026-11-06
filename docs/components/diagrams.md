@@ -1,16 +1,23 @@
----
-family: diagrams
-members: [Figure, presets, charts, DrillFigure]
----
+# Diagrams: the Blueprint look
 
-# Diagrams: one look on every site
+Diagrams have one look, **Blueprint**, and it is `fixed`: a figure looks the same on every site
+that draws one, and only light and dark follow the host. The blog and the main site share their
+figures, so a reader who met a uipack figure on one reads it on the other. Members: figures
+(`uipack`, the presets), drill-down figures (`uipack/drill`) and the HTML charts (`uipack/charts`:
+`SpanChart`, `LayerStack`, drawn in the same language). A spec picks it with
+`components: { diagrams: blueprint }` and never sets its values: `scripts/check-spec.ts` fails a
+spec that does. The model behind looks and modes is in [Component looks](README.md).
 
-A shared family is a look that stays the same on every site that uses it; only light and dark
-follow the host. Diagrams is the first: figures (`uipack`, the presets), charts (`uipack/charts`)
-and drill-down figures (`uipack/drill`). A reader who has met a uipack figure on one site reads it
-on any other: the same card surface, shapes, flow colours, label face and strokes. A site spec
-lists `diagrams` under `uses:` and never sets these values (`scripts/check-spec.ts` fails a spec
-that does).
+<!-- generated:component-look-list -->
+A spec picks one look: `components: { diagrams: blueprint }`.
+
+| Look | Name | Mode | The same on every site | Takes from the site |
+| --- | --- | --- | --- | --- |
+| `blueprint` | Blueprint | `fixed` | Card surface, node shapes and 6px node radius, the four flow colours and packet shapes, label face, strokes, the 11px type floor | Light or dark only |
+<!-- /generated -->
+
+Consulting deck charts (`BarChart`, `Waterfall` in `uipack/deck`) are slide parts, not members:
+they take the site's data roles like the rest of the slide.
 
 ## Fixed values
 
@@ -38,14 +45,16 @@ Each token a figure reads, the role it takes today and its value in light and da
 | `--uipack-stroke` | `--ui-stroke` | `1` | `1` |
 <!-- /generated -->
 
-Figures also fix, in their component CSS: a 6px node radius inside the drawing, a 1.25 connector stroke with one arrowhead in the request direction, the shape
-of each flow (square request, circle response, diamond change), an 11px rendered type floor and the
-filled-chip wash (28% in dark, `--uipack-chip-tint`). The full drawing rules are in the core
-[style rules, Diagrams](../system/style.md#diagrams) and [layout rules](../system/layout/README.md#figures).
+Figures also fix, in their component CSS: a 6px node radius inside the drawing, a 1.25 connector
+stroke with one arrowhead in the request direction, the shape of each flow (square request, circle
+response, diamond change), an 11px rendered type floor and the filled-chip wash (28% in dark,
+`--uipack-chip-tint`). The full drawing rules are in the core
+[style rules, Diagrams](../system/style.md#diagrams) and [layout rules](../system/layout/README.md#figures);
+the words a figure carries are in [figure labels and captions](../system/writing/figures.md).
 
 ## Where the code stands
 
 - TODO: figures still read the host's roles (`--uipack-fg: var(--ui-ink)`…), so on a site whose
-  palette differs a figure takes that palette. Making the family own its values means the figure
+  palette differs a figure takes that palette. Making the look own its values means the figure
   root sets these values itself and reads only the host's light or dark; until then the values above
-  are the family's intent and Technical's actual values.
+  are the look's intent and Technical's actual values.

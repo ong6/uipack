@@ -12,7 +12,10 @@ INPUTS
   and density value comes from it through var(--ui-*) roles; never write a hex or font-family.
 - UiPack: node_modules/uipack (version <commit or tag>). Read node_modules/uipack/skills/uipack-page/SKILL.md
   (or uipack-diagram for a figure), then the docs it points to for this recipe.
-- Recipe: <landing | documentation/article | deck | dashboard>, archetype <e.g. Proof, Steps, FAQ>.
+- Page type and layout: <landing | documentation | article | deck | dashboard>, the spec's layout
+  <archetype id, or custom> and its "### <Page type>" notes; section archetype <e.g. Proof, Steps, FAQ>.
+- Writing style: the spec's "## Writing style" (tone, title form for this page type, density, house
+  words, budgets). Core writing rules hold under it.
 - Section: id <section-id>, position <n of N> on page <route>. Before it: <section-id>. After it: <section-id>.
 - Facts and copy source: <path or pasted facts>. Use only these. Facts assigned to other sections: <list>; don't repeat them.
 - Allowed parts: <e.g. Section, Proof, DataTable from uipack/web>. Check each prop in node_modules/uipack/dist/*.d.ts.
@@ -31,7 +34,8 @@ OUTPUTS
 - Self-check, pasted in your final message:
   - Tier-1 grading passed: npx uipack-grade check <url> --spec <STYLE.md path> --out <dir>
     (see node_modules/uipack/docs/grading/README.md); paste the one-line result and the report path.
-  - Copy against node_modules/uipack/docs/system/writing.md general rule 9's checklist.
+  - Copy against node_modules/uipack/docs/system/writing/general.md general rule 9's checklist and
+    the spec's writing style.
   - No hex or font-family literal in your files; every uipack import exists.
   - At 390: no page overflow, labels readable, nothing cropped.
   - Values you needed that the spec lacks, and anything you could not do.
@@ -44,7 +48,8 @@ say so; never report a look you did not see.
 
 - **Section id and position** come from the lead's section manifest; so do the neighbours, which
   let the subagent match spacing and avoid repeating the section before it.
-- **Allowed parts** keep the page consistent: name the archetype's component from
-  [layout, web](../system/layout/landing.md) and the product-surface parts the facts need.
+- **Allowed parts** keep the page consistent: name the section archetype's component from the layout
+  archetype the spec picked (e.g. [product landing](../system/layout/landing.md)) and the
+  product-surface parts the facts need.
 - **Facts** are a file, not a summary: the subagent copies numbers and qualifiers exactly.
 - **Breakpoints and themes** default to 1440 and 390, light and dark; a spec may add more.

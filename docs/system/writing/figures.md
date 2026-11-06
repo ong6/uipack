@@ -2,20 +2,17 @@
 
 How to write the words of a diagram, chart, motion beat or 3D stop: the caption, node and arrow
 labels, statistics and the source line. It adds to the [general rules](general.md). How figures
-are laid out is in [Layout, figures](../layout/README.md#figures); their look is the
-[diagram family](../../families/diagrams.md).
+are laid out is in [Layout, figures](../layout/README.md#figures); their look is
+[Blueprint](../../components/diagrams.md), the same on every site, so these rules and lengths hold on
+every site too: a figure reads the same on the blog and the main site.
 
 ## Lengths
 
-<!-- generated:word-guides -->
+<!-- generated:figure-lengths -->
 | Text | Length | The check |
 | --- | --- | --- |
-| Presented slide title | aim for 2–5 words | `title-length` stops at 6 |
-| Read-alone title, figure title | 3–14 words, one sentence | `title-length` stops at 14 |
-| Web section head | 2–5 words | not linted |
 | Label in a drawing | 2–3 words | `slot-budget` stops at 3 |
-| Slide points | 2–4 a slide, each at most 8 words | `slot-budget` |
-| Speaker cues (`say`, presented) | at most 60 words | `notes-cues` |
+| Figure title | 3–14 words, one sentence | `title-length` stops at 14 |
 <!-- /generated -->
 
 ## The caption
