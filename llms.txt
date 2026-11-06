@@ -47,6 +47,7 @@ Agents: read docs/agents/README.md first, then the skill for your job in skills/
 
 - [Architecture diagrams](docs/diagrams.md): The diagram catalogue: each figure pattern once, from the bare canvas to a figure you drill into, with the parts it is built from.
 - [Drill-down figures](docs/drill.md): A stack of figures where a node zooms open into its own figure: the parts, keyboard, reduced motion and export.
+- [Figure parts API](docs/figure-api.md): Every figure part and its props, the connector rule, hover, motion, theming, the seven presets and static SVG export.
 - [Charts](docs/charts.md): SpanChart and LayerStack: layered and comparative charts for articles, static HTML with no JavaScript.
 - [Article parts](docs/article.md): The labelled blocks of a long article section, with their HTML and class contract.
 - [Article parts: Verification](docs/article-verification.md): How the article parts are tested, the measured section rhythm and screenshots.
@@ -82,10 +83,12 @@ Agents: read docs/agents/README.md first, then the skill for your job in skills/
 
 - [Icons & marks](docs/icons-and-marks.md): Searchable icons, marks, canvas backgrounds and motion tokens, each with a preview and a copy button.
 - [Contributing](docs/contributing.md): Step-by-step recipes, with the exact files to touch, for a new style, page, deck, slide part, chart or figure.
+- [Testing](docs/testing.md): What the unit and browser suites check, how CI runs them and the known engine quirks.
 - [Component-first](docs/component-first.md): Build, register and verify a significant visual in the library before a consumer uses it.
 - [Design direction](docs/design-direction.md): The playground's visual direction, catalog taxonomy, interaction polish and presentation composition.
 - [Canvas and selection](docs/interaction.md): Mobile reading, item selection, expanded inspection and their limits.
 - [Web principles](docs/web-principles.md): The numbered rules for uipack/web pages, each with its number and source, motion and backgrounds included.
+- [Web parts API](docs/web-api.md): The uipack/web parts with their props: page parts, motion, backgrounds, type and scoping.
 - [Web principles: Smooth scrolling](docs/web-smooth-scroll.md): How SmoothScroll eases the wheel on a landing page, what stays native, anchors and its API.
 - [Web discoverability](docs/web-discoverability.md): How a uipack/web page gets found and quoted by search and answer engines: the checklist and the crawler stance.
 - [Web discoverability: Head and structured data](docs/web-discoverability/head-and-structured-data.md): pageMeta, the head helpers, font preloads, the JSON-LD builders and the FAQ.

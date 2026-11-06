@@ -13,7 +13,7 @@ A consulting deck is built to be read without its presenter, so it is the [read-
 
 Run `npm run dev` and open `/deck?deck=consulting` to see the example: a seven-slide decision request with illustrative data, plus an appendix slide holding the cost model behind every number.
 
-![Summary slide, light](deck-consulting-summary-light.png)
+![Summary slide, light](screenshots/deck-consulting-summary-light.png)
 
 ```tsx
 import { ConsultingSlide, Panel, SoWhat, KpiTiles, Waterfall, BarChart, Ref, formatter, type DeckSlide } from "uipack/deck";
@@ -94,7 +94,7 @@ Colour does one job per chart:
 
 The tokens are `--uipack-cx-*` on `.uipack-cx-slide`. The dark set applies to the dark theme and to `ink`-tone slides.
 
-![Diagnosis slide, dark](deck-consulting-sites-dark.png)
+![Diagnosis slide, dark](screenshots/deck-consulting-sites-dark.png)
 
 ## Limits
 

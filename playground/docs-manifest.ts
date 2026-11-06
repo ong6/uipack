@@ -300,6 +300,13 @@ export const docsManifest = [
         intro: "A stack of figures where a node zooms open into its own figure: the parts, keyboard, reduced motion and export.",
       },
       {
+        id: "figure-api",
+        label: "Figure parts API",
+        path: "/components/figure-api",
+        file: "docs/figure-api.md",
+        intro: "Every figure part and its props, the connector rule, hover, motion, theming, the seven presets and static SVG export.",
+      },
+      {
         id: "charts",
         fullWidth: true,
         label: "Charts",
@@ -517,6 +524,13 @@ export const docsManifest = [
         intro: "Step-by-step recipes, with the exact files to touch, for a new style, page, deck, slide part, chart or figure.",
       },
       {
+        id: "testing",
+        label: "Testing",
+        path: "/reference/testing",
+        file: "docs/testing.md",
+        intro: "What the unit and browser suites check, how CI runs them and the known engine quirks.",
+      },
+      {
         id: "component-first",
         label: "Component-first",
         path: "/reference/component-first",
@@ -543,6 +557,13 @@ export const docsManifest = [
         path: "/reference/web-principles",
         file: "docs/web-principles.md",
         intro: "The numbered rules for uipack/web pages, each with its number and source, motion and backgrounds included.",
+      },
+      {
+        id: "web-api",
+        label: "Web parts API",
+        path: "/reference/web-api",
+        file: "docs/web-api.md",
+        intro: "The uipack/web parts with their props: page parts, motion, backgrounds, type and scoping.",
       },
       {
         id: "smooth-scroll",

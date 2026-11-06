@@ -2,7 +2,7 @@
 
 `DrillFigure` is a stack of figures in the Technical Figure style. A `DrillNode` inside one level opens the next: the parent zooms into the node while the child opens from a clip shaped like the node box and grows to fill the canvas. Back plays the same path in reverse. Import both from `uipack`; styles come with `uipack/theme.css`.
 
-![Overview with the drill affordance, light](drill-overview-1440-light.png)
+![Overview with the drill affordance, light](screenshots/drill-overview-1440-light.png)
 
 ## Use
 
@@ -78,11 +78,11 @@ Reduced motion replaces every move with a 160ms crossfade, no scaling. Without W
 
 `playground/DrillSection.tsx`: an illustrative three-level agent harness (Harness → Checks → Policy), wide and narrow, with its path in `?drill=harness/checks`. It is the drill-down section of the diagrams page (`/#drill-figure`); `/drill` opens that page scrolled to it.
 
-![Mid-zoom at 30%: the parent closes in, the node's label and preview give way](drill-zoom-30-light.png)
-![Mid-zoom at 45%: the child appears inside the node box](drill-zoom-45-light.png)
-![Mid-zoom at 60%](drill-zoom-60-light.png)
-![Checks level, dark](drill-checks-1440-dark.png)
-![Overview at 390px, dark](drill-overview-390-dark.png)
+![Mid-zoom at 30%: the parent closes in, the node's label and preview give way](screenshots/drill-zoom-30-light.png)
+![Mid-zoom at 45%: the child appears inside the node box](screenshots/drill-zoom-45-light.png)
+![Mid-zoom at 60%](screenshots/drill-zoom-60-light.png)
+![Checks level, dark](screenshots/drill-checks-1440-dark.png)
+![Overview at 390px, dark](screenshots/drill-overview-390-dark.png)
 
 ## Limits
 

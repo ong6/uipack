@@ -1,5 +1,7 @@
 # Canvas, selection, and mobile
 
+How figures, charts and 3D scenes behave under touch, keyboard and small screens: what becomes selectable, what a selection shows, how Open canvas and pinch zoom work, and the narrow-layout rules. Read it before adding an interactive part; the polish standard every part ships with is in [design direction](design-direction.md#interaction-polish-the-standard-for-every-new-part-figure-and-page).
+
 ## SVG figures
 
 `Figure` supports Open canvas by default. Pass `expandable={false}` to omit it. `controls={false}` disables motion controls only; reduced motion also hides only motion controls. Canvas and selection remain usable.
