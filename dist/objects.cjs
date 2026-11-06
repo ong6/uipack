@@ -598,7 +598,7 @@ function AnimationWorkspace({
   theme = "light"
 }) {
   return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-animation-workspace", "data-theme": theme, children: [
-    /* @__PURE__ */ jsxRuntime.jsx("aside", { className: "uipack-animation-library", children: library }),
+    /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-animation-library", children: library }),
     /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-animation-detail", children })
   ] });
 }
@@ -619,22 +619,26 @@ function ObjectInspector({
   return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-object-inspector", children: [
     /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
       /* @__PURE__ */ jsxRuntime.jsx("h3", { children: "Art direction" }),
-      /* @__PURE__ */ jsxRuntime.jsx("div", { role: "group", "aria-label": "3D art direction", className: "uipack-direction-list", children: directions.map(({ direction, index, look }) => /* @__PURE__ */ jsxRuntime.jsxs(
-        "button",
-        {
-          type: "button",
-          "aria-label": direction.name,
-          "aria-pressed": chunkGZ2AJZYQ_cjs.objectDirectionIndex(kind, variant) === index,
-          onClick: () => onVariantChange(look),
-          children: [
-            /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-direction-symbol", "aria-hidden": "true", children: chunkGZ2AJZYQ_cjs.directionSymbols[index] }),
-            /* @__PURE__ */ jsxRuntime.jsxs("span", { children: [
-              /* @__PURE__ */ jsxRuntime.jsx("strong", { children: direction.name }),
-              /* @__PURE__ */ jsxRuntime.jsx("small", { children: direction.description })
-            ] })
-          ]
-        },
-        direction.id
+      /* @__PURE__ */ jsxRuntime.jsx("div", { role: "group", "aria-label": "3D art direction", className: "uipack-direction-list", children: directions.map(({ direction, index, look }) => (
+        // Named by what it shows, the name then the line under it, so a voice user can say
+        // the text they see (WCAG 2.5.3).
+        /* @__PURE__ */ jsxRuntime.jsxs(
+          "button",
+          {
+            type: "button",
+            "aria-pressed": chunkGZ2AJZYQ_cjs.objectDirectionIndex(kind, variant) === index,
+            onClick: () => onVariantChange(look),
+            children: [
+              /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-direction-symbol", "aria-hidden": "true", children: chunkGZ2AJZYQ_cjs.directionSymbols[index] }),
+              /* @__PURE__ */ jsxRuntime.jsxs("span", { children: [
+                /* @__PURE__ */ jsxRuntime.jsx("strong", { children: direction.name }),
+                " ",
+                /* @__PURE__ */ jsxRuntime.jsx("small", { children: direction.description })
+              ] })
+            ]
+          },
+          direction.id
+        )
       )) })
     ] }),
     chunkGZ2AJZYQ_cjs.hasObjectLook(kind, 0) && chunkGZ2AJZYQ_cjs.objectDirectionIndex(kind, variant) === 0 && /* @__PURE__ */ jsxRuntime.jsxs("label", { className: "uipack-edition-select", children: [

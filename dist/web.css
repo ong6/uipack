@@ -1344,6 +1344,14 @@
     .uipack-web-faq[data-align="center"] .uipack-web-section__inner {
       grid-template-columns: minmax(0, 1fr);
     }
+    /* The heading lines up with the first question beside it: the list drops by the eyebrow's
+       line and the head's gap, less the first item's rule and padding. */
+    .uipack-web-faq:not([data-align="center"]) .uipack-web-section__head:has(> .uipack-web-eyebrow:first-child) > .uipack-web-eyebrow {
+      line-height: 1.5;
+    }
+    .uipack-web-faq:not([data-align="center"]) .uipack-web-section__inner:has(> .uipack-web-section__head > .uipack-web-eyebrow:first-child) > .uipack-web-faq__list {
+      margin-top: calc(var(--web-step--1) * 1.5 + var(--web-s2) - var(--web-s3) - 1px);
+    }
   }
   @media (prefers-reduced-motion: reduce) {
     .uipack-web-faq__icon::after {
@@ -1756,6 +1764,25 @@
     }
     .uipack-web-demo__controls {
       justify-content: flex-start;
+    }
+  }
+  /* On a phone the step tabs and Play / Replay would wrap into two ragged rows: they become two
+     even rows instead, the steps in equal columns over the playback buttons in equal halves. */
+  @container web (max-width: 520px) {
+    .uipack-web-demo__controls {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .uipack-web-demo__tabs,
+    .uipack-web-demo__buttons {
+      display: grid;
+      grid-auto-flow: column;
+      grid-auto-columns: minmax(0, 1fr);
+    }
+    .uipack-web-demo__tabs button,
+    .uipack-web-demo__buttons > button {
+      padding: 0 8px;
+      white-space: nowrap;
     }
   }
 
@@ -2824,6 +2851,10 @@
   }
   .uipack-web-window__foot > :first-child {
     color: var(--web-ink);
+  }
+  /* A status line that wraps on a phone breaks evenly, never leaving one word. */
+  .uipack-web-window__foot > * {
+    text-wrap-style: balance;
   }
   @container web (max-width: 720px) {
     .uipack-web-window__head {

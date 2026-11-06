@@ -174,6 +174,9 @@ function tableColumns(node) {
   const cells = (row?.children ?? []).filter((cell) => cell.tagName === "th" || cell.tagName === "td").length;
   return Math.max(1, cells || 2);
 }
+function isShortToken(text) {
+  return /\s/.test(text) ? text.length <= 24 : text.length <= 32;
+}
 function headingComponent(level, headingIds) {
   return function DocsHeading({ node, children, ...props }) {
     const title = textFromChildren(children);
@@ -200,6 +203,13 @@ function DocsMarkdown({ source, headingOffset = 0 }) {
     // A code block scrolls sideways when a line is longer than the column: a Tab stop, so a
     // keyboard can scroll it (WCAG 2.1.1).
     pre: ({ node: _node, ...props }) => /* @__PURE__ */ jsxRuntime.jsx("pre", { ...props, tabIndex: 0 }),
+    // A short inline code token ("--uipack-token-error", "user sessions") never breaks mid-token
+    // at a hyphen or space; a longer one still wraps, so it cannot push the column wide.
+    code: ({ node: _node, className, children, ...props }) => {
+      const text = textFromChildren(children);
+      const token = !className && !text.includes("\n") && isShortToken(text);
+      return /* @__PURE__ */ jsxRuntime.jsx("code", { ...props, className: token ? "uipack-docs__token" : className, children });
+    },
     table: ({ node, ...props }) => /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-docs__table", tabIndex: 0, style: { "--docs-table-columns": tableColumns(node) }, children: /* @__PURE__ */ jsxRuntime.jsx("table", { ...props }) })
   };
   return /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-docs__prose", children: /* @__PURE__ */ jsxRuntime.jsx(ReactMarkdown__default.default, { components, remarkPlugins: [remarkGfm__default.default], skipHtml: true, children: source }) });

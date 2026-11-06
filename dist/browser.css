@@ -455,7 +455,7 @@
   border-radius: 6px;
   background: transparent;
   color: var(--uipack-muted);
-  font: 500 13px/1 var(--uipack-mono);
+  font: 400 13px/1 var(--uipack-mono);
   text-align: left;
   cursor: pointer;
 }
@@ -615,7 +615,7 @@
   align-self: flex-start;
   min-width: 0;
   padding: 14px 0 8px;
-  font: 500 12px/1.3 var(--uipack-mono);
+  font: 400 12px/1.3 var(--uipack-mono);
   overflow-wrap: break-word;
   text-wrap: balance;
 }
@@ -639,7 +639,7 @@
   border-radius: 0 0 5px 0;
   background: transparent;
   color: var(--uipack-fg);
-  font: 500 12px/1 var(--uipack-mono);
+  font: 400 12px/1 var(--uipack-mono);
   cursor: pointer;
 }
 .uipack-browser__action::before,
@@ -738,7 +738,7 @@
   border-radius: 6px;
   background: transparent;
   color: var(--uipack-fg);
-  font: 500 13px/1.2 var(--uipack-mono);
+  font: 400 13px/1.2 var(--uipack-mono);
   cursor: pointer;
 }
 .uipack-browser__empty button:hover {

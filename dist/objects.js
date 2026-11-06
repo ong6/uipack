@@ -597,7 +597,7 @@ function AnimationWorkspace({
   theme = "light"
 }) {
   return /* @__PURE__ */ jsxs("div", { className: "uipack-animation-workspace", "data-theme": theme, children: [
-    /* @__PURE__ */ jsx("aside", { className: "uipack-animation-library", children: library }),
+    /* @__PURE__ */ jsx("div", { className: "uipack-animation-library", children: library }),
     /* @__PURE__ */ jsx("div", { className: "uipack-animation-detail", children })
   ] });
 }
@@ -618,22 +618,26 @@ function ObjectInspector({
   return /* @__PURE__ */ jsxs("div", { className: "uipack-object-inspector", children: [
     /* @__PURE__ */ jsxs(Fragment, { children: [
       /* @__PURE__ */ jsx("h3", { children: "Art direction" }),
-      /* @__PURE__ */ jsx("div", { role: "group", "aria-label": "3D art direction", className: "uipack-direction-list", children: directions.map(({ direction, index, look }) => /* @__PURE__ */ jsxs(
-        "button",
-        {
-          type: "button",
-          "aria-label": direction.name,
-          "aria-pressed": objectDirectionIndex(kind, variant) === index,
-          onClick: () => onVariantChange(look),
-          children: [
-            /* @__PURE__ */ jsx("span", { className: "uipack-direction-symbol", "aria-hidden": "true", children: directionSymbols[index] }),
-            /* @__PURE__ */ jsxs("span", { children: [
-              /* @__PURE__ */ jsx("strong", { children: direction.name }),
-              /* @__PURE__ */ jsx("small", { children: direction.description })
-            ] })
-          ]
-        },
-        direction.id
+      /* @__PURE__ */ jsx("div", { role: "group", "aria-label": "3D art direction", className: "uipack-direction-list", children: directions.map(({ direction, index, look }) => (
+        // Named by what it shows, the name then the line under it, so a voice user can say
+        // the text they see (WCAG 2.5.3).
+        /* @__PURE__ */ jsxs(
+          "button",
+          {
+            type: "button",
+            "aria-pressed": objectDirectionIndex(kind, variant) === index,
+            onClick: () => onVariantChange(look),
+            children: [
+              /* @__PURE__ */ jsx("span", { className: "uipack-direction-symbol", "aria-hidden": "true", children: directionSymbols[index] }),
+              /* @__PURE__ */ jsxs("span", { children: [
+                /* @__PURE__ */ jsx("strong", { children: direction.name }),
+                " ",
+                /* @__PURE__ */ jsx("small", { children: direction.description })
+              ] })
+            ]
+          },
+          direction.id
+        )
       )) })
     ] }),
     hasObjectLook(kind, 0) && objectDirectionIndex(kind, variant) === 0 && /* @__PURE__ */ jsxs("label", { className: "uipack-edition-select", children: [
