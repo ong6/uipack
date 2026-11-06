@@ -14,6 +14,7 @@ import { Wordmark } from "../src";
 import { DocsLayout, type DocsNavItem, type DocsSection, type DocsTocItem } from "../src/docs";
 import "../src/docs/docs.css";
 import { editUrl } from "./docs-manifest";
+import { galleryCategoryForPage, galleryHref } from "./gallery-index";
 
 type ShowcaseTheme = {
   theme: "light" | "dark";
@@ -130,10 +131,12 @@ function sidebarSections(theme: string): DocsSection[] {
  * GitHub". A page still rendered by its showcase module gets the h1 and intro from the manifest;
  * a Markdown page's own `#` is its h1. `active="not-found"` is the page for an unknown address.
  */
-export function ShowcaseShell({ active, children }: { active: LibraryPage | "not-found"; children: ReactNode }) {
+export function ShowcaseShell({ active, children }: { active: LibraryPage | "not-found" | "gallery"; children: ReactNode }) {
   const { theme, flip, note, toc } = useShowcaseTheme();
+  // The Assets tab (/gallery) is a mode of this shell: the same header, no docs sidebar.
+  const gallery = active === "gallery";
   // A page with sub-views (a deck, say) resolves to the entry its query names.
-  const notFound = active === "not-found";
+  const notFound = active === "not-found" || gallery;
   const page = notFound ? notFoundPage : resolvePage(active, location.search);
   const markdown = !notFound;
   // The visual style the page's content uses, named in the context line.
@@ -146,7 +149,7 @@ export function ShowcaseShell({ active, children }: { active: LibraryPage | "not
   // Every page names itself in the tab, /web too: the sample page it hosts publishes the rest of its
   // head (description, canonical, Open Graph, JSON-LD), but the tab says which playground page it is.
   const hostsPage = "hostsPage" in page && page.hostsPage;
-  useEffect(() => setDocumentTitle(documentTitle(page)), [page]);
+  useEffect(() => setDocumentTitle(gallery ? "Assets · uipack" : documentTitle(page)), [page, gallery]);
   // Compact navigation (the header's menu instead of the sidebar) below 900px. A page hosting a
   // whole sample site (/web) keeps it below 1440px too, so the sample gets a desktop width
   // (its own layout switches at a 1024px container) on a laptop.
@@ -172,27 +175,38 @@ export function ShowcaseShell({ active, children }: { active: LibraryPage | "not
           <a className="showcase-brand" href={`/?theme=${theme}`} aria-label="UIPACK home">
             <Wordmark size={22} />
           </a>
+          {/* The two top-level views: the docs (text first, with samples in the pages) and the Assets gallery. */}
+          <nav className="showcase-tabs" aria-label="Views">
+            <a href={`/?theme=${theme}`} aria-current={gallery ? undefined : "true"}>
+              Docs
+            </a>
+            <a href={galleryHref(theme)} aria-current={gallery ? "true" : undefined}>
+              Assets
+            </a>
+          </nav>
           <div className="showcase-header__actions">
-            <button
-              ref={menuButtonRef}
-              className="showcase-menu-button"
-              type="button"
-              aria-haspopup="dialog"
-              aria-expanded={menuOpen}
-              // Starts with the visible words in order (label in name); the colon is read as a pause.
-              aria-label={group ? `${group.label}: ${page.label}` : page.label}
-              onClick={() => {
-                setMenuOpen(true);
-                menuRef.current?.showModal();
-              }}
-            >
-              {/* The page name is the button's text and never truncates; the group sits small above it. */}
-              <span className="showcase-menu-button__where">
-                {group && <span className="showcase-menu-button__group">{group.label}</span>}{" "}
-                <span className="showcase-menu-button__page">{page.label}</span>
-              </span>
-              <span aria-hidden="true">▾</span>
-            </button>
+            {!gallery && (
+              <button
+                ref={menuButtonRef}
+                className="showcase-menu-button"
+                type="button"
+                aria-haspopup="dialog"
+                aria-expanded={menuOpen}
+                // Starts with the visible words in order (label in name); the colon is read as a pause.
+                aria-label={group ? `${group.label}: ${page.label}` : page.label}
+                onClick={() => {
+                  setMenuOpen(true);
+                  menuRef.current?.showModal();
+                }}
+              >
+                {/* The page name is the button's text and never truncates; the group sits small above it. */}
+                <span className="showcase-menu-button__where">
+                  {group && <span className="showcase-menu-button__group">{group.label}</span>}{" "}
+                  <span className="showcase-menu-button__page">{page.label}</span>
+                </span>
+                <span aria-hidden="true">▾</span>
+              </button>
+            )}
             <button className="theme" type="button" aria-label={`${theme === "dark" ? "light" : "dark"} mode`} onClick={flip}>
               <span className="theme__text" aria-hidden="true">
                 {theme === "dark" ? "light" : "dark"} mode
@@ -236,6 +250,14 @@ export function ShowcaseShell({ active, children }: { active: LibraryPage | "not
             Close
           </button>
         </div>
+        {/* The two views; the header's tabs give way to this on a compact docs page. */}
+        <div className="showcase-menu__group showcase-menu__views" role="group" aria-labelledby="menu-views">
+          <p id="menu-views">Views</p>
+          <a href={`/?theme=${theme}`} aria-current="true">
+            Docs
+          </a>
+          <a href={galleryHref(theme)}>Assets</a>
+        </div>
         {/* The same list as the sidebar, which is hidden below 900px. */}
         <nav aria-label="All library pages">
           {libraryGroups.map((g) => (
@@ -278,6 +300,19 @@ export function ShowcaseShell({ active, children }: { active: LibraryPage | "not
     </>
   );
 
+  if (gallery)
+    return (
+      <div className="showcase-frame" data-theme={theme} data-style="technical" data-ui-style="technical" data-mode="gallery">
+        <a className="showcase-skip" href="#showcase-main">
+          Skip to content
+        </a>
+        {header}
+        <main id="showcase-main" className="showcase-gallery-main" tabIndex={-1} aria-label="Assets">
+          {children}
+        </main>
+      </div>
+    );
+
   return (
     <div
       className="showcase-frame"
@@ -311,6 +346,12 @@ export function ShowcaseShell({ active, children }: { active: LibraryPage | "not
               <a href={`/styles?theme=${theme}`} aria-current={active === "styles" ? "page" : undefined}>
                 {styleName} style
               </a>
+              {galleryCategoryForPage(page.id) && (
+                <>
+                  <span aria-hidden="true">·</span>
+                  <a href={galleryHref(theme, galleryCategoryForPage(page.id))}>See it in Assets</a>
+                </>
+              )}
             </p>
           )
         }

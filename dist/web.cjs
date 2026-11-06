@@ -2,7 +2,7 @@
 
 var chunk4F5ZRRHH_cjs = require('./chunk-4F5ZRRHH.cjs');
 var chunkSDBNPDW6_cjs = require('./chunk-SDBNPDW6.cjs');
-var chunkCRQKMR73_cjs = require('./chunk-CRQKMR73.cjs');
+var chunkPT2CSIXM_cjs = require('./chunk-PT2CSIXM.cjs');
 var chunkR272FBXD_cjs = require('./chunk-R272FBXD.cjs');
 var jsxRuntime = require('react/jsx-runtime');
 var react = require('react');
@@ -25,7 +25,7 @@ function WebSurface({
       "data-ui-style": uiStyle,
       "data-ui-layout": layout,
       style,
-      children: /* @__PURE__ */ jsxRuntime.jsx(chunkCRQKMR73_cjs.FigureChromeContext.Provider, { value: figureChrome, children })
+      children: /* @__PURE__ */ jsxRuntime.jsx(chunkPT2CSIXM_cjs.FigureChromeContext.Provider, { value: figureChrome, children })
     }
   );
 }

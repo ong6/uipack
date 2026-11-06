@@ -1,0 +1,221 @@
+/* The Assets view (/gallery): category filters, then a grid of cards per category. Each card is a
+   live or still preview of one asset and its name, which links to the asset's docs page. */
+.gallery {
+  display: grid;
+  gap: 32px;
+  min-width: 0;
+}
+.gallery-head h1 {
+  margin: 0 0 8px;
+  font: 700 40px/1.15 var(--show-font-display);
+  letter-spacing: -0.01em;
+  color: var(--show-ink);
+}
+.gallery-head p {
+  margin: 0;
+  max-width: 68ch;
+  color: var(--show-muted);
+}
+.gallery-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.gallery-filters button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 14px;
+  font: var(--show-control-font);
+  color: var(--show-ink);
+  background: transparent;
+  border: 1px solid var(--show-rule);
+  border-radius: var(--show-control-radius);
+  cursor: pointer;
+}
+/* The chosen filter: accent edge, weight and an inset bar, so it reads without colour. */
+.gallery-filters button[aria-pressed="true"] {
+  font-weight: 600;
+  border-color: var(--show-accent);
+  box-shadow: inset 0 -2px 0 var(--show-accent);
+  background: var(--show-surface);
+}
+.gallery-filters__count {
+  color: var(--show-muted);
+}
+.gallery-section {
+  display: grid;
+  gap: 16px;
+  scroll-margin-top: 24px;
+}
+.gallery-section h2 {
+  margin: 0;
+  font: 650 24px/1.25 var(--show-font-display);
+  color: var(--show-ink);
+}
+.gallery-group {
+  display: grid;
+  gap: 12px;
+}
+.gallery-group h3 {
+  margin: 8px 0 0;
+  font: var(--show-eyebrow-font);
+  letter-spacing: var(--show-eyebrow-tracking);
+  text-transform: uppercase;
+  color: var(--show-muted);
+}
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.gallery-grid--wide {
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+}
+.gallery-grid--tiles {
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  gap: 8px;
+}
+.gallery-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border: 1px solid var(--show-rule);
+  border-radius: var(--show-radius);
+  background: var(--ui-surface, var(--show-bg));
+  overflow: hidden;
+}
+.gallery-preview {
+  position: relative;
+  overflow: hidden;
+  background: var(--show-bg);
+  border-bottom: 1px solid var(--show-rule);
+}
+.gallery-preview > img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.gallery-preview--svg > img {
+  padding: 12px;
+  box-sizing: border-box;
+}
+/* Tiles get a fixed height, not a ratio, so a row of them lines up to the pixel. */
+.gallery-preview--tile {
+  display: grid;
+  place-items: center;
+  height: 96px;
+}
+.gallery-preview--tile > img {
+  width: auto;
+  height: auto;
+  max-width: 70%;
+  max-height: 70%;
+}
+.gallery-preview--live > * {
+  height: 100%;
+}
+.gallery-preview__stage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+  pointer-events: none;
+}
+.gallery-preview__none {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  font: var(--show-control-font-sm);
+  color: var(--show-muted);
+}
+.gallery-card__text {
+  display: grid;
+  gap: 4px;
+  padding: 10px 12px 12px;
+}
+.gallery-card--tile .gallery-card__text {
+  padding: 6px 8px 8px;
+}
+.gallery-card__link {
+  display: inline-block;
+  min-height: 24px;
+  padding-block: 2px;
+  box-sizing: border-box;
+  font: 600 15px/1.3 var(--show-font-sans);
+  color: var(--show-ink);
+  text-decoration: none;
+}
+.gallery-card--tile .gallery-card__link {
+  font: var(--show-control-font-sm);
+  overflow-wrap: anywhere;
+}
+/* The title link covers the whole card, so the card is one target and one Tab stop. */
+.gallery-card__link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+.gallery-card__meta {
+  font: var(--show-control-font-sm);
+  color: var(--show-muted);
+}
+/* Keyboard focus: a ring on the title link and the accent edge on its card. */
+.showcase-frame .gallery-card__link:focus-visible {
+  outline: 2px solid var(--show-accent);
+  outline-offset: 2px;
+}
+.gallery-card:has(.gallery-card__link:focus-visible) {
+  border-color: var(--show-accent);
+}
+/* Hover on what the reader points at: the accent edge and a raised fill, in the shell's one timing. */
+@media (hover: hover) {
+  .gallery-card:hover {
+    border-color: var(--show-accent);
+  }
+  .gallery-card:hover .gallery-card__text {
+    background: var(--show-surface);
+  }
+  .gallery-filters button:hover {
+    border-color: var(--show-accent);
+  }
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .gallery-card,
+  .gallery-card__text,
+  .gallery-filters button {
+    transition:
+      border-color 140ms ease,
+      background-color 140ms ease;
+  }
+}
+@media (max-width: 539px) {
+  /* Touch: each card's link is a 44px target (its ::after still covers the whole card). */
+  .gallery-card__link {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+  }
+  .gallery-preview--tile {
+    height: 88px;
+  }
+  .gallery-head h1 {
+    font-size: 32px;
+  }
+  .gallery-section h2 {
+    font-size: 22px;
+  }
+  .gallery-grid,
+  .gallery-grid--wide {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .gallery-grid--tiles {
+    grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+  }
+}

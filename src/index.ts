@@ -53,7 +53,14 @@ export {
 } from "./geometry";
 export { useFigureHover, FigureHoverContext, hoverAttrs, flowList, isPointer, type FigureHover, type Flow } from "./hover";
 export { useFontFloor, fontFloor, FigureScaleProvider, DEFAULT_RENDER_WIDTH, type FigureScale } from "./scale";
-export { useFigureMotion, FigureMotionContext, FigureChromeContext, type FigureMotion, type FigureChrome } from "./context";
+export {
+  useFigureMotion,
+  FigureMotionContext,
+  FigureChromeContext,
+  FigureLayoutWidthContext,
+  type FigureMotion,
+  type FigureChrome,
+} from "./context";
 export { usePrefersReducedMotion } from "./env";
 export {
   DrillFigure,

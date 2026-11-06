@@ -1,5 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import {
+  FigureLayoutWidthContext,
   Badge,
   Bus,
   Chip,
@@ -484,6 +485,25 @@ describe("text floor", () => {
       </Figure>,
     );
     expect(sizes(off.container)[0]).toBe(9);
+  });
+  it("a host's layout width (FigureLayoutWidthContext) sets the floor, and the Figure's own measuredWidth wins", () => {
+    // A 1248 viewBox at 2496px: half-size text, so a 9 stays 9 rather than being floored for a small render.
+    const hosted = render(
+      <FigureLayoutWidthContext.Provider value={2496}>
+        <Figure viewBox="0 0 1248 400" alt="floor">
+          <Chip x={0} y={0} w={80} label="chip" size={9} />
+        </Figure>
+      </FigureLayoutWidthContext.Provider>,
+    );
+    expect(sizes(hosted.container)[0]).toBe(9);
+    const own = render(
+      <FigureLayoutWidthContext.Provider value={2496}>
+        <Figure viewBox="0 0 1248 400" measuredWidth={1032} alt="floor">
+          <Chip x={0} y={0} w={80} label="chip" size={9} />
+        </Figure>
+      </FigureLayoutWidthContext.Provider>,
+    );
+    expect(sizes(own.container)[0] * (1032 / 1248)).toBeGreaterThanOrEqual(11);
   });
   it("assumes 1088px before measuring", () => {
     const { container } = render(

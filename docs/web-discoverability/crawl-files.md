@@ -36,7 +36,7 @@ const files = buildCrawlFiles({
   accurate ([build a sitemap][g-sitemap]), so set it from real content changes or leave it out.
   `formatLastmod` accepts a `Date` or a W3C date and rejects anything else.
 - **llms.txt** per [llmstxt.org][llms]: an H1 name, a blockquote summary, optional details, H2
-  sections of `- [name](../url): notes`, and `## Optional` last for links an agent may skip. Pages with
+  sections of list lines (a Markdown link to the page, then a colon and notes), and `## Optional` last for links an agent may skip. Pages with
   `markdown` link their Markdown copy. Google Search does not use llms.txt and it neither helps nor
   hurts there ([AI optimization guide][g-aio]); it is a cheap courtesy to tools that read it.
 - **llms-full.txt**, when any page has `content` (its Markdown): the llms.txt header and a

@@ -12,10 +12,14 @@ the rules for writing and laying them out, all in Markdown that ships with the p
 
 | Your job | Read, in order |
 | --- | --- |
-| Build a page, figure, deck or copy for a site | [docs/agents/README.md](docs/agents/README.md), then the job's skill in [skills/](skills/README.md) |
+| Build a page or deck for a site | [uipack-page](skills/uipack-page/SKILL.md) |
+| Draw a diagram | [uipack-diagram](skills/uipack-diagram/SKILL.md) |
+| Write slide, web or figure copy | [uipack-copy](skills/uipack-copy/SKILL.md) |
+| Write or update a site's spec | [uipack-spec](skills/uipack-spec/SKILL.md) |
+| Review or grade work before handing off | [uipack-review](skills/uipack-review/SKILL.md), then [docs/grading/README.md](docs/grading/README.md) |
+| Know the read order and what's fixed for every site vs set per site | [docs/agents/README.md](docs/agents/README.md) |
 | Look up a rule (style, writing, layout) | [docs/system/README.md](docs/system/README.md), then only your medium's file |
 | Look up a component's props | The entry's doc in the table below |
-| Grade work before handing off | [docs/grading/README.md](docs/grading/README.md) |
 | Change uipack itself | [AGENTS.md](AGENTS.md) |
 | See every doc with a one-line summary | [llms.txt](llms.txt) (generated) or [docs/README.md](docs/README.md) |
 
@@ -93,11 +97,11 @@ site, its spec and the uipack commit it pins.
 
 ```sh
 npm run dev            # the docs site: every page renders a Markdown file from docs/
-npm run typecheck && npm run lint && npm run build   # then commit dist/
+npm run format && npm run typecheck && npm run lint && npm run build   # then commit dist/
 npm run test:affected  # unit + browser tests for what changed; CI runs everything
 ```
 
-What each suite covers: [testing](docs/testing.md). How to add a part, page, style or entry:
+The full pre-commit list is in [AGENTS.md](AGENTS.md#engineering-and-verification). What each suite covers: [testing](docs/testing.md). How to add a part, page, style or entry:
 [contributing](docs/contributing.md).
 
 ## Credit

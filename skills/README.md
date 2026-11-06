@@ -1,6 +1,6 @@
 # UiPack skills
 
-Agent skills for working with UiPack, one per job. They ship in the npm package, so the skill an
+Agent skills for working with UiPack, one per job. They ship in the package (installed from GitHub; not published to the npm registry), so the skill an
 agent reads matches the code the site installed: `node_modules/uipack/skills/<skill>/SKILL.md`.
 Each one is short and points into [`docs/`](../docs/README.md) for the substance; the docs are the
 single source, the skills add the order of work.

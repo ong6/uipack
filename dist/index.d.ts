@@ -1,4 +1,4 @@
-export { F as Figure, a as FigureProps } from './Figure-BzZuy56r.js';
+export { F as Figure, a as FigureProps } from './Figure-CwDwVhgH.js';
 export { S as StyleBootOptions, a as StyleBootPlugin, U as UiStyleId, b as UiStyleMeta, i as isUiStyle, r as readStyle, s as sectionOrder, c as sharedSectionOrder, d as styleBootPlugin, e as styleBootScript, u as uiStyles } from './style-oR-5TVuD.js';
 import { T as TokenKind, a as TokenShape, L as LegendItem } from './Legend-n6GikDm_.js';
 export { b as Legend, c as LegendProps, d as TOKEN_SHAPE, e as Token, f as TokenProps, t as tokenColor } from './Legend-n6GikDm_.js';
@@ -6,7 +6,7 @@ import * as react from 'react';
 import { ReactNode } from 'react';
 import { I as IconName } from './index-BCiSvaJI.js';
 export { i as icons } from './index-BCiSvaJI.js';
-export { F as FigureChrome, a as FigureChromeContext, b as FigureMotion, c as FigureMotionContext, u as useFigureMotion } from './context-Baoq0bBr.js';
+export { F as FigureChrome, a as FigureChromeContext, b as FigureLayoutWidthContext, c as FigureMotion, d as FigureMotionContext, u as useFigureMotion } from './context-CfQZ0ans.js';
 export { Z as ZoomFrame, R as ZoomRect, a as ZoomSample, b as ZoomSampleOptions, i as innerClipStart, z as zoomFrame, c as zoomSamples } from './zoom-math-DJBPrdGD.js';
 export { e as easeInOutCubic, s as smoothstep } from './math-DL8QKXOl.js';
 

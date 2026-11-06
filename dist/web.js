@@ -1,7 +1,7 @@
 import { uiStyles, sectionOrder } from './chunk-D5NPU7EV.js';
 import { clamp, easeOutCubic, lerp, smoothstep, easeOutExpo } from './chunk-V4CVL4FJ.js';
 export { easeOutExpo } from './chunk-V4CVL4FJ.js';
-import { FigureChromeContext } from './chunk-ZEGJBMAE.js';
+import { FigureChromeContext } from './chunk-63XCOWAV.js';
 import { usePrefersReducedMotion, useLatest, useHydrated, onReducedMotionChange, prefersReducedMotion } from './chunk-LWCZ6GEJ.js';
 import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
 import { createContext, useRef, useContext, useState, useId, useEffect, Fragment as Fragment$1, useMemo, useCallback, useSyncExternalStore, createElement, isValidElement } from 'react';

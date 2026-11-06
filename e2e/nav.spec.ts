@@ -143,9 +143,10 @@ test.describe("390px header and menu", () => {
     await expect(button).toHaveAttribute("aria-expanded", "true");
     // Focus moved into the sheet.
     expect(await sheet.evaluate((el) => el.contains(document.activeElement))).toBe(true);
-    // Every group heading and every page is listed, in order, with 48px rows.
-    await expect(sheet.locator(".showcase-menu__group > p")).toHaveText(GROUPS.map((g) => g.label));
-    await expect(sheet.getByRole("link")).toHaveText(ALL.map((p) => p.label));
+    // The two views first (the header's Docs/Assets tabs give way to them), then every group
+    // heading and every page, in order, with 48px rows.
+    await expect(sheet.locator(".showcase-menu__group > p")).toHaveText(["Views", ...GROUPS.map((g) => g.label)]);
+    await expect(sheet.getByRole("link")).toHaveText(["Docs", "Assets", ...ALL.map((p) => p.label)]);
     // The links are a navigation landmark, the phone's only one while the header's navs are hidden.
     await expect(sheet.getByRole("navigation", { name: "All library pages" }).getByRole("link")).toHaveCount(ALL.length);
     const heights = await sheet.getByRole("link").evaluateAll((els) => els.map((a) => a.getBoundingClientRect().height));

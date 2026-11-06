@@ -52,7 +52,7 @@ Under `prefers-reduced-motion: reduce` a packet renders once at `at` and never m
 
 ### Text floor
 
-`Figure` takes `minFont` (default 11 CSS px). It measures the width each drawing renders at with a ResizeObserver (1088 assumed before that, and on the server) and turns the floor into user units from the viewBox width, so Node, Lane, Label, Chip, Badge and Group never draw text under 11px however wide the viewBox is. Pass `measuredWidth` when you know the width up front, or `minFont={0}` to turn the floor off.
+`Figure` takes `minFont` (default 11 CSS px). It measures the width each drawing renders at with a ResizeObserver (1088 assumed before that, and on the server) and turns the floor into user units from the viewBox width, so Node, Lane, Label, Chip, Badge and Group never draw text under 11px however wide the viewBox is. Pass `measuredWidth` when you know the width up front, or `minFont={0}` to turn the floor off. A host that draws figures scaled down with a transform (a thumbnail, a gallery card) wraps them in `FigureLayoutWidthContext.Provider value={designWidth}`, so the floor reads the width they lay out at rather than the scaled one; a Figure's own `measuredWidth` wins.
 
 ## Theming
 

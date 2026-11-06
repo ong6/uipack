@@ -2,7 +2,7 @@
 
 var chunkLF6OWAHL_cjs = require('./chunk-LF6OWAHL.cjs');
 var chunkCLA7XLG7_cjs = require('./chunk-CLA7XLG7.cjs');
-var chunkCRQKMR73_cjs = require('./chunk-CRQKMR73.cjs');
+var chunkPT2CSIXM_cjs = require('./chunk-PT2CSIXM.cjs');
 var react = require('react');
 var server = require('react-dom/server');
 var jsxRuntime = require('react/jsx-runtime');
@@ -115,7 +115,7 @@ function renderStatic(input, opts = {}) {
     const floor = chunkLF6OWAHL_cjs.fontFloor(vw, opts.width ?? chunkLF6OWAHL_cjs.DEFAULT_RENDER_WIDTH, opts.minFont ?? 11);
     drawing = inlineVars(
       svgMarkup(
-        /* @__PURE__ */ jsxRuntime.jsx(chunkCRQKMR73_cjs.FigureMotionContext.Provider, { value: ctx, children: /* @__PURE__ */ jsxRuntime.jsx(chunkLF6OWAHL_cjs.FigureScaleProvider, { floor, children: fig.children }) })
+        /* @__PURE__ */ jsxRuntime.jsx(chunkPT2CSIXM_cjs.FigureMotionContext.Provider, { value: ctx, children: /* @__PURE__ */ jsxRuntime.jsx(chunkLF6OWAHL_cjs.FigureScaleProvider, { floor, children: fig.children }) })
       ),
       p
     );

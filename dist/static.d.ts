@@ -1,7 +1,7 @@
 import { ReactNode, ReactElement } from 'react';
-import { a as FigureProps } from './Figure-BzZuy56r.js';
+import { a as FigureProps } from './Figure-CwDwVhgH.js';
 import { L as LegendItem } from './Legend-n6GikDm_.js';
-import './context-Baoq0bBr.js';
+import './context-CfQZ0ans.js';
 import './style-oR-5TVuD.js';
 
 type StaticTheme = "light" | "dark";
