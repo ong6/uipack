@@ -1,0 +1,18 @@
+{
+  "id": "diagram-1",
+  "version": 1,
+  "frozen": "2026-11-06",
+  "pageType": "diagram",
+  "rubric": "diagram-v1",
+  "product": "Figure: how Rota builds a week",
+  "audience": "A restaurant owner reading the product page",
+  "task": "One figure, wide and narrow layouts, showing the build from forms to published rota.",
+  "facts": [
+    "Inputs: availability forms, the last 8 weeks of covers, labour rules",
+    "Steps: forecast covers per service, staff per service, assign people, check rest rules, manager review, publish by SMS",
+    "Manager review is the only manual step",
+    "A rest-rule breach sends the shift back to assignment"
+  ],
+  "mustInclude": ["The loop back on a breach", "The manual step distinguished"],
+  "outOfScope": ["Payroll"]
+}

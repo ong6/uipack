@@ -62,6 +62,8 @@ const AREAS = [
   [/^src\/browser\/|^assets\//, ["assets"]],
   [/^src\/drill\//, ["drill", "geometry"]],
   [/^src\/static\//, ["static"]],
+  // The grader: its browser spec runs the checks on a page with planted defects.
+  [/^src\/grade\/|^scripts\/grade/, ["grade"]],
   [/^src\/docs\/|^playground\/Docs/, ["docs", "foundations", "nav"]],
   // The docs site: its manifest, the Markdown page, demos, links and generated blocks.
   [

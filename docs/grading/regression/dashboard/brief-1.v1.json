@@ -1,0 +1,19 @@
+{
+  "id": "dashboard-1",
+  "version": 1,
+  "frozen": "2026-11-06",
+  "pageType": "dashboard",
+  "rubric": "dashboard-v1",
+  "product": "Rota operations dashboard for a 48-site group",
+  "audience": "The operations director checking Monday morning",
+  "task": "A single dashboard view answering: which sites are over or under staffed this week?",
+  "facts": [
+    "48 sites; this week 6 over-staffed by more than 10%, 3 under-staffed",
+    "Group labour cost: 31.2% of forecast revenue (target 30%)",
+    "Data refreshed hourly from rota and point-of-sale; last refresh 08:00",
+    "Two sites have no point-of-sale data since Friday (connection error)",
+    "Trend: labour percentage for the last 8 weeks: 32.4, 32.0, 31.8, 31.9, 31.5, 31.4, 31.0, 31.2"
+  ],
+  "mustInclude": ["The headline answer with its target", "The two sites without data shown as missing, not zero", "Freshness"],
+  "outOfScope": ["Editing rotas from the dashboard"]
+}

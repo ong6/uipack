@@ -152,7 +152,10 @@ describe("server render of each entry's main component", () => {
   });
 
   it("covers every package entry", () => {
-    const covered = [...Object.keys(entries), "uipack/static"].map((e) => (e === "uipack" ? "index" : e.slice("uipack/".length)));
+    // uipack/grade is Node-only tooling (a CLI and a browser driver), not a renderer: test/grade-*.test.tsx cover it.
+    const covered = [...Object.keys(entries), "uipack/static", "uipack/grade"].map((e) =>
+      e === "uipack" ? "index" : e.slice("uipack/".length),
+    );
     return import("../scripts/entries").then(({ entries: all }) => expect(covered.sort()).toEqual(Object.keys(all).sort()));
   });
 });

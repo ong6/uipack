@@ -1,0 +1,18 @@
+{
+  "id": "diagram-2",
+  "version": 1,
+  "frozen": "2026-11-06",
+  "pageType": "diagram",
+  "rubric": "diagram-v1",
+  "product": "Figure: affected-target detection in CI",
+  "audience": "An engineer reading the monorepo article",
+  "task": "One figure showing how a change decides which tests run.",
+  "facts": [
+    "A commit's changed files map to packages",
+    "The import graph gives every package that depends on them",
+    "Only those packages' tests run; the cache skips unchanged ones",
+    "Changing shared types reaches 85% of packages"
+  ],
+  "mustInclude": ["The graph walk", "Why shared types is slow"],
+  "outOfScope": ["Build tooling brands"]
+}

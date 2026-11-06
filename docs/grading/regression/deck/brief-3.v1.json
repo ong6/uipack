@@ -1,0 +1,20 @@
+{
+  "id": "deck-3",
+  "version": 1,
+  "frozen": "2026-11-06",
+  "pageType": "deck-slide",
+  "rubric": "deck-slide-v1",
+  "product": "Budget request: a second on-call rotation for payments",
+  "audience": "The VP of engineering and the CFO, read before the meeting",
+  "task": "A read-alone deck of 5 to 7 slides; each title is a full conclusion.",
+  "facts": [
+    "Payments pages 41 times a month on average (Jun to Oct 2026)",
+    "One rotation of 5 engineers; each on call 1 week in 5",
+    "Two engineers left in 2026 citing on-call load (exit interviews)",
+    "Second rotation: 4 engineers, £96,000 a year in on-call pay and one hire",
+    "Expected: pages per person halve; time to acknowledge stays under 5 minutes",
+    "Alternative: reduce alert noise first; 18 of the 41 monthly pages were non-actionable"
+  ],
+  "mustInclude": ["The alternative and why it is or is not enough", "The cost", "The decision asked for with a date"],
+  "outOfScope": ["Changes to the incident process"]
+}

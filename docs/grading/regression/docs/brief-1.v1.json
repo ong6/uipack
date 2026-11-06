@@ -1,0 +1,20 @@
+{
+  "id": "docs-1",
+  "version": 1,
+  "frozen": "2026-11-06",
+  "pageType": "docs",
+  "rubric": "docs-v1",
+  "product": "Rota's public API",
+  "audience": "A developer at a restaurant group connecting their point-of-sale system to Rota",
+  "task": "One documentation page: authenticate and pull this week's published rota.",
+  "facts": [
+    "Base URL https://api.rota.example/v2",
+    "Auth: a bearer token from Settings, API, scoped read:rota",
+    "GET /rotas?week=2026-W45 returns shifts with staff_id, role, start, end (ISO 8601, site time zone)",
+    "Rate limit: 60 requests a minute per token; 429 with Retry-After",
+    "Unpublished drafts are never returned",
+    "Pagination: cursor, 200 shifts a page"
+  ],
+  "mustInclude": ["A complete curl example and its response", "The rate limit", "What happens with drafts"],
+  "outOfScope": ["Writing rotas through the API (not supported)"]
+}

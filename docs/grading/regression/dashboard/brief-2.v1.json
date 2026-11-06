@@ -1,0 +1,20 @@
+{
+  "id": "dashboard-2",
+  "version": 1,
+  "frozen": "2026-11-06",
+  "pageType": "dashboard",
+  "rubric": "dashboard-v1",
+  "product": "CI health dashboard for a monorepo",
+  "audience": "The platform team lead in a weekly review",
+  "task": "A dashboard: is CI getting faster, and what is the slowest path now?",
+  "facts": [
+    "Median CI 7 min 30 s this week (target 8 min); p90 16 min",
+    "Cache hit rate 71%",
+    "Slowest path: shared types package, median 16 min, 85% of tests",
+    "Flaky tests: 14 this week, 3 new",
+    "Runner cost: £2,140 this month, 8% under budget",
+    "Weekly medians for 10 weeks: 19, 18.5, 17, 12, 9, 8.2, 7.9, 7.6, 7.4, 7.5"
+  ],
+  "mustInclude": ["Median against target", "The slowest path", "Flaky tests with new ones distinguished"],
+  "outOfScope": ["Per-engineer metrics"]
+}

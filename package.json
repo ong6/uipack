@@ -153,7 +153,17 @@
     "./web.css": "./dist/web.css",
     "./web-gutters.css": "./dist/web-gutters.css",
     "./fonts/*": "./dist/fonts/*",
-    "./docs.css": "./dist/docs.css"
+    "./docs.css": "./dist/docs.css",
+    "./grade": {
+      "import": {
+        "types": "./dist/grade.d.ts",
+        "default": "./dist/grade.js"
+      },
+      "require": {
+        "types": "./dist/grade.d.cts",
+        "default": "./dist/grade.cjs"
+      }
+    }
   },
   "files": [
     "dist",
@@ -166,6 +176,8 @@
     "docs/system/*.md",
     "docs/specs/*.md",
     "docs/families/*.md",
+    "docs/grading",
+    "bin",
     "scripts/check-spec.ts",
     "scripts/style-contract.ts",
     "examples/web-starter/*",
@@ -175,6 +187,9 @@
     "playground/README.md",
     "src/mechanism/kit/LICENSE"
   ],
+  "bin": {
+    "uipack-grade": "./bin/uipack-grade.mjs"
+  },
   "sideEffects": [
     "*.css"
   ],
@@ -193,7 +208,8 @@
     "screenshots": "SHOTS=1 playwright test --project=chromium e2e/screenshots.spec.ts",
     "manifest": "tsx scripts/build-manifest.tsx",
     "attw": "attw --pack",
-    "docs:sync": "tsx scripts/docs-sync.ts"
+    "docs:sync": "tsx scripts/docs-sync.ts",
+    "grade": "tsx scripts/grade.ts"
   },
   "peerDependencies": {
     "gsap": "^3.15.0",

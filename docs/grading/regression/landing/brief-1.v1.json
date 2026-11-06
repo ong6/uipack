@@ -1,0 +1,24 @@
+{
+  "id": "landing-1",
+  "version": 1,
+  "frozen": "2026-11-06",
+  "pageType": "landing",
+  "rubric": "landing-v1",
+  "product": "Rota, a staff-scheduling tool for independent restaurants",
+  "audience": "Owners of one to three restaurants who build the weekly rota by hand in a spreadsheet",
+  "task": "A one-page product site whose hero shows a filled weekly rota, with one call to action: start a 14-day trial.",
+  "facts": [
+    "Builds a 7-day rota for up to 40 staff from availability forms in under 2 minutes",
+    "Pilot: 12 restaurants in Leeds, March to May 2026; average rota time fell from 3.5 hours to 25 minutes a week",
+    "Split shifts and minimum 11-hour rest between shifts are enforced (UK Working Time Regulations)",
+    "Price: £29 per site per month; 14-day trial, no card",
+    "Staff get their shifts by SMS; swaps need manager approval",
+    "Covers forecast: uses the last 8 weeks of covers to suggest staffing per service; one pilot site over-staffed Sunday lunch by 2 servers in week 1"
+  ],
+  "mustInclude": [
+    "The filled rota grid with names, roles and times",
+    "The pilot result with its window and site count",
+    "The price"
+  ],
+  "outOfScope": ["Payroll", "Testimonials not in the facts"]
+}
