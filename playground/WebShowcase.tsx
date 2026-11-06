@@ -525,6 +525,39 @@ export function WebSample() {
 }
 
 /**
+ * The sample page as a still for the Assets gallery: the same WebPage and sections as `WebSample`,
+ * without the head, JSON-LD, smooth scroll or generated files, so it can sit inside a card.
+ */
+export function WebSampleStill() {
+  const { theme } = useShowcaseTheme();
+  const seo = useMemo(() => tidySeo("https://tidy.example"), []);
+  return (
+    <WebPage
+      theme={theme}
+      className="web-example"
+      uiStyle="technical"
+      nav={
+        <GlassNav
+          brand={
+            <span className="web-brand">
+              <RhymeIcon at={1} size={28} /> Tidy
+            </span>
+          }
+          links={[
+            { label: "How it works", href: "#web-how" },
+            { label: "Demo", href: "#web-demo" },
+            { label: "Proof", href: "#web-proof" },
+            { label: "Pricing", href: "#web-pricing" },
+          ]}
+          cta={<CtaButton href="#web-pricing">Start free</CtaButton>}
+        />
+      }
+      sections={exampleSections(seo)}
+    />
+  );
+}
+
+/**
  * `web-parts` (docs/examples/landing-page.md): every part the sample is made of, in the sample's
  * style: type, the flashy pieces, the low-key defaults, motion and backgrounds.
  */

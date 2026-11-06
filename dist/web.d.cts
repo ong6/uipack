@@ -1,6 +1,6 @@
 import * as react from 'react';
 import { ReactNode, ElementType, CSSProperties, ButtonHTMLAttributes, RefObject, ReactElement } from 'react';
-import { F as FigureChrome } from './context-Baoq0bBr.cjs';
+import { F as FigureChrome } from './context-CfQZ0ans.cjs';
 import { U as UiStyleId, b as UiStyleMeta } from './style-oR-5TVuD.cjs';
 export { a as easeOutExpo } from './math-DL8QKXOl.cjs';
 

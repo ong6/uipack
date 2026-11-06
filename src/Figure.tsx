@@ -3,7 +3,13 @@ import { useFigureEntrance } from "./entrance";
 import { useIsoLayoutEffect, usePrefersReducedMotion } from "./env";
 import { SelectionContext, type SelectedItem } from "./selection";
 import { useCallback, useContext, useEffect, useId, useMemo, useRef, useState, type ReactNode, createElement } from "react";
-import { FigureChromeContext, FigureMotionContext, type FigureChrome, type FigureMotion } from "./context";
+import {
+  FigureChromeContext,
+  FigureLayoutWidthContext,
+  FigureMotionContext,
+  type FigureChrome,
+  type FigureMotion,
+} from "./context";
 import { Legend, type LegendItem } from "./Legend";
 import { FigureHoverContext, type FigureHover } from "./hover";
 import { FigureScaleContext, DEFAULT_RENDER_WIDTH, fontFloor } from "./scale";
@@ -158,6 +164,7 @@ export function Figure({
   id,
 }: FigureProps) {
   const pageChrome = useContext(FigureChromeContext);
+  const hostWidth = useContext(FigureLayoutWidthContext);
   const chrome = chromeProp ?? pageChrome;
   const expandable = expandableProp ?? chrome === "full";
   const legendItems = chrome === "quiet" && legend.length < 2 ? [] : legend;
@@ -188,8 +195,8 @@ export function Figure({
   const [notePos, setNotePos] = useState<{ left: number; top: number } | null>(null);
   const wideRef = useRef<SVGSVGElement>(null);
   const narrowRef = useRef<SVGSVGElement>(null);
-  const wideW = useRenderedWidth(wideRef, measuredWidth, expanded);
-  const narrowW = useRenderedWidth(narrowRef, measuredWidth, expanded);
+  const wideW = useRenderedWidth(wideRef, measuredWidth ?? hostWidth, expanded);
+  const narrowW = useRenderedWidth(narrowRef, measuredWidth ?? hostWidth, expanded);
   const wideScale = useMemo(() => ({ floor: fontFloor(vbWidth(viewBox), wideW, minFont) }), [viewBox, wideW, minFont]);
   const narrowScale = useMemo(
     () => ({

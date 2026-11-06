@@ -12,6 +12,7 @@ import { libraryGroups, pageDefs, pageHeading, pageHref, resolvePage } from "./c
 import { pageModules, routePath, routes } from "./routes";
 import { figureRows } from "./figure-rows";
 import { ShowcaseShell, ShowcaseThemeProvider, useShowcaseTheme } from "./ShowcaseShell";
+import { GALLERY_PATH } from "./gallery-index";
 
 // Every page module is its own chunk, with its own CSS. The shell (header, h1, intro) is in this
 // entry and renders at once; the page fills in below it when its chunk arrives. In a build,
@@ -114,12 +115,18 @@ const active = routes.get(path);
 // The deck's printable page and its speaker window are documents of their own, without the shell:
 // DeckShowcase renders them; every other /deck address is the deck's docs page.
 const standalone = path === "/deck" && (params.get("view") === "print" || params.get("presenter") === "1");
-const module = standalone ? "DeckShowcase" : active && pageModules[active];
+// The Assets tab is a mode of the shell outside the docs manifest: GalleryShowcase renders it.
+const gallery = path === GALLERY_PATH;
+const module = standalone ? "DeckShowcase" : gallery ? "GalleryShowcase" : active && pageModules[active];
 const load = module && pageLoaders[`./${module}.tsx`];
-if (active && !load) throw new Error(`No playground/${module}.tsx for page "${active}"`);
+if ((active || gallery) && !load) throw new Error(`No playground/${module}.tsx for page "${active}"`);
 const Page = load ? lazy(load) : NotFound;
 // While the page's chunk loads, the shell stays and a status line under the intro says so.
-const loading = active ? `Loading ${pageHeading(resolvePage(active, location.search))}` : "Loading";
+const loading = gallery
+  ? "Loading the assets"
+  : active
+    ? `Loading ${pageHeading(resolvePage(active, location.search))}`
+    : "Loading";
 const page = (
   <Suspense
     fallback={
@@ -136,7 +143,7 @@ const page = (
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ShowcaseThemeProvider>
-      {standalone ? page : <ShowcaseShell active={active ?? "not-found"}>{page}</ShowcaseShell>}
+      {standalone ? page : <ShowcaseShell active={gallery ? "gallery" : (active ?? "not-found")}>{page}</ShowcaseShell>}
     </ShowcaseThemeProvider>
   </StrictMode>,
 );

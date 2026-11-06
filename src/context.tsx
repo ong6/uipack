@@ -36,3 +36,11 @@ export function useFigureMotion(): FigureMotion {
 export type FigureChrome = "full" | "quiet";
 
 export const FigureChromeContext = /*#__PURE__*/ createContext<FigureChrome>("full");
+
+/**
+ * The width, in CSS px, that Figures inside lay out at, for a host that draws them scaled down with
+ * a transform (a gallery card, a thumbnail). The text floor (`minFont`) then reads this width
+ * instead of the scaled on-screen one, so labels keep their designed size. A Figure's own
+ * `measuredWidth` wins. Unset (the default), each Figure measures itself.
+ */
+export const FigureLayoutWidthContext = /*#__PURE__*/ createContext<number | undefined>(undefined);

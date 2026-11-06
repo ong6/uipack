@@ -2,6 +2,22 @@
 
 Run `npm run dev` from the repo root. The nav has two rows: groups, then the active group's pages. Both come from `libraryGroups` and `libraryPages` in `catalog.ts`; a page's sub-views (the decks) sit together after the page's name. The shell renders a Skip to content link, the header (the banner landmark), then in `<main>` the context line, the page's `h1` (its label, or "Deck player · Bento" for a sub-view) and its intro (`intro`) from the same entry, and sets the tab title ("Bento · Deck player · uipack"). An unknown path shows a Page not found page listing every page, and an unknown `?deck=` says which deck it shows instead. To add a page, add a `libraryPages` entry with a `group`, then map its id to the page's module in `pageModules` (`routes.ts`), which also derives the routes; the typecheck fails until it is mapped. Each page is a lazy chunk: `main.tsx` renders the shell at once and the page below it when its chunk arrives (a "Loading …" status line shows if that takes more than 300 ms), and in a build `index.html` preloads the current page's chunk and CSS alongside the entry. Every recipe is in [contributing](../docs/contributing.md).
 
+## Two views: Docs and Assets
+
+The header has two tabs. **Docs** is every page in the docs manifest, each rendering its Markdown
+file with its live samples. **Assets** (`/gallery`, `GalleryShowcase.tsx`) is the one page outside
+the manifest: a grid of every asset (architecture figures and presets, deck slides and slide
+starters, demos, 3D scenes and stories, components, icons and marks), rendered live for review at a
+glance, with no prose. It is a mode of the same `ShowcaseShell` (same header, no docs sidebar). Its
+cards come from the registries the docs pages render (`figures/`, `PRESETS`, `deckExamples.ts`,
+`presentationExamples.ts`, `objectScenes`, `slideStories`, `assets/manifest.json`, `demos.tsx`), so a
+registered asset appears there by itself. Each card links to its docs page, and each docs page whose
+assets the gallery shows links back ("See it in Assets"; `gallery-index.ts` maps categories to pages).
+Previews mount as they near the viewport, are `inert` and `aria-hidden`, and scaled ones set
+`FigureLayoutWidthContext` so figure text keeps its size. `e2e/assets-gallery.spec.ts` covers it.
+
+## Pages
+
 | Group | Page | Path |
 |---|---|---|
 | Diagrams | Architecture diagrams | `/` (aliases `/diagrams`, and `/drill`, which scrolls to the drill-down) |

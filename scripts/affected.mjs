@@ -41,7 +41,7 @@ const FIGURES = [
   "reduced",
   "static",
 ];
-const SHELL = ["nav", "page-audit", "showcase", "gallery"];
+const SHELL = ["nav", "page-audit", "showcase", "gallery", "assets-gallery"];
 
 /** First matching rule wins. A path no rule matches runs no browser test. */
 const AREAS = [
@@ -79,6 +79,11 @@ const AREAS = [
     ["foundations", "nav", "page-audit", "showcase-content"],
   ],
   [/^playground\/(ShowcaseShell|showcase\.css|catalog|figure-rows|routes|nav|main|index\.html)/, SHELL],
+  // The Assets tab: its page, its data and the registries it draws from.
+  [
+    /^playground\/(GalleryShowcase|gallery-showcase|gallery-index|deckExamples|presentationExamples|figures\/)/,
+    ["assets-gallery"],
+  ],
   // The /styles and /presentations pages (CatalogShowcase): slide starters and the style catalog demo.
   [/^playground\/(CatalogShowcase|StylePreviews|presentations\.css)/, ["web", "page-audit", "showcase"]],
   // Component demos embedded in their docs pages.
