@@ -3,6 +3,8 @@ import { useEffect, useId, useState, type ReactNode } from "react";
 export interface DocsNavItem {
   title: string;
   href: string;
+  /** Sub-pages listed under this one (a page with several views). One level deep. */
+  items?: DocsNavItem[];
 }
 
 export interface DocsSection {
@@ -31,28 +33,77 @@ export interface DocsLayoutProps {
    * "technical" takes UI Pack's Technical palette (forest/mint accent, green-black dark).
    */
   palette?: "warm" | "technical";
+  /**
+   * "prose" (the default) keeps the article at the 680px measure. "wide" lets the article column
+   * grow to the space between the sidebar and the table of contents: prose still stops at 680px,
+   * while a `DocsMarkdown` block flagged `wide` (a deck, a web page, a 3D scene) and any child
+   * wrapped in `.uipack-docs__block[data-width="wide"]` take the full column.
+   */
+  width?: "prose" | "wide";
+  /** The host's own banner (its logo and theme toggle) in place of the product / docs identity row. */
+  header?: ReactNode;
+  /** The below-900px navigation disclosure. Turn it off when the host's header has its own menu. Default true. */
+  mobileNavigation?: boolean;
+  /** The sidebar's accessible name. Default "Documentation". */
+  navigationLabel?: string;
+  /** The page's Markdown source as plain text ("View as Markdown"), shown above the page. */
+  markdownHref?: string;
+  /** Where to edit the page's source ("Edit on GitHub"), shown above the page. */
+  editHref?: string;
+  /** A short line before those links (the page's group, say). */
+  eyebrow?: ReactNode;
+  /** The article's element: "section" (default) inside a host page that has its own main, or "main". */
+  landmark?: "section" | "main";
+  /** The article's id, the skip link's target. Default "docs-content". */
+  contentId?: string;
+  /** The article's accessible name. Default "Documentation content". */
+  contentLabel?: string;
+  /** Classes added to the article, for a host that styles its page there. */
+  contentClassName?: string;
   children: ReactNode;
 }
 
-function SectionNavigation({ sections, activeHref }: Pick<DocsLayoutProps, "sections" | "activeHref">) {
+function NavigationItem({ item, activeHref }: { item: DocsNavItem; activeHref: string }) {
   return (
-    <nav className="uipack-docs__navigation" aria-label="Documentation">
+    <li>
+      <a href={item.href} aria-current={item.href === activeHref ? "page" : undefined}>
+        {item.title}
+      </a>
+      {item.items && item.items.length > 0 && (
+        <ul className="uipack-docs__nav-sub" aria-label={item.title}>
+          {item.items.map((sub) => (
+            <NavigationItem key={sub.href} item={sub} activeHref={activeHref} />
+          ))}
+        </ul>
+      )}
+    </li>
+  );
+}
+
+function SectionNavigation({
+  sections,
+  activeHref,
+  label,
+}: Pick<DocsLayoutProps, "sections" | "activeHref"> & { label: string }) {
+  return (
+    <nav className="uipack-docs__navigation" aria-label={label}>
       {sections.map((section) => (
         <section className="uipack-docs__nav-section" key={section.title}>
           <h2>{section.title}</h2>
           <ul>
             {section.items.map((item) => (
-              <li key={item.href}>
-                <a href={item.href} aria-current={item.href === activeHref ? "page" : undefined}>
-                  {item.title}
-                </a>
-              </li>
+              <NavigationItem key={item.href} item={item} activeHref={activeHref} />
             ))}
           </ul>
         </section>
       ))}
     </nav>
   );
+}
+
+/** Every item, sub-pages included, in reading order. */
+function flatItems(items: DocsNavItem[]): DocsNavItem[] {
+  return items.flatMap((item) => [item, ...flatItems(item.items ?? [])]);
 }
 
 /**
@@ -109,53 +160,85 @@ export function DocsLayout({
   next,
   theme,
   palette = "warm",
+  width = "prose",
+  header,
+  mobileNavigation = true,
+  navigationLabel = "Documentation",
+  markdownHref,
+  editHref,
+  eyebrow,
+  landmark = "section",
+  contentId = "docs-content",
+  contentLabel = "Documentation content",
+  contentClassName,
   children,
 }: DocsLayoutProps) {
   const mobileNavigationId = useId();
   const currentSection = useCurrentSection(onThisPage.map((item) => item.id));
-  const current = sections.flatMap((section) => section.items).find((item) => item.href === activeHref);
+  const current = flatItems(sections.flatMap((section) => section.items)).find((item) => item.href === activeHref);
+  const Article = landmark;
 
   return (
-    <div className="uipack-docs" data-theme={theme} data-palette={palette}>
-      <a className="uipack-docs__skip" href="#docs-content">
+    <div className="uipack-docs" data-theme={theme} data-palette={palette} data-width={width === "wide" ? "wide" : undefined}>
+      <a className="uipack-docs__skip" href={`#${contentId}`}>
         Skip to documentation content
       </a>
 
-      <div className="uipack-docs__identity" aria-label="Documentation home">
-        <a href={productHref}>{productTitle}</a>
-        <span aria-hidden="true">/</span>
-        <a href={sections[0]?.items[0]?.href || activeHref}>{docsTitle}</a>
-      </div>
+      {header ?? (
+        <div className="uipack-docs__identity" aria-label="Documentation home">
+          <a href={productHref}>{productTitle}</a>
+          <span aria-hidden="true">/</span>
+          <a href={sections[0]?.items[0]?.href || activeHref}>{docsTitle}</a>
+        </div>
+      )}
 
       {/* Escape inside the open menu closes it and hands focus back to its summary. */}
-      <details
-        className="uipack-docs__mobile-navigation"
-        onKeyDown={(e) => {
-          const details = e.currentTarget;
-          if (e.key !== "Escape" || !details.open || e.defaultPrevented) return;
-          e.preventDefault();
-          details.open = false;
-          details.querySelector("summary")?.focus();
-        }}
-      >
-        <summary aria-controls={mobileNavigationId}>
-          <span>Documentation</span>
-          {current && <small>{current.title}</small>}
-          <svg className="uipack-docs__chevron" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
-            <path d="M4 6l4 4 4-4" />
-          </svg>
-        </summary>
-        <div id={mobileNavigationId}>
-          <SectionNavigation sections={sections} activeHref={activeHref} />
-        </div>
-      </details>
+      {mobileNavigation && (
+        <details
+          className="uipack-docs__mobile-navigation"
+          onKeyDown={(e) => {
+            const details = e.currentTarget;
+            if (e.key !== "Escape" || !details.open || e.defaultPrevented) return;
+            e.preventDefault();
+            details.open = false;
+            details.querySelector("summary")?.focus();
+          }}
+        >
+          <summary aria-controls={mobileNavigationId}>
+            <span>Documentation</span>
+            {current && <small>{current.title}</small>}
+            <svg className="uipack-docs__chevron" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+              <path d="M4 6l4 4 4-4" />
+            </svg>
+          </summary>
+          <div id={mobileNavigationId}>
+            <SectionNavigation sections={sections} activeHref={activeHref} label={navigationLabel} />
+          </div>
+        </details>
+      )}
 
-      <div className="uipack-docs__grid">
+      <div className="uipack-docs__grid" data-toc={onThisPage.length > 0 ? undefined : "none"}>
         <aside className="uipack-docs__sidebar">
-          <SectionNavigation sections={sections} activeHref={activeHref} />
+          <SectionNavigation sections={sections} activeHref={activeHref} label={navigationLabel} />
         </aside>
 
-        <section className="uipack-docs__article" id="docs-content" aria-label="Documentation content" tabIndex={-1}>
+        <Article
+          className={contentClassName ? `uipack-docs__article ${contentClassName}` : "uipack-docs__article"}
+          id={contentId}
+          aria-label={contentLabel}
+          tabIndex={-1}
+        >
+          {(markdownHref || editHref || eyebrow) && (
+            <div className="uipack-docs__page-bar">
+              {eyebrow}
+              {(markdownHref || editHref) && (
+                <span className="uipack-docs__source-links">
+                  {markdownHref && <a href={markdownHref}>View as Markdown</a>}
+                  {editHref && <a href={editHref}>Edit on GitHub</a>}
+                </span>
+              )}
+            </div>
+          )}
           {children}
 
           {(previous || next) && (
@@ -174,7 +257,7 @@ export function DocsLayout({
               )}
             </nav>
           )}
-        </section>
+        </Article>
 
         {onThisPage.length > 0 && (
           <aside className="uipack-docs__toc" aria-label="On this page">

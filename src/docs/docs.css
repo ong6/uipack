@@ -41,19 +41,26 @@
   --docs-focus: var(--ui-accent);
 }
 
-.uipack-docs *,
-.uipack-docs *::before,
-.uipack-docs *::after {
+/* A host block (`.uipack-docs__block`: a live demo, a host's own page) keeps its own styles, so
+   these resets and the link colour stop at it; a docs layout nested inside one gets them back. */
+.uipack-docs :where(:not(.uipack-docs__block *)),
+.uipack-docs :where(:not(.uipack-docs__block *))::before,
+.uipack-docs :where(:not(.uipack-docs__block *))::after,
+:where(.uipack-docs__block) .uipack-docs *,
+:where(.uipack-docs__block) .uipack-docs *::before,
+:where(.uipack-docs__block) .uipack-docs *::after {
   box-sizing: border-box;
 }
 
-.uipack-docs a {
+.uipack-docs a:where(:not(.uipack-docs__block *)),
+:where(.uipack-docs__block) .uipack-docs a {
   color: var(--docs-accent);
   text-decoration-thickness: 1px;
   text-underline-offset: 3px;
 }
 
-.uipack-docs a:focus-visible,
+.uipack-docs a:where(:not(.uipack-docs__block *)):focus-visible,
+:where(.uipack-docs__block) .uipack-docs a:focus-visible,
 .uipack-docs summary:focus-visible,
 .uipack-docs__prose pre:focus-visible,
 .uipack-docs__table:focus-visible {
@@ -188,6 +195,98 @@
 .uipack-docs__article {
   min-width: 0;
   scroll-margin-top: 96px;
+}
+
+/* Sub-pages (one page's views) sit indented under their page. */
+.uipack-docs__nav-sub {
+  margin: 0;
+  padding: 0;
+}
+
+.uipack-docs__navigation .uipack-docs__nav-sub a {
+  font-size: 12.5px;
+  min-height: 34px;
+  padding-left: 22px;
+}
+
+/* The page's group and its source links, one quiet row above the page. */
+.uipack-docs__page-bar {
+  align-items: center;
+  column-gap: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  font-family: var(--docs-font-mono);
+  font-size: 12px;
+  justify-content: space-between;
+  min-height: 32px;
+  row-gap: 4px;
+}
+
+.uipack-docs__source-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin-left: auto;
+}
+
+.uipack-docs__source-links a {
+  align-items: center;
+  color: var(--docs-muted);
+  display: inline-flex;
+  min-height: 32px;
+  text-decoration: underline;
+  text-decoration-color: var(--docs-rule);
+  text-underline-offset: 3px;
+}
+
+.uipack-docs__source-links a:hover {
+  color: var(--docs-ink);
+  text-decoration-color: currentColor;
+}
+
+/* Prose cut around host blocks (DocsMarkdown `blocks`): each block is its own box between runs. */
+.uipack-docs__flow > .uipack-docs__prose > :first-child {
+  margin-top: 0;
+}
+
+.uipack-docs__block {
+  margin: 16px 0 48px;
+  min-width: 0;
+}
+
+/* Wide: the article takes the space between the sidebar and the contents; prose and ordinary
+   blocks keep the 680px measure, and a wide block takes the whole column. */
+.uipack-docs[data-width="wide"] {
+  padding-top: 0;
+}
+
+.uipack-docs[data-width="wide"] .uipack-docs__identity {
+  max-width: none;
+}
+
+.uipack-docs[data-width="wide"] .uipack-docs__grid {
+  gap: 40px;
+  grid-template-columns: 220px minmax(0, 1fr) 176px;
+  justify-content: stretch;
+}
+
+.uipack-docs[data-width="wide"] .uipack-docs__grid[data-toc="none"] {
+  grid-template-columns: 220px minmax(0, 1fr);
+}
+
+.uipack-docs[data-width="wide"] :is(.uipack-docs__prose, .uipack-docs__flow > .uipack-docs__block:not([data-width="wide"])) {
+  max-width: 680px;
+}
+
+@media (max-width: 1279px) {
+  .uipack-docs[data-width="wide"] .uipack-docs__grid,
+  .uipack-docs[data-width="wide"] .uipack-docs__grid[data-toc="none"] {
+    grid-template-columns: 220px minmax(0, 1fr);
+  }
+
+  .uipack-docs[data-width="wide"] .uipack-docs__toc {
+    display: none;
+  }
 }
 
 .uipack-docs__toc ol {
@@ -376,6 +475,17 @@
   line-height: 1.6;
   overflow: auto;
   padding: 16px;
+}
+
+/* An image never widens the column (a 1440px screenshot in a 680px measure). */
+.uipack-docs__prose img {
+  height: auto;
+  max-width: 100%;
+}
+
+/* A long unbroken inline code run (a URL with a query) breaks anywhere rather than widen the page. */
+.uipack-docs__prose :not(pre) > code:not(.uipack-docs__token) {
+  overflow-wrap: anywhere;
 }
 
 .uipack-docs__prose .uipack-docs__token {
