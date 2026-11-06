@@ -93,7 +93,7 @@ Four more rules keep the split honest where it would otherwise leak:
   paint, and the style fetches only its own fonts, preloads only its display face and swaps it in
   over size-matched fallbacks.
 
-This folder ships in the npm package: a consumer reads it at `node_modules/uipack/docs/system/`.
+This folder ships in the package (installed from GitHub; not published to the npm registry): a consumer reads it at `node_modules/uipack/docs/system/`.
 What exists in code and what is still missing is in
 [Style roles, "Where the code stands"](style.md#where-the-code-stands).
 

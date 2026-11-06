@@ -146,6 +146,27 @@ export function llmsTxt() {
   ].join("\n");
 }
 
+/** Every component uipack/web exports, its props type and its source file, read from src/web/index.ts. */
+export function webParts() {
+  const src = readFileSync(join(root, "src/web/index.ts"), "utf8");
+  const rows: string[] = [];
+  for (const m of src.matchAll(/export\s*\{([^}]*)\}\s*from\s*"\.\/([^"]+)"/g)) {
+    const names = m[1]
+      .split(",")
+      .map((n) => n.trim())
+      .filter(Boolean);
+    const types = new Set(names.filter((n) => n.startsWith("type ")).map((n) => n.slice(5).trim()));
+    for (const n of names) {
+      if (n.startsWith("type ") || !/^[A-Z]/.test(n)) continue;
+      const props = types.has(`${n}Props`) ? `\`${n}Props\`` : "";
+      const file =
+        [".tsx", ".ts"].map((ext) => `src/web/${m[2]}${ext}`).find((f) => existsSync(join(root, f))) ?? `src/web/${m[2]}`;
+      rows.push(`| \`${n}\` | ${props} | \`${file}\` |`);
+    }
+  }
+  return ["| Part | Props type | Source |", "| --- | --- | --- |", ...rows].join("\n");
+}
+
 /** The job skills in skills/ for llms.txt: each SKILL.md with the first sentence of its description. */
 export function skillsSection() {
   const dir = join(root, "skills");
@@ -474,6 +495,7 @@ export const generators: Record<string, (file: string) => string> = {
   "slide-roles": () => slideRoles(),
   storylines: () => storylines(),
   "lint-rules": () => lintRules(),
+  "web-parts": () => webParts(),
   "talk-pace": () => talkPace(),
   "slide-canvas": () => slideCanvas(),
   "web-grid": () => webGrid(),

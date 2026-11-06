@@ -54,6 +54,7 @@ Agents: read docs/agents/README.md first, then the skill for your job in skills/
 - [Deck player: Tech talk](docs/deck.md): The deck player: one transition grammar (advance, morph, zoom), builds, the overview, the speaker and read views, keyboard and touch.
 - [Deck player: Consulting](docs/deck-consulting.md): Dense consulting slides and their charts: tracker, action title, panels, so-what, footnotes, bars, waterfall, stacked bars, lines, KPI tiles, Harvey tables and a 2×2.
 - [Deck storytelling](docs/deck-storytelling.md): Storyline templates, slide roles and the checks lintDeck runs on a deck's argument.
+- [lintDeck rules](docs/deck-lint-rules.md): Every check lintDeck runs on a deck's words, with its severity, generated from LINT_RULES.
 - [Slide starters](docs/presentations.md): Slide layouts with their speech notes, then a complete five-chapter narrative built from them.
 - [3D animations](docs/slides.md): Live 3D scenes with camera moves, animated flows and presentation controls.
 - [3D object scenes](docs/objects.md): Reusable, lazy 3D illustrations, their art directions and the player that shows them.

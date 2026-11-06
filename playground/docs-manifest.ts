@@ -372,6 +372,13 @@ export const docsManifest = [
         intro: "Storyline templates, slide roles and the checks lintDeck runs on a deck's argument.",
       },
       {
+        id: "deck-lint-rules",
+        label: "lintDeck rules",
+        path: "/components/deck-lint-rules",
+        file: "docs/deck-lint-rules.md",
+        intro: "Every check lintDeck runs on a deck's words, with its severity, generated from LINT_RULES.",
+      },
+      {
         id: "presentations",
         fullWidth: true,
         label: "Slide starters",
@@ -772,7 +779,8 @@ export const siteRegistry: readonly SiteEntry[] = [
     specStatus: "todo",
     components: ["diagrams: blueprint"],
     pins: "e6b6ed7",
-    notes: "TODO: spec not written (on hold); a Chakra theme maps the --uipack-* variables",
+    notes:
+      "TODO: spec not written (on hold). Figures may go ahead (diagrams use the fixed Blueprint look); page layout, copy and colours wait for the spec. A Chakra theme maps the --uipack-* variables",
   },
   {
     site: "notes.junxiong.dev",
@@ -782,6 +790,6 @@ export const siteRegistry: readonly SiteEntry[] = [
     components: ["diagrams: blueprint"],
     pins: "3886f0d",
     notes:
-      "TODO: spec not written (on hold). Its live look (warm paper, rust accent, serif and sans) is a description, not values to build with; hold until the spec exists",
+      "TODO: spec not written (on hold). Figures may go ahead (diagrams use the fixed Blueprint look); page layout, copy and colours wait for the spec. Its live look (warm paper, rust accent, serif and sans) is a description, not values to build with",
   },
 ];

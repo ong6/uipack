@@ -53,7 +53,8 @@ describe("generated blocks and llms.txt (npm run docs:sync)", () => {
     expect(blockNames(read("docs/system/writing/general.md"))).toContain("slot-budgets");
     expect(blockNames(read("docs/README.md"))).toContain("site-map");
     expect(blockNames(read("docs/recipes/landing.md"))).toContain("web-section-order");
-    expect(blockNames(read("docs/recipes/deck-slide.md"))).toEqual(expect.arrayContaining(["storylines", "lint-rules"]));
+    expect(blockNames(read("docs/recipes/deck-slide.md"))).toContain("storylines");
+    expect(blockNames(read("docs/deck-lint-rules.md"))).toContain("lint-rules");
     expect(blockNames(read("docs/system/layout/deck-slide.md"))).toContain("slide-canvas");
   });
 
