@@ -1,6 +1,6 @@
 # UiPack
 
-> A design system that draws explanations: diagrams, slides, web pages, motion and 3D, as React and SVG components. Its documentation is the Markdown in this package; the docs site renders the same files.
+> Jun Xiong's own design system for his sites and work presentations: diagrams, slides, web pages, motion and 3D, as React and SVG components with the rules for writing and laying them out. The Markdown in this package is written for agents; the docs site renders the same files.
 
 Agents: read docs/agents/README.md first, then the skill for your job in skills/ (README.md indexes them); the design system itself starts at docs/system/README.md. Agent instructions are in AGENTS.md. Generated from playground/docs-manifest.ts by `npm run docs:sync`; do not edit by hand.
 
@@ -47,6 +47,7 @@ Agents: read docs/agents/README.md first, then the skill for your job in skills/
 
 - [Architecture diagrams](docs/diagrams.md): The diagram catalogue: each figure pattern once, from the bare canvas to a figure you drill into, with the parts it is built from.
 - [Drill-down figures](docs/drill.md): A stack of figures where a node zooms open into its own figure: the parts, keyboard, reduced motion and export.
+- [Figure parts API](docs/figure-api.md): Every figure part and its props, the connector rule, hover, motion, theming, the seven presets and static SVG export.
 - [Charts](docs/charts.md): SpanChart and LayerStack: layered and comparative charts for articles, static HTML with no JavaScript.
 - [Article parts](docs/article.md): The labelled blocks of a long article section, with their HTML and class contract.
 - [Article parts: Verification](docs/article-verification.md): How the article parts are tested, the measured section rhythm and screenshots.
@@ -82,10 +83,12 @@ Agents: read docs/agents/README.md first, then the skill for your job in skills/
 
 - [Icons & marks](docs/icons-and-marks.md): Searchable icons, marks, canvas backgrounds and motion tokens, each with a preview and a copy button.
 - [Contributing](docs/contributing.md): Step-by-step recipes, with the exact files to touch, for a new style, page, deck, slide part, chart or figure.
+- [Testing](docs/testing.md): What the unit and browser suites check, how CI runs them and the known engine quirks.
 - [Component-first](docs/component-first.md): Build, register and verify a significant visual in the library before a consumer uses it.
 - [Design direction](docs/design-direction.md): The playground's visual direction, catalog taxonomy, interaction polish and presentation composition.
 - [Canvas and selection](docs/interaction.md): Mobile reading, item selection, expanded inspection and their limits.
 - [Web principles](docs/web-principles.md): The numbered rules for uipack/web pages, each with its number and source, motion and backgrounds included.
+- [Web parts API](docs/web-api.md): The uipack/web parts with their props: page parts, motion, backgrounds, type and scoping.
 - [Web principles: Smooth scrolling](docs/web-smooth-scroll.md): How SmoothScroll eases the wheel on a landing page, what stays native, anchors and its API.
 - [Web discoverability](docs/web-discoverability.md): How a uipack/web page gets found and quoted by search and answer engines: the checklist and the crawler stance.
 - [Web discoverability: Head and structured data](docs/web-discoverability/head-and-structured-data.md): pageMeta, the head helpers, font preloads, the JSON-LD builders and the FAQ.
@@ -100,8 +103,19 @@ Agents: read docs/agents/README.md first, then the skill for your job in skills/
 - [Pairwise judging](docs/grading/protocol.md): Two fresh judges in opposite order compare A and B on one brief and a frozen rubric; the packet and the tally.
 - [Calibration anchors](docs/grading/calibration.md): Known human pages scored on the same rubric, so a target score reads relative to them.
 - [Regression set](docs/grading/regression.md): Fifteen frozen briefs reused every round, and the fix ledger that proves a fix reached the next build.
+- [Grading docs for agents](docs/grading/agent-docs.md): How to grade uipack's own docs for their agent readers: the mechanical check, task-based judging and the frozen tasks.
 - [Landing rubric](docs/grading/rubrics/landing-v1.md): Version 1 of the frozen judge rubric for landing pages.
 - [Docs rubric](docs/grading/rubrics/docs-v1.md): Version 1 of the frozen judge rubric for documentation and articles.
 - [Deck rubric](docs/grading/rubrics/deck-slide-v1.md): Version 1 of the frozen judge rubric for decks.
 - [Dashboard rubric](docs/grading/rubrics/dashboard-v1.md): Version 1 of the frozen judge rubric for dashboards.
 - [Diagram rubric](docs/grading/rubrics/diagram-v1.md): Version 1 of the frozen judge rubric for figures.
+- [Agent docs rubric](docs/grading/rubrics/agent-docs-v1.md): Version 1 of the frozen rubric for a documentation set read by agents: routing, progressive disclosure, index, executable rules, currency, stop conditions.
+
+## Skills
+
+- [Skills index](skills/README.md): one skill per job; read the one for your job after docs/agents/README.md.
+- [uipack-copy](skills/uipack-copy/SKILL.md): Write or tighten the words of a UiPack piece: slide titles, points and speaker notes, a read-alone deck or document, landing and web copy, figure labels and captions.
+- [uipack-diagram](skills/uipack-diagram/SKILL.md): Draw a diagram in UiPack's Blueprint look: a system or architecture figure, a request flow, a before/after, a drill-down figure or a layered chart for a site, article, doc or slide.
+- [uipack-page](skills/uipack-page/SKILL.md): Build or restyle a page or deck with UiPack from its recipe: a landing or product page, a documentation or article page, a slide deck or talk, a dashboard, or a 3D hero or motion explainer on one of them.
+- [uipack-review](skills/uipack-review/SKILL.md): Review or grade a UiPack page, deck, figure or section before it ships or is handed off: the tier-1 mechanical grader, then a read against the site spec and the core rules, with findings by layer.
+- [uipack-spec](skills/uipack-spec/SKILL.md): Write, update or check a website's UiPack site spec (its STYLE.md): palette, faces, radii, ornaments, density, a layout per page type, writing style and component looks, from the template, checked by check-spec and listed in the registry.

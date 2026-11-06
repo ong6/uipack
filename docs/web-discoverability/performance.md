@@ -11,6 +11,8 @@ removed (git history keeps its spec), with its Instrument Serif display faces. `
 in Technical, which fetches five IBM Plex files (about 101 KB) and preloads only Plex Sans 600; the
 method and the lessons below still apply, the absolute numbers have not been re-measured.
 
+## Lighthouse
+
 **Lighthouse** 13.5 (CLI, headless Chrome, default mobile and `--preset=desktop`, simulated
 throttling), median of 3 runs, built playground (`vite build`, `vite preview`), 2026-10-23, after
 the playground's lazy-route change (below):
@@ -43,6 +45,8 @@ Score, FCP and LCP are unchanged (99, 1.43 s, 1.67 s): those files were never on
 
 `/` trades some mobile LCP (1.56 s before, when its sections were in the entry chunk) for an
 entry chunk less than half the size; its score is unchanged.
+
+## Playwright trace
 
 **Playwright trace**, the table below: Chromium via Playwright with `PerformanceObserver` (LCP,
 layout shift, long tasks), DevTools throttling applied to the real load, cache disabled, median of
@@ -107,6 +111,8 @@ lazy-route change; the CLS it shows (0.011 on desktop, 0.019 on mobile) was the 
 Suspense fallback being replaced by the whole page. The shell now stays and the page fills in
 below it, and Lighthouse measures CLS 0 on both profiles.
 
+## What changed the hero LCP
+
 **What changed it.** Before, the hero headline was laid out in the metric-matched fallback and then
 re-wrapped when Instrument Serif (normal and italic) arrived: the first text run widened by 19 px at
 1440 px and the headline gained a line, moving the subhead 62 px (CLS 0.042). The fallback
@@ -121,6 +127,8 @@ did not recover the mobile cost (1136 / 1688 ms).
 
 The other changes (single-copy server text, the transcript, the marquee copy after mount) do not
 move these numbers; they change what crawlers read.
+
+## Verified, unchanged
 
 **Verified, unchanged:** `font-display: swap` on every face; motion does no work before it is in view
 (`DemoPlayer`, `TextScramble`, `NumberTicker` start from IntersectionObserver; `Marquee`, `Aurora`

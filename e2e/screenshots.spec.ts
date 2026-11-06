@@ -15,10 +15,10 @@ for (const theme of ["light", "dark"] as const) {
       await page.setViewportSize({ width: w, height: h });
       await page.goto(`/components/diagrams?theme=${theme}`);
       await page.waitForTimeout(600);
-      await page.screenshot({ path: `docs/playground-${w}-${theme}.png`, fullPage: true });
+      await page.screenshot({ path: `docs/screenshots/playground-${w}-${theme}.png`, fullPage: true });
       await page.goto(`/assets?theme=${theme}`);
       await page.waitForTimeout(800);
-      await page.screenshot({ path: `docs/assets-${w}-${theme}.png`, fullPage: false });
+      await page.screenshot({ path: `docs/screenshots/assets-${w}-${theme}.png`, fullPage: false });
       await page.goto(`/web?theme=${theme}`);
       await page.locator(".uipack-web-demo").scrollIntoViewIfNeeded();
       // Let the demo reach its result so the shot shows the product working.
@@ -26,7 +26,7 @@ for (const theme of ["light", "dark"] as const) {
       // Desktop shows the hero and the settled demo; 390px shows the demo itself.
       if (w === 1440) await page.evaluate(() => window.scrollTo(0, 200));
       await page.waitForTimeout(300);
-      await page.screenshot({ path: `docs/web-${w}-${theme}.png`, fullPage: false });
+      await page.screenshot({ path: `docs/screenshots/web-${w}-${theme}.png`, fullPage: false });
     });
   }
   for (const w of [1440, 390] as const) {
@@ -43,7 +43,7 @@ for (const theme of ["light", "dark"] as const) {
           await page.waitForTimeout(250);
         }
         await page.waitForTimeout(1600);
-        await section.screenshot({ path: `docs/web-${name}-${w}-${theme}.png` });
+        await section.screenshot({ path: `docs/screenshots/web-${name}-${w}-${theme}.png` });
       }
     });
   }
@@ -51,10 +51,12 @@ for (const theme of ["light", "dark"] as const) {
     await page.setViewportSize({ width: 1440, height: 1100 });
     await page.goto(`/components/diagrams?theme=${theme}`);
     await page.waitForTimeout(600);
-    await page.locator('section[data-section="service-map"] figure').screenshot({ path: `docs/habitat-${theme}.png` });
-    await page.locator('section[data-section="parts"] figure').screenshot({ path: `docs/parts-${theme}.png` });
+    await page
+      .locator('section[data-section="service-map"] figure')
+      .screenshot({ path: `docs/screenshots/habitat-${theme}.png` });
+    await page.locator('section[data-section="parts"] figure').screenshot({ path: `docs/screenshots/parts-${theme}.png` });
     for (const name of PRESETS) {
-      await page.locator(`[data-preset="${name}"] figure`).screenshot({ path: `docs/presets/${name}-${theme}.png` });
+      await page.locator(`[data-preset="${name}"] figure`).screenshot({ path: `docs/screenshots/presets/${name}-${theme}.png` });
     }
   });
 }
@@ -93,21 +95,21 @@ for (const theme of ["light", "dark"] as const) {
           await new Promise((r) => setTimeout(r, 40));
         }
       });
-      await shootElement(page, chart, `docs/span-chart-${w}-${theme}.png`);
+      await shootElement(page, chart, `docs/screenshots/span-chart-${w}-${theme}.png`);
       await page.locator(`${chart} .uipack-span__toggle--top`).click();
-      await shootElement(page, chart, `docs/span-chart-expanded-${w}-${theme}.png`);
+      await shootElement(page, chart, `docs/screenshots/span-chart-expanded-${w}-${theme}.png`);
       await page.locator(`${chart} .uipack-span__toggle--foot`).click();
       await page.locator(`${chart} .uipack-span__col[data-l="inference"]`).click();
-      await shootElement(page, chart, `docs/span-chart-filtered-${w}-${theme}.png`);
+      await shootElement(page, chart, `docs/screenshots/span-chart-filtered-${w}-${theme}.png`);
       await page.keyboard.press("Escape");
       await page.locator(`${chart} [data-item="fireworks"] summary`).click();
-      await shootElement(page, chart, `docs/span-chart-open-${w}-${theme}.png`);
+      await shootElement(page, chart, `docs/screenshots/span-chart-open-${w}-${theme}.png`);
 
       await page.locator(`${chart} [data-item="fireworks"] summary`).click();
       await page.locator(`${chart} input[type="search"]`).fill("nvidia");
-      await shootElement(page, chart, `docs/span-chart-search-${w}-${theme}.png`);
+      await shootElement(page, chart, `docs/screenshots/span-chart-search-${w}-${theme}.png`);
 
-      await shootElement(page, "#ai-stack-layers", `docs/layer-stack-${w}-${theme}.png`);
+      await shootElement(page, "#ai-stack-layers", `docs/screenshots/layer-stack-${w}-${theme}.png`);
     });
   }
 }
@@ -147,8 +149,8 @@ for (const theme of ["light", "dark"] as const) {
       await page.setViewportSize({ width: w, height: 1000 });
       await page.goto(`/article?theme=${theme}&host=notes`);
       await page.locator(cluster).first().waitFor();
-      await clipBetween(first, cluster, `docs/article-section-${name}-${theme}.png`);
-      if (w === 1440) await clipBetween(wide, wide, `docs/article-cluster-896-${theme}.png`);
+      await clipBetween(first, cluster, `docs/screenshots/article-section-${name}-${theme}.png`);
+      if (w === 1440) await clipBetween(wide, wide, `docs/screenshots/article-cluster-896-${theme}.png`);
     }
   });
 }

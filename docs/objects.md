@@ -1,5 +1,7 @@
 # Object scenes
 
+The reference for `uipack/objects`: the seven lazy 3D scenes, their props, playback and fallbacks, the art directions each subject offers and why, the render budgets and the Blender sources. Pick looks for a site in [3D looks](components/3d.md); come here to place a scene or change one.
+
 ```tsx
 import { ObjectScene, objectScenes } from "uipack/objects";
 import "uipack/objects.css";

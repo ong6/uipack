@@ -1,4 +1,8 @@
 {
+  "docs/grading/regression/agent-docs/brief-1.v1.json": "13654397544bd9ae784b923a6436ea162e159e179ee0dd555d3ef066a51b4679",
+  "docs/grading/regression/agent-docs/brief-2.v1.json": "9411e66ea7dabec23e5c5db6b8aca2dd87eb12f1a0ce91048e8b9dff2fa38bcf",
+  "docs/grading/regression/agent-docs/brief-3.v1.json": "a819508a4b289a0a48b1c6b1ca15b432da0287f331ff5745f74f9b4df1563fb1",
+  "docs/grading/regression/agent-docs/brief-4.v1.json": "b869994d24b7781553b50b5235dcd3403d07650dc113f60417cb22980ad18754",
   "docs/grading/regression/dashboard/brief-1.v1.json": "820e5910520843616bfb8eb505a195fbc51767168f59e890c126e733e8c6f46f",
   "docs/grading/regression/dashboard/brief-2.v1.json": "0b4f801c8b87bc4c25017bea7e5889537db3d170e8d6eacea272c63f77e58697",
   "docs/grading/regression/dashboard/brief-3.v1.json": "c41bdb01561a48ab62988945a5bd8cf20be3ec0051372141c05f670ed5fc96eb",
@@ -14,6 +18,7 @@
   "docs/grading/regression/landing/brief-1.v1.json": "81b9c42aa9c6c9c3d1d7305c0c1f32cf669de3e6dbeafc24e5d21d1050692433",
   "docs/grading/regression/landing/brief-2.v1.json": "3a63761a327c88dc4ff67adb9d6c7673ca2a562e0f0f094ea760fdcf7bd916ab",
   "docs/grading/regression/landing/brief-3.v1.json": "c05babd59283897bface00368547ef46f8c8ed1e47b788dd18fe81e9b35e7b86",
+  "docs/grading/rubrics/agent-docs-v1.md": "0f7183fddd1123d938fdead3fe41cd61abe861607dee3ee1df7fbd0e542a89da",
   "docs/grading/rubrics/dashboard-v1.md": "5a9b679b0f1963992029baba66a874763a1da0c83892c711e218280bfd944593",
   "docs/grading/rubrics/deck-slide-v1.md": "15bbc3bce3e9812ed2a9f5608437a0e1840d27507a15a6e3988d5fdcf2d032b5",
   "docs/grading/rubrics/diagram-v1.md": "96664ab54e363ed359d16361e3ce10357aba7ea5136977fab6e75ab89b225687",

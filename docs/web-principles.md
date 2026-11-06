@@ -5,6 +5,8 @@ The components enforce what they can; the rest is on the page author.
 
 ## Web style
 
+### Which style
+
 `uipack/web` renders in Technical, the one implemented style (its values in `src/styles/technical.css`,
 its roles in [docs/system/style.md](system/style.md)). Each other website has its own
 [spec](specs/README.md) that fills the same role contract; uipack renders one by adding one value
@@ -20,7 +22,9 @@ order, the same hero, boxes and reading order.
 A site that needs a different look has its own [spec](specs/README.md); it does not restyle
 Technical.
 
-**The author's layout (default).** `WebPage` renders `sections` in the order the page lists them
+### Section order: the author's layout
+
+`WebPage` renders `sections` in the order the page lists them
 and sets `data-ui-layout="shared"`: the page's own order, hero proof and start-edge alignment,
 whatever the style. Section render functions receive `{ uiStyle, layout, defaults }`; by default
 `defaults` is `{ hero: "demo", align: "start", steps: "cards" }`. `layout="style"` opts into the
@@ -28,21 +32,29 @@ style's own order and defaults (`uiStyles[].prefers` and `.layout`, `data-ui-lay
 Technical then puts the figure in the hero and draws steps as numbered rows. Ids a style doesn't
 name are kept, after the ones it does.
 
-**Figures on a web page.** `WebSurface` (and so `WebPage`) gives figures quiet chrome: no Open
+### Figures on a web page
+
+`WebSurface` (and so `WebPage`) gives figures quiet chrome: no Open
 canvas and no legend with fewer than two entries, which belong to articles and docs. `Figure
 chrome="full"` (or `WebSurface figureChrome="full"`) brings them back. A figure takes the page's
 text and label faces, its frame and its radius, and the flow colours stay in the style's palette.
 
-**Closing parts.** `Proof`, `PricingPlans`, `ClosingCta`, `SiteFooter`, `Brand` and `FeatureGrid
+### Closing parts
+
+`Proof`, `PricingPlans`, `ClosingCta`, `SiteFooter`, `Brand` and `FeatureGrid
 numbered` are one layout, painted through roles. Use them rather than page CSS, so a style
 built later from a spec paints them without moving them.
 
-**The nav at phone width.** Below 720px `GlassNav` folds its links into a menu, with the brand on
+### The nav at phone width
+
+Below 720px `GlassNav` folds its links into a menu, with the brand on
 the start edge and Menu on the end edge. The page's goal stays in the bar as a compact button beside
 Menu (44px touch target, 0.875rem type); only below 340px does it move into the open menu. Keep the CTA label to
 about 20 characters ("Start a free trial") so brand, button and Menu share a 390px bar.
 
-**Show the product's real output.** The largest object above the fold is the product doing its
+### Show the product's real output
+
+The largest object above the fold is the product doing its
 job with real-looking rows: never an empty demo panel, a chat box for a product that is not a chat,
 or an icon-in-a-box flow. The parts for it, one layout painted by the treatment roles:
 
@@ -64,16 +76,22 @@ own entries or `false`, and icons include `person`, `calendar`, `file`, `table`,
 [`examples/web-starter`](../examples/web-starter/App.tsx) (it ships in the package): copy it,
 then replace the words and rows.
 
+### Finish rules for every style
+
 Shared finish rules hold in every style: one accent, glow only for selection (no style has an
 ambient glow; `GrainOverlay` and `Aurora` are opt-in components), contrast of 4.5:1 for
 small text in both themes (`test/style-roles.test.tsx`), the finished state under reduced motion,
 and none of the generic-AI tropes: no purple, no gradient blobs, no glass, no emoji icons, no
 rounded-everything.
 
-**Performance** (Lighthouse 13.5 mobile, built playground, median of 3, 2026-11-04, `/web`):
+### Performance
+
+(Lighthouse 13.5 mobile, built playground, median of 3, 2026-11-04, `/web`):
 Technical LCP 2.27 s, 101 KB of fonts in 5 files (the same IBM Plex files it ships now; measured
 before the Cyanotype colours), CLS 0. `/web` preloads only the display weight, IBM Plex Sans 600, at
 720px and wider.
+
+### Rule source codes
 
 The numbered rules below hold for every style. Where a rule names a value (rule 5's grain and glass,
 rule 9's 60 / 30 / 10, rules 19–21's faces), Technical's value is given; a style built from a spec

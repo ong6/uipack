@@ -136,12 +136,28 @@ export function llmsTxt() {
   return [
     "# UiPack",
     "",
-    "> A design system that draws explanations: diagrams, slides, web pages, motion and 3D, as React and SVG components. Its documentation is the Markdown in this package; the docs site renders the same files.",
+    "> Jun Xiong's own design system for his sites and work presentations: diagrams, slides, web pages, motion and 3D, as React and SVG components with the rules for writing and laying them out. The Markdown in this package is written for agents; the docs site renders the same files.",
     "",
     "Agents: read docs/agents/README.md first, then the skill for your job in skills/ (README.md indexes them); the design system itself starts at docs/system/README.md. Agent instructions are in AGENTS.md. Generated from playground/docs-manifest.ts by `npm run docs:sync`; do not edit by hand.",
     "",
     ...sections.filter(Boolean).flatMap((s) => [s, ""]),
+    skillsSection(),
+    "",
   ].join("\n");
+}
+
+/** The job skills in skills/ for llms.txt: each SKILL.md with the first sentence of its description. */
+export function skillsSection() {
+  const dir = join(root, "skills");
+  const lines = readdirSync(dir, { withFileTypes: true })
+    .filter((e) => e.isDirectory() && existsSync(join(dir, e.name, "SKILL.md")))
+    .map((e) => {
+      const md = readFileSync(join(dir, e.name, "SKILL.md"), "utf8");
+      const desc = (md.match(/^description:\s*>?-?\s*\n?([\s\S]*?)\n(?:[a-z-]+:|---)/m)?.[1] ?? "").replace(/\s+/g, " ").trim();
+      const first = desc.split(/(?<=\.)\s/)[0];
+      return `- [${e.name}](skills/${e.name}/SKILL.md): ${first}`;
+    });
+  return `## Skills\n\n- [Skills index](skills/README.md): one skill per job; read the one for your job after docs/agents/README.md.\n${lines.join("\n")}`;
 }
 
 /* ------------------------------------------------------------------ specs, component looks, registry */
@@ -335,11 +351,11 @@ export function slideRoles() {
 export function storylines() {
   const rows = STORYLINE_TEMPLATES.map((t) => {
     const beats = t.beats.map((b) => (b.optional ? `(${b.role})` : b.role)).join(" → ");
-    return `| ${t.name} | ${t.use} | ${dash([t.slides.min, t.slides.max])} | ${dash([t.minutes.min, t.minutes.max])} | ${beats} |`;
+    return `| ${t.name} | \`${t.id}\` | ${t.use} | ${dash([t.slides.min, t.slides.max])} | ${dash([t.minutes.min, t.minutes.max])} | ${beats} |`;
   });
   return [
-    "| Storyline | Use it for | Slides | Minutes | Beats in order (optional in brackets) |",
-    "| --- | --- | --- | --- | --- |",
+    "| Storyline | `starterDeck` / `template` id | Use it for | Slides | Minutes | Beats in order (optional in brackets) |",
+    "| --- | --- | --- | --- | --- | --- |",
     ...rows,
   ].join("\n");
 }

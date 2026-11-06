@@ -19,7 +19,7 @@ Diagrams have one look, **Blueprint**, and it is `fixed`: a figure looks the sam
 [docs/components/diagrams.md](../../docs/components/diagrams.md) first: it fixes the card surface,
 shapes, flow colours, label face, strokes and radii; only light and dark follow the host. The site's
 spec picks it (`components: { diagrams: blueprint }`) but never changes it, and its layout and
-writing style stop at the figure's frame: the labels and lengths below hold on every site.
+writing style stop at the figure's frame: the labels and lengths below hold on every site. That is the intent; today figures still read the host's palette ([where the code stands](../../docs/components/diagrams.md#where-the-code-stands)), so check the render on the site before promising an identical look.
 A site spec never recolours a figure, and neither do you: no brand accent on a connector, no
 site face in a label, no hex anywhere. A slide or page gives the figure a region; it never
 restyles it.
@@ -40,7 +40,7 @@ restyles it.
    ([layout, diagrams](../../docs/system/layout/README.md#figures)). Author the narrow (390px) drawing or
    keep a readable width that scrolls inside the frame; never shrink labels below the 11px floor.
 5. **Build with real exports.** `Figure`, `Node`, `Connector`, `Packet`, `route`, `Defs` from
-   `uipack` (see the root [README](../../README.md)); check `dist/*.d.ts` before a prop. Give
+   `uipack` (props in [docs/figure-api.md](../../docs/figure-api.md)); check `dist/*.d.ts` before a prop. Give
    `alt`, a caption, and a legend only when there is more than one flow kind.
 6. **Check.** Render at 1440 and 390 in both themes; labels inside their boxes, no page overflow,
    packets that arrive and leave. Then `uipack-review`.

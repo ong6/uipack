@@ -3,7 +3,7 @@
 How `uipack/article` is tested, the section rhythm measured on a real article, and screenshots of
 the parts at 390 and 896 in both themes. The parts themselves are in [Article parts](article.md).
 
-![A layer section at a 40rem column, notes site palette, light](article-section-640-light.png)
+![A layer section at a 40rem column, notes site palette, light](screenshots/article-section-640-light.png)
 
 ## Tests
 
@@ -12,8 +12,8 @@ the parts at 390 and 896 in both themes. The parts themselves are in [Article pa
 
 | Light | Dark |
 | --- | --- |
-| ![Layer section at 390px, light](article-section-390-light.png) | ![Layer section at 390px, dark](article-section-390-dark.png) |
-| ![Wide cluster at 896px, light](article-cluster-896-light.png) | ![Wide cluster at 896px, dark](article-cluster-896-dark.png) |
+| ![Layer section at 390px, light](screenshots/article-section-390-light.png) | ![Layer section at 390px, dark](screenshots/article-section-390-dark.png) |
+| ![Wide cluster at 896px, light](screenshots/article-cluster-896-light.png) | ![Wide cluster at 896px, dark](screenshots/article-cluster-896-dark.png) |
 
 ## Section rhythm
 

@@ -1,0 +1,22 @@
+{
+  "id": "agent-docs-2",
+  "version": 1,
+  "frozen": "2026-11-06",
+  "pageType": "agent-docs",
+  "rubric": "agent-docs-v1",
+  "product": "The documentation set at the package root",
+  "audience": "A fresh agent with no prior context, starting from README.md and AGENTS.md",
+  "task": "The owner asks for a pricing section on the junxiong.dev homepage. Without writing code, say what you would read, which part draws pricing, where its colours and faces come from, what blocks you before building, and how you would check the result.",
+  "facts": [
+    "The site is junxiong.dev (repo ong6/junxiong-homepage)",
+    "The section shows plans with prices",
+    "The owner has not said which colours to use"
+  ],
+  "mustInclude": [
+    "The site's spec is not written yet (the registry marks it TODO), so the agent stops and writes or asks for the spec first, or keeps every unset value out of the code",
+    "PricingPlans from the web entry",
+    "Colours, faces and radii come from style roles, never hex or font-family literals",
+    "Render at 1440 and 390, light and dark, then run the tier-1 grade check"
+  ],
+  "outOfScope": ["Bumping the site's pinned library commit (the owner's call)"]
+}

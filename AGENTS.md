@@ -1,12 +1,20 @@
 # UIPACK agent guide
 
+| Your task | Read first |
+| --- | --- |
+| Build a page, figure, deck or copy for a site | [`docs/agents/README.md`](docs/agents/README.md), then the job's skill in [`skills/`](skills/README.md); you can stop reading this file |
+| Add or change a part, page, style or entry in uipack | Its recipe in [`docs/contributing.md`](docs/contributing.md), then "Design contract" and "Engineering and verification" below |
+| Change the docs | "Design contract" below (docs bullet), then [grading these docs for agents](docs/grading/agent-docs.md) |
+
+Before any commit to uipack: `npm run format`, `npm run typecheck`, `npm run lint`, `npm run build` (commit `dist/`), `npm run test:affected`.
+
 **Using UiPack on a site** (building a page, a diagram, copy, a site spec, a review): start at [`docs/agents/README.md`](docs/agents/README.md), then the job's skill in [`skills/`](skills/README.md). Both ship in the package (`node_modules/uipack/`). The rest of this file is for changing uipack itself.
 
 **Changing uipack:** read `docs/system/README.md` (the design system: style, writing and layout as independent layers) and `docs/design-direction.md` before changing any visible UI. Read the nearest README before editing its area. `CLAUDE.md` points here; keep one canonical policy. Guidance lives in `docs/`; a skill in `skills/` links to it and never restates it.
 
 ## What this library is
 
-Reusable SVG figures, primitives, 3D animations, and presentation composition examples. The gallery is a browsing interface; a 3D animation is not a complete slide deck. Keep the optional 3D entry lazy and keep the SVG entry free of Three.js and GSAP imports.
+The owner's own design system, for his sites (every one is in `docs/specs/registry.md`) and work presentations; not a public product, so the registry's sites are the only consumers. Its docs are written for agents: each file opens with what it is for, is headed so an agent can jump, and is reachable from README.md or this file (`scripts/check-agent-docs.ts`). It holds reusable SVG figures, primitives, 3D animations, and presentation composition examples. The gallery is a browsing interface; a 3D animation is not a complete slide deck. Keep the optional 3D entry lazy and keep the SVG entry free of Three.js and GSAP imports.
 
 ## Design contract
 
@@ -29,11 +37,11 @@ Reusable SVG figures, primitives, 3D animations, and presentation composition ex
 
 Inspect Git status first. Preserve unrelated changes; do not deploy the homepage from this repo. Keep existing `uipack/slides` imports and `/slides` links working while presenting the feature as 3D animations.
 
-Run `npm run typecheck`, `npm run lint`, `npm run build` (then commit `dist/`) and `npm run test:affected`: only the unit tests that import what changed and the browser specs mapped to the changed areas, Chromium only (owner, 2026-11-04). `-- --dry` prints the plan. CI runs the full suites on every push; run them locally only when asked or when the script reports an unmapped path. When you add a spec or a source area, add its row to `AREAS` in `scripts/affected.mjs`. Use a bounded worker count on this machine. Do not build or mutate source while browser tests are running. Verify the built package too; `dist/` is intentionally committed.
+Run `npm run format`, `npm run typecheck`, `npm run lint`, `npm run build` (then commit `dist/`) and `npm run test:affected`: only the unit tests that import what changed and the browser specs mapped to the changed areas, Chromium only (owner, 2026-11-04). `-- --dry` prints the plan. CI runs the full suites on every push; run them locally only when asked or when the script reports an unmapped path. When you add a spec or a source area, add its row to `AREAS` in `scripts/affected.mjs`. Use a bounded worker count on this machine. Do not build or mutate source while browser tests are running. Verify the built package too; `dist/` is intentionally committed.
 
 Inspect real browser screenshots at desktop and 390px, with both themes when colour changes. Automated tests do not prove visual polish. Report failures, skips, and unsupported behaviour honestly. Test the meaning of an interaction, not just matching implementation details.
 
-Never assume the preview is running. Check it before handing over a localhost link. Update README links and API docs with the change. Keep work scoped; do not add unrelated dependencies or publish without authorization.
+Never assume the preview is running. Check it before handing over a localhost link. Update the API doc for the entry (the root README's Entries table names it) with the change; a docs change passes `npx tsx scripts/check-agent-docs.ts`. Keep work scoped; do not add unrelated dependencies or publish without authorization.
 
 ## Component-first workflow
 

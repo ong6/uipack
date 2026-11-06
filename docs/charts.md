@@ -27,7 +27,7 @@ Each SpanChart carries a small scoped `<style>` element with its own filter and 
 
 The demos below render each chart inside a frame at a host's real figure width: 896px by default, or `?frame=720|390|320|full`. The data is the AI-stack example in [`examples/aiStack.ts`](../examples/aiStack.ts).
 
-![SpanChart at 896px, light](span-chart-896-light.png)
+![SpanChart at 896px, light](screenshots/span-chart-896-light.png)
 
 ## SpanChart
 
@@ -217,7 +217,7 @@ function enhanceLayerStack(root: HTMLElement): () => void; // optional; returns 
 
 `enhanceLayerStack(root)` makes band and rail links scroll smoothly to their sections, record the hash and move focus there. Under `prefers-reduced-motion` it leaves the plain link alone.
 
-![LayerStack at 896px, light](layer-stack-896-light.png)
+![LayerStack at 896px, light](screenshots/layer-stack-896-light.png)
 
 ## Headings
 

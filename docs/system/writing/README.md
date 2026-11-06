@@ -4,8 +4,7 @@ Each website has its own writing style, set in its [spec](../../specs/README.md)
 its titles take on each page type, how dense its copy runs, its house words, and any budget it
 tightens. This folder holds what every site keeps (the honesty and clarity rules, and the ceilings
 no spec may loosen), split by the kind of text you are writing. Read the site's spec, then the
-general rules, then the file for your kind. Writing is the content layer: typed data with no colour,
-face or position in it ([the system overview](../README.md)).
+general rules, then the file for your kind.
 
 | Kind | Read it when you write | File |
 | --- | --- | --- |
