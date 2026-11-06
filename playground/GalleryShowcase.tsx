@@ -241,7 +241,29 @@ function figurePreview(figure: () => ReactNode): Preview {
   return { kind: "scaled", width: 1088, fit: "contain", render: () => figure() };
 }
 
-/** Mount children once the box nears the viewport, and keep them; inert and hidden from assistive tech. */
+/**
+ * Previews still waiting to mount, in page order. Each mounts when it nears the viewport, or,
+ * failing that, in idle time, a couple at a time, so a card the reader jumps or scrolls past
+ * without the page ever seeing it (a filter, a #link, a fast scroll on a busy page) still fills in.
+ */
+const waiting: (() => void)[] = [];
+let pumping = false;
+const whenIdle = (run: () => void) =>
+  "requestIdleCallback" in window ? requestIdleCallback(run, { timeout: 400 }) : setTimeout(run, 60);
+function mountLater(mount: () => void) {
+  waiting.push(mount);
+  if (pumping) return;
+  pumping = true;
+  const step = () => {
+    // Two per turn keeps each mount's render a short task.
+    waiting.splice(0, 2).forEach((m) => m());
+    if (waiting.length) whenIdle(step);
+    else pumping = false;
+  };
+  whenIdle(step);
+}
+
+/** Mount children once the box nears the viewport (or in idle time), and keep them; inert and hidden from assistive tech. */
 function useNearViewport<T extends HTMLElement>() {
   const ref = useRef<T>(null);
   const [near, setNear] = useState(() => typeof IntersectionObserver === "undefined");
@@ -250,11 +272,24 @@ function useNearViewport<T extends HTMLElement>() {
     if (!el) return;
     el.setAttribute("inert", "");
     if (typeof IntersectionObserver === "undefined") return;
-    const io = new IntersectionObserver(([e]) => e.isIntersecting && (setNear(true), io.disconnect()), {
+    let live = true;
+    const mount = () => {
+      if (!live) return;
+      live = false;
+      io.disconnect();
+      setNear(true);
+    };
+    // A busy page can deliver several entries at once (out of view, in view, out again): any
+    // entry in view counts, not just the first.
+    const io = new IntersectionObserver((entries) => entries.some((e) => e.isIntersecting) && mount(), {
       rootMargin: "800px 0px",
     });
     io.observe(el);
-    return () => io.disconnect();
+    mountLater(mount);
+    return () => {
+      live = false;
+      io.disconnect();
+    };
   }, []);
   return { ref, near };
 }
