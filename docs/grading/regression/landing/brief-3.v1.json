@@ -1,0 +1,20 @@
+{
+  "id": "landing-3",
+  "version": 1,
+  "frozen": "2026-11-06",
+  "pageType": "landing",
+  "rubric": "landing-v1",
+  "product": "Quietcast, a podcast editing service that removes filler words",
+  "audience": "Independent podcasters who edit their own weekly show",
+  "task": "A landing page that shows a before and after waveform or transcript of one clip; call to action: try a free 10-minute edit.",
+  "facts": [
+    "Removes 'um', 'uh', long pauses and false starts; keeps breaths unless asked",
+    "Sample: a 42-minute episode became 37 minutes 10 seconds; 214 fillers removed",
+    "Turnaround: under 15 minutes for a 60-minute file",
+    "Editors can restore any cut from the transcript view",
+    "£12 per episode hour; first 10 minutes free",
+    "Works on WAV and MP3 up to 3 hours; no video"
+  ],
+  "mustInclude": ["The before and after of one clip", "Episode length before and after", "Price"],
+  "outOfScope": ["Video editing", "AI voice cloning"]
+}

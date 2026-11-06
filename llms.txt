@@ -54,3 +54,16 @@ Read docs/system/README.md first (style, writing and layout as three layers). Ag
 - [Canvas and selection](docs/interaction.md): Mobile reading, item selection, expanded inspection and their limits.
 - [Web discoverability](docs/web-discoverability.md): How a uipack/web page gets found and quoted by search and answer engines: the checklist and the builders.
 - [Portfolio ideas](docs/portfolio-ideas.md): Prioritised places where uipack/web pieces would improve junxiong.dev, and what to avoid.
+
+## Grading
+
+- [How to grade](docs/grading/README.md): How an agent grades its own UI work before handoff, and how a lead grades a subagent's: three tiers, values first.
+- [Mechanical checks](docs/grading/tier-1.md): The 13 deterministic checks, their thresholds and sources, the CLI, the report and the site config.
+- [Pairwise judging](docs/grading/protocol.md): Two fresh judges in opposite order compare A and B on one brief and a frozen rubric; the packet and the tally.
+- [Calibration anchors](docs/grading/calibration.md): Known human pages scored on the same rubric, so a target score reads relative to them.
+- [Regression set](docs/grading/regression.md): Fifteen frozen briefs reused every round, and the fix ledger that proves a fix reached the next build.
+- [Landing rubric](docs/grading/rubrics/landing-v1.md): Version 1 of the frozen judge rubric for landing pages.
+- [Docs rubric](docs/grading/rubrics/docs-v1.md): Version 1 of the frozen judge rubric for documentation and articles.
+- [Deck rubric](docs/grading/rubrics/deck-slide-v1.md): Version 1 of the frozen judge rubric for decks.
+- [Dashboard rubric](docs/grading/rubrics/dashboard-v1.md): Version 1 of the frozen judge rubric for dashboards.
+- [Diagram rubric](docs/grading/rubrics/diagram-v1.md): Version 1 of the frozen judge rubric for figures.

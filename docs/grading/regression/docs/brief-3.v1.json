@@ -1,0 +1,20 @@
+{
+  "id": "docs-3",
+  "version": 1,
+  "frozen": "2026-11-06",
+  "pageType": "docs",
+  "rubric": "docs-v1",
+  "product": "Ledgerline's import guide",
+  "audience": "A freelancer importing a bank CSV for the first time",
+  "task": "A help page: export a CSV from your bank and import it, including what to do when columns do not match.",
+  "facts": [
+    "Supported banks: 9 named in a table (Barclays, HSBC, Lloyds, NatWest, Santander, Monzo, Starling, Nationwide, Revolut)",
+    "Required columns: date, description, amount (or paid in and paid out)",
+    "Dates as DD/MM/YYYY or YYYY-MM-DD",
+    "Files up to 5 MB or 10,000 lines",
+    "A mismatched column opens a mapping screen; the mapping is remembered per bank",
+    "Duplicates within 3 days of each other with the same amount are flagged, not deleted"
+  ],
+  "mustInclude": ["Numbered steps", "The column table", "The duplicate rule"],
+  "outOfScope": ["Open Banking connections (not built)"]
+}

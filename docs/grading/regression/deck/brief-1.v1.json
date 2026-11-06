@@ -1,0 +1,20 @@
+{
+  "id": "deck-1",
+  "version": 1,
+  "frozen": "2026-11-06",
+  "pageType": "deck-slide",
+  "rubric": "deck-slide-v1",
+  "product": "Pilot readout: Rota in 12 Leeds restaurants",
+  "audience": "The operations director and the finance lead, 20-minute go or no-go meeting",
+  "task": "A deck of 6 to 9 slides recommending a go or no-go on rolling out to all 48 sites.",
+  "facts": [
+    "Pilot: 12 sites, 1 March to 31 May 2026",
+    "Rota time: 3.5 h to 25 min a week per site (manager logs, 11 of 12 sites; one site did not log)",
+    "Over-staffing hours fell 9% (payroll, pilot sites vs 12 matched sites)",
+    "Two managers stopped using it after week 3; both cited SMS delays",
+    "Cost at 48 sites: £16,704 a year",
+    "Union consultation not yet held"
+  ],
+  "mustInclude": ["A recommendation in the first two slides", "The missing site's data stated", "An ask with owner and date"],
+  "outOfScope": ["Features beyond scheduling"]
+}

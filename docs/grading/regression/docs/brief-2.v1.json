@@ -1,0 +1,20 @@
+{
+  "id": "docs-2",
+  "version": 1,
+  "frozen": "2026-11-06",
+  "pageType": "docs",
+  "rubric": "docs-v1",
+  "product": "A blog post: why our deploys got slower after moving to a monorepo",
+  "audience": "Engineers at small companies considering a monorepo",
+  "task": "An article of 800 to 1,200 words with one figure and the numbers below.",
+  "facts": [
+    "Median CI time went from 6 min (12 repos) to 19 min (one repo) in the first month",
+    "Cause: every change ran all 1,140 tests; no dependency graph",
+    "Fix: affected-target detection; median back to 7 min 30 s after 3 weeks",
+    "Cache hit rate rose from 0% to 71%",
+    "Cost: 2 engineers for 3 weeks",
+    "Still slower for changes to the shared types package (median 16 min)"
+  ],
+  "mustInclude": ["The before, after and fix numbers with their windows", "The remaining cost", "One figure of the pipeline"],
+  "outOfScope": ["Advice for teams over 200 engineers"]
+}

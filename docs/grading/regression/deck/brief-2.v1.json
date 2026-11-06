@@ -1,0 +1,20 @@
+{
+  "id": "deck-2",
+  "version": 1,
+  "frozen": "2026-11-06",
+  "pageType": "deck-slide",
+  "rubric": "deck-slide-v1",
+  "product": "Tech talk: cutting monorepo CI time from 19 to 7.5 minutes",
+  "audience": "An internal engineering all-hands, 15 minutes, speaker present",
+  "task": "A presented deck of 8 to 12 slides with short spoken titles.",
+  "facts": [
+    "Median CI time went from 6 min (12 repos) to 19 min (one repo) in the first month",
+    "Cause: every change ran all 1,140 tests",
+    "Fix: affected-target detection built on the import graph; median 7 min 30 s after 3 weeks",
+    "Cache hit rate rose from 0% to 71%",
+    "Shared types package still triggers 85% of tests (median 16 min for those changes)",
+    "Next: split shared types into 4 packages by Q1 2027"
+  ],
+  "mustInclude": ["Before, after and the remaining gap", "One figure of the pipeline", "The next step with a date"],
+  "outOfScope": ["Vendor comparisons"]
+}

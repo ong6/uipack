@@ -1,0 +1,20 @@
+{
+  "id": "dashboard-3",
+  "version": 1,
+  "frozen": "2026-11-06",
+  "pageType": "dashboard",
+  "rubric": "dashboard-v1",
+  "product": "Payments on-call dashboard",
+  "audience": "The payments engineering manager",
+  "task": "A dashboard: how heavy is on-call this month, and how much of it is noise?",
+  "facts": [
+    "Pages this month: 38 (5-month average 41)",
+    "Non-actionable: 15 of 38",
+    "Median time to acknowledge: 3 min 40 s (target 5 min)",
+    "Top noisy alert: 'settlement lag > 2 min', 9 pages, all self-resolved",
+    "Pages per engineer: 7.6",
+    "Night pages (00:00 to 07:00): 11"
+  ],
+  "mustInclude": ["Noise share", "The top noisy alert", "Acknowledge time against target"],
+  "outOfScope": ["Individual engineer rankings"]
+}

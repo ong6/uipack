@@ -395,6 +395,83 @@ export const docsManifest = [
       },
     ],
   },
+  {
+    id: "grading",
+    label: "Grading",
+    pages: [
+      {
+        id: "grading",
+        label: "How to grade",
+        path: "/grading",
+        file: "docs/grading/README.md",
+        intro:
+          "How an agent grades its own UI work before handoff, and how a lead grades a subagent's: three tiers, values first.",
+      },
+      {
+        id: "grading-tier-1",
+        label: "Mechanical checks",
+        path: "/grading/tier-1",
+        file: "docs/grading/tier-1.md",
+        intro: "The 13 deterministic checks, their thresholds and sources, the CLI, the report and the site config.",
+      },
+      {
+        id: "grading-protocol",
+        label: "Pairwise judging",
+        path: "/grading/protocol",
+        file: "docs/grading/protocol.md",
+        intro: "Two fresh judges in opposite order compare A and B on one brief and a frozen rubric; the packet and the tally.",
+      },
+      {
+        id: "grading-calibration",
+        label: "Calibration anchors",
+        path: "/grading/calibration",
+        file: "docs/grading/calibration.md",
+        intro: "Known human pages scored on the same rubric, so a target score reads relative to them.",
+      },
+      {
+        id: "grading-regression",
+        label: "Regression set",
+        path: "/grading/regression",
+        file: "docs/grading/regression.md",
+        intro: "Fifteen frozen briefs reused every round, and the fix ledger that proves a fix reached the next build.",
+      },
+      {
+        id: "rubric-landing",
+        label: "Landing rubric",
+        path: "/grading/rubrics/landing-v1",
+        file: "docs/grading/rubrics/landing-v1.md",
+        intro: "Version 1 of the frozen judge rubric for landing pages.",
+      },
+      {
+        id: "rubric-docs",
+        label: "Docs rubric",
+        path: "/grading/rubrics/docs-v1",
+        file: "docs/grading/rubrics/docs-v1.md",
+        intro: "Version 1 of the frozen judge rubric for documentation and articles.",
+      },
+      {
+        id: "rubric-deck",
+        label: "Deck rubric",
+        path: "/grading/rubrics/deck-slide-v1",
+        file: "docs/grading/rubrics/deck-slide-v1.md",
+        intro: "Version 1 of the frozen judge rubric for decks.",
+      },
+      {
+        id: "rubric-dashboard",
+        label: "Dashboard rubric",
+        path: "/grading/rubrics/dashboard-v1",
+        file: "docs/grading/rubrics/dashboard-v1.md",
+        intro: "Version 1 of the frozen judge rubric for dashboards.",
+      },
+      {
+        id: "rubric-diagram",
+        label: "Diagram rubric",
+        path: "/grading/rubrics/diagram-v1",
+        file: "docs/grading/rubrics/diagram-v1.md",
+        intro: "Version 1 of the frozen judge rubric for figures.",
+      },
+    ],
+  },
 ] as const satisfies readonly DocsGroupEntry[];
 
 /** Every page in reading order, with its group's id. */

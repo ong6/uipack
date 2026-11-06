@@ -1,0 +1,20 @@
+{
+  "id": "landing-2",
+  "version": 1,
+  "frozen": "2026-11-06",
+  "pageType": "landing",
+  "rubric": "landing-v1",
+  "product": "Ledgerline, bank-statement reconciliation for freelancers",
+  "audience": "UK freelancers who file self-assessment and keep receipts in a folder",
+  "task": "A product page that shows a reconciled statement table above the fold; call to action: upload a CSV.",
+  "facts": [
+    "Reads CSV exports from 9 UK banks",
+    "Sample statement: 42 lines; 36 matched to receipts automatically, 3 flagged as duplicates, 1 transfer, 2 need a receipt",
+    "Matching accuracy on 1,800 test lines: 96.4% (the remaining 3.6% go to a review list)",
+    "Exports to the HMRC self-assessment categories",
+    "Free for 50 lines a month; £6 a month unlimited",
+    "Data stays in the UK (London region); deleted 30 days after account closure"
+  ],
+  "mustInclude": ["The 42-line sample with the counts that add up", "Accuracy with its test size", "The free tier"],
+  "outOfScope": ["Tax advice", "Mobile app (not built)"]
+}

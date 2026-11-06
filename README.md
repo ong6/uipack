@@ -360,6 +360,8 @@ Under `prefers-reduced-motion: reduce` a packet renders once at `at` and never m
 
 ## Testing
 
+To grade a page the same way every time (13 mechanical checks at 1440 and 390, light and dark, then blinded pairwise judging and a fixed brief set), see [Grading UI work](docs/grading/README.md): `npm run grade -- check <url> --spec uipack` here, `npx uipack-grade check <url>` in a consumer, or `uipack/grade` from Node.
+
 `npm test` runs the Vitest suite in jsdom; it fails on any `console.error` a test did not expect (`test/setup.ts`), and server renders go through `test/on-server.ts` so they take the real server path. `npm run coverage` writes a coverage report to `coverage/` (no threshold). `npm run test:e2e` runs Playwright with one worker: every test in Chromium, and in WebKit the smoke subset tagged `@cross-browser` (keyboard focus and Tab, gestures, smooth scroll, SMIL, WebGL setup, fonts, the built package, each object's default look, three pages of the page audit; tag a test when the engines could differ on it). It serves on port 5179; set `E2E_PORT` when a second checkout, such as a git worktree, runs its own server, or Playwright reuses the other checkout's. What they pin down:
 
 - Packets move, hold after Pause, resume on Play, return to the start on Replay, and sit still under reduced motion.

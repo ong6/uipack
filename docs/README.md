@@ -37,4 +37,5 @@ Every page of the docs site, by sidebar group, linked to the file it renders. Ge
 - **Specs:** [How to write a spec](specs/README.md), [Spec template](specs/TEMPLATE.md), [Technical](specs/technical.md), [Registry](specs/registry.md)
 - **Examples:** [Web UI](web-principles.md)
 - **Reference:** [Icons & marks](../README.md), [Contributing](contributing.md), [Component-first](component-first.md), [Design direction](design-direction.md), [Canvas and selection](interaction.md), [Web principles](web-principles.md), [Web discoverability](web-discoverability.md), [Portfolio ideas](portfolio-ideas.md)
+- **Grading:** [How to grade](grading/README.md), [Mechanical checks](grading/tier-1.md), [Pairwise judging](grading/protocol.md), [Calibration anchors](grading/calibration.md), [Regression set](grading/regression.md), [Landing rubric](grading/rubrics/landing-v1.md), [Docs rubric](grading/rubrics/docs-v1.md), [Deck rubric](grading/rubrics/deck-slide-v1.md), [Dashboard rubric](grading/rubrics/dashboard-v1.md), [Diagram rubric](grading/rubrics/diagram-v1.md)
 <!-- /generated -->

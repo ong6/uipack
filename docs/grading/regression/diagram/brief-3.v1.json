@@ -1,0 +1,17 @@
+{
+  "id": "diagram-3",
+  "version": 1,
+  "frozen": "2026-11-06",
+  "pageType": "diagram",
+  "rubric": "diagram-v1",
+  "product": "Figure: a payment page's path from alert to acknowledgement",
+  "audience": "Executives reading the on-call budget deck",
+  "task": "One figure showing an alert's path and where noise enters.",
+  "facts": [
+    "Metric breaches threshold, alert fires, pager notifies the on-call engineer, acknowledge within 5 minutes, fix or escalate",
+    "Self-resolving alerts still page (18 of 41 a month)",
+    "Proposed: a 5-minute hold that drops self-resolved alerts before paging"
+  ],
+  "mustInclude": ["Where the proposed hold sits", "The noise share"],
+  "outOfScope": ["Vendor names"]
+}
