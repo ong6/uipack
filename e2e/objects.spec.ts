@@ -27,7 +27,8 @@ for (const theme of ["light", "dark"])
     );
   }
 test("object playback pauses, finishes, replays and opens one accessible canvas", async ({ page }) => {
-  await page.goto("/animations?story=travel&variant=0");
+  // Contact is the one scene that still plays once and offers Replay (every Studio subject loops).
+  await page.goto("/animations?story=contact&variant=0");
   const canvas = page.locator(".uipack-object canvas");
   await expect(canvas).toHaveAttribute("data-renderer", "webgl");
   await page.getByRole("button", { name: "Pause motion" }).click();

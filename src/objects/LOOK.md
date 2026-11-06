@@ -26,17 +26,22 @@ const brass = lookMaterial("metal", 0xb8893b, { roughness: 0.22 });
 const base = themed(lookMaterial("plastic", 0x1e2a33, { roughness: 0.7 }), { dark: { color: shade(0x1e2a33, -0.3) } });
 ```
 
-Each direction's look lives beside its builders: `studioLook` in `studio.ts` (Contact's original
+Each direction's look lives beside its builders: `studioLook(palette, shot)` in `studio.ts` (Contact's original
 editions fall back to the defaults in `scenes.ts#createObject`), `paperLook` in `paper-worlds.ts`,
 `kineticLook` in `kinetic-sculptures.ts`, and `cartoonLook`, `realisticLook` and `abstractLook` in
 `expanded-cartoon.ts`, `expanded-realistic.ts` and `expanded-abstract.ts`. Change those, not `mount.ts`.
 
-Studio adds two scene-local devices in `studio.ts` on top of its rig. A rim term on every lit,
-non-paper material (`addRim`) brightens surfaces that turn away from the lens towards the rim's
-side; it rides in the emissive colour, so `themed` switches it (white and faint by day, store green
-at night). A sweep (`sweep`) draws the seamless backdrop only as light: a falloff away from the
-subject and, at night, a green pool behind it. Its geometry is stored small and scaled in the vertex
-shader, so it never counts towards bounds or framing.
+Studio builds its look per subject: `studioLook(palette, shot)` keeps one rig and one lens family
+and sets each subject's pitch, field of view and fill. Its night colours derive from the palette
+(`nightRoom`: the ink's hue for the sweep's pool, the sky and the kicker; the accent's hue for the
+rim), so Studio follows the page style it sits in. It adds two scene-local devices on top of its
+rig. A rim term on lit dielectric materials (`addRim`, weighted per preset; metals take none, their
+edge comes from the environment) brightens surfaces that turn away from the lens towards the rim's
+side; it rides in the emissive colour, so `themed` switches it (white and faint by day, the room's
+rim colour at night). A sweep (`sweep`) draws the seamless backdrop only as light: a falloff away
+from the subject and, at night, a pool behind it and a warm top-light pool on the table under it.
+Its geometry is stored small and scaled in the vertex shader, so it never counts towards bounds or
+framing.
 
 ## Light rigs (`lightRigs`, `rig`)
 

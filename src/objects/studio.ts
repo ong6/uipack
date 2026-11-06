@@ -1,6 +1,7 @@
 // Studio objects: product photography of one beautiful object on a seamless sweep, shot close and
 // low, doing its job. State shows through physical cues (an LED, a fold opening,
-// a bead sliding on its rod), never readable screen text. One lens, one height, one light for all.
+// a bead sliding on its rod), never readable screen text. One lens family and one light for all;
+// each subject gets its own camera height and distance, the way a product shoot re-frames per piece.
 import * as THREE from "three";
 import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
@@ -10,124 +11,217 @@ import type { ObjectPalette } from "./scenes";
 import { marketBar, MARKET_BAR_MS, MARKET_LOOP_MS } from "./market";
 import { clamp, lerp, progress, smootherstep } from "../math";
 
-const DURATION = 5400;
 /** Every Studio subject stands on the same tabletop. */
 const FLOOR = -1;
 
+/* ---------------------------------------------------------------- The look: light, lens, room */
+
+/** One subject's shot: how high the lens sits (pitch, degrees), how wide, and how close (fill). */
+interface Shot {
+  pitch: number;
+  fov?: number;
+  fill?: number;
+  maxWidth?: number;
+  lift?: number;
+}
+
+/** sRGB colour from hue, saturation and lightness (0..1). */
+const hsl = (h: number, s: number, l: number) => new THREE.Color().setHSL(h, s, l, THREE.SRGBColorSpace).getHex();
+const hslOf = (color: number) => new THREE.Color(color).getHSL({ h: 0, s: 0, l: 0 }, THREE.SRGBColorSpace);
+
 /**
- * Studio's look: product photography. A hard-working key from the top left with a real soft shadow
- * on the sweep, a weak fill so the shadow side keeps its shape, a rim from behind that draws a bright
- * edge along every silhouette, and a room environment for reflections. Low ambient, so the light has
- * a direction. The same lens, close and low (14° above the tabletop), for every subject. Dark mode is
- * a lower-key room: the key stays, a store-green kicker and rim come round from behind, and the
- * sweep glows behind the subject so the silhouette cuts off it.
+ * The night room, derived from the page style's palette so Studio follows whatever style it sits
+ * in: the sweep's pool and the kicker take the ink's hue (a store-green room under Technical, a
+ * navy one under Cyanotype), the rim takes the accent's (mint, amber).
  */
-export const studioLook: ObjectLook = {
-  rig: {
-    both: {
-      toneMapping: "aces",
-      exposure: 1,
-      environment: { kind: "room", intensity: 0.4, rotation: 0.5 },
-      reflections: 0.9,
-      hemisphere: { sky: 0xfbf6ec, ground: 0x4d524d, intensity: 0.4 },
-      key: { color: 0xfff1dc, intensity: 3.3, position: [-6, 6.5, 3.5], shadow: true, shadowMapSize: 1024, shadowRadius: 6 },
-      fill: { color: 0xe6eeff, intensity: 0.32, position: [6, 1.5, 5] },
-      rim: { color: 0xf0f4ff, intensity: 2.4, position: [3.5, 4.5, -6] },
+function nightRoom(palette: ObjectPalette) {
+  const ink = hslOf(palette.ink),
+    accent = hslOf(palette.accent);
+  const s = clamp(ink.s * 2, 0.22, 0.42);
+  return {
+    pool: hsl(ink.h, s, 0.34),
+    shadow: hsl(ink.h, s * 0.6, 0.02),
+    sky: hsl(ink.h, s * 0.7, 0.72),
+    ground: hsl(ink.h, s * 0.6, 0.06),
+    kicker: hsl(ink.h, s * 0.9, 0.74),
+    rim: hsl(accent.h, clamp(accent.s, 0.3, 0.6), 0.74),
+  };
+}
+
+/**
+ * Studio's look: product photography. A shaped key from high on the left with a real soft shadow,
+ * a weak fill so the shadow side keeps its shape, a strong rim from behind, and a softbox
+ * environment so metal and clearcoat show crisp strip highlights instead of a satin sheen. Low
+ * ambient, so the light has a direction. Dark mode relights the set rather than recolouring it:
+ * the key swings overhead into a narrow top light (a pool on the subject), the ambient nearly goes,
+ * and a kicker and rim in the room's colours come round from behind.
+ */
+export function studioLook(palette: ObjectPalette, shot: Shot = { pitch: 14 }): ObjectLook {
+  const room = nightRoom(palette);
+  return {
+    rig: {
+      both: {
+        toneMapping: "aces",
+        exposure: 1,
+        environment: { kind: "room", intensity: 0.45, rotation: 0.35 },
+        reflections: 1,
+        hemisphere: { sky: 0xfbf6ec, ground: 0x45484a, intensity: 0.32 },
+        key: { color: 0xfff1dc, intensity: 3.6, position: [-5.5, 7, 3.5], shadow: true, shadowMapSize: 1024, shadowRadius: 5 },
+        fill: { color: 0xe6eeff, intensity: 0.22, position: [6, 1.5, 5] },
+        rim: { color: 0xf4f7ff, intensity: 3, position: [3.5, 4.5, -6] },
+      },
+      dark: {
+        exposure: 1.06,
+        environment: { kind: "softbox", intensity: 0.3 },
+        reflections: 0.62,
+        hemisphere: { sky: room.sky, ground: room.ground, intensity: 0.14 },
+        key: { color: 0xffe6c4, intensity: 3.3, position: [-1.4, 9, 1.6] },
+        fill: { color: room.kicker, intensity: 1.5, position: [-6, 1.2, -4.5] },
+        rim: { color: room.rim, intensity: 5.5, position: [6, 1.6, -5] },
+      },
     },
-    dark: {
-      exposure: 1.02,
-      environment: { intensity: 0.26 },
-      reflections: 0.5,
-      hemisphere: { sky: 0xa9c8ba, ground: 0x111a17, intensity: 0.26 },
-      key: { intensity: 2.7 },
-      fill: { color: 0x9fdcc0, intensity: 1.6, position: [-6, 1.2, -4.5] },
-      rim: { color: 0xb4ecd2, intensity: 4, position: [6, 1.4, -5] },
-    },
-  },
-  camera: { projection: "perspective", fov: 32, pitch: 14 },
-  framing: { fill: 0.78, maxWidth: 0.9, lift: 0.0 },
-  contactShadow: { spread: 1.0, opacity: 0.32 },
-};
+    camera: { projection: "perspective", fov: shot.fov ?? 32, pitch: shot.pitch },
+    framing: { fill: shot.fill ?? 0.78, maxWidth: shot.maxWidth ?? 0.9, lift: shot.lift ?? 0 },
+    contactShadow: { spread: 1.0, opacity: 0.32 },
+  };
+}
 
 /* ---------------------------------------------------------------- Materials and helpers */
 
-/** The Studio palette: graphite, anodised aluminium, one store-green accent, an amber signal. */
+/** The Studio palette: graphite, anodised aluminium, one accent, an amber signal. */
 const GRAPHITE = 0x2b2f2e,
   ALUMINIUM = 0xc9ccc6,
   AMBER = 0xe8a33d;
 
 /**
- * The night palette's accent is a light mint meant for flat CSS; on a lit part it reads as a glowing
- * pastel. Studio keeps its one green part anodised (a deep store green) in both themes.
+ * The night palette's accent is a light tint meant for flat CSS; on a lit part it reads as a glowing
+ * pastel. Studio keeps its one accent part anodised (a deep tone of the accent) in both themes.
  */
 function studioPalette(palette: ObjectPalette): ObjectPalette {
-  const { l } = new THREE.Color(palette.accent).getHSL({ h: 0, s: 0, l: 0 }, THREE.SRGBColorSpace);
+  const { l } = hslOf(palette.accent);
   return l > 0.4 ? { ...palette, accent: shade(palette.accent, -0.42) } : palette;
 }
 
-function studioMaterials(palette: ObjectPalette) {
-  return {
-    aluminium: themed(lookMaterial("brushedMetal", 0xb2b6b0, { roughness: 0.38, anisotropy: 0.35 }), {
-      dark: { color: 0x8d938e, roughness: 0.5 },
-    }),
-    satin: themed(lookMaterial("brushedMetal", 0xb8bcb6, { roughness: 0.22, anisotropy: 0.3 }), {
-      dark: { color: 0x949994, roughness: 0.36 },
-    }),
-    steel: lookMaterial("metal", 0xd9dbd6, { roughness: 0.2 }),
-    graphite: themed(lookMaterial("ceramic", GRAPHITE, { roughness: 0.55, clearcoat: 0.3, clearcoatRoughness: 0.4 }), {
-      dark: { color: 0x353b3a },
-    }),
-    keycap: themed(lookMaterial("plastic", 0x2f3433, { roughness: 0.62 }), { dark: { color: 0x3c4241, roughness: 0.5 } }),
-    rubber: lookMaterial("rubber", 0x1d2121),
-    accent: lookMaterial("ceramic", palette.accent, { roughness: 0.42, clearcoat: 0.5, clearcoatRoughness: 0.2 }),
-    glass: lookMaterial("ceramic", 0x07090a, { roughness: 0.08, clearcoat: 1, clearcoatRoughness: 0.02 }),
-    paper: themed(lookMaterial("paper", palette.paper, { grain: 3 }), { dark: { color: shade(palette.paper, -0.26) } }),
-  };
+/** Seeded noise in 0..1, the same on every render (stable screenshots). */
+function noise(seed: number) {
+  return () => (seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296;
+}
+
+function dataTexture(data: Uint8Array, size: number, repeat: [number, number]) {
+  const t = new THREE.DataTexture(data, size, size, THREE.RGBAFormat);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  t.repeat.set(...repeat);
+  t.magFilter = THREE.LinearFilter;
+  t.minFilter = THREE.LinearMipmapLinearFilter;
+  t.generateMipmaps = true;
+  t.needsUpdate = true;
+  return t;
 }
 
 /**
- * Brushed-metal grain: fine horizontal streaks as a roughness map and a matching normal map, so the
- * anisotropic highlight breaks into a grain instead of sliding over a smooth plate. Seeded, so every
- * render is the same.
+ * Brushed-metal grain: fine streaks along u as a roughness map and a matching normal map, so the
+ * anisotropic highlight breaks into a grain instead of sliding over a smooth plate.
  */
-function brushedGrain() {
-  const W = 256,
-    H = 256;
-  let seed = 0x5eed;
-  const random = () => (seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296;
-  const field = new Float32Array(W * H);
-  for (let y = 0; y < H; y++) {
+function brushedGrain(repeat: [number, number] = [1, 2], depth = 0.35) {
+  const W = 256;
+  const random = noise(0x5eed);
+  const field = new Float32Array(W * W);
+  for (let y = 0; y < W; y++) {
     const row = random();
     for (let x = 0; x < W; x++) field[y * W + x] = row * 0.7 + random() * 0.3;
   }
   // Smear along x so streaks run long.
   for (let pass = 0; pass < 3; pass++)
-    for (let y = 0; y < H; y++)
+    for (let y = 0; y < W; y++)
       for (let x = 0; x < W; x++)
         field[y * W + x] = (field[y * W + x] * 2 + field[y * W + ((x + 1) % W)] + field[y * W + ((x + W - 1) % W)]) / 4;
-  const rough = new Uint8Array(W * H * 4),
-    normal = new Uint8Array(W * H * 4);
-  for (let y = 0; y < H; y++)
+  const rough = new Uint8Array(W * W * 4),
+    normal = new Uint8Array(W * W * 4);
+  for (let y = 0; y < W; y++)
     for (let x = 0; x < W; x++) {
       const i = (y * W + x) * 4,
         v = field[y * W + x];
-      const r = Math.round(255 * (0.62 + 0.38 * v));
+      const r = Math.round(255 * (0.78 + 0.22 * v));
       rough.set([r, r, r, 255], i);
-      const dy = field[((y + 1) % H) * W + x] - field[((y + H - 1) % H) * W + x];
+      const dy = field[((y + 1) % W) * W + x] - field[((y + W - 1) % W) * W + x];
       const n = new THREE.Vector3(0, -dy * 1.6, 1).normalize();
       normal.set([128, (n.y * 0.5 + 0.5) * 255, (n.z * 0.5 + 0.5) * 255, 255], i);
     }
-  const texture = (data: Uint8Array) => {
-    const t = new THREE.DataTexture(data, W, H, THREE.RGBAFormat);
-    t.wrapS = t.wrapT = THREE.RepeatWrapping;
-    t.repeat.set(1, 2);
-    t.magFilter = THREE.LinearFilter;
-    t.minFilter = THREE.LinearMipmapLinearFilter;
-    t.generateMipmaps = true;
-    t.needsUpdate = true;
-    return t;
+  return {
+    roughnessMap: dataTexture(rough, W, repeat),
+    normalMap: dataTexture(normal, W, repeat),
+    normalScale: new THREE.Vector2(depth, depth),
   };
-  return { roughnessMap: texture(rough), normalMap: texture(normal), normalScale: new THREE.Vector2(0.35, 0.35) };
+}
+
+/**
+ * A fine isotropic stipple for moulded plastic and rubber: a bump normal map and a roughness map, so
+ * a keycap or a grip scatters the key into a soft, broken highlight instead of a satin smear.
+ */
+function stipple(repeat = 6, depth = 0.5) {
+  const W = 64;
+  const random = noise(0x57a7);
+  const field = new Float32Array(W * W).map(() => random());
+  // One blur pass: grains a couple of texels wide.
+  const soft = field.map((_, i) => {
+    const x = i % W,
+      y = Math.floor(i / W);
+    return (
+      (field[i] * 4 +
+        field[y * W + ((x + 1) % W)] +
+        field[y * W + ((x + W - 1) % W)] +
+        field[((y + 1) % W) * W + x] +
+        field[((y + W - 1) % W) * W + x]) /
+      8
+    );
+  });
+  const rough = new Uint8Array(W * W * 4),
+    normal = new Uint8Array(W * W * 4);
+  for (let y = 0; y < W; y++)
+    for (let x = 0; x < W; x++) {
+      const i = (y * W + x) * 4,
+        v = soft[y * W + x];
+      const r = Math.round(255 * (0.82 + 0.18 * v));
+      rough.set([r, r, r, 255], i);
+      const dx = soft[y * W + ((x + 1) % W)] - soft[y * W + ((x + W - 1) % W)],
+        dy = soft[((y + 1) % W) * W + x] - soft[((y + W - 1) % W) * W + x];
+      const n = new THREE.Vector3(-dx * 2, -dy * 2, 1).normalize();
+      normal.set([(n.x * 0.5 + 0.5) * 255, (n.y * 0.5 + 0.5) * 255, (n.z * 0.5 + 0.5) * 255, 255], i);
+    }
+  return {
+    roughnessMap: dataTexture(rough, W, [repeat, repeat]),
+    normalMap: dataTexture(normal, W, [repeat, repeat]),
+    normalScale: new THREE.Vector2(depth, depth),
+  };
+}
+
+/**
+ * One material per real surface, each with its own response: brushed aluminium (anisotropic, with a
+ * grain), polished chrome (near-mirror, crisp softbox strips), a clearcoat paint (a matte base under
+ * a glossy coat), moulded plastic and rubber (stippled, broken highlights), paper, and glass.
+ */
+function studioMaterials(palette: ObjectPalette) {
+  return {
+    aluminium: themed(
+      lookMaterial("brushedMetal", 0xc2c6c0, { roughness: 0.32, anisotropy: 0.75, ...brushedGrain([1, 2], 0.18) }),
+      { dark: { color: 0x9aa09b, roughness: 0.38 } },
+    ),
+    /** Bead-blasted aluminium: a fine matte metal, no direction. */
+    satin: themed(lookMaterial("brushedMetal", 0xbdc0bb, { roughness: 0.46, anisotropy: 0.15, ...stipple(10, 0.12) }), {
+      dark: { color: 0x9ca19c },
+    }),
+    steel: lookMaterial("metal", 0xe6e8e5, { roughness: 0.08 }),
+    graphite: themed(lookMaterial("ceramic", GRAPHITE, { roughness: 0.62, clearcoat: 1, clearcoatRoughness: 0.05 }), {
+      dark: { color: 0x353b3a },
+    }),
+    keycap: themed(lookMaterial("plastic", 0x2b2f2e, { roughness: 0.8, ...stipple(2, 0.35) }), {
+      dark: { color: 0x3a403f },
+    }),
+    rubber: lookMaterial("rubber", 0x1b1e1e, { roughness: 0.92, ...stipple(4, 0.8) }),
+    accent: lookMaterial("ceramic", palette.accent, { roughness: 0.4, clearcoat: 1, clearcoatRoughness: 0.04 }),
+    glass: lookMaterial("ceramic", 0x07090a, { roughness: 0.08, clearcoat: 1, clearcoatRoughness: 0.02 }),
+    paper: themed(lookMaterial("paper", palette.paper, { grain: 3 }), { dark: { color: shade(palette.paper, -0.26) } }),
+  };
 }
 
 /** Printed paper (its colour comes from the map); a little dimmer at night so it does not outshine the scene. */
@@ -138,6 +232,7 @@ const printed = (options: Parameters<typeof lookMaterial>[2]) =>
 const glow = (color: number, intensity = 1.6) =>
   lookMaterial("plastic", color, { emissive: color, emissiveIntensity: intensity, roughness: 0.3 });
 
+/** Rounded boxes: bevels wide enough to catch a highlight at card size. */
 function box(w: number, h: number, d: number, material: THREE.Material, x = 0, y = 0, z = 0, radius = 0.03) {
   const r = Math.min(radius, w / 2.01, h / 2.01, d / 2.01);
   const m = new THREE.Mesh(new RoundedBoxGeometry(w, h, d, 3, r), material);
@@ -154,23 +249,31 @@ function turned(mesh: THREE.Mesh) {
   mesh.rotation.x = Math.PI / 2;
   return mesh;
 }
-function phase(group: THREE.Group, t: number, name: string, pose: number) {
-  group.userData.phase = t >= DURATION ? "rest" : name;
-  group.userData.pose = pose;
-}
 /** A canvas colour from a numeric colour (WebGL scenes keep colours as numbers). */
 const css = (color: number) => new THREE.Color(color).getStyle();
+/** Time within a loop, always in [0, loop). */
+const wrap = (time: number, loop: number) => ((time % loop) + loop) % loop;
+/** 0 → 1 over [a, b], held, then 1 → 0 over [c, d]. */
+const envelope = (t: number, a: number, b: number, c: number, d: number) =>
+  smootherstep(progress(t, a, b)) * (1 - smootherstep(progress(t, c, d)));
+/**
+ * The product-film move: the subject turns a few degrees on a hidden turntable and back over one
+ * loop, so the key slides across its surfaces and the highlights travel, while the lens holds.
+ */
+const turntable = (group: THREE.Object3D, base: number, t: number, loop: number, amplitude = 0.12) =>
+  (group.rotation.y = base + amplitude * Math.sin((t / loop) * Math.PI * 2));
 
 /**
  * The tabletop: a shadow catcher under the subject that shows only the key's soft shadow, fading
  * out towards its rim so it never shows an edge. Excluded from framing.
  */
 function shadowFloor(radius = 2.5) {
-  const material = themed(new THREE.ShadowMaterial({ opacity: 0.26, depthWrite: false }), { dark: { opacity: 0.5 } });
+  const material = themed(new THREE.ShadowMaterial({ opacity: 0.3, depthWrite: false }), { dark: { opacity: 0.6 } });
   material.onBeforeCompile = (shader) => {
-    shader.vertexShader = shader.vertexShader
-      .replace("void main() {", "varying vec2 vFloor;\nvoid main() {\n  vFloor = uv - 0.5;")
-      .replace("#include <common>", "#include <common>");
+    shader.vertexShader = shader.vertexShader.replace(
+      "void main() {",
+      "varying vec2 vFloor;\nvoid main() {\n  vFloor = uv - 0.5;",
+    );
     shader.fragmentShader = shader.fragmentShader
       .replace("void main() {", "varying vec2 vFloor;\nvoid main() {")
       .replace(
@@ -189,22 +292,27 @@ function shadowFloor(radius = 2.5) {
 
 /** The rim's direction (from the subject towards the light): behind, above and to the right. */
 const RIM_DIRECTION = new THREE.Vector3(0.78, 0.3, -0.55).normalize();
-/** Rim colour per theme: a neutral white edge by day, the store-green room's light at night. */
-const RIM = { light: { color: 0xffffff, strength: 0.3 }, dark: { color: 0x8be0bb, strength: 1.7 } };
+/**
+ * How strongly each surface takes the rim term. Metals get their edge from the softbox strips in the
+ * environment, so they take none; matte rubber and felt take a little, gloss dielectrics the most.
+ */
+const RIM_STRENGTH: Record<string, number> = { ceramic: 1, plastic: 0.8, rubber: 0.45, felt: 0.5 };
 
 /**
  * A rim light the way a strip softbox behind the set draws one: a bright edge where a surface turns
  * away from the lens and towards the rim's side. Carried in the material's emissive colour, which
- * the shader scales by that grazing term, so `themed` can switch it per theme like any colour.
+ * the shader scales by that grazing term, so `themed` can switch it per theme like any colour:
+ * a neutral white edge by day, the room's rim colour at night.
  */
-function addRim(material: THREE.MeshStandardMaterial) {
-  if (material.userData.studioRim || material.emissiveMap || material.emissive.getHex() !== 0) return;
+function addRim(material: THREE.MeshStandardMaterial, rim: number) {
+  const weight = RIM_STRENGTH[material.userData.lookPreset as string] ?? 0;
+  if (!weight || material.userData.studioRim || material.emissiveMap || material.emissive.getHex() !== 0) return;
   material.userData.studioRim = true;
   const themes = (material.userData.themes ?? {}) as Record<string, MaterialThemeChange>;
   material.userData.themes = {
     ...themes,
-    light: { ...themes.light, emissive: RIM.light.color, emissiveIntensity: RIM.light.strength },
-    dark: { ...themes.dark, emissive: RIM.dark.color, emissiveIntensity: RIM.dark.strength },
+    light: { ...themes.light, emissive: 0xffffff, emissiveIntensity: 0.28 * weight },
+    dark: { ...themes.dark, emissive: rim, emissiveIntensity: 1.5 * weight },
   };
   material.onBeforeCompile = (shader) => {
     shader.uniforms.studioRimDirection = { value: RIM_DIRECTION };
@@ -227,10 +335,12 @@ function addRim(material: THREE.MeshStandardMaterial) {
 /**
  * The seamless sweep: a floor that curves up into a back wall, never drawn as a surface (the card is
  * the paper), only as light on it. One layer darkens the paper away from the subject, the key's
- * falloff; the other is the pool of light on the sweep behind the subject, which the rim-lit
- * silhouette cuts against. Both fade by distance in 3D, so the curve has no seam.
+ * falloff; the other is the pool of light on the sweep behind the subject at night, in the room's
+ * colour, which the rim-lit silhouette cuts against. Both fade by distance in 3D, so the curve has
+ * no seam.
  */
-function sweep() {
+function sweep(palette: ObjectPalette) {
+  const room = nightRoom(palette);
   const WALL = -3.6,
     BEND = 1.6;
   const profile: THREE.Vector2[] = [];
@@ -281,17 +391,26 @@ function sweep() {
   group.name = "studio-sweep";
   group.userData.frameIgnore = true;
   group.add(
-    layer("smoothstep( 3.5, 10.0, r )", { light: { color: 0x6f6658, opacity: 0.1 }, dark: { color: 0x020504, opacity: 0.55 } }),
-    layer("pow( 1.0 - smoothstep( 0.0, 4.6, r ), 1.6 )", {
+    layer("smoothstep( 3.0, 9.0, r )", { light: { color: 0x5f5a52, opacity: 0.14 }, dark: { color: room.shadow, opacity: 0.7 } }),
+    layer("pow( 1.0 - smoothstep( 0.0, 4.4, r ), 1.5 )", {
       light: { color: 0xffffff, opacity: 0 },
-      dark: { color: 0x3f705b, opacity: 0.6 },
+      dark: { color: room.pool, opacity: 0.7 },
     }),
+    // The night key's pool on the tabletop under the subject: warm, tight, only on the floor.
+    layer(
+      `( 1.0 - smoothstep( ${(FLOOR + 0.05).toFixed(2)}, ${(FLOOR + 0.6).toFixed(2)}, vSweep.y ) ) * pow( 1.0 - smoothstep( 0.0, 3.2, length( vSweep.xz - vec2( 0.0, 0.2 ) ) ), 1.6 )`,
+      { light: { color: 0xffffff, opacity: 0 }, dark: { color: 0xffe2bd, opacity: 0.32 } },
+    ),
   );
   return group;
 }
 
-/** Every subject mesh casts and receives the key's shadow, except glowing parts; every lit surface takes the rim. */
-function finish(root: THREE.Group, look: ObjectLook = studioLook) {
+/**
+ * Every subject mesh casts and receives the key's shadow, except glowing parts; every lit surface
+ * takes the rim at its own strength. Adds the sweep and the tabletop, and the subject's look.
+ */
+function finish(root: THREE.Group, palette: ObjectPalette, shot: Shot, change: Partial<ObjectLook> = {}) {
+  const rim = nightRoom(palette).rim;
   root.traverse((item) => {
     const mesh = item as THREE.Mesh;
     if (!mesh.isMesh || item.userData.frameIgnore) return;
@@ -301,17 +420,12 @@ function finish(root: THREE.Group, look: ObjectLook = studioLook) {
     mesh.receiveShadow = !glowing && item.userData.receive !== false;
     if (glowing) return;
     for (const material of Array.isArray(mesh.material) ? mesh.material : [mesh.material])
-      // Paper is matte and flat-on: a rim on it only greys the print.
-      if (
-        (material as THREE.MeshStandardMaterial).isMeshStandardMaterial &&
-        material.userData.lookPreset &&
-        material.userData.lookPreset !== "paper"
-      )
-        addRim(material as THREE.MeshStandardMaterial);
+      if ((material as THREE.MeshStandardMaterial).isMeshStandardMaterial && material.userData.lookPreset)
+        addRim(material as THREE.MeshStandardMaterial, rim);
   });
-  root.add(sweep(), shadowFloor());
+  root.add(sweep(palette), shadowFloor());
   root.userData.style = "studio";
-  root.userData.look = look;
+  root.userData.look = { ...studioLook(palette, shot), ...change };
   return root;
 }
 
@@ -337,7 +451,13 @@ const BALL_R = 0.13;
 /** The racket, long axis along +x from the butt, string bed in its local xz plane. */
 function racket(mat: ReturnType<typeof studioMaterials>) {
   const group = new THREE.Group();
-  const frameMaterial = lookMaterial("ceramic", GRAPHITE, { roughness: 0.3, clearcoat: 1, clearcoatRoughness: 0.08 });
+  // Gloss-painted graphite: a matte carbon base under a hard clearcoat that takes the strip highlights.
+  const frameMaterial = lookMaterial("ceramic", GRAPHITE, {
+    roughness: 0.5,
+    clearcoat: 1,
+    clearcoatRoughness: 0.03,
+    envMapIntensity: 0.5,
+  });
   const cx = 1.86,
     a = 0.62,
     b = 0.47;
@@ -378,7 +498,7 @@ function racket(mat: ReturnType<typeof studioMaterials>) {
   bridge.scale.y = 1.3;
   group.add(bridge);
   // Strings: mains along the racket, crosses across it, inside the frame.
-  const stringMaterial = lookMaterial("plastic", 0xece6d2, { roughness: 0.45 });
+  const stringMaterial = lookMaterial("plastic", 0xece6d2, { roughness: 0.6 });
   const strings: THREE.Matrix4[] = [];
   const innerA = a - 0.03,
     innerB = b - 0.03;
@@ -399,7 +519,7 @@ function racket(mat: ReturnType<typeof studioMaterials>) {
   shaft.rotation.z = Math.PI / 2;
   shaft.scale.z = 1.35;
   group.add(shaft);
-  const gripMaterial = lookMaterial("rubber", 0xeeebe2, { roughness: 0.8 });
+  const gripMaterial = lookMaterial("rubber", 0xeeebe2, { roughness: 0.82, ...stipple(3, 0.6) });
   const grip = cylinder(0.066, 0.58, gripMaterial, 0.27, 0, 0, 8);
   grip.rotation.z = Math.PI / 2;
   grip.rotation.x = Math.PI / 8;
@@ -473,11 +593,13 @@ export async function tennis(sourcePalette: ObjectPalette, edition: ObjectEditio
     return pivot;
   };
 
-  // The ball can, lying on its side with its open end towards the lens and a ball in its mouth.
+  // The ball can, lying on its side with its open end towards the lens. It rests on its lid and
+  // its rolled rim, which stand a little proud of the body, so it sits on two rings.
   const can = new THREE.Group();
   const canR = 0.155,
-    canL = 0.92;
-  can.position.set(1.1, FLOOR + canR, -0.15);
+    canL = 0.92,
+    LIP = 0.012;
+  can.position.set(1.1, FLOOR + canR + LIP, -0.15);
   can.rotation.y = 1.15;
   set.add(can);
   const body = new THREE.Mesh(new THREE.CylinderGeometry(canR, canR, canL, 40, 1, true), mat.aluminium);
@@ -485,37 +607,77 @@ export async function tennis(sourcePalette: ObjectPalette, edition: ObjectEditio
   can.add(body);
   const inside = new THREE.Mesh(
     new THREE.CylinderGeometry(canR - 0.008, canR - 0.008, canL, 40, 1, true),
-    themed(lookMaterial("plastic", 0x1f2423, { side: THREE.BackSide, roughness: 0.7 }), {}),
+    lookMaterial("plastic", 0x1f2423, { side: THREE.BackSide, roughness: 0.7 }),
   );
   inside.rotation.x = Math.PI / 2;
   can.add(inside);
-  const label = new THREE.Mesh(new THREE.CylinderGeometry(canR + 0.004, canR + 0.004, 0.42, 40, 1, true), mat.accent);
+  const label = new THREE.Mesh(new THREE.CylinderGeometry(canR + 0.003, canR + 0.003, 0.42, 40, 1, true), mat.accent);
   label.rotation.x = Math.PI / 2;
   label.position.z = -0.05;
+  // A sleeve 3mm proud of the body: at the key's grazing angle it would only show shadow acne.
+  label.userData.receive = false;
   can.add(label);
-  const lid = cylinder(canR + 0.012, 0.05, mat.graphite, 0, 0, -canL / 2 - 0.02, 40);
+  const lid = cylinder(canR + LIP, 0.05, mat.graphite, 0, 0, -canL / 2 - 0.02, 40);
   lid.rotation.x = Math.PI / 2;
   can.add(lid);
-  const rim = new THREE.Mesh(new THREE.TorusGeometry(canR, 0.012, 8, 40), mat.steel);
+  const rim = new THREE.Mesh(new THREE.TorusGeometry(canR, LIP, 10, 40), mat.steel);
   rim.position.z = canL / 2;
   can.add(rim);
-  const inMouth = makeBall();
-  inMouth.position.set(0, -canR + BALL_R + 0.012, canL / 2 - 0.06);
-  inMouth.rotation.set(0.4, 1.1, 0.2);
-  can.add(inMouth);
+  // The second ball has rolled out of the open mouth and come to rest on the table beside it.
   const spare = makeBall();
-  spare.position.set(1.0, FLOOR + BALL_R, 0.62);
+  const rolled = new THREE.Vector3(0.12, 0, canL / 2 + BALL_R + 0.08).applyEuler(can.rotation).add(can.position);
+  spare.position.set(rolled.x, FLOOR + BALL_R, rolled.z);
   spare.rotation.set(1.2, 0.3, 0.6);
   set.add(spare);
 
-  // The racket rests its throat on the floor and its head across the can.
+  // The racket rests with real contact: its butt cap on the table and its frame on the can's body
+  // (never the strings). Found by tilting the racket up from level until no part of it is inside
+  // the can, with the lowest point always on the table.
   const { group: frame, head } = racket(mat);
+  frame.updateMatrixWorld(true);
+  const points: THREE.Vector3[] = [];
+  frame.traverse((item) => {
+    const m = item as THREE.Mesh;
+    if (!m.isMesh || (m as THREE.InstancedMesh).isInstancedMesh) return;
+    const position = m.geometry.attributes.position;
+    const step = Math.max(1, Math.floor(position.count / 1200));
+    for (let i = 0; i < position.count; i += step)
+      points.push(new THREE.Vector3().fromBufferAttribute(position, i).applyMatrix4(m.matrixWorld));
+  });
   const pivot = new THREE.Group();
-  pivot.position.set(-1.45, FLOOR + 0.06, 0.25);
+  pivot.position.set(-1.45, 0, 0.25);
   pivot.rotation.y = 0.18;
   set.add(pivot);
   pivot.add(frame);
-  const tilt = Math.asin((2 * canR - 0.04) / 2.25);
+  can.updateMatrix();
+  const intoCan = can.matrix.clone().invert();
+  const tiltMatrix = new THREE.Matrix4(),
+    placed = new THREE.Matrix4(),
+    probe = new THREE.Vector3();
+  const reach = canR + LIP + 0.004;
+  let tilt = -0.08,
+    lowest = new THREE.Vector3();
+  for (; tilt < 0.6; tilt += 0.0015) {
+    tiltMatrix.makeRotationZ(tilt);
+    let low = Infinity;
+    for (const q of points) {
+      probe.copy(q).applyMatrix4(tiltMatrix);
+      if (probe.y < low) {
+        low = probe.y;
+        lowest = q;
+      }
+    }
+    pivot.position.y = FLOOR - low;
+    pivot.updateMatrix();
+    placed.multiplyMatrices(pivot.matrix, tiltMatrix);
+    // The racket must rest on its butt (the head may also touch the table, when the can is clear).
+    if (lowest.x > 0.4) continue;
+    const inside = points.some((q) => {
+      probe.copy(q).applyMatrix4(placed).applyMatrix4(intoCan);
+      return Math.abs(probe.z) < canL / 2 + 0.03 && probe.x * probe.x + probe.y * probe.y < reach * reach;
+    });
+    if (!inside) break;
+  }
   frame.rotation.z = tilt;
   // The bouncing ball, its contact point on the string bed under the head's centre.
   const ball = makeBall();
@@ -531,10 +693,10 @@ export async function tennis(sourcePalette: ObjectPalette, edition: ObjectEditio
     shadow.rotation.z = angle;
     set.add(shadow);
   };
-  blob(canR * 3.2, canL * 1.25, can.position.x, can.position.z, can.rotation.y, 0.55);
-  blob(BALL_R * 3.4, BALL_R * 3.4, spare.position.x, spare.position.z);
-  const butt = new THREE.Vector3(0.2, 0, 0).applyMatrix4(frame.matrix).applyMatrix4(pivot.matrix);
-  blob(0.75, 0.32, butt.x, butt.z, pivot.rotation.y + Math.PI / 2, 0.4);
+  blob(canR * 3, canL * 1.2, can.position.x, can.position.z, can.rotation.y, 0.55);
+  blob(BALL_R * 3.2, BALL_R * 3.2, spare.position.x, spare.position.z, 0, 0.6);
+  const butt = new THREE.Vector3(0.1, 0, 0).applyMatrix4(frame.matrix).applyMatrix4(pivot.matrix);
+  blob(0.6, 0.3, butt.x, butt.z, pivot.rotation.y + Math.PI / 2, 0.45);
   // Drop the unused parts of the model.
   model.scene.traverse((item) => {
     const m = item as THREE.Mesh;
@@ -557,8 +719,9 @@ export async function tennis(sourcePalette: ObjectPalette, edition: ObjectEditio
   root.userData.ball = ball;
   root.userData.racket = frame;
   root.userData.animate = (time: number) => {
-    const t = ((time % LOOP) + LOOP) % LOOP;
-    const s = (((t - FIRST) % BOUNCE) + BOUNCE) % BOUNCE;
+    const t = wrap(time, LOOP);
+    turntable(set, -0.38, t, LOOP, 0.1);
+    const s = wrap(t - FIRST, BOUNCE);
     const u = s / BOUNCE;
     ball.position.set(contact.x, contact.y + APEX * 4 * u * (1 - u), contact.z);
     // Squash for 70ms either side of contact; the string bed gives under it.
@@ -566,13 +729,13 @@ export async function tennis(sourcePalette: ObjectPalette, edition: ObjectEditio
     const squash = Math.max(0, 1 - near / 70) ** 2;
     ball.scale.set(1 + 0.12 * squash, 1 - 0.2 * squash, 1 + 0.12 * squash);
     ball.rotation.set((t / LOOP) * Math.PI * 4, 0.5, (t / LOOP) * Math.PI * 2);
-    // The racket answers each strike with a small damped recoil on its throat.
-    const since = s;
-    frame.rotation.z = tilt - 0.01 * Math.sin(since / 22) * Math.exp(-since / 110);
+    // The racket answers each strike with a small damped shiver that only lifts it off the can.
+    frame.rotation.z = tilt + 0.012 * Math.sin(s / 22) ** 2 * Math.exp(-s / 110);
     root.userData.phase = u < 0.5 ? "rise" : "fall";
     root.userData.pose = t / LOOP;
   };
-  return finish(root, { ...studioLook, contactShadow: false });
+  // Low and close along the table, so the can and the racket's head read as a still life.
+  return finish(root, palette, { pitch: 10, fov: 30, fill: 0.8 }, { contactShadow: false });
 }
 
 /* ---------------------------------------------------------------- Trading: a market abacus */
@@ -607,7 +770,8 @@ export function trading(sourcePalette: ObjectPalette, edition: ObjectEdition = 0
   rodMesh.userData.receive = false;
   desk.add(rodMesh);
   // Wicks (a sleeve from low to high) and bodies (a bead from open to close) slide on the rods.
-  const wickMaterial = lookMaterial("plastic", 0x5b625f, { roughness: 0.4 });
+  // Wicks are gunmetal sleeves; bodies are glazed beads (a white glaze tinted per bead).
+  const wickMaterial = lookMaterial("metal", 0x6d7270, { roughness: 0.28 });
   const wicks = instanced(new THREE.CylinderGeometry(0.034, 0.034, 1, 12), wickMaterial, rods);
   const bodyMaterial = lookMaterial("ceramic", 0xffffff, { roughness: 0.35, clearcoat: 0.8, clearcoatRoughness: 0.1 });
   const bodies = instanced(new THREE.CylinderGeometry(0.108, 0.108, 1, 28), bodyMaterial, rods);
@@ -633,7 +797,8 @@ export function trading(sourcePalette: ObjectPalette, edition: ObjectEdition = 0
   root.userData.restTime = 3600;
   root.userData.marketBar = (index: number) => marketBar(index, edition);
   root.userData.animate = (time: number) => {
-    const t = ((time % MARKET_LOOP_MS) + MARKET_LOOP_MS) % MARKET_LOOP_MS;
+    const t = wrap(time, MARKET_LOOP_MS);
+    turntable(desk, 0.42, t, MARKET_LOOP_MS, 0.12);
     const offset = t / MARKET_BAR_MS,
       first = Math.floor(offset),
       fraction = offset - first;
@@ -676,7 +841,8 @@ export function trading(sourcePalette: ObjectPalette, edition: ObjectEdition = 0
     root.userData.pose = t / MARKET_LOOP_MS;
     root.userData.scroll = offset;
   };
-  return finish(root);
+  // Higher and three-quarter, so the rods read as a row receding and the beads stack in depth.
+  return finish(root, palette, { pitch: 19, fov: 30, fill: 0.74, maxWidth: 0.92 });
 }
 
 /* ---------------------------------------------------------------- Server: inference hardware */
@@ -857,32 +1023,58 @@ export function server(sourcePalette: ObjectPalette) {
   root.add(ledMesh);
   ledMesh.frustumCulled = false;
   const ledScratch = new THREE.Matrix4();
+  // A hot swap, looped: the running rack powers down its compute sled, slides it out on its rails,
+  // holds it for the lens, seats it again and powers it back up while the drives and links blink.
+  const LOOP = 8000;
+  const power = (t: number) => 1 - envelope(t, 1000, 1400, 5000, 5600);
+  const pull = (t: number) => envelope(t, 1400, 2600, 3800, 5000);
+  // The fans' angle is the integral of their speed (they spin down and up with power), scaled so a
+  // loop turns them a whole number of times and the wrap is seamless.
+  const STEP = 10,
+    spin: number[] = [0];
+  for (let t = STEP; t <= LOOP; t += STEP) spin.push(spin[spin.length - 1] + power(t - STEP / 2) * STEP);
+  const turns = Math.PI * 2 * Math.round((spin[spin.length - 1] / LOOP) * 8);
+  const fanAngle = (t: number) => {
+    const i = Math.min(spin.length - 2, Math.floor(t / STEP));
+    return (lerp(spin[i], spin[i + 1], t / STEP - i) / spin[spin.length - 1]) * turns;
+  };
+  const colourOf = ledColours.map((c) => new THREE.Color(c).multiplyScalar(1.25));
+  root.userData.loopDuration = LOOP;
+  root.userData.restTime = 600;
   root.userData.animate = (time: number) => {
-    const t = Math.min(time, DURATION);
+    const t = wrap(time, LOOP);
+    turntable(rack, -0.55, t, LOOP, 0.12);
+    const on = power(t),
+      out = pull(t);
     units.forEach((unit, i) => {
-      const q = smootherstep(progress(t, 180 + i * 650, 1500 + i * 650));
-      unit.position.z = lerp(1.1, 0, q);
-      unit.position.y = unit.userData.y + 0.05 * Math.sin(q * Math.PI);
+      unit.position.z = i === 1 ? 0.62 * out : 0;
+      unit.position.y = unit.userData.y + (i === 1 ? 0.012 * Math.sin(out * Math.PI) : 0);
     });
-    const power = smootherstep(progress(t, 2800, 4200));
-    fans.forEach((fan, i) => (fan.rotation.z = -power * (Math.PI * 4 + i * 0.6)));
-    rack.updateMatrixWorld(true);
+    const angle = fanAngle(t);
+    fans.forEach((fan, i) => (fan.rotation.z = -(angle + i * 0.6)));
+    rack.updateMatrix();
     ledMatrices.forEach((matrix, n) => {
+      unitOf(n).updateMatrix();
       ledMesh.setMatrixAt(n, ledScratch.multiplyMatrices(rack.matrix, unitOf(n).matrix).multiply(matrix));
-      const lit = smootherstep(progress(t, 2800 + n * 45, 3100 + n * 45));
-      ledMesh.setColorAt(n, ledColour.copy(off).lerp(new THREE.Color(ledColours[n]).multiplyScalar(1.25), lit));
+      const unit = ledUnit[n];
+      const phaseN = (t / LOOP) * Math.PI * 2;
+      const lit =
+        unit === 1
+          ? on
+          : unit === 0
+            ? 0.55 + 0.45 * Math.sin(phaseN * (6 + n) + n * 1.7)
+            : 0.65 + 0.35 * Math.sin(phaseN * (11 + (n % 4)) + n);
+      ledMesh.setColorAt(n, ledColour.copy(off).lerp(colourOf[n], lit));
     });
     ledMesh.instanceMatrix.needsUpdate = true;
     if (ledMesh.instanceColor) ledMesh.instanceColor.needsUpdate = true;
     ledMesh.computeBoundingBox();
-    phase(
-      root,
-      t,
-      t < 1500 ? "place-chassis" : t < 2450 ? "place-compute" : t < 3550 ? "place-memory" : "bandwidth-check",
-      progress(t, 180, 4200),
-    );
+    root.userData.phase =
+      t < 1400 ? "running" : t < 2600 ? "pull-compute" : t < 3800 ? "hot-swap" : t < 5000 ? "seat-compute" : "power-up";
+    root.userData.pose = t / LOOP;
   };
-  return finish(root);
+  // The lowest lens of the set, nearly level with the rack: a heroic hardware shot.
+  return finish(root, palette, { pitch: 5, fov: 32, fill: 0.8 });
 }
 
 /* ---------------------------------------------------------------- Travel: a folded atlas on the sweep */
@@ -1156,9 +1348,13 @@ export function travel(sourcePalette: ObjectPalette, edition: ObjectEdition = 0)
 
   // Pins: a graphite one at the start, and the accent one that travels the route. Each is pushed
   // into the paper: a short needle, the head close to the sheet, and a soft seat where it enters.
-  const pin = (head: THREE.Material) => {
+  const pin = (color: number) => {
     const group = new THREE.Group();
-    group.add(turned(cylinder(0.011, 0.11, mat.steel, 0, 0, 0.05, 8)));
+    // Each pin owns its materials, so it can fade as it is pulled out at the end of the take.
+    const needle = lookMaterial("metal", 0xe6e8e5, { roughness: 0.08, transparent: true });
+    const head = lookMaterial("ceramic", color, { roughness: 0.4, clearcoat: 1, clearcoatRoughness: 0.04, transparent: true });
+    group.userData.materials = [needle, head];
+    group.add(turned(cylinder(0.011, 0.11, needle, 0, 0, 0.05, 8)));
     const collar = cylinder(0.045, 0.04, head, 0, 0, 0.1, 20);
     collar.rotation.x = Math.PI / 2;
     group.add(collar);
@@ -1172,9 +1368,11 @@ export function travel(sourcePalette: ObjectPalette, edition: ObjectEdition = 0)
     map.add(group);
     return group;
   };
-  const start = pin(mat.graphite);
-  const traveller = pin(mat.accent);
-  const place = (object: THREE.Object3D, u: number, lift: number) => {
+  const start = pin(GRAPHITE);
+  const traveller = pin(palette.accent);
+  const place = (object: THREE.Object3D, u: number, lift: number, fade = 1) => {
+    object.visible = fade > 0.001;
+    for (const material of object.userData.materials as THREE.Material[]) material.opacity = fade;
     const p = flat.getPointAt(clamp(u));
     const panel = panelOf(p.x);
     const fold = folds[panel];
@@ -1184,7 +1382,7 @@ export function travel(sourcePalette: ObjectPalette, edition: ObjectEdition = 0)
     // The seat stays on the paper while the pin hovers, fainter until it is pushed home.
     const seat = object.userData.seat as THREE.Mesh<THREE.BufferGeometry, THREE.MeshBasicMaterial>;
     seat.position.z = T / 2 + 0.002 - lift;
-    seat.material.opacity = 0.55 * (1 - lift / 0.12);
+    seat.material.opacity = 0.55 * clamp(1 - lift / 0.12) * fade;
   };
   /**
    * Pose the sheet from the middle panel's angle `phi` to the table (0: lying face down on the near
@@ -1205,24 +1403,34 @@ export function travel(sourcePalette: ObjectPalette, edition: ObjectEdition = 0)
     folds[2].rotation.y = Math.min(Math.PI - 0.03, 2 * (Math.PI - phi));
   };
   root.userData.mapFolds = folds;
+  // One take, looped: the map unfolds into a tent, the route draws across it and the pin is pushed
+  // home; then the pins are pulled, the ink retracts and the map folds shut for the next take.
+  const LOOP = 10000;
+  root.userData.loopDuration = LOOP;
+  root.userData.restTime = 6000;
   root.userData.animate = (time: number) => {
-    const t = Math.min(time, DURATION);
-    const lift = smootherstep(progress(t, 150, 1650));
+    const t = wrap(time, LOOP);
+    turntable(stage, -0.38, t, LOOP, 0.12);
+    const lift = smootherstep(progress(t, 150, 1650)) * (1 - smootherstep(progress(t, 8400, 9800)));
     pose(lerp(0.04, STAND, lift));
-    propMaterial.opacity = 0.5 * smootherstep(progress(t, 1350, 1650));
-    const draw = smootherstep(progress(t, 1700, 4650));
+    propMaterial.opacity = 0.5 * envelope(t, 1350, 1650, 8400, 8700);
+    const draw = smootherstep(progress(t, 1700, 4650)) * (1 - smootherstep(progress(t, 7700, 8400)));
     for (const { mesh, from, to } of pieces) {
       const share = clamp((draw - from) / (to - from));
       const count = mesh.geometry.index!.count;
       mesh.geometry.setDrawRange(0, Math.floor((share * count) / 6) * 6);
       mesh.visible = share > 0;
     }
-    const visible = t >= 1650;
-    start.visible = traveller.visible = visible;
-    place(start, 0, 0);
+    const fade = envelope(t, 1650, 1900, 7300, 7700);
+    const pull = 0.25 * smootherstep(progress(t, 7200, 7700));
+    place(start, 0, lerp(0.09, 0, smootherstep(progress(t, 1650, 1950))) + pull, fade);
     const push = smootherstep(progress(t, 4650, 5100));
-    place(traveller, draw, lerp(0.09, 0, push));
-    phase(root, t, t < 1650 ? "unfold-map" : t < 4650 ? "draw-route" : "arrive", draw);
+    place(traveller, draw, lerp(0.09, 0, push) + pull, fade);
+    root.userData.phase = t < 1650 ? "unfold-map" : t < 4650 ? "draw-route" : t < 7200 ? "arrive" : "fold-map";
+    root.userData.pose = t / LOOP;
   };
-  return finish(root);
+  // A higher three-quarter, so the flat panel reads as a map and the standing one as a tent.
+  // The sheet changes footprint through the take, so it is grounded by the key's live shadow and its
+  // own crease occlusion, not a baked ellipse from the rest pose.
+  return finish(root, palette, { pitch: 24, fov: 30, fill: 0.8 }, { contactShadow: false });
 }
