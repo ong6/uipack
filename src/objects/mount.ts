@@ -9,7 +9,7 @@ import { REDUCED_MOTION_QUERY } from "../env";
 
 const REST_START_MS = 5400;
 const MOBILE_FRAME_MS = 1000 / 30;
-/** A phone-width stage: capped at 30 frames a second, with a lighter shadow map (look.ts). */
+/** A phone-width stage: capped at 30 frames a second, a lighter shadow map (look.ts), multisampling per look. */
 const PHONE_QUERY = "(max-width: 767px)";
 
 /** The stage's state, owned by the component and read by the scene on every frame. */
@@ -114,19 +114,8 @@ export function mountObjectScene(canvas: HTMLCanvasElement, options: ObjectScene
       if (disposed) return;
       materialTextures = look.materialTextures;
       try {
-        const gl = new THREE.WebGLRenderer({
-          canvas,
-          alpha: true,
-          antialias: true,
-          powerPreference: "default",
-        });
-        renderer = gl;
-        gl.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
-        gl.outputColorSpace = THREE.SRGBColorSpace;
-        const world = new THREE.Scene();
-        scene = world;
         const object = await createObject(kind, colors, variant, edition, modelUrl);
-        if (disposed || contextLost) {
+        if (disposed) {
           disposeObject(object);
           return;
         }
@@ -139,7 +128,24 @@ export function mountObjectScene(canvas: HTMLCanvasElement, options: ObjectScene
           contactShadow,
           castShadows,
           transmissionBackdrop,
+          phoneMultisample,
         } = look.resolveLook(object.userData.look, theme);
+        const phone = window.matchMedia(PHONE_QUERY).matches;
+        const gl = new THREE.WebGLRenderer({
+          canvas,
+          alpha: true,
+          antialias: !phone || phoneMultisample,
+          powerPreference: "default",
+        });
+        renderer = gl;
+        gl.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+        gl.outputColorSpace = THREE.SRGBColorSpace;
+        const world = new THREE.Scene();
+        scene = world;
+        if (contextLost) {
+          disposeObject(object);
+          return;
+        }
         environment = (await look.buildEnvironment(gl, rig)) ?? undefined;
         if (disposed || contextLost) {
           disposeObject(object);
@@ -168,7 +174,6 @@ export function mountObjectScene(canvas: HTMLCanvasElement, options: ObjectScene
           look.addContactShadow(object, contactShadow);
         }
         world.add(object);
-        const phone = window.matchMedia(PHONE_QUERY).matches;
         look.addRigLights(world, rig, phone);
 
         // Framing: measure the subject once (over its loop when it loops), then fit on every resize.

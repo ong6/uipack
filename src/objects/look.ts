@@ -122,6 +122,12 @@ export interface ObjectLook {
    * turns into a white blob on a transparent canvas.
    */
   transmissionBackdrop?: Partial<Record<LookTheme, number>>;
+  /**
+   * False: a phone-width stage renders without multisampling. For a look whose every pixel is
+   * costly (Realistic's lit, shadowed set), where the resolve doubled the frame on software WebGL
+   * and a phone's 1.5x pixel ratio leaves its edges barely stepped. Default true.
+   */
+  phoneMultisample?: boolean;
 }
 
 export interface ResolvedLook {
@@ -131,6 +137,7 @@ export interface ResolvedLook {
   contactShadow: (Required<Omit<ContactShadowOptions, "y">> & { y?: number }) | false;
   castShadows: boolean;
   transmissionBackdrop: number;
+  phoneMultisample: boolean;
 }
 
 function merge<T>(base: T, patch: DeepPartial<T> | undefined): T {
@@ -161,6 +168,7 @@ export function resolveLook(look: ObjectLook | undefined, theme: LookTheme): Res
       : false,
     castShadows: Boolean(look?.castShadows),
     transmissionBackdrop: look?.transmissionBackdrop?.[theme] ?? (theme === "dark" ? 0x1c2433 : 0xeceee9),
+    phoneMultisample: look?.phoneMultisample ?? true,
   };
 }
 

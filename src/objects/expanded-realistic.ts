@@ -62,6 +62,7 @@ export const realisticLook: ObjectLook = {
   camera: { projection: "perspective", fov: 20, pitch: 15 },
   framing: { fill: 0.8, maxWidth: 0.98, lift: -0.03, sample: "loop" },
   castShadows: true,
+  phoneMultisample: false,
 };
 
 /* ---------------------------------------------------------------- Surfaces */
