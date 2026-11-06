@@ -1,5 +1,5 @@
-export { F as Figure, a as FigureProps } from './Figure-zeZP8muA.cjs';
-export { S as StyleBootOptions, a as StyleBootPlugin, U as UiStyleId, b as UiStyleMeta, i as isUiStyle, r as readStyle, s as sectionOrder, c as sharedSectionOrder, d as styleBootPlugin, e as styleBootScript, u as uiStyles } from './style-CXShTJR9.cjs';
+export { F as Figure, a as FigureProps } from './Figure-BF4fCFY_.cjs';
+export { S as StyleBootOptions, a as StyleBootPlugin, U as UiStyleId, b as UiStyleMeta, i as isUiStyle, r as readStyle, s as sectionOrder, c as sharedSectionOrder, d as styleBootPlugin, e as styleBootScript, u as uiStyles } from './style-oR-5TVuD.cjs';
 import { T as TokenKind, a as TokenShape, L as LegendItem } from './Legend-n6GikDm_.cjs';
 export { b as Legend, c as LegendProps, d as TOKEN_SHAPE, e as Token, f as TokenProps, t as tokenColor } from './Legend-n6GikDm_.cjs';
 import * as react from 'react';
