@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { Eyebrow, Heading, Subhead } from "./Text";
 import { NoiseLayer, StarChart } from "./motif";
 
@@ -18,6 +18,12 @@ export interface StarHeroProps {
   values?: number[];
   /** Below the copy, e.g. a DemoPlayer that proves the claim. */
   children?: ReactNode;
+  /**
+   * The product itself, shown above `children` in the proof column: a `ProductShot` framing a
+   * photo, a render or a role-painted illustration (a thermal frame, the device, the label). Use
+   * it whenever the product is physical or visual, so the hero shows the thing next to its output.
+   */
+  media?: ReactNode;
   /** Noise opacity; 0 turns it off. */
   noise?: number;
   headingId?: string;
@@ -31,11 +37,20 @@ export interface StarHeroProps {
   layout?: "stack" | "split";
   /**
    * One short fact the page proves (a measured number and a few words, e.g. `{ value: "18%",
-   * label: "lower postage" }`), worn as the style's stamp (Technical's
-   * revision tag). It belongs to the copy: under the actions in a split
-   * hero and on a phone, on the empty end side of a stacked hero's headline. Never on the product.
+   * label: "lower postage" }`), worn as the style's stamp (Technical's revision tag). Split hero:
+   * stuck on the proof's top-end corner (the media's, if there is one; keep that corner of the
+   * visual quiet). Stacked hero: on the empty end side of the headline. Below 1024px: a one-line
+   * strip. Keep the value to 4 characters ("64%", "£40", "3×") and the label to about 28 characters
+   * (three short lines); the stamp sizes its figure to the value and clamps the label at three lines.
    */
   stamp?: { value: ReactNode; label: ReactNode };
+  /**
+   * Two or three plain facts under the actions, as a ruled row (value, then a few words): the
+   * price, the time it takes, what it works with, e.g. `{ value: "£40", label: "one-off, app
+   * included" }`. They fill the copy column of a split hero, whose proof is taller than the copy.
+   * Not the stamp's number again: each fact once on the page.
+   */
+  facts?: { value: ReactNode; label: ReactNode }[];
 }
 
 /**
@@ -55,14 +70,19 @@ export function StarHero({
   align = "start",
   layout = "stack",
   stamp,
+  media,
+  facts,
 }: StarHeroProps) {
-  const backdrop = visual ?? (children ? null : <StarChart values={values} />);
+  const hasProof = Boolean(children || media);
+  const backdrop = visual ?? (hasProof ? null : <StarChart values={values} />);
+  // A split hero sticks the stamp on the proof's corner; otherwise it belongs to the copy.
+  const stampOnProof = Boolean(stamp && layout === "split" && hasProof);
   return (
     <section
       className="uipack-web-hero"
       data-align={align}
       data-layout={layout}
-      data-has-proof={children ? "" : undefined}
+      data-has-proof={hasProof ? "" : undefined}
       aria-labelledby={headingId}
     >
       {/* The backdrop ornament slot: empty here, painted by the style (--ui-backdrop). */}
@@ -76,16 +96,39 @@ export function StarHero({
         </Heading>
         {subtitle && <Subhead>{subtitle}</Subhead>}
         {actions && <div className="uipack-web-hero__actions">{actions}</div>}
-        {stamp && <Stamp {...stamp} />}
+        {facts && facts.length > 0 && (
+          <dl className="uipack-web-hero__facts">
+            {facts.slice(0, 3).map((f, i) => (
+              <div key={i}>
+                <dt>{f.label}</dt>
+                <dd>{f.value}</dd>
+              </div>
+            ))}
+          </dl>
+        )}
+        {stamp && !stampOnProof && <Stamp {...stamp} />}
       </div>
-      {children && <div className="uipack-web-hero__proof">{children}</div>}
+      {hasProof && (
+        <div className="uipack-web-hero__proof" data-stamped={stampOnProof ? "" : undefined}>
+          {stamp && stampOnProof && <Stamp {...stamp} />}
+          {media && <div className="uipack-web-hero__media">{media}</div>}
+          {children}
+        </div>
+      )}
     </section>
   );
 }
 
+const DEV = typeof process !== "undefined" && process.env.NODE_ENV !== "production";
+
 function Stamp({ value, label }: { value: ReactNode; label: ReactNode }) {
+  const len = typeof value === "string" || typeof value === "number" ? String(value).length : 3;
+  if (DEV && typeof label === "string" && label.length > 32)
+    console.warn(
+      `uipack/web: StarHero stamp label "${label}" is ${label.length} characters; keep it to about 28 (three short lines), or it is clamped.`,
+    );
   return (
-    <p className="uipack-web-hero__stamp">
+    <p className="uipack-web-hero__stamp" style={{ "--stamp-len": Math.max(2, len) } as CSSProperties}>
       <span className="uipack-web-hero__stamp-value">{value}</span>
       <span className="uipack-web-hero__stamp-label">{label}</span>
     </p>

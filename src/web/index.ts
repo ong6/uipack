@@ -49,6 +49,7 @@ export {
   type RecordCardProps,
   type FileTableProps,
 } from "./ProductMock";
+export { ProductShot, type ProductShotProps, type ProductShotCallout, type ProductShotReadout } from "./ProductShot";
 export {
   WorkedExample,
   BeforeAfter,

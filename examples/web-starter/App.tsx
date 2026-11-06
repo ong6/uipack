@@ -171,7 +171,12 @@ export default function App({ uiStyle, theme }: { uiStyle: UiStyleId; theme?: "l
         hero: (
           <div id="top">
             {/* layout="split": copy beside the product from 1024px (no empty half above it). The
-                stamp carries the page's one measured number in the style's own device. */}
+                stamp carries the page's one measured number in the style's own device, stuck on
+                the proof's corner (value up to 4 characters, label up to about 30). A physical or
+                visual product also passes media={<ProductShot …>} (a photo, or a drawing painted
+                from the --ui-media-* roles), shown above the demo: docs/system/layout.md,
+                "Product visuals", and ./device.tsx for a worked one. Tallyroom is software, so its
+                screens are the product. */}
             <StarHero
               layout="split"
               stamp={{ value: "2 h", label: "median close, was ~9 h" }}
@@ -231,7 +236,8 @@ export default function App({ uiStyle, theme }: { uiStyle: UiStyleId; theme?: "l
                     label="Candidate invoices for the payment"
                     columns={[
                       { key: "invoice", label: "Invoice" },
-                      { key: "score", label: "Score", barMax: 100 },
+                      // priority "key": the column the page is about; a phone never hides it.
+                      { key: "score", label: "Score", barMax: 100, priority: "key" },
                       // priority "low": dropped first when the table is narrow (a phone).
                       { key: "days", label: "Days apart", align: "end", priority: "low" },
                     ]}
@@ -308,6 +314,9 @@ export default function App({ uiStyle, theme }: { uiStyle: UiStyleId; theme?: "l
                 { value: "86%", label: "lines matched automatically" },
                 { value: "40", label: "trial businesses" },
               ]}
+              // How the numbers were measured, kept with them (three or four stats and no lead
+              // or compare set as the headline row instead).
+              caveat="Close times are the owners' own estimates; match rates are measured."
               quote={{
                 text: "I close October on the first of November now.",
                 name: "Sample Name",
@@ -316,7 +325,22 @@ export default function App({ uiStyle, theme }: { uiStyle: UiStyleId; theme?: "l
             />
           </Section>
         ),
-        faq: <FAQ id="faq" eyebrow="Questions" title="What owners ask first." items={faq} url="https://tallyroom.example/" />,
+        faq: (
+          // From 1024px the head is a column of its own: give it an intro and an aside (the CTA).
+          <FAQ
+            id="faq"
+            eyebrow="Questions"
+            title="What owners ask first."
+            intro="The four questions we hear before a trial."
+            aside={
+              <CtaButton href={CTA.href} variant="secondary">
+                {CTA.label}
+              </CtaButton>
+            }
+            items={faq}
+            url="https://tallyroom.example/"
+          />
+        ),
         pricing: (
           <Section
             id="pricing"

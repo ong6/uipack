@@ -23,6 +23,12 @@ export interface SectionProps {
   lazyRender?: boolean;
   /** Paint this section in another style (data-ui-style), e.g. one band in a second registered style. */
   uiStyle?: UiStyleId;
+  /**
+   * More for the head, under the intro: a short supporting note, a contact line or a CtaButton.
+   * Use it where the head sits in a column of its own (FAQ at 1024px and up), so that column
+   * carries something besides a title.
+   */
+  aside?: ReactNode;
 }
 
 /**
@@ -47,6 +53,7 @@ export function Section({
   className = "",
   lazyRender = false,
   uiStyle,
+  aside,
 }: SectionProps) {
   const headingId = id ? `${id}-title` : undefined;
   const index = useContext(SectionIndexContext);
@@ -61,7 +68,7 @@ export function Section({
       aria-labelledby={title ? headingId : undefined}
     >
       <div className="uipack-web-section__inner">
-        {(eyebrow || title || intro) && (
+        {(eyebrow || title || intro || aside) && (
           <div className="uipack-web-section__head">
             {eyebrow && (
               <Eyebrow>
@@ -80,6 +87,7 @@ export function Section({
               </Heading>
             )}
             {intro && <Body>{intro}</Body>}
+            {aside && <div className="uipack-web-section__aside">{aside}</div>}
           </div>
         )}
         {children}
