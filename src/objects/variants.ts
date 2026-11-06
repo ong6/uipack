@@ -54,7 +54,7 @@ const lookTable = {
     [0, "Studio · Market abacus"],
   ],
   server: [
-    [4, "Realistic · Silicon detail"],
+    [4, "Realistic · Hot swap"],
     [0, "Studio · Inference hardware"],
   ],
   travel: [
