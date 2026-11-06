@@ -28,7 +28,8 @@ export function AnimationWorkspace({
 }) {
   return (
     <div className="uipack-animation-workspace" data-theme={theme}>
-      <aside className="uipack-animation-library">{library}</aside>
+      {/* Not an aside: inside the page's main it is no landmark of its own. */}
+      <div className="uipack-animation-library">{library}</div>
       <div className="uipack-animation-detail">{children}</div>
     </div>
   );
@@ -64,10 +65,11 @@ export function ObjectInspector({
           <h3>Art direction</h3>
           <div role="group" aria-label="3D art direction" className="uipack-direction-list">
             {directions.map(({ direction, index, look }) => (
+              // Named by what it shows, the name then the line under it, so a voice user can say
+              // the text they see (WCAG 2.5.3).
               <button
                 type="button"
                 key={direction.id}
-                aria-label={direction.name}
                 aria-pressed={objectDirectionIndex(kind, variant) === index}
                 onClick={() => onVariantChange(look)}
               >
@@ -75,8 +77,7 @@ export function ObjectInspector({
                   {directionSymbols[index]}
                 </span>
                 <span>
-                  <strong>{direction.name}</strong>
-                  <small>{direction.description}</small>
+                  <strong>{direction.name}</strong> <small>{direction.description}</small>
                 </span>
               </button>
             ))}

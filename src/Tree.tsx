@@ -135,7 +135,9 @@ export function Sheet({
   const hover = useFigureHover();
   const flows = flowList(flow);
   const label = title ?? name ?? "File";
-  const selection = useItemSelection(label, hint, flows[0], true, name && title ? `${title}, ${name}` : label);
+  // A titled or named sheet is named by what it shows, in reading order (name eyebrow, title, then
+  // its contents), so the name always holds the visible text (WCAG 2.5.3).
+  const selection = useItemSelection(label, hint, flows[0], true, name || title ? null : label);
   const handlers = flows.length
     ? {
         onPointerEnter: (e: React.PointerEvent) => isPointer(e) && hover.setFlow(flows[0]),

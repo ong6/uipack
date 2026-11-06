@@ -94,7 +94,8 @@ for (const variant of [1, 2, 3, 4, 5]) {
       // The direction buttons change the look from the keyboard.
       let shown: string = id;
       if (variant <= 2) {
-        await page.getByRole("button", { name: variant === 1 ? "Kinetic sculptures" : "Paper worlds", exact: true }).focus();
+        // Named by its content: the direction's name, then its one-line description.
+        await page.getByRole("button", { name: variant === 1 ? /^Kinetic sculptures\b/ : /^Paper worlds\b/ }).focus();
         await page.keyboard.press("Enter");
         shown = variant === 1 ? "kinetic" : "paper-theatre";
       }
