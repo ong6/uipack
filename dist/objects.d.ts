@@ -49,7 +49,7 @@ declare const lookTable: {
     readonly contact: readonly [readonly [0, "Signature inbox"], readonly [1, "Blue inbox"], readonly [2, "Terracotta inbox"], readonly [3, "Cartoon · Little post office"]];
     readonly tennis: readonly [readonly [4, "Realistic · Match point"], readonly [3, "Cartoon · Courtside club"], readonly [0, "Studio · Club rally"]];
     readonly trading: readonly [readonly [2, "Kinetic · Market balance"], readonly [5, "Abstract · Risk rhythm"], readonly [0, "Studio · Market abacus"]];
-    readonly server: readonly [readonly [4, "Realistic · Silicon detail"], readonly [0, "Studio · Inference hardware"]];
+    readonly server: readonly [readonly [4, "Realistic · Hot swap"], readonly [0, "Studio · Inference hardware"]];
     readonly travel: readonly [readonly [0, "Studio · Folded atlas"], readonly [1, "Paper · Alpine passage"], readonly [2, "Kinetic · Armillary globe"]];
     readonly reading: readonly [readonly [4, "Realistic · Quiet chapter"], readonly [3, "Cartoon · Reading nook"], readonly [1, "Paper · A world inside"]];
 };

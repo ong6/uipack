@@ -18,6 +18,7 @@ import {
   paintTexture,
   placed,
   ribbonGeometry,
+  rodGeometry,
   roundedBox,
   seeded,
   smoothstep,
@@ -65,22 +66,72 @@ export const realisticLook: ObjectLook = {
 
 /* ---------------------------------------------------------------- Surfaces */
 
-const GROUND_WIDTH = 4.2,
-  GROUND_DEPTH = 8.5,
-  GROUND_NEAR = 2.4;
+/**
+ * The surface runs from just in front of the lens back to a wall: real depth (a table meeting a wall,
+ * a court meeting its windscreen), not a fade into the card. Both go soft with distance from the
+ * subject through `defocus`, the way a long lens at close focus renders them.
+ */
+const GROUND_NEAR = 2.4,
+  WALL_Z = -4.6,
+  GROUND_WIDTH = 16,
+  GROUND_DEPTH = GROUND_NEAR - WALL_Z;
+/** Texture repeats were tuned on a 4.2 × 8.5 plane; this keeps their texel size on the larger one. */
+const tile = (x: number, z: number): [number, number] => [(x * GROUND_WIDTH) / 4.2, (z * GROUND_DEPTH) / 8.5];
 
-/** Opaque round the subject, fading out to the sides and far back, like a lens running out of focus. */
-function groundFade() {
-  return paintTexture(
-    64,
-    128,
-    (u, v) => {
-      const across = Math.abs(u - 0.5) * 2;
-      const a = (1 - smoothstep(0.68, 0.99, across)) * (1 - smoothstep(0.34, 0.86, v));
-      return [a * 255, a * 255, a * 255];
-    },
-    { srgb: false },
-  );
+/**
+ * Depth of field for the set: a material's maps are sampled with a mip bias that grows with the
+ * distance from the focal plane (the subject, at the root's origin), so the grain is crisp under the
+ * subject and melts toward the wall and the near edge, instead of fading out through a fog band.
+ */
+/**
+ * The floor and wall are far bigger than the subject. Like studio's sweep, their geometry is stored
+ * at 1/EXPAND scale and blown back up in the vertex shader, so they never count toward the object's
+ * bounds (framing, envelope checks); they are never frustum-culled for the same reason.
+ */
+const EXPAND = 64;
+function expanded(geometry: THREE.BufferGeometry) {
+  return geometry.scale(1 / EXPAND, 1 / EXPAND, 1 / EXPAND);
+}
+function defocus<M extends THREE.MeshStandardMaterial>(material: M, object: THREE.Mesh, strength = 6) {
+  object.frustumCulled = false;
+  const focus = { value: 8 };
+  const origin = new THREE.Vector3(),
+    lens = new THREE.Vector3();
+  object.onBeforeRender = (_renderer, _scene, camera) => {
+    (object.parent ?? object).getWorldPosition(origin);
+    camera.getWorldPosition(lens);
+    focus.value = lens.distanceTo(origin);
+  };
+  material.onBeforeCompile = (shader) => {
+    shader.uniforms.focusDepth = focus;
+    const bias = "dofBias";
+    shader.vertexShader = shader.vertexShader.replace(
+      "#include <begin_vertex>",
+      `#include <begin_vertex>\ntransformed *= ${EXPAND.toFixed(1)};`,
+    );
+    shader.fragmentShader = shader.fragmentShader
+      .replace("#include <common>", "#include <common>\nuniform float focusDepth;")
+      .replace(
+        "#include <map_fragment>",
+        `float ${bias} = clamp(pow(abs(vViewPosition.z - focusDepth) / focusDepth, 1.3) * ${strength.toFixed(2)}, 0.0, 5.0);\n` +
+          THREE.ShaderChunk.map_fragment.replace("texture2D( map, vMapUv )", `texture2D( map, vMapUv, ${bias} )`),
+      )
+      .replace(
+        "#include <roughnessmap_fragment>",
+        THREE.ShaderChunk.roughnessmap_fragment.replace(
+          "texture2D( roughnessMap, vRoughnessMapUv )",
+          `texture2D( roughnessMap, vRoughnessMapUv, ${bias} )`,
+        ),
+      )
+      .replace(
+        "#include <normal_fragment_maps>",
+        THREE.ShaderChunk.normal_fragment_maps
+          .split("texture2D( normalMap, vNormalMapUv )")
+          .join(`texture2D( normalMap, vNormalMapUv, ${bias} )`),
+      );
+  };
+  material.customProgramCacheKey = () => `realistic-defocus-${strength}`;
+  return material;
 }
 
 /** A table-top plane under the subject (y 0), excluded from framing; it still takes the key's shadow. */
@@ -89,30 +140,92 @@ function surface(root: THREE.Object3D, map: THREE.Texture, normalMap: THREE.Text
     new THREE.MeshStandardMaterial({
       map,
       normalMap,
-      normalScale: new THREE.Vector2(0.35, 0.35),
+      normalScale: new THREE.Vector2(0.45, 0.45),
       roughness,
       metalness: 0,
-      alphaMap: groundFade(),
-      transparent: true,
-      depthWrite: false,
     }),
     { dark: { color: new THREE.Color(dark, dark, dark).getHex() } },
   );
-  const plane = mesh(root, new THREE.PlaneGeometry(GROUND_WIDTH, GROUND_DEPTH), material, 0, 0, GROUND_NEAR - GROUND_DEPTH / 2);
-  plane.rotation.x = -Math.PI / 2;
+  for (const texture of [map, normalMap]) if (texture) texture.anisotropy = 16;
+  const ground = new THREE.PlaneGeometry(GROUND_WIDTH, GROUND_DEPTH)
+    .rotateX(-Math.PI / 2)
+    .translate(0, 0, GROUND_NEAR - GROUND_DEPTH / 2);
+  const plane = mesh(root, expanded(ground), material);
   plane.renderOrder = -2;
   plane.receiveShadow = true;
   plane.userData.frameIgnore = true;
+  defocus(material, plane);
   return plane;
 }
 
+type Backdrop = "room" | "court" | "rack";
 /**
- * Oiled walnut: two flat-sawn planks per tile, laid across the frame (so the grain never converges
- * on the vanishing point), with wavy latewood lines, long open pores and a dark seam between planks.
- * Tiles every WOOD_TILE units, sharp enough for the macro shots.
+ * What stands behind the set, well out of focus: a plaster wall with a window's light on it, a
+ * court's green windscreen under the sky, or a dark aisle of racks with their LEDs as bokeh. Painted
+ * soft (it is far behind the focal plane) and lit by the rig, so the night lamp relights it too.
+ */
+function backdrop(root: THREE.Object3D, kind: Backdrop) {
+  const disc = (u: number, v: number, cu: number, cv: number, r: number, aspect = 2) =>
+    smoothstep(r, r * 0.55, Math.hypot((u - cu) * aspect, v - cv));
+  const painter: Record<Backdrop, (u: number, v: number) => [number, number, number]> = {
+    room(u, v) {
+      // Warm plaster; a tall window's light falls on it from the left, its mullions soft shadows.
+      const window = smoothstep(0.02, 0.12, u) * smoothstep(0.5, 0.36, u) * smoothstep(0.22, 0.34, v) * smoothstep(0.98, 0.84, v);
+      const mullion = 1 - 0.35 * smoothstep(0.035, 0.0, Math.abs(u - 0.26)) - 0.35 * smoothstep(0.03, 0.0, Math.abs(v - 0.62));
+      const fall = 0.62 + 0.38 * smoothstep(1, 0.1, u);
+      const corner = smoothstep(0.0, 0.16, v); // the wall darkens where it meets the table
+      const plant = 0.55 * disc(u, v, 0.78, 0.36, 0.13) + 0.35 * disc(u, v, 0.86, 0.5, 0.09);
+      const light = clamp01(fall * (0.55 + 0.45 * corner) + 0.5 * window * mullion);
+      const base = mixRgb(0x8f8170, 0xf2e6d0, light);
+      return base.map((c, i) => mix(c, [74, 86, 60][i], plant * 0.7)) as [number, number, number];
+    },
+    court(u, v) {
+      // Sky over a dark green windscreen on the back fence, its posts soft verticals.
+      const screen = smoothstep(0.66, 0.6, v);
+      const post = smoothstep(0.03, 0.0, Math.abs(((u * 4 + 0.3) % 1) - 0.5) - 0.47);
+      const sky = mixRgb(0xbcd4e6, 0xe9eef0, smoothstep(1, 0.6, v));
+      const cloth = mixRgb(0x1f3f33, 0x2f5a47, 0.5 + 0.5 * valueNoise(u * 6, v * 3, 6, 4));
+      const shade = cloth.map((c) => c * (1 - 0.25 * post)) as [number, number, number];
+      return sky.map((c, i) => mix(c, shade[i], screen)) as [number, number, number];
+    },
+    rack(u, v) {
+      // A dark aisle: cabinet doors as soft verticals, their LEDs as defocused discs.
+      const door = 0.5 + 0.5 * smoothstep(0.08, 0.0, Math.abs(((u * 5) % 1) - 0.5) - 0.42);
+      let c: [number, number, number] = mixRgb(0x15181d, 0x2b3038, 0.4 * door + 0.3 * smoothstep(0, 0.7, v));
+      const random = seeded(91);
+      for (let k = 0; k < 26; k++) {
+        const cu = random(),
+          cv = 0.2 + random() * 0.7,
+          hue = random();
+        const glow = disc(u, v, cu, cv, 0.035 + 0.02 * random());
+        const tint = hue < 0.55 ? [70, 150, 255] : hue < 0.85 ? [80, 255, 150] : [255, 170, 70];
+        c = c.map((x, i) => mix(x, tint[i], glow * 0.75)) as [number, number, number];
+      }
+      return c;
+    },
+  };
+  const texture = paintTexture(160, 80, (u, v) => painter[kind](u, v));
+  const material = themed(new THREE.MeshStandardMaterial({ map: texture, roughness: 1, metalness: 0 }), {
+    dark: { color: kind === "rack" ? 0xb0b0b0 : 0x6a6a6a },
+  });
+  if (kind === "rack") Object.assign(material, { emissiveMap: texture, emissive: new THREE.Color(0x777777) });
+  const wall = mesh(root, expanded(new THREE.PlaneGeometry(GROUND_WIDTH, 8).translate(0, 3.6, WALL_Z)), material);
+  wall.renderOrder = -3;
+  wall.userData.frameIgnore = true;
+  defocus(material, wall, 2);
+  return wall;
+}
+
+/**
+ * Oiled walnut, quarter-sawn: one plank per tile, laid across the frame (so the grain never
+ * converges on the vanishing point). Straight, near-parallel growth lines that drift a little along
+ * the board, each latewood band its own weight and width, long open pores running with the grain,
+ * broad colour streaks and a dark seam between planks; no rings, so nothing smears at grazing
+ * angles. A tile is WOOD_TILE units (about 15 cm at the keycaps' scale), lines about 2 mm apart.
  */
 const WOOD_TILE = 3;
 const WOOD_SIZE = 512;
+const WOOD_LINES = 78;
 let woodField: { field: Float32Array; tones: Float32Array } | undefined;
 /** The wood's height channels (latewood, pores, seam) and albedo tone, computed once per page. */
 function woodData() {
@@ -120,61 +233,128 @@ function woodData() {
   const SIZE = WOOD_SIZE;
   const field = new Float32Array(SIZE * SIZE * 3),
     tones = new Float32Array(SIZE * SIZE);
+  const lineHash = (n: number, salt: number) => valueNoise2(n * 13.7 + salt, salt * 3.3, 4096, 4096, 41);
   for (let y = 0; y < SIZE; y++)
     for (let x = 0; x < SIZE; x++) {
       const u = (x + 0.5) / SIZE,
         v = (y + 0.5) / SIZE;
-      const plank = Math.floor(v * 2);
-      const w = (v * 2) % 1;
-      // Flat-sawn figure: growth rings cut at a shallow angle, so they close into cathedral arches
-      // along the plank (one per plank, phase shifted) and run as long wavy lines at its edges.
-      const n1 = valueNoise2(u * 6, w * 3, 6, 64, 11 + plank),
-        n2 = valueNoise2(u * 3, w * 2, 3, 64, 5 + plank);
-      const across = (w - 0.5) * 5 + 0.7 * (n1 - 0.5);
-      const cut = 0.9 + 1.1 * (0.5 + 0.5 * Math.cos((u + plank * 0.43) * TAU)) + 0.6 * n2;
-      const rings = Math.hypot(across, cut) * 8 + 0.8 * n1;
-      const ring = rings % 1;
-      // Each growth ring's latewood band varies in weight, as real seasons do.
-      const weight = 0.45 + 0.55 * valueNoise2(Math.floor(rings) * 7.3, plank * 3.1, 4096, 4096, 41);
-      const late = weight * smoothstep(0.6, 0.85, ring) * (1 - smoothstep(0.9, 1, ring));
-      // Open pores: faint dark dashes running with the grain.
-      const pores = smoothstep(0.7, 0.95, valueNoise2(u * 40, v * 220, 40, 220, 23));
-      const figure = valueNoise2(u * 4, v * 6, 4, 6, 31 + plank);
-      const seam = smoothstep(0.01, 0, Math.min(w, 1 - w));
+      // The grain coordinate across the plank, wandering slowly along it.
+      const drift = 0.5 * (valueNoise2(u * 2, v * 3, 2, 3, 11) - 0.5) + 0.18 * (valueNoise2(u * 7, v * 9, 7, 9, 3) - 0.5);
+      // Uneven seasons: the line spacing bunches and opens across the plank.
+      const g =
+        (v + drift * 0.03) * WOOD_LINES +
+        5 * (valueNoise2(0, v * 9, 1, 9, 51) - 0.5) +
+        2 * (valueNoise2(0, v * 23, 1, 23, 52) - 0.5);
+      const line = Math.floor(g),
+        ring = g - line;
+      const weight = 0.35 + 0.65 * lineHash(line, 1),
+        width = 0.16 + 0.22 * lineHash(line, 2);
+      // Earlywood darkens gradually into the latewood band, which ends sharply.
+      const late = weight * smoothstep(1 - width - 0.18, 1 - width, ring) * (1 - smoothstep(0.93, 1, ring));
+      // Open pores: dark dashes a few millimetres long, running with the grain.
+      const pores = smoothstep(0.7, 0.95, valueNoise2(u * 56, v * 420, 56, 420, 23));
+      const streak = valueNoise2(u * 2, v * 16, 2, 16, 31) * 0.7 + valueNoise2(u * 1, v * 5, 1, 5, 37) * 0.3;
+      const seam = smoothstep(0.006, 0, Math.min(v, 1 - v));
       const i = (y * SIZE + x) * 3;
       field[i] = late;
       field[i + 1] = pores;
       field[i + 2] = seam;
-      const tone = clamp01(0.6 + 0.18 * figure + (plank ? 0.05 : -0.04) - 0.22 * late - 0.08 * pores);
-      tones[i / 3] = tone * (1 - 0.7 * seam);
+      const tone = clamp01(0.46 + 0.44 * streak - 0.17 * late - 0.12 * pores);
+      tones[i / 3] = tone * (1 - 0.75 * seam);
     }
   return (woodField = { field, tones });
 }
 function walnut(root: THREE.Object3D) {
   const SIZE = WOOD_SIZE;
   const { field, tones } = woodData();
-  const map = paintTexture(
-    SIZE,
-    SIZE,
-    (_u, _v, x, y) => {
-      const t = tones[y * SIZE + x];
-      return mixRgb(0x2a1a10, 0x8a6240, t);
-    },
-    { repeat: [GROUND_WIDTH / WOOD_TILE, GROUND_DEPTH / WOOD_TILE] },
-  );
+  const repeat: [number, number] = [GROUND_WIDTH / WOOD_TILE, GROUND_DEPTH / WOOD_TILE];
+  const map = paintTexture(SIZE, SIZE, (_u, _v, x, y) => mixRgb(0x2a1a10, 0x94683f, tones[y * SIZE + x]), { repeat });
   map.anisotropy = 8;
-  // Half resolution is plenty for the relief, and halves the build cost.
+  // Full resolution: under grazing light the relief of each latewood line and pore is what reads as wood.
   const normalMap = normalTexture(
-    SIZE / 2,
+    SIZE,
     (u, v) => {
       const i = (Math.min(SIZE - 1, Math.floor(v * SIZE)) * SIZE + Math.min(SIZE - 1, Math.floor(u * SIZE))) * 3;
-      return 0.6 - 0.3 * field[i] - 0.12 * field[i + 1] - 0.8 * field[i + 2];
+      return 0.6 - 0.2 * field[i] - 0.2 * field[i + 1] - 0.8 * field[i + 2];
     },
     2,
-    [GROUND_WIDTH / WOOD_TILE, GROUND_DEPTH / WOOD_TILE],
+    repeat,
   );
   normalMap.anisotropy = 8;
-  return surface(root, map, normalMap, 0.46);
+  // The oil sits glossier on the dense latewood and dull in the pores and the seam.
+  const roughnessMap = paintTexture(
+    SIZE / 2,
+    SIZE / 2,
+    (_u, _v, x, y) => {
+      const i = (y * 2 * SIZE + x * 2) * 3;
+      const r = clamp01(0.72 - 0.16 * field[i] + 0.25 * field[i + 1] + 0.3 * field[i + 2]) * 255;
+      return [r, r, r];
+    },
+    { srgb: false, repeat },
+  );
+  const plane = surface(root, map, normalMap, 0.62);
+  (plane.material as THREE.MeshStandardMaterial).roughnessMap = roughnessMap;
+  return plane;
+}
+
+/* ---------------------------------------------------------------- Wear */
+
+const wearMaps = new Map<string, THREE.Texture>();
+/**
+ * A roughness map (green channel) that breaks up a perfect CG finish: soft smudges, a fine mottle
+ * and, for metal, hairline scratches running every which way that catch the light. Mean about 0.78.
+ */
+function wearMap(scratches: number, repeat = 1, seed = 1) {
+  const key = `${scratches}:${repeat}:${seed}`;
+  const cached = wearMaps.get(key);
+  if (cached) return cached;
+  const SIZE = 256;
+  const lines = new Float32Array(SIZE * SIZE);
+  const random = seeded(seed * 97 + 13);
+  for (let n = 0; n < scratches; n++) {
+    const x0 = random() * SIZE,
+      y0 = random() * SIZE,
+      angle = random() * Math.PI,
+      length = 12 + random() * 110,
+      strength = 0.35 + 0.65 * random();
+    for (let t = 0; t < length; t++) {
+      const px = Math.floor(x0 + Math.cos(angle) * t),
+        py = Math.floor(y0 + Math.sin(angle) * t);
+      const i = (((py % SIZE) + SIZE) % SIZE) * SIZE + (((px % SIZE) + SIZE) % SIZE);
+      lines[i] = Math.max(lines[i], strength * Math.sin((t / length) * Math.PI));
+    }
+  }
+  const texture = paintTexture(
+    SIZE,
+    SIZE,
+    (u, v, x, y) => {
+      const smudge = fbm(u * 4, v * 4, 4, 4, seed + 2),
+        mottle = valueNoise(u * 64, v * 64, 64, seed + 5);
+      // Wide swings: polished rubs and dull smudges a viewer can see at card size, not a uniform satin.
+      const r = clamp01(0.4 + 0.5 * smudge + 0.1 * mottle + 0.26 * lines[y * SIZE + x]) * 255;
+      return [r, r, r];
+    },
+    { srgb: false, repeat: [repeat, repeat] },
+  );
+  wearMaps.set(key, texture);
+  return texture;
+}
+/** Give a material a wear map, keeping its average roughness where it was. Its geometry needs UVs. */
+function worn<M extends THREE.MeshStandardMaterial>(material: M, scratches = 0, repeat = 1, seed = 1) {
+  material.roughnessMap = wearMap(scratches, repeat, seed);
+  material.roughness = Math.min(1, material.roughness / 0.78);
+  return material;
+}
+/** Box-projected UVs for a geometry built without them (merged, sculpted parts). */
+function projectUv(geometry: THREE.BufferGeometry, scale = 2) {
+  const position = geometry.attributes.position;
+  const uv = new Float32Array(position.count * 2);
+  for (let i = 0; i < position.count; i++) {
+    uv[i * 2] = (position.getX(i) + position.getZ(i) * 0.7) * scale;
+    uv[i * 2 + 1] = (position.getY(i) + position.getZ(i) * 0.4) * scale;
+  }
+  geometry.setAttribute("uv", new THREE.BufferAttribute(uv, 2));
+  return geometry;
 }
 
 /** A sanded acrylic hard court, blue, with its baseline. */
@@ -186,60 +366,129 @@ function court(root: THREE.Object3D) {
       const speck = valueNoise(u * 128, v * 128, 128, 2);
       return mixRgb(0x2c5677, 0x46789b, speck * 0.7 + 0.15 * fbm(u * 4, v * 4, 4, 2, 8));
     },
-    { repeat: [6, 12] },
+    { repeat: tile(6, 12) },
   );
-  const normalMap = normalTexture(128, (u, v) => valueNoise(u * 128, v * 128, 128, 3), 2.5, [12, 24]);
+  const normalMap = normalTexture(128, (u, v) => valueNoise(u * 128, v * 128, 128, 3), 2.5, tile(12, 24));
   return surface(root, map, normalMap, 0.82);
 }
 
-/** Green solder mask over copper traces, with vias. */
-function circuitBoard(root: THREE.Object3D) {
-  const W = 256,
-    H = 512;
-  const copper = new Float32Array(W * H);
+/** The powder-coated steel lid of the server below: dark, orange-peel textured, faintly mottled. */
+function steelLid(root: THREE.Object3D) {
+  const map = paintTexture(
+    128,
+    128,
+    (u, v) => mixRgb(0x2c2f34, 0x3b3f45, 0.55 * fbm(u * 3, v * 3, 3, 3, 14) + 0.25 * valueNoise(u * 128, v * 128, 128, 6)),
+    { repeat: tile(5, 10) },
+  );
+  const normalMap = normalTexture(128, (u, v) => fbm(u * 24, v * 24, 24, 2, 9), 1.6, tile(16, 32));
+  const plane = surface(root, map, normalMap, 0.5 / 0.78, 0.6);
+  (plane.material as THREE.MeshStandardMaterial).roughnessMap = wearMap(40, 11, 4);
+  return plane;
+}
+
+/**
+ * A bare SSD board: green solder mask over copper. The mask pools thinner (and lighter) over each
+ * trace, so traces stand proud with a soft bevel; the gold edge fingers, test pads and vias are bare
+ * ENIG metal (metalness in blue, roughness in green); white silkscreen outlines the parts.
+ */
+function ssdBoardMaterial() {
+  const W = 128,
+    H = 256;
+  const copper = new Float32Array(W * H),
+    gold = new Float32Array(W * H),
+    silk = new Float32Array(W * H);
   const random = seeded(77);
-  const stroke = (x0: number, y0: number, x1: number, y1: number, width: number) => {
-    const steps = Math.ceil(Math.hypot(x1 - x0, y1 - y0));
-    for (let s = 0; s <= steps; s++) {
-      const x = x0 + ((x1 - x0) * s) / Math.max(steps, 1),
-        y = y0 + ((y1 - y0) * s) / Math.max(steps, 1);
-      for (let dy = -width; dy <= width; dy++)
-        for (let dx = -width; dx <= width; dx++) {
-          const px = Math.round(x + dx),
-            py = Math.round(y + dy);
-          if (px >= 0 && py >= 0 && px < W && py < H) copper[py * W + px] = 1;
-        }
-    }
+  const dot = (target: Float32Array, x: number, y: number, r: number) => {
+    for (let dy = -r; dy <= r; dy++)
+      for (let dx = -r; dx <= r; dx++) {
+        const px = Math.round(x + dx),
+          py = Math.round(y + dy);
+        if (px >= 0 && py >= 0 && px < W && py < H && dx * dx + dy * dy <= r * r + 0.5) target[py * W + px] = 1;
+      }
   };
-  for (let i = 0; i < 70; i++) {
-    let x = random() * W,
-      y = random() * H;
-    const width = random() < 0.2 ? 2 : 1;
-    for (let leg = 0; leg < 3; leg++) {
-      const length = 20 + random() * 90;
-      const dir = Math.floor(random() * 4);
-      const diagonal = random() < 0.4;
-      const nx = x + (dir === 0 ? length : dir === 1 ? -length : diagonal ? length * 0.5 : 0);
-      const ny = y + (dir === 2 ? length : dir === 3 ? -length : diagonal ? length * 0.5 : 0);
-      stroke(x, y, nx, ny, width);
-      x = nx;
-      y = ny;
+  const stroke = (target: Float32Array, x0: number, y0: number, x1: number, y1: number, r: number) => {
+    const steps = Math.ceil(Math.hypot(x1 - x0, y1 - y0));
+    for (let n = 0; n <= steps; n++)
+      dot(target, x0 + ((x1 - x0) * n) / Math.max(1, steps), y0 + ((y1 - y0) * n) / Math.max(1, steps), r);
+  };
+  // Buses of parallel traces with 45° doglegs, the way a router lays them, ending in vias.
+  for (let bus = 0; bus < 9; bus++) {
+    const x = 8 + random() * (W - 16),
+      y = 20 + random() * (H - 40),
+      count = 3 + Math.floor(random() * 4),
+      run = 18 + random() * 50,
+      turn = random() < 0.5 ? -1 : 1;
+    for (let k = 0; k < count; k++) {
+      const ox = x + k * 3,
+        oy = y + k * 3;
+      stroke(copper, ox, oy, ox, oy + run, 0.6);
+      stroke(copper, ox, oy + run, ox + turn * 14, oy + run + 14, 0.6);
+      dot(gold, ox + turn * 14, oy + run + 14, 1.4);
     }
-    for (let dy = -3; dy <= 3; dy++)
-      for (let dx = -3; dx <= 3; dx++) if (dx * dx + dy * dy <= 9) stroke(x + dx, y + dy, x + dx, y + dy, 0);
   }
-  const at = (x: number, y: number) => copper[((y + H) % H) * W + ((x + W) % W)];
-  const map = paintTexture(W, H, (_u, _v, x, y) => (at(x, y) ? [46, 104, 72] : [22, 64, 44]));
+  // Gold edge fingers along the bottom edge, and silkscreen frames round the chip sites.
+  for (let k = 0; k < 22; k++)
+    for (let y = H - 10; y < H - 1; y++) for (let x = 6 + k * 5; x < 9 + k * 5; x++) gold[y * W + x] = 1;
+  for (const [x0, y0, x1, y1] of [
+    [12, 18, 58, 70],
+    [70, 18, 116, 70],
+    [12, 92, 58, 144],
+    [70, 92, 116, 144],
+    [34, 166, 94, 214],
+  ]) {
+    stroke(silk, x0, y0, x1, y0, 0.4);
+    stroke(silk, x0, y1, x1, y1, 0.4);
+    stroke(silk, x0, y0, x0, y1, 0.4);
+    stroke(silk, x1, y0, x1, y1, 0.4);
+  }
+  // Soften the copper into a height field so the mask over it has a rounded shoulder.
+  const height = new Float32Array(W * H);
+  for (let y = 0; y < H; y++)
+    for (let x = 0; x < W; x++) {
+      let sum = 0;
+      for (let dy = -1; dy <= 1; dy++)
+        for (let dx = -1; dx <= 1; dx++)
+          sum += copper[Math.min(H - 1, Math.max(0, y + dy)) * W + Math.min(W - 1, Math.max(0, x + dx))];
+      height[y * W + x] = sum / 9 + 0.6 * gold[y * W + x];
+    }
+  const at = (x: number, y: number) => height[Math.min(H - 1, Math.max(0, y)) * W + Math.min(W - 1, Math.max(0, x))];
+  const map = paintTexture(W, H, (u, v, x, y) => {
+    const i = y * W + x;
+    if (gold[i]) return [214, 172, 92];
+    if (silk[i]) return [226, 230, 222];
+    const n = valueNoise(u * 40, v * 80, 40, 3);
+    return mixRgb(0x123d2a, 0x2f7350, clamp01(0.75 * height[i] + 0.12 * n));
+  });
   const normalMap = paintTexture(
     W,
     H,
     (_u, _v, x, y) => {
-      const n = vec(-(at(x + 1, y) - at(x - 1, y)) * 0.8, -(at(x, y + 1) - at(x, y - 1)) * 0.8, 1).normalize();
+      const n = vec(-(at(x + 1, y) - at(x - 1, y)) * 1.4, -(at(x, y + 1) - at(x, y - 1)) * 1.4, 1).normalize();
       return [(n.x * 0.5 + 0.5) * 255, (n.y * 0.5 + 0.5) * 255, (n.z * 0.5 + 0.5) * 255];
     },
     { srgb: false },
   );
-  return surface(root, map, normalMap, 0.32, 0.55);
+  const surfaceMap = paintTexture(
+    W,
+    H,
+    (u, v, x, y) => {
+      const i = y * W + x;
+      const rough = gold[i] ? 0.3 : silk[i] ? 0.8 : 0.34 + 0.12 * valueNoise(u * 16, v * 32, 16, 8);
+      return [0, rough * 255, gold[i] ? 255 : 0];
+    },
+    { srgb: false },
+  );
+  const material = new THREE.MeshStandardMaterial({
+    map,
+    normalMap,
+    roughnessMap: surfaceMap,
+    metalnessMap: surfaceMap,
+    metalness: 1,
+    roughness: 1,
+  });
+  // Let mount.ts give it the room reflections, or the gold reads black.
+  material.userData.lookReflections = 1;
+  return material;
 }
 
 /** A soft baked shadow pooled right under a part (ambient occlusion where it meets the surface). */
@@ -284,6 +533,228 @@ const clearGlass = () =>
 
 type Model = (root: THREE.Group, ticks: Tick[]) => void;
 
+/**
+ * A tennis racket lying flat on the court, at the ball's scale (a 67 mm ball is 0.84 units, so the
+ * 27 cm head is about 3.3 by 2.6): a bevelled graphite hoop in clearcoat paint, an open throat, an
+ * octagonal handle wrapped in white overgrip, and a 16 × 19 string bed.
+ */
+function racket(root: THREE.Object3D) {
+  const A = 1.62, // the head's half length (along the racket)
+    B = 1.27, // half width
+    BEAM = 0.13,
+    DEPTH = 0.2;
+  // Head behind and left of the ball, the throat and handle running away from the lens toward the
+  // windscreen, so the racket stays inside the direction's envelope across the frame.
+  const set = group(root, -0.36, 0, -1.55);
+  set.rotation.y = 1.25;
+  const ellipse = (a: number, b: number, reverse = false) =>
+    Array.from({ length: 97 }, (_, i) => {
+      const t = ((reverse ? 96 - i : i) / 96) * TAU;
+      return new THREE.Vector2(a * Math.cos(t), b * Math.sin(t));
+    });
+  const hoop = new THREE.Shape(ellipse(A, B));
+  hoop.holes.push(new THREE.Path(ellipse(A - BEAM, B - BEAM, true)));
+  const hoopGeometry = new THREE.ExtrudeGeometry(hoop, {
+    depth: DEPTH - 0.04,
+    bevelEnabled: true,
+    bevelSize: 0.02,
+    bevelThickness: 0.02,
+    bevelSegments: 3,
+    curveSegments: 96,
+  });
+  hoopGeometry.rotateX(-Math.PI / 2);
+  hoopGeometry.translate(0, 0.02, 0);
+  // Gloss black paint over graphite, scuffed where it meets the court.
+  const paint = worn(lookMaterial("ceramic", 0x16181c, { roughness: 0.32, clearcoat: 1, clearcoatRoughness: 0.12 }), 70, 2, 31);
+  const accent = worn(lookMaterial("ceramic", 0xe2571e, { roughness: 0.36, clearcoat: 1, clearcoatRoughness: 0.15 }), 30, 2, 32);
+  const hoopMesh = mesh(set, projectUv(hoopGeometry, 1.5), paint);
+  hoopMesh.castShadow = true;
+  // The throat: two arms from the hoop's shoulders closing on the handle, bridged by the yoke.
+  const throat = mergeGeometries([
+    mergeable(rodGeometry(vec(A - 0.25, DEPTH / 2, 0.66), vec(A + 1.05, DEPTH / 2, 0.14), 0.07, 16)),
+    mergeable(rodGeometry(vec(A - 0.25, DEPTH / 2, -0.66), vec(A + 1.05, DEPTH / 2, -0.14), 0.07, 16)),
+  ]);
+  throat.scale(1, 1.25, 1);
+  mesh(set, projectUv(throat, 1.5), accent).castShadow = true;
+  // The handle: an octagon with an overgrip wound on a bias, a ridge at each overlap.
+  const gripLength = 2.4;
+  const wrap = paintTexture(64, 256, (u, v) => {
+    const t = (u + v * 9) % 1;
+    const ridge = smoothstep(0.06, 0, Math.min(t, 1 - t));
+    const dirt = 0.9 + 0.1 * valueNoise(u * 8, v * 40, 8, 6);
+    const c = (232 - 40 * ridge) * dirt;
+    return [c, c * 0.985, c * 0.95];
+  });
+  const wrapNormal = normalTexture(
+    64,
+    (u, v) => {
+      const t = (u + v * 4) % 1;
+      return smoothstep(0.08, 0, Math.min(t, 1 - t)) * 0.6 + 0.08 * valueNoise(u * 32, v * 32, 32, 2);
+    },
+    3,
+    [1, 2],
+  );
+  const grip = mesh(
+    set,
+    new THREE.CylinderGeometry(0.15, 0.15, gripLength, 8, 1).rotateY(Math.PI / 8),
+    lookMaterial("rubber", 0xffffff, { map: wrap, normalMap: wrapNormal, roughness: 0.85 }),
+    A + 1.05 + gripLength / 2,
+    0.15,
+    0,
+  );
+  grip.rotation.z = Math.PI / 2;
+  grip.castShadow = true;
+  setDressing(grip);
+  const collar = cylinder(set, 0.13, 0.22, accent, [A + 1.1, 0.15, 0], 8);
+  collar.rotation.z = Math.PI / 2;
+  setDressing(collar);
+  // The string bed: 16 mains along the racket, 19 crosses, each clipped to the hoop. Mains ride a
+  // hair above the crosses, so the weave catches the light.
+  const string = worn(lookMaterial("plastic", 0xf3efe0, { roughness: 0.38 }), 0, 4, 33);
+  const IA = A - BEAM - 0.01,
+    IB = B - BEAM - 0.01;
+  const strand = new THREE.CylinderGeometry(0.017, 0.017, 1, 6, 1);
+  strand.rotateZ(Math.PI / 2);
+  const MAINS = 16,
+    CROSSES = 19;
+  const strings = new THREE.InstancedMesh(strand, string, MAINS + CROSSES);
+  const matrix = new THREE.Matrix4(),
+    turn = new THREE.Quaternion().setFromAxisAngle(vec(0, 1, 0), Math.PI / 2);
+  let n = 0;
+  for (let i = 0; i < MAINS; i++) {
+    const z = -IB + ((i + 0.5) / MAINS) * 2 * IB;
+    const half = IA * Math.sqrt(Math.max(0, 1 - (z / IB) ** 2));
+    matrix.compose(vec(0, DEPTH / 2 + 0.012, z), new THREE.Quaternion(), vec(half * 2, 1, 1));
+    strings.setMatrixAt(n++, matrix);
+  }
+  for (let i = 0; i < CROSSES; i++) {
+    const x = -IA + ((i + 0.5) / CROSSES) * 2 * IA;
+    const half = IB * Math.sqrt(Math.max(0, 1 - (x / IA) ** 2));
+    matrix.compose(vec(x, DEPTH / 2 - 0.012, 0), turn, vec(half * 2, 1, 1));
+    strings.setMatrixAt(n++, matrix);
+  }
+  strings.castShadow = true;
+  set.add(strings);
+  // Set dressing: the ball alone sets the frame, and the racket is staged inside it.
+  set.traverse((item) => (item.userData.frameIgnore = true));
+  pool(set, 3.4, 2.6, 0, 0, 0.25);
+  return set;
+}
+
+/** Public-domain prose for the open book (Austen, Pride and Prejudice, chapter 1). */
+const BOOK_TEXT = [
+  "It is a truth universally acknowledged, that a single man in possession of a good fortune, must be in want of a wife.",
+  "However little known the feelings or views of such a man may be on his first entering a neighbourhood, this truth is so well fixed in the minds of the surrounding families, that he is considered the rightful property of some one or other of their daughters.",
+  "“My dear Mr. Bennet,” said his lady to him one day, “have you heard that Netherfield Park is let at last?”",
+  "Mr. Bennet replied that he had not.",
+  "“But it is,” returned she; “for Mrs. Long has just been here, and she told me all about it.”",
+  "Mr. Bennet made no answer.",
+  "“Do you not want to know who has taken it?” cried his wife impatiently.",
+  "“You want to tell me, and I have no objection to hearing it.” This was invitation enough.",
+  "“Why, my dear, you must know, Mrs. Long says that Netherfield is taken by a young man of large fortune from the north of England; that he came down on Monday in a chaise and four to see the place, and was so much delighted with it that he agreed with Mr. Morris immediately; that he is to take possession before Michaelmas, and some of his servants are to be in the house by the end of next week.”",
+  "“What is his name?” “Bingley.” “Is he married or single?”",
+  "“Oh! single, my dear, to be sure! A single man of large fortune; four or five thousand a year. What a fine thing for our girls!”",
+  "“How so? how can it affect them?”",
+  "“My dear Mr. Bennet,” replied his wife, “how can you be so tiresome! You must know that I am thinking of his marrying one of them.”",
+  "“Is that his design in settling here?”",
+  "“Design! nonsense, how can you talk so! But it is very likely that he may fall in love with one of them, and therefore you must visit him as soon as he comes.”",
+];
+
+/**
+ * Two facing pages of set type, drawn once with the browser's serif: a chapter opening on the left,
+ * running heads, folios and justified lines, so the page reads as print, not as dashes. Left page in
+ * the canvas's left half, right page in its right half; top of the canvas is the head of the page.
+ * Returns null where there is no 2D canvas (tests).
+ */
+function bookSpread(): THREE.CanvasTexture | null {
+  const canvas = typeof document === "undefined" ? null : document.createElement("canvas");
+  const context = canvas?.getContext("2d");
+  if (!canvas || !context || typeof context.createLinearGradient !== "function" || typeof context.measureText !== "function")
+    return null;
+  const PAGE_W = 1024,
+    PAGE_H = 1392;
+  canvas.width = PAGE_W * 2;
+  canvas.height = PAGE_H;
+  const g = context;
+  // Laid paper, a touch warmer toward the gutter.
+  for (let page = 0; page < 2; page++) {
+    const gradient = g.createLinearGradient(page * PAGE_W, 0, (page + 1) * PAGE_W, 0);
+    const [inner, outer] = ["rgb(230, 220, 198)", "rgb(244, 237, 221)"];
+    gradient.addColorStop(0, page ? inner : outer);
+    gradient.addColorStop(0.12, page ? "rgb(239, 231, 212)" : outer);
+    gradient.addColorStop(0.88, page ? outer : "rgb(239, 231, 212)");
+    gradient.addColorStop(1, page ? outer : inner);
+    g.fillStyle = gradient;
+    g.fillRect(page * PAGE_W, 0, PAGE_W, PAGE_H);
+  }
+  const random = seeded(7);
+  for (let k = 0; k < 9000; k++) {
+    g.fillStyle = `rgba(120, 100, 70, ${0.03 + 0.05 * random()})`;
+    g.fillRect(random() * PAGE_W * 2, random() * PAGE_H, 1 + random() * 2, 1);
+  }
+  const SIZE = 34,
+    LEAD = 46,
+    INK = "rgb(43, 38, 34)";
+  const serif = (size: number, style = "") => `${style} ${size}px Georgia, "Times New Roman", Times, serif`;
+  const words = BOOK_TEXT.map((paragraph) => paragraph.split(" "));
+  let paragraph = 0,
+    word = 0;
+  /** Set justified lines into a column until it is full; returns false when the text runs out. */
+  const setColumn = (left: number, top: number, width: number, bottom: number) => {
+    g.font = serif(SIZE);
+    g.fillStyle = INK;
+    g.textBaseline = "alphabetic";
+    let y = top;
+    while (y < bottom && paragraph < words.length) {
+      const indent = word === 0 ? SIZE * 1.4 : 0;
+      const line: string[] = [];
+      let used = 0;
+      const space = g.measureText(" ").width;
+      while (word < words[paragraph].length) {
+        const w = g.measureText(words[paragraph][word]).width;
+        if (line.length && used + space + w > width - indent) break;
+        used += (line.length ? space : 0) + w;
+        line.push(words[paragraph][word++]);
+      }
+      const last = word >= words[paragraph].length;
+      const gap = last || line.length < 2 ? space : space + (width - indent - used) / (line.length - 1);
+      let x = left + indent;
+      for (const w of line) {
+        g.fillText(w, x, y);
+        x += g.measureText(w).width + gap;
+      }
+      if (last) {
+        paragraph++;
+        word = 0;
+      }
+      y += LEAD;
+    }
+  };
+  const MARGIN_OUT = 120,
+    MARGIN_IN = 150,
+    TOP = 170,
+    BOTTOM = PAGE_H - 150;
+  // Left page: the chapter opening, sunk a third of the way down; right page: the running head.
+  g.font = serif(24, "italic");
+  g.fillStyle = "rgb(90, 81, 72)";
+  g.textAlign = "center";
+  g.fillText("PRIDE AND PREJUDICE", PAGE_W * 1.5, 100);
+  g.fillText("1", PAGE_W / 2, PAGE_H - 80);
+  g.fillText("2", PAGE_W * 1.5, PAGE_H - 80);
+  g.font = serif(46);
+  g.fillStyle = INK;
+  g.fillText("CHAPTER I.", PAGE_W / 2, 300);
+  g.fillRect(PAGE_W / 2 - 60, 330, 120, 3);
+  g.textAlign = "left";
+  setColumn(MARGIN_OUT, 420, PAGE_W - MARGIN_IN - MARGIN_OUT, BOTTOM);
+  setColumn(PAGE_W + MARGIN_IN, TOP, PAGE_W - MARGIN_IN - MARGIN_OUT, BOTTOM);
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.anisotropy = 8;
+  texture.flipY = false;
+  return texture;
+}
+
 const models: Record<Kind, Model> = {
   /** Match point: a felt ball resting on the baseline, a racket out of focus behind it. */
   tennis(root, ticks) {
@@ -308,58 +779,60 @@ const models: Record<Kind, Model> = {
       }),
       { dark: { color: 0xa9aaa6 } },
     );
-    const line = mesh(root, new THREE.PlaneGeometry(GROUND_WIDTH, 0.5), paint, 0, 0.002, 0.05);
+    // Stored small and blown up in the shader like the court itself, so it never counts toward bounds.
+    const line = mesh(root, expanded(new THREE.PlaneGeometry(GROUND_WIDTH, 0.5)), paint, 0, 0.002, 0.05);
+    defocus(paint, line);
     line.rotation.x = -Math.PI / 2;
     line.renderOrder = -1;
     line.receiveShadow = true;
     line.userData.frameIgnore = true;
 
-    // The racket behind, already out of focus: a soft painted card leaning on nothing we can see.
-    const blurred = paintTexture(192, 240, (u, v) => {
-      const x = (u - 0.5) * 2,
-        y = (v - 0.62) * 2.4;
-      const r = Math.hypot(x / 0.86, y / 1.02);
-      const frame = smoothstep(0.24, 0.04, Math.abs(r - 0.93));
-      const inside = smoothstep(0.84, 0.66, r);
-      const strings =
-        inside *
-        0.5 *
-        (smoothstep(0.32, 0.05, Math.abs(((((x * 7) % 1) + 1) % 1) - 0.5) * 2 - 0.7) +
-          smoothstep(0.32, 0.05, Math.abs(((((y * 7) % 1) + 1) % 1) - 0.5) * 2 - 0.7));
-      const throat = v < 0.3 ? smoothstep(0.12, 0.03, Math.abs(x)) * smoothstep(0, 0.08, v) : 0;
-      const a = clamp01(Math.max(frame, strings * 0.55, throat));
-      const [r1, g1, b1] = frame > strings ? [28, 31, 36] : [214, 214, 200];
-      return [r1, g1, b1, a * 150];
-    });
-    const card = new THREE.MeshBasicMaterial({ map: blurred, transparent: true, depthWrite: false, toneMapped: true });
-    const racket = mesh(root, new THREE.PlaneGeometry(1.3, 1.6), themed(card, { dark: { color: 0x7a7f88 } }), 0.95, 0.42, -2.4);
-    racket.rotation.set(-0.3, -0.35, -0.6);
-    racket.userData.frameIgnore = true;
+    // The racket, laid flat on the court behind the ball: a painted graphite frame with an open
+    // throat, a white overgrip running out of frame, and a real string bed whose grid the low sun
+    // throws across the court.
+    racket(root);
 
     const RADIUS = 0.42;
     const roller = group(root, 0, 0, 0.05);
     const ball = group(roller, 0, RADIUS, 0);
-    const felt = lookMaterial("felt", 0xcfd93b, { grain: 3, sheenRoughness: 0.6, roughness: 1 });
+    // The felt's colour wanders a little (dye and wear), darker in the matted patches.
+    const feltTone = paintTexture(256, 128, (u, v) => {
+      const n = fbm(u * 6, v * 3, 6, 4, 17);
+      return mixRgb(0xb9c22e, 0xd8e246, clamp01(0.25 + 0.9 * n));
+    });
+    const felt = lookMaterial("felt", 0xffffff, { map: feltTone, grain: 3, sheenRoughness: 0.6, roughness: 1 });
     sphere(ball, RADIUS, felt, [0, 0, 0], 48);
-    // A fuzz shell: a slightly larger, noisy, half-clear sphere breaks the silhouette like real nap.
-    const fuzzMap = paintTexture(
-      128,
-      64,
-      (u, v) => {
-        const n = valueNoise(u * 128, v * 64, 128, 31);
-        const a = smoothstep(0.55, 0.95, n) * 90;
+    // Fuzz: shells of nap, each a little larger and sparser (alpha-tested strands, so they never sort
+    // wrong), lighter toward the tips. They break the silhouette into a soft halo like real felt.
+    const strands = paintTexture(
+      512,
+      256,
+      (u, v, x, y) => {
+        const strand =
+          valueNoise2(x * 0.9, y * 1.8, 512 * 0.9, 256 * 1.8, 31) * 0.65 + valueNoise(u * 512, v * 256, 512, 32) * 0.35;
+        const a = strand * 255;
         return [a, a, a];
       },
       { srgb: false },
     );
-    const fuzz = new THREE.MeshStandardMaterial({
-      color: 0xe4ec7a,
-      roughness: 1,
-      alphaMap: fuzzMap,
-      transparent: true,
-      depthWrite: false,
-    });
-    decal(sphere(ball, RADIUS * 1.025, fuzz, [0, 0, 0], 40));
+    const SHELLS = 5;
+    for (let k = 1; k <= SHELLS; k++) {
+      const t = k / SHELLS;
+      const nap = lookMaterial("felt", new THREE.Color(0xc7d03a).lerp(new THREE.Color(0xf0f5a8), 0.15 + 0.55 * t), {
+        alphaMap: strands,
+        alphaTest: 0.52 + 0.22 * t,
+        sheenRoughness: 0.5,
+      });
+      themed(nap, {
+        dark: {
+          color: new THREE.Color(0xc7d03a)
+            .lerp(new THREE.Color(0xf0f5a8), 0.1 + 0.4 * t)
+            .multiplyScalar(0.9)
+            .getHex(),
+        },
+      });
+      decal(sphere(ball, RADIUS * (1 + 0.007 * k), nap, [0, 0, 0], 48));
+    }
     // The seam: a white rubber channel sunk into the felt.
     const seam = Array.from({ length: 129 }, (_, i) => {
       const a = (i / 128) * TAU;
@@ -372,136 +845,199 @@ const models: Record<Kind, Model> = {
     });
     decal(mesh(ball, tube(seam, 0.018, true, 160, 6), lookMaterial("rubber", 0xf3f1e6, { roughness: 0.55 })));
     ball.rotation.set(0.5, 0.3, 0);
-    pool(roller, 0.9, 0.6, 0, 0, 0.7);
+    const shadow = pool(roller, 0.9, 0.6, 0, 0, 0.7);
+    // Bounced at the baseline before a serve: eight bounces a loop, a parabolic arc (|sin|), a
+    // squash on contact, the contact shadow tightening and darkening as the ball comes down.
+    const HOP = 0.56;
     ticks.push((angle) => {
-      const x = 0.16 * Math.sin(angle);
-      roller.position.x = x;
-      ball.rotation.z = -x / RADIUS;
+      // Phased so the rest frame catches the ball just off the court.
+      const arc = Math.abs(Math.sin(angle * 4 - 0.53));
+      const squash = smoothstep(0.12, 0, arc);
+      ball.position.y = RADIUS * (1 - 0.14 * squash) + HOP * arc;
+      ball.scale.set(1 + 0.1 * squash, 1 - 0.14 * squash, 1 + 0.1 * squash);
+      ball.rotation.x = 0.5 + angle * 2;
+      const spread = 1 + 0.8 * arc;
+      shadow.scale.set(0.9 * spread, 0.6 * spread, 1);
+      (shadow.material as THREE.MeshBasicMaterial).opacity = 0.7 / (spread * spread);
     });
   },
 
-  /** Silicon detail: a finned heatsink with copper heat pipes and a fan, low across a board. */
+  /**
+   * Hot swap: the front of a rack server in macro. A zinc rack ear with its pull handle and a
+   * captive thumbscrew, a row of hot-swap sled bezels, and one sled pulled out on its rails, latch
+   * open, showing the bare SSD board it carries. Activity LEDs blink.
+   */
   server(root, ticks) {
-    circuitBoard(root);
-    const sink = group(root, -0.15, 0, -0.1);
-    sink.rotation.y = -0.55;
-    const aluminium = lookMaterial("brushedMetal", 0xaeb3b8, { roughness: 0.42, anisotropy: 0.45 });
-    const copper = lookMaterial("metal", 0xc27a4c, { roughness: 0.22 });
-    block(sink, [1.24, 0.12, 1.12], aluminium, [0, 0.06, 0], 0.02);
-    const fins: THREE.BufferGeometry[] = [];
-    for (let i = 0; i < 16; i++) fins.push(mergeable(placed(roundedBox(0.026, 0.86, 1.1, 0.01, 1), -0.6 + i * 0.08, 0.57, 0)));
-    mesh(sink, mergeGeometries(fins), lookMaterial("metal", 0xb4b9be, { roughness: 0.48 }));
-    const pipes: THREE.BufferGeometry[] = [];
-    for (const z of [-0.3, 0, 0.3])
-      pipes.push(
-        mergeable(
-          tube(
-            [
-              vec(-0.75, 0.95, z),
-              vec(-0.75, 0.25, z),
-              vec(-0.62, 0.11, z),
-              vec(0.62, 0.11, z),
-              vec(0.75, 0.25, z),
-              vec(0.75, 0.95, z),
-            ],
-            0.045,
-            false,
-            64,
-            12,
-          ),
-        ),
-      );
-    mesh(sink, mergeGeometries(pipes), copper);
-    // Pipe ends capped with a crimp.
-    for (const x of [-0.75, 0.75]) for (const z of [-0.3, 0, 0.3]) cylinder(sink, 0.05, 0.04, copper, [x, 0.97, z], 12);
+    steelLid(root);
+    const rack = group(root, -0.95, 0, 0.15);
+    rack.rotation.y = 0.42;
+    const HEIGHT = 0.66;
+    const powder = worn(lookMaterial("plastic", 0x24272c, { roughness: 0.5 }), 30, 2, 3);
+    const zinc = worn(lookMaterial("metal", 0xa7acb2, { roughness: 0.36 }), 90, 1, 5);
+    const chrome = worn(lookMaterial("metal", 0xd8dce0, { roughness: 0.16 }), 60, 2, 6);
+    const bezelPlastic = worn(lookMaterial("plastic", 0x17181b, { roughness: 0.42 }), 0, 2, 7);
+    const recess = lookMaterial("plastic", 0x07080a, { roughness: 0.7 });
 
-    // The fan, on the heatsink's right side, so the lens sees it at a steep angle.
-    const fan = group(sink, 0.72, 0.53, 0);
-    fan.rotation.y = Math.PI / 2;
-    const frameShape = new THREE.Shape();
-    const S = 0.5,
-      R = 0.08;
-    frameShape.moveTo(-S + R, -S);
-    frameShape.lineTo(S - R, -S);
-    frameShape.quadraticCurveTo(S, -S, S, -S + R);
-    frameShape.lineTo(S, S - R);
-    frameShape.quadraticCurveTo(S, S, S - R, S);
-    frameShape.lineTo(-S + R, S);
-    frameShape.quadraticCurveTo(-S, S, -S, S - R);
-    frameShape.lineTo(-S, -S + R);
-    frameShape.quadraticCurveTo(-S, -S, -S + R, -S);
-    const hole = new THREE.Path();
-    hole.absarc(0, 0, 0.46, 0, TAU, true);
-    frameShape.holes.push(hole);
-    const frameGeometry = new THREE.ExtrudeGeometry(frameShape, {
-      depth: 0.12,
-      bevelEnabled: true,
-      bevelSize: 0.012,
-      bevelThickness: 0.012,
-      bevelSegments: 2,
-      curveSegments: 40,
-    });
-    const plastic = lookMaterial("plastic", 0x1d1f22, { roughness: 0.5 });
-    mesh(fan, frameGeometry, plastic);
-    const rotor = group(fan, 0, 0, 0.07);
-    const blades: THREE.BufferGeometry[] = [
-      mergeable(placed(new THREE.CylinderGeometry(0.15, 0.15, 0.08, 32), 0, 0, 0, Math.PI / 2)),
-    ];
-    for (let i = 0; i < 7; i++) {
-      const blade = new THREE.Shape();
-      blade.moveTo(0.13, -0.05);
-      blade.quadraticCurveTo(0.32, -0.12, 0.43, 0.02);
-      blade.quadraticCurveTo(0.33, 0.12, 0.13, 0.08);
-      blade.closePath();
-      const geometry = new THREE.ExtrudeGeometry(blade, { depth: 0.012, bevelEnabled: false, curveSegments: 10 });
-      geometry.translate(0, 0, -0.006);
-      geometry.rotateX(0.45);
-      geometry.rotateZ((i * TAU) / 7);
-      blades.push(mergeable(geometry));
-    }
-    mesh(rotor, mergeGeometries(blades), lookMaterial("plastic", 0x2a2d31, { roughness: 0.42 }));
-    const badge = mesh(
-      rotor,
-      new THREE.CylinderGeometry(0.1, 0.1, 0.01, 32),
-      lookMaterial("brushedMetal", 0xa9adb1),
+    // The chassis, running back and out of frame to the right.
+    const chassis = group(rack);
+    // Shallow enough that its back edge (and the room beyond) shows above it, so the frame has air.
+    block(chassis, [3.05, HEIGHT, 1.0], powder, [1.5, HEIGHT / 2, -0.52], 0.02);
+    block(chassis, [2.95, HEIGHT - 0.08, 0.02], recess, [1.5, HEIGHT / 2, 0.0], 0.005);
+    setDressing(chassis);
+    pool(root, 3.4, 1.2, 0.35, -0.2, 0.55);
+
+    // The rack ear: a plate with a slot and a hole, folded back along the chassis side.
+    const ear = new THREE.Shape();
+    const EW = 0.44;
+    ear.moveTo(-EW, 0.0);
+    ear.lineTo(0, 0);
+    ear.lineTo(0, HEIGHT);
+    ear.lineTo(-EW + 0.05, HEIGHT);
+    ear.quadraticCurveTo(-EW, HEIGHT, -EW, HEIGHT - 0.05);
+    ear.lineTo(-EW, 0.05);
+    ear.quadraticCurveTo(-EW, 0, -EW + 0.05, 0);
+    const slot = new THREE.Path();
+    slot.absellipse(-0.12, 0.17, 0.045, 0.032, 0, TAU, true);
+    ear.holes.push(slot);
+    const screwHole = new THREE.Path();
+    screwHole.absarc(-0.12, HEIGHT - 0.17, 0.042, 0, TAU, true);
+    ear.holes.push(screwHole);
+    mesh(
+      rack,
+      new THREE.ExtrudeGeometry(ear, {
+        depth: 0.035,
+        bevelEnabled: true,
+        bevelSize: 0.006,
+        bevelThickness: 0.006,
+        bevelSegments: 2,
+        curveSegments: 24,
+      }),
+      zinc,
+      -0.02,
       0,
       0,
-      0.045,
     );
-    badge.rotation.x = Math.PI / 2;
-    ticks.push((angle) => (rotor.rotation.z = -angle * 6));
-    pool(root, 1.9, 1.7, -0.15, -0.1, 0.65);
-
-    // Board furniture: polymer capacitors, a DIMM in its slot, and a status LED that blinks.
-    const dressing = group(root);
-    const can = lookMaterial("brushedMetal", 0xb9bdc2, { roughness: 0.4 });
-    const sleeve = lookMaterial("plastic", 0x262a30, { roughness: 0.45 });
-    for (let i = 0; i < 5; i++) {
-      const x = -1.05 + i * 0.2,
-        z = 0.78;
-      cylinder(dressing, 0.075, 0.16, can, [x, 0.08, z], 24);
-      cylinder(dressing, 0.077, 0.06, sleeve, [x, 0.03, z], 24);
+    block(rack, [0.035, HEIGHT, 0.42], zinc, [-0.035, HEIGHT / 2, -0.2], 0.008);
+    // The pull handle: a chrome loop bolted to the ear.
+    mesh(
+      rack,
+      tube(
+        [vec(-0.33, 0.1, 0.04), vec(-0.33, 0.12, 0.17), vec(-0.33, 0.3, 0.2), vec(-0.33, 0.5, 0.17), vec(-0.33, 0.56, 0.04)],
+        0.024,
+        false,
+        48,
+        12,
+      ),
+      chrome,
+    );
+    for (const y of [0.1, 0.56]) cylinder(rack, 0.04, 0.03, chrome, [-0.33, y, 0.045], 16).rotation.x = Math.PI / 2;
+    // The captive thumbscrew: a knurled head and a washer in the upper hole.
+    const knurl = new THREE.CylinderGeometry(0.075, 0.075, 0.07, 48, 1);
+    const kp = knurl.attributes.position;
+    for (let i = 0; i < kp.count; i++) {
+      const a = Math.atan2(kp.getZ(i), kp.getX(i));
+      if (Math.hypot(kp.getX(i), kp.getZ(i)) > 0.05) {
+        const k = 1 + 0.04 * Math.max(0, Math.cos(a * 18)) ** 0.5;
+        kp.setX(i, kp.getX(i) * k);
+        kp.setZ(i, kp.getZ(i) * k);
+      }
     }
-    const chips: THREE.BufferGeometry[] = [];
-    for (let i = 0; i < 6; i++)
-      chips.push(mergeable(placed(roundedBox(0.09, 0.03, 0.05, 0.008, 1), 0.55 + i * 0.13, 0.015, 0.75)));
-    mesh(dressing, mergeGeometries(chips), lookMaterial("plastic", 0x141416, { roughness: 0.35 }));
-    const slot = group(dressing, 0.6, 0, -1.3);
-    slot.rotation.y = -0.55;
-    block(slot, [2.2, 0.12, 0.12], lookMaterial("plastic", 0x1a1a1c, { roughness: 0.5 }), [0, 0.06, 0], 0.02);
-    block(slot, [2.0, 0.55, 0.03], lookMaterial("plastic", 0x1d5b3e, { roughness: 0.4 }), [0, 0.38, 0], 0.01);
-    for (let i = 0; i < 8; i++)
-      block(slot, [0.2, 0.18, 0.02], lookMaterial("plastic", 0x111214, { roughness: 0.4 }), [-0.84 + i * 0.24, 0.4, 0.025], 0.01);
-    setDressing(dressing);
-    const ledMaterial = new THREE.MeshStandardMaterial({
-      color: 0x1a3a26,
-      emissive: 0x3dff8a,
-      emissiveIntensity: 2,
-      roughness: 0.3,
+    knurl.computeVertexNormals();
+    const screw = group(rack, -0.14, HEIGHT - 0.17, 0.035);
+    screw.rotation.x = Math.PI / 2;
+    cylinder(screw, 0.06, 0.012, chrome, [0, -0.008, 0], 32);
+    mesh(screw, knurl, chrome, 0, -0.05, 0);
+
+    // The sled bezels: a honeycomb vent, a latch lever with its orange touch point, two light pipes.
+    const vent = paintTexture(128, 96, (u, v) => {
+      // Hexagonal holes on a 12-across grid: distance to the nearest centre of a staggered lattice.
+      const gx = u * 12,
+        gy = v * 9 * 1.1547;
+      const row = Math.floor(gy),
+        shift = row % 2 ? 0.5 : 0;
+      const dx = ((gx + shift) % 1) - 0.5,
+        dy = (gy % 1) - 0.5;
+      const hex = Math.max(Math.abs(dx), Math.abs(dx) * 0.5 + Math.abs(dy) * 0.866);
+      const hole = smoothstep(0.36, 0.3, hex);
+      const c = 30 - 26 * hole;
+      return [c, c, c + 2];
     });
-    const led = block(root, [0.07, 0.03, 0.04], ledMaterial, [0.42, 0.015, 0.62], 0.01);
-    led.userData.frameIgnore = true;
-    ticks.push((angle) => (ledMaterial.emissiveIntensity = 0.4 + 2.6 * Math.max(0, Math.sin(angle * 6)) ** 4));
+    const ventNormal = paintTexture(
+      128,
+      96,
+      (u, v) => {
+        const gx = u * 12,
+          gy = v * 9 * 1.1547;
+        const row = Math.floor(gy),
+          shift = row % 2 ? 0.5 : 0;
+        const dx = ((gx + shift) % 1) - 0.5,
+          dy = (gy % 1) - 0.5;
+        const hex = Math.max(Math.abs(dx), Math.abs(dx) * 0.5 + Math.abs(dy) * 0.866);
+        const rim = smoothstep(0.3, 0.36, hex) * smoothstep(0.44, 0.36, hex);
+        const len = Math.hypot(dx, dy) || 1;
+        const n = vec((dx / len) * rim * 0.7, (dy / len) * rim * 0.7, 1).normalize();
+        return [(n.x * 0.5 + 0.5) * 255, (n.y * 0.5 + 0.5) * 255, (n.z * 0.5 + 0.5) * 255];
+      },
+      { srgb: false },
+    );
+    const ventMaterial = lookMaterial("plastic", 0xffffff, { map: vent, normalMap: ventNormal, roughness: 0.5 });
+    const lever = worn(lookMaterial("metal", 0x8e9399, { roughness: 0.3 }), 40, 1, 8);
+    const touch = lookMaterial("plastic", 0xd8622a, { roughness: 0.45 });
+    const leds: THREE.MeshStandardMaterial[] = [];
+    const SLED = 0.62,
+      PITCH = 0.68,
+      BH = HEIGHT - 0.12;
+    const sled = (x: number, out: boolean, index: number) => {
+      const front = group(rack, x, HEIGHT / 2, 0);
+      block(front, [SLED, BH, 0.07], bezelPlastic, [0, 0, 0.035], 0.012);
+      decal(mesh(front, new THREE.PlaneGeometry(SLED - 0.12, BH * 0.5), ventMaterial, -0.02, 0.07, 0.0715));
+      // The latch: a lever hinged at the left end, swung open on the pulled sled.
+      const hinge = group(front, -SLED / 2 + 0.05, -BH / 2 + 0.07, 0.085);
+      hinge.rotation.y = out ? -0.75 : 0;
+      block(hinge, [SLED - 0.12, 0.07, 0.03], lever, [(SLED - 0.12) / 2, 0, 0], 0.012);
+      block(hinge, [0.08, 0.072, 0.036], touch, [SLED - 0.17, 0, 0.004], 0.012);
+      cylinder(hinge, 0.018, 0.08, chrome, [0, 0, 0], 12);
+      for (const [k, color] of [
+        [0, 0x46ff8c],
+        [1, index === 1 ? 0xffa53a : 0x4aa8ff],
+      ] as const) {
+        const led = new THREE.MeshStandardMaterial({ color: 0x101410, emissive: color, emissiveIntensity: 1.6, roughness: 0.2 });
+        leds.push(led);
+        decal(block(front, [0.03, 0.03, 0.02], led, [SLED / 2 - 0.05, BH / 2 - 0.06 - k * 0.06, 0.075], 0.006));
+      }
+      return front;
+    };
+    const fronts: THREE.Group[] = [];
+    for (let i = 0; i < 4; i++) fronts.push(sled(0.38 + i * PITCH, i === 1, i));
+    // Only the ear, the pulled sled and its neighbours are framed; the rest runs out of the frame.
+    for (const front of fronts.slice(3)) setDressing(front);
+
+    // The pulled sled's tray: two rails and the bare board between them, half out of its bay.
+    const pulled = fronts[1];
+    const tray = group(pulled, 0, -BH / 2 + 0.02, -0.02);
+    for (const side of [-1, 1]) block(tray, [0.03, 0.07, 1.25], zinc, [side * (SLED / 2 - 0.03), 0.03, -0.6], 0.008);
+    block(tray, [SLED - 0.08, 0.012, 1.2], ssdBoardMaterial(), [0, 0.03, -0.62], 0.004);
+    const chip = worn(lookMaterial("plastic", 0x141518, { roughness: 0.38 }), 0, 3, 9);
+    const chips: THREE.BufferGeometry[] = [];
+    for (const [cx, cz, w, d] of [
+      [-0.12, -0.25, 0.2, 0.22],
+      [0.12, -0.25, 0.2, 0.22],
+      [-0.12, -0.6, 0.2, 0.22],
+      [0.12, -0.6, 0.2, 0.22],
+      [0, -0.95, 0.24, 0.2],
+    ])
+      chips.push(mergeable(placed(roundedBox(w, 0.025, d, 0.006, 1), cx, 0.05, cz), true));
+    mesh(tray, mergeGeometries(chips), chip);
+    pulled.position.z = 0.85;
+    pool(root, 0.9, 1.2, -0.1, 0.75, 0.4);
+
+    ticks.push((angle) => {
+      leds.forEach(
+        (led, i) => (led.emissiveIntensity = i % 2 ? 1.4 : 0.3 + 2.2 * Math.max(0, Math.sin(angle * 9 + i * 1.3)) ** 6),
+      );
+      // The pulled sled eases a touch further out and back.
+      pulled.position.z = 0.85 + 0.05 * Math.sin(angle);
+    });
   },
 
   /** Quiet chapter: tortoiseshell glasses folded on an open book, a page lifting in the draught. */
@@ -512,17 +1048,21 @@ const models: Record<Kind, Model> = {
       THICK = 0.18;
     const pageCurve = (t: number) =>
       THICK + 0.11 * Math.max(0, Math.sin(Math.min(1, Math.max(0, t) * 1.6) * (Math.PI / 2))) ** 0.7 - 0.04 * t;
-    const textMap = paintTexture(256, 352, (u, v) => {
-      const paper = mixRgb(0xf3ecdc, 0xebe2cd, valueNoise(u * 30, v * 30, 30, 4));
-      const margin = u < 0.14 || u > 0.88 || v < 0.1 || v > 0.9;
-      if (margin) return paper;
-      const line = Math.floor((v - 0.1) * 46);
-      const inLine = ((v - 0.1) * 46) % 1;
-      const word = valueNoise(u * 34, line * 3.1, 34, line + 3);
-      const ink = smoothstep(0.32, 0.2, Math.abs(inLine - 0.45)) * smoothstep(0.3, 0.36, word) * (line % 17 === 16 ? 0 : 1);
-      return paper.map((c, i) => mix(c, [70, 64, 58][i], ink * 0.7)) as [number, number, number];
-    });
-    const pageMaterial = new THREE.MeshStandardMaterial({ map: textMap, roughness: 0.92 });
+    const textMap =
+      bookSpread() ??
+      paintTexture(512, 352, (spreadU, v) => {
+        const u = (spreadU * 2) % 1;
+        const paper = mixRgb(0xf3ecdc, 0xebe2cd, valueNoise(u * 30, v * 30, 30, 4));
+        const margin = u < 0.14 || u > 0.88 || v < 0.1 || v > 0.9;
+        if (margin) return paper;
+        const line = Math.floor((v - 0.1) * 46);
+        const inLine = ((v - 0.1) * 46) % 1;
+        const word = valueNoise(u * 34, line * 3.1, 34, line + 3);
+        const ink = smoothstep(0.32, 0.2, Math.abs(inLine - 0.45)) * smoothstep(0.3, 0.36, word) * (line % 17 === 16 ? 0 : 1);
+        return paper.map((c, i) => mix(c, [70, 64, 58][i], ink * 0.7)) as [number, number, number];
+      });
+    const pageMaterial = lookMaterial("paper", 0xffffff, { map: textMap, roughness: 0.92, grain: 3 });
+    pageMaterial.normalScale.set(0.25, 0.25);
     const edgeMaterial = lookMaterial("paper", 0xe6dcc4, { roughness: 0.95, grain: 2 });
     const pageBlock = (sign: number) => {
       const shape = new THREE.Shape();
@@ -534,8 +1074,11 @@ const models: Record<Kind, Model> = {
       geometry.translate(0, 0, -H / 2);
       const uv = geometry.attributes.uv,
         position = geometry.attributes.position;
-      for (let i = 0; i < uv.count; i++) uv.setXY(i, Math.abs(position.getX(i)) / W, 0.5 + position.getZ(i) / H);
-      if (sign < 0) for (let i = 0; i < uv.count; i++) uv.setX(i, 1 - uv.getX(i));
+      // The spread: the left page in the texture's left half (its outer edge at u 0), the right in its right half.
+      for (let i = 0; i < uv.count; i++) {
+        const across = Math.abs(position.getX(i)) / W;
+        uv.setXY(i, sign < 0 ? 0.5 * (1 - across) : 0.5 + 0.5 * across, 0.5 + position.getZ(i) / H);
+      }
       return geometry;
     };
     const book = group(root, 0.05, 0.03, 0.05);
@@ -565,8 +1108,11 @@ const models: Record<Kind, Model> = {
     const lp = leaf.attributes.position;
     for (let i = 0; i < lp.count; i++) lp.setY(i, pageCurve(lp.getX(i) / W) - THICK + 0.004 + 0.06 * (lp.getX(i) / W) ** 2);
     leaf.computeVertexNormals();
+    // The leaf shows the right page's half of the spread, head away from the lens.
+    const leafUv = leaf.attributes.uv;
+    for (let i = 0; i < leafUv.count; i++) leafUv.setXY(i, 0.5 + 0.5 * leafUv.getX(i), 1 - leafUv.getY(i));
     const sheetPivot = group(book, 0, THICK, 0);
-    mesh(sheetPivot, leaf, new THREE.MeshStandardMaterial({ map: textMap, roughness: 0.92, side: THREE.DoubleSide }));
+    mesh(sheetPivot, leaf, lookMaterial("paper", 0xffffff, { map: textMap, roughness: 0.92, grain: 3, side: THREE.DoubleSide }));
     setDressing(book);
     ticks.push((angle) => (sheetPivot.rotation.z = 0.02 + 0.07 * (0.5 + 0.5 * Math.sin(angle))));
 
@@ -581,7 +1127,12 @@ const models: Record<Kind, Model> = {
       },
       { repeat: [2, 2] },
     );
-    const acetate = lookMaterial("ceramic", 0xffffff, { map: tortoise, roughness: 0.18, clearcoat: 1, clearcoatRoughness: 0.08 });
+    const acetate = worn(
+      lookMaterial("ceramic", 0xffffff, { map: tortoise, roughness: 0.18, clearcoat: 1, clearcoatRoughness: 0.08 }),
+      30,
+      2,
+      27,
+    );
     const glasses = group(root, 0.5, 0.64, 0.3);
     glasses.rotation.set(-0.06, -0.22, 0);
     const RX = 0.25,
@@ -625,7 +1176,7 @@ const models: Record<Kind, Model> = {
     mesh(glasses, tube([vec(-0.07, 0.07, 0), vec(0, 0.1, 0), vec(0.07, 0.07, 0)], 0.026, false, 16, 12), acetate);
     // End pieces and barrel hinges at the outer corners; the temples stand open, running back over
     // the page and bending down at the ear so the glasses rest on their rims and temple tips.
-    const pin = lookMaterial("metal", 0xc8c2b4, { roughness: 0.3 });
+    const pin = worn(lookMaterial("metal", 0xc8c2b4, { roughness: 0.3 }), 60, 1, 26);
     for (const side of [-1, 1]) {
       const edge = side * (0.3 + RX + BAND);
       mesh(glasses, roundedBox(0.05, 0.075, 0.07, 0.02), acetate, edge - side * 0.012, 0.09, -0.04);
@@ -659,8 +1210,8 @@ const models: Record<Kind, Model> = {
 
 /** One lens for the whole direction; the angle and crop move with the subject's height. */
 const subjectCamera: Record<Kind, { pitch: number; yaw?: number; fill?: number; maxWidth?: number }> = {
-  tennis: { pitch: 13, fill: 0.62 },
-  server: { pitch: 16, fill: 0.8 },
+  tennis: { pitch: 22, fill: 0.5 },
+  server: { pitch: 20, fill: 0.8 },
   reading: { pitch: 20, fill: 0.5, maxWidth: 0.7 },
 };
 
@@ -674,6 +1225,7 @@ const lampAt: Record<Kind, [number, number, number]> = {
 export function realistic(kind: Kind, ticks: Tick[]) {
   const root = new THREE.Group();
   models[kind](root, ticks);
+  backdrop(root, kind === "tennis" ? "court" : kind === "server" ? "rack" : "room");
   // The practical: a warm point light, on only in the dark theme.
   const lamp = new THREE.PointLight(0xffb36e, 0, 0, 2);
   lamp.position.set(...lampAt[kind]);

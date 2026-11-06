@@ -26,10 +26,41 @@ const brass = lookMaterial("metal", 0xb8893b, { roughness: 0.22 });
 const base = themed(lookMaterial("plastic", 0x1e2a33, { roughness: 0.7 }), { dark: { color: shade(0x1e2a33, -0.3) } });
 ```
 
-Each direction's look lives beside its builders: `studioLook` in `studio.ts` (Contact's original
+Each direction's look lives beside its builders: `studioLook(palette, shot)` in `studio.ts` (Contact's original
 editions fall back to the defaults in `scenes.ts#createObject`), `paperLook` in `paper-worlds.ts`,
 `kineticLook` in `kinetic-sculptures.ts`, and `cartoonLook`, `realisticLook` and `abstractLook` in
 `expanded-cartoon.ts`, `expanded-realistic.ts` and `expanded-abstract.ts`. Change those, not `mount.ts`.
+
+Studio builds its look per subject: `studioLook(palette, shot)` keeps one rig and one lens family
+and sets each subject's pitch, field of view and fill. Its night colours derive from the palette
+(`nightRoom`: the ink's hue for the sweep's pool, the sky and the kicker; the accent's hue for the
+rim), so Studio follows the page style it sits in. It adds two scene-local devices on top of its
+rig. A rim term on lit dielectric materials (`addRim`, weighted per preset; metals take none, their
+edge comes from the environment) brightens surfaces that turn away from the lens towards the rim's
+side; it rides in the emissive colour, so `themed` switches it (white and faint by day, the room's
+rim colour at night). A sweep (`sweep`) draws the seamless backdrop only as light: a falloff away
+from the subject and, at night, a pool behind it and a warm top-light pool on the table under it.
+Its geometry is stored small and scaled in the vertex shader, so it never counts towards bounds or
+framing.
+
+Paper and Kinetic add scene-local devices in `kinetic-sculptures.ts`, which `paper-worlds.ts` also
+imports. `surfaceFinish` gives a material a procedural surface in object space (no UVs needed):
+colour, roughness, normal and clearcoat-normal GLSL run after three's own chunks. Kinetic uses it
+for glazed stoneware (soft body under a clear glaze, mottling, iron speckle, orange-peel ripple),
+brass turning marks and honed slate; Paper for card formation, stray fibres and tooth on top of the
+fibre map. `themeSwitch` lets a scene own a light that changes with the theme: an invisible probe
+material is themed, and a tick reads it. Paper's warm lantern and Kinetic's gallery spot are such
+lights, a soft accent by day and the main light at night (Kinetic keeps its slate dark at night and
+lets the spot pool on it). Spot lights cast no shadow map; the rig's key still does.
+
+The expanded directions add theirs in their own files. Cartoon (`expanded-cartoon.ts`) layers toy
+finishes on the toon ramp (`withMoonRim`: a hard gloss from each directional light for vinyl, a dim
+one for satin, a grazing lift and fibre speckle for flock) and a warm practical `PointLight` per
+scene, on only at night. Realistic (`expanded-realistic.ts`) runs its surface back to a wall
+(`backdrop`) and softens both with distance from the subject (`defocus`, a mip bias on every map)
+instead of fading the surface out. Abstract (`expanded-abstract.ts`) lights its lacquer bars with a
+pool light (`poolLight`) and draws caustics with normal blending, since added light disappears on a
+pale card.
 
 ## Light rigs (`lightRigs`, `rig`)
 
@@ -96,6 +127,10 @@ pose only (`sample: "rest"`), and re-fitted on every resize, so phones and slide
   orthographic view. Pitch is what makes plinths and floors read as surfaces; when you add it,
   remove the matching tilt from the root.
 - Close-up crops (realistic macro): raise `fill` above 0.8 and `maxWidth` above 1.
+- A set whose cards must match (cartoon's islands) can frame a fixed invisible proxy instead of its
+  props: a `LineSegments` envelope with `colorWrite: false` that every prop stays inside, so it
+  alone sets the fit (lines cast no shadow and never render). Check that `data-fill` matches across
+  the set.
 
 ## Performance budget
 
