@@ -28,7 +28,7 @@ for (const [variant, style] of [[3, "cartoon"]] as const) {
           /Studio objects/,
           /Cartoon worlds/,
         ]);
-        await page.getByRole("button", { name: "Studio objects", exact: true }).click();
+        await page.getByRole("button", { name: /^Studio objects\b/ }).click();
         await expect(page.getByRole("combobox", { name: /Inbox edition/ })).toBeVisible();
       }
 
