@@ -1,5 +1,6 @@
 # UIPACK documentation
 
+- **[For agents](agents/README.md):** the read order, where each site's spec lives, what is fixed and what each site sets, the [multi-agent build](agents/multi-agent-build.md) and its [subagent brief](agents/subagent-brief.md). The job skills are in [`skills/`](../skills/README.md).
 - **[Design system](system/README.md): start here.** The philosophy and the three independent layers, [style](system/style.md), [writing](system/writing.md) and [layout](system/layout.md), each with sections for diagrams, slides, web, motion and 3D.
 - [Design direction](design-direction.md): visual style, catalog taxonomy, mobile interaction, and presentation composition.
 - The diagrams page (`/` in the playground) is the figure design system: one section per diagram pattern, simplest first, each with when to use it and the parts it is built from. Its sections are `figureEntries` in `playground/catalog.ts`; add a pattern there and in `playground/figures/` the first time a published figure uses it.
@@ -31,6 +32,7 @@ Every page of the docs site, by sidebar group, linked to the file it renders. Ge
 
 <!-- generated:site-map -->
 - **Start here:** [What UiPack is](README.md), [Install and use](../README.md)
+- **For agents:** [How agents use UiPack](agents/README.md), [Multi-agent build](agents/multi-agent-build.md), [Subagent brief](agents/subagent-brief.md), [Starting a new website](agents/new-website.md)
 - **Rules:** [Overview](system/README.md), [Style contract](system/style.md), [Writing](system/writing.md), [Layout](system/layout.md), [What a spec may set](system/spec-settings.md), [Mix and match](system/README.md), [Recipes](system/layout.md), [Do and don't](system/writing.md)
 - **Components:** [Architecture diagrams](../README.md), [Drill-down figures](drill.md), [Charts](charts.md), [Article parts](article.md), [Deck player: Tech talk](deck.md), [Deck player: Bento](deck.md), [Deck player: Consulting](deck-consulting.md), [Deck storytelling](deck-storytelling.md), [Slide starters](presentations.md), [3D animations](slides.md), [3D object scenes](objects.md), [Mechanism](mechanism.md), [Docs layout](docs-layout.md)
 - **Families:** [Diagrams](families/diagrams.md)

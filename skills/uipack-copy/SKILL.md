@@ -1,0 +1,44 @@
+---
+name: uipack-copy
+description: >-
+  Write or tighten the words of a UiPack piece: slide titles, points and speaker notes, a
+  read-alone deck or document, landing and web copy, figure labels and captions. Use for "write
+  the copy", "fix these slide titles", "make it not sound AI-generated", "tighten the hero",
+  "caption this figure", or the content step of a page or deck. Not for emails or meeting briefs
+  (their own skills), or layout and styling (uipack-page).
+---
+
+# Write the copy
+
+Paths are relative to the uipack root: `node_modules/uipack/` in a site, or a uipack clone.
+
+Words are typed data with no colour, face or position in them. Write them into the content object
+(a `DeckSlide[]`, a preset spec, a page content object) before any layout.
+
+## Pick the kind, then read only its section
+
+| Kind | Read |
+| --- | --- |
+| Talk or presented slides | [Writing, slides](../../docs/system/writing.md#slides) and [deck storytelling](../../docs/deck-storytelling.md) |
+| Read-alone document or deck (pre-read, readout) | The same sections, `read-alone` mode: full-sentence titles, full notes |
+| Web and landing copy | [Writing, web](../../docs/system/writing.md#web) and [web principles](../../docs/web-principles.md) |
+| Figure labels and captions | [Writing, diagrams](../../docs/system/writing.md#diagrams) |
+| Every kind | [Rules for every medium](../../docs/system/writing.md#rules-for-every-medium) and the [slot budgets](../../docs/system/writing.md#slot-budgets) |
+
+The site's spec (`STYLE.md`, "Settings chosen") sets voice and register: how formal, house words to
+prefer or avoid. The rules above hold on every site.
+
+## Non-negotiables
+
+- Only the facts you were given. A missing fact is left out, never filled in or announced; finished
+  copy never shows `TODO`.
+- A before/after says "after", "since" or "went from… to", never a cause.
+- Copy qualifiers exactly ("up to 15 minutes", "about").
+- The reader's words: no internal metrics or tool names on public pages.
+- Each fact once per piece.
+
+## Check
+
+Decks: `lintDeck(slides, { mode })` from `uipack/deck` and fix every finding. Then reread as the
+person who must act on it against rule 11's checklist in
+[writing.md](../../docs/system/writing.md#rules-for-every-medium) and revise once.

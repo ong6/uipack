@@ -2,12 +2,19 @@
 
 > A design system that draws explanations: diagrams, slides, web pages, motion and 3D, as React and SVG components. Its documentation is the Markdown in this package; the docs site renders the same files.
 
-Read docs/system/README.md first (style, writing and layout as three layers). Agent instructions are in AGENTS.md. Generated from playground/docs-manifest.ts by `npm run docs:sync`; do not edit by hand.
+Agents: read docs/agents/README.md first, then the skill for your job in skills/ (README.md indexes them); the design system itself starts at docs/system/README.md. Agent instructions are in AGENTS.md. Generated from playground/docs-manifest.ts by `npm run docs:sync`; do not edit by hand.
 
 ## Start here
 
 - [What UiPack is](docs/README.md): UiPack is a design system that draws explanations: diagrams, slides, web pages, motion and 3D. This is the index of its documentation.
 - [Install and use](README.md): Install the package, draw a first figure, and the entries for charts, articles, 3D, web pages, decks and docs.
+
+## For agents
+
+- [How agents use UiPack](docs/agents/README.md): The read order for an agent: the job's skill, the site's spec, the core rules, then the parts; what is fixed and what each site sets.
+- [Multi-agent build](docs/agents/multi-agent-build.md): How a lead splits a website across subagents: what the lead owns, what a subagent never decides, the hand-off and the review pass.
+- [Subagent brief](docs/agents/subagent-brief.md): The copy-paste brief for one subagent building one page or section: inputs, limits, outputs and the self-check.
+- [Starting a new website](docs/agents/new-website.md): A new site gets its spec first: write it from the template, check it, register it, then build.
 
 ## Rules
 

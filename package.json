@@ -178,6 +178,8 @@
     "docs/families/*.md",
     "docs/grading",
     "bin",
+    "docs/agents/*.md",
+    "skills",
     "scripts/check-spec.ts",
     "scripts/style-contract.ts",
     "examples/web-starter/*",

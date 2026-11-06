@@ -6,6 +6,10 @@ I wanted the figures from OpenAI's [Habitat post](https://openai.com/index/scali
 
 ![The agent-loop preset, light theme](docs/presets/agentLoop-light.png)
 
+## For agents
+
+An agent building with UiPack starts at [docs/agents/README.md](docs/agents/README.md) (read order, where each site's spec lives, what is fixed and what each site sets), then reads the skill for its job in [skills/](skills/README.md): build a page, draw a diagram, write copy, write a site spec, review and grade. Both ship in the package, so a site reads them at `node_modules/uipack/`, matching the code it installed. Splitting a site across subagents: [multi-agent build](docs/agents/multi-agent-build.md).
+
 ## Install
 
 Not on npm yet (the bare name belongs to someone else's placeholder). Install from GitHub; `dist/` is committed so there is no build step on the consumer side.
