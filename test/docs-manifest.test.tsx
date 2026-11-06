@@ -1,0 +1,132 @@
+// The docs site renders the repo's Markdown, so people and agents read one source. These checks
+// keep that true: every page has its file, every docs file has a page, every number a generated
+// block states matches the code (npm run docs:sync), llms.txt is current, demos resolve, and a
+// relative link in a docs file lands on a real file.
+import { existsSync, readFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { extractDocsHeadings } from "../src/docs";
+import { docsFiles, docsManifest, docsPages, pageForFile } from "../playground/docs-manifest";
+import { demoIdsIn, demos, withDemos } from "../playground/demos";
+import { repoPath, resolveDocsUrl, servedFiles } from "../playground/docs-links";
+import { blockNames, docsMarkdownFiles, generators, llmsTxt, syncSource, syncTargets } from "../scripts/docs-sync";
+
+const root = resolve(__dirname, "..");
+const read = (f: string) => readFileSync(resolve(root, f), "utf8");
+
+describe("docs manifest", () => {
+  it("page ids and routes are unique, and every group has pages", () => {
+    const ids = docsPages.map((p) => p.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    const routes = docsPages.map((p) => `${p.path}?${new URLSearchParams(p.query)}`);
+    expect(new Set(routes).size).toBe(routes.length);
+    for (const g of docsManifest) expect(g.pages.length, g.id).toBeGreaterThan(0);
+  });
+
+  it("every page's Markdown file exists", () => {
+    const missing = docsPages.filter((p) => !existsSync(resolve(root, p.file))).map((p) => `${p.id}: ${p.file}`);
+    expect(missing).toEqual([]);
+  });
+
+  it("every Markdown file under docs/ is a page (or a page's file)", () => {
+    const orphans = docsMarkdownFiles().filter((f) => !docsFiles.includes(f));
+    expect(orphans, "add a page for each to playground/docs-manifest.ts").toEqual([]);
+  });
+
+  it("a link to a file goes to the page that renders it", () => {
+    expect(pageForFile("docs/system/README.md")?.id).toBe("foundations");
+    expect(pageForFile("docs/system/style.md")?.id).toBe("foundations-style");
+    expect(pageForFile("docs/specs/technical.md")?.id).toBe("spec-technical");
+  });
+});
+
+describe("generated blocks and llms.txt (npm run docs:sync)", () => {
+  it("every generated block in the docs names a generator, and none is stale", () => {
+    const stale = syncTargets()
+      .filter((t) => t.current !== t.next)
+      .map((t) => t.file);
+    expect(stale, "run npm run docs:sync").toEqual([]);
+  });
+
+  it("the slot budget table in docs/system/writing.md is generated", () => {
+    expect(blockNames(read("docs/system/writing.md"))).toContain("slot-budgets");
+    expect(blockNames(read("docs/README.md"))).toContain("site-map");
+  });
+
+  it("a stale block is rewritten and an unknown one fails", () => {
+    const stale = "Before\n<!-- generated:slot-budgets -->\n| old |\n<!-- /generated -->\nAfter";
+    const synced = syncSource("docs/system/writing.md", stale);
+    expect(synced).toContain(generators["slot-budgets"]("docs/system/writing.md"));
+    expect(synced.startsWith("Before\n") && synced.endsWith("\nAfter")).toBe(true);
+    expect(() => syncSource("x.md", "<!-- generated:nope -->\n<!-- /generated -->")).toThrow(/no generator "nope"/);
+  });
+
+  it("llms.txt lists each docs file once, by group, with links that resolve", () => {
+    const text = llmsTxt();
+    const links = [...text.matchAll(/\]\(([^)]+)\)/g)].map((m) => m[1]);
+    expect(new Set(links).size).toBe(links.length);
+    for (const link of links) expect(existsSync(resolve(root, link)), link).toBe(true);
+    for (const g of docsManifest) expect(text).toContain(`## ${g.label}`);
+  });
+});
+
+describe("demos and links in the docs", () => {
+  it("every demo a page or a file names is registered, and each placement heading exists", () => {
+    const problems: string[] = [];
+    for (const p of docsPages) {
+      const source = read(p.file);
+      for (const d of p.demos ?? []) {
+        if (!demos[d.id]) problems.push(`${p.id}: demo ${d.id} is not in playground/demos.tsx`);
+        if (d.at && !extractDocsHeadings(source).some((h) => h.id === d.at)) problems.push(`${p.id}: no heading #${d.at}`);
+      }
+    }
+    for (const f of docsFiles) for (const id of demoIdsIn(read(f))) if (!demos[id]) problems.push(`${f}: uipack-demo ${id}`);
+    expect(problems).toEqual([]);
+  });
+
+  it("a page's demo is inserted before its heading until the file names it", () => {
+    const source = "# T\n\nLead.\n\n## One\n\nText.\n\n## Two\n";
+    const out = withDemos(source, [{ id: "layer-swap", at: "two" }]);
+    expect(out.indexOf("```uipack-demo layer-swap wide")).toBeGreaterThan(out.indexOf("## One"));
+    expect(out.indexOf("```uipack-demo layer-swap wide")).toBeLessThan(out.indexOf("## Two"));
+    const named = "# T\n\n```uipack-demo layer-swap\nShown here.\n```\n";
+    expect(withDemos(named, [{ id: "layer-swap", at: "two" }])).toBe(named);
+  });
+
+  it("resolves a docs file's relative links to pages, raw files or GitHub", () => {
+    expect(repoPath("docs/system/README.md", "../web-principles.md")).toBe("docs/web-principles.md");
+    expect(resolveDocsUrl("docs/system/README.md", "style.md#diagrams", "link", "dark")).toBe(
+      "/foundations/style?theme=dark#diagrams",
+    );
+    expect(resolveDocsUrl("docs/specs/README.md", "../../src/style.ts", "link", "light")).toBe(
+      "https://github.com/ong6/uipack/blob/main/src/style.ts",
+    );
+    expect(resolveDocsUrl("README.md", "docs/presets/agentLoop-light.png", "image", "light")).toBe(
+      "/docs/presets/agentLoop-light.png",
+    );
+    expect(resolveDocsUrl("docs/README.md", "https://example.com", "link", "light")).toBe("https://example.com");
+    expect(resolveDocsUrl("docs/README.md", "#site-map", "link", "light")).toBe("#site-map");
+  });
+
+  it("every relative link and image in a docs page lands on a file in the repo", () => {
+    const broken: string[] = [];
+    for (const f of docsFiles) {
+      // Code (fenced or inline) shows Markdown syntax; it links nowhere.
+      const text = read(f)
+        .replace(/^(`{3,}|~{3,})[\s\S]*?^\1/gm, "")
+        .replace(/`[^`\n]*`/g, "");
+      for (const m of text.matchAll(/!?\[[^\]]*\]\(([^)\s]+)\)/g)) {
+        const url = m[1];
+        if (/^[a-z][a-z0-9+.-]*:|^\/|^#/i.test(url)) continue;
+        const path = repoPath(f, url.split("#")[0]);
+        if (!existsSync(resolve(root, path))) broken.push(`${f}: ${url}`);
+      }
+    }
+    expect(broken).toEqual([]);
+  });
+
+  it("the site serves every page's file and the images they show", () => {
+    const served = servedFiles(read);
+    for (const f of docsFiles) expect(served).toContain(f);
+    expect(served).toContain("docs/presets/agentLoop-light.png");
+  });
+});

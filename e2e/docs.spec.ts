@@ -54,7 +54,10 @@ test(
   async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto("/docs");
-    const skip = page.getByRole("link", { name: "Skip to documentation content" });
+    // The sample docs layout's own skip link (the playground's shell has one too).
+    const skip = page
+      .locator('[data-catalog-entry="product-docs-layout"]')
+      .getByRole("link", { name: "Skip to documentation content" });
     await expect(skip).toHaveCount(1);
     // A host's tab panel can transform or contain the docs (junxiong.dev/uipack does): a fixed,
     // translated link would then anchor to it and paint at the top of the page.

@@ -3,6 +3,7 @@ export {
   DocsMarkdown,
   extractDocsHeadings,
   slugifyDocsHeading,
+  type DocsMarkdownBlock,
   type DocsMarkdownProps,
   type ExtractDocsHeadingsOptions,
   type ExtractedDocsHeading,

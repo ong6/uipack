@@ -37,11 +37,11 @@ UI Pack draws explanations. A visual exists to make one thing understood faster 
 
 You can change any layer without touching the other two:
 
-- **Same words and layout, new style.** Technical is the one implemented style. Landing and
-  Graphical are written specs ([`styles/`](styles/README.md)) that fill the same role contract; an
-  agent builds a new style from a spec by adding one value set in `src/styles`, registering it in
-  `uiStyles`, and testing it. A deck or page built in Technical then renders in it with its
-  headlines, notes, order and regions unchanged: only colours, faces and ornaments differ.
+- **Same words and layout, new style.** Each website has one spec that fills the same role
+  contract ([how to write one](../specs/README.md)); Technical is the uipack site's. uipack renders
+  another spec by adding one value set in `src/styles`, registering it in `uiStyles`, and testing
+  it. A deck or page built in Technical then renders in it with its headlines, notes, order and
+  regions unchanged: only colours, faces and ornaments differ.
 - **Same style and words, new layout.** Turn a deck's comparison slide into a bento slide, or a
   wide figure into its stacked narrow drawing.
 - **Same style and layout, new words.** A slide archetype or figure preset fed different content.
@@ -65,7 +65,7 @@ Four more rules keep the split honest where it would otherwise leak:
 
 - **A style may own scalars and ornaments, never positions or words.** Density, type ratio,
   line length and display scale are style roles. Shapes a style adds (Technical's drafting grid,
-  the Graphical spec's disc) go in named ornament slots that never take space, so every region stays put.
+  for example) go in named ornament slots that never take space, so every region stays put.
 - **Every slot has a text budget.** A presented slide's headline is 2–5 words (at most 14 when the
   deck is read without its speaker), a body point a fragment of at most 8 words, an optional
   eyebrow 1–4 words, a label 2–3. The linter flags any slot over budget
@@ -119,7 +119,7 @@ values:
 | `uipack-design` | The entry point for any UI Pack visual: pick the medium, write the content, choose the layout, apply a style, review against the three layers. Routes execution to the skills below. | This folder |
 | `system-diagram` (existing) | Executes diagrams. Its taste table defers to [Style roles, diagrams](style.md#diagrams) and [Layout, diagrams](layout.md#diagrams). | Diagram sections |
 | `3d-design`, `blender-authoring` (existing) | Execute 3D. Art direction comes from [Style roles, 3D](style.md#3d). | 3D sections |
-| `frontend-design`, `ux-design` | Execute web pages in Technical. A brief that needs another look builds it from a [written spec](styles/README.md) first. | Web sections, [Web principles](../web-principles.md) |
+| `frontend-design`, `ux-design` | Execute web pages in Technical. Another site's look comes from its [spec](../specs/README.md). | Web sections, [Web principles](../web-principles.md) |
 | `create-fde-deck` (existing) | Customer field-engineering decks; its evidence ledger is a writing layer of its own and renders through `uipack/deck` layouts. | Slide sections |
 
 ## Related docs
@@ -127,8 +127,9 @@ values:
 - [Design direction](../design-direction.md): the playground shell, catalog taxonomy, interaction
   polish and acceptance checks.
 - Per-style guides: [web principles](../web-principles.md), [Mechanism](../mechanism.md),
-  [Object scenes and 3D art directions](../objects.md). Written specs for styles not yet built:
-  [Landing and Graphical](styles/README.md).
+  [Object scenes and 3D art directions](../objects.md). Site specs: [how to write one](../specs/README.md),
+  [Technical](../specs/technical.md) and the [registry](../specs/registry.md); the shared
+  [diagram family](../families/diagrams.md).
 - Medium references: [Deck player](../deck.md), [Deck storytelling](../deck-storytelling.md),
   [Consulting slides](../deck-consulting.md), [Charts](../charts.md), [Article parts](../article.md),
   [Drill-down figures](../drill.md), [3D animations](../slides.md).

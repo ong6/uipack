@@ -1,7 +1,7 @@
 import * as react from 'react';
 import { ReactNode, ElementType, CSSProperties, ButtonHTMLAttributes, RefObject, ReactElement } from 'react';
 import { F as FigureChrome } from './context-Baoq0bBr.js';
-import { U as UiStyleId, b as UiStyleMeta } from './style-CXShTJR9.js';
+import { U as UiStyleId, b as UiStyleMeta } from './style-oR-5TVuD.js';
 export { a as easeOutExpo } from './math-DL8QKXOl.js';
 
 interface WebSurfaceProps {

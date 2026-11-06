@@ -1,7 +1,7 @@
 /**
  * The styles UI Pack ships, one value set each in src/styles (docs/system/style.md). Technical is
- * the one implemented style. Landing and Graphical are written specs (docs/system/styles/) that
- * fill the same role contract; an agent builds a new style from a spec by adding one value set in
+ * the one implemented style, the uipack site's spec (docs/specs/technical.md). Each other website
+ * has its own spec (docs/specs/README.md); uipack renders one by adding one value set in
  * src/styles, registering it here (the id below and an entry in `uiStyles`), and testing it.
  * A component's `uiStyle` prop sets `data-ui-style` on its root; omitted, it follows the nearest
  * ancestor that sets one, else Technical. A swap changes tokens only: the same regions, boxes and

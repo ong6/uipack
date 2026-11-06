@@ -6,10 +6,9 @@ The components enforce what they can; the rest is on the page author.
 ## Web style
 
 `uipack/web` renders in Technical, the one implemented style (its values in `src/styles/technical.css`,
-its roles in [docs/system/style.md](system/style.md)). Landing and Graphical are written specs
-([docs/system/styles/](system/styles/README.md)) that fill the same role contract; an agent builds a
-new style from a spec by adding one value set in `src/styles`, registering it in `uiStyles`, and
-testing it. `<WebSurface uiStyle="…">`, `<WebPage uiStyle="…" sections={…}>` and `data-ui-style` on
+its roles in [docs/system/style.md](system/style.md)). Each other website has its own
+[spec](specs/README.md) that fills the same role contract; uipack renders one by adding one value
+set in `src/styles`, registering it in `uiStyles`, and testing it. `<WebSurface uiStyle="…">`, `<WebPage uiStyle="…" sections={…}>` and `data-ui-style` on
 any ancestor (set before paint by `styleBootScript()`) select a registered style; omitted, it is
 Technical. A style changes tokens and ornament slots only: the same sections in the page's own
 order, the same hero, boxes and reading order.
@@ -18,9 +17,8 @@ order, the same hero, boxes and reading order.
 | --- | --- | --- | --- | --- | --- |
 | **Technical** | Product and project pages that should read like junxiong.dev's figures | Cyanotype: cool white `#f3f6f9`, Prussian ink `#0b2748`, one amber `#9c5700` (dark: deep Prussian `#0a2342`, `#edf3fb`, gold `#f0c45a`) | IBM Plex Sans 600 headlines (the same face on slides and figure titles), Plex Sans text, IBM Plex Mono labels | An engineering drawing, compact (density 0.9). Drafting-film grid behind the hero only (and on figure canvases), masked; a 7px amber dot and a mono section index before eyebrows (`01 / HOW IT WORKS`); a dimension line (hairline, end ticks at both ends) over each section's column; steps in 36px ringed detail bubbles; ink crop marks at all four corners of cards and plans; stats between 1px rules; the quote as a hairline annotation; the featured plan with a 4px amber top rule; square table cells with Prussian peaks; windows without traffic lights; figures with the full flow code (cyan main flow); square corners, 1px hairlines, no shadow, glow or grain; the headline's key phrase in ink over an amber underline (gold in dark); a Prussian primary button (gold in dark); a plain Prussian closing band with a gold button | Hero with the figure → steps as numbered rows → demo → proof → FAQ → pricing |
 
-A brief that needs a warmer product-marketing page or a loud poster builds the
-[Landing](system/styles/landing.md) or [Graphical](system/styles/graphical.md) spec first; it
-does not restyle Technical.
+A site that needs a different look has its own [spec](specs/README.md); it does not restyle
+Technical.
 
 **The author's layout (default).** `WebPage` renders `sections` in the order the page lists them
 and sets `data-ui-layout="shared"`: the page's own order, hero proof and start-edge alignment,
@@ -75,7 +73,7 @@ rounded-everything.
 **Performance** (Lighthouse 13.5 mobile, built playground, median of 3, 2026-11-04, `/web`):
 Technical LCP 2.27 s, 101 KB of fonts in 5 files (the same IBM Plex files it ships now; measured
 before the Cyanotype colours), CLS 0. `/web` preloads only the display weight, IBM Plex Sans 600, at
-720px and wider. The written specs record the numbers Landing and Graphical measured.
+720px and wider.
 
 The numbered rules below hold for every style. Where a rule names a value (rule 5's grain and glass,
 rule 9's 60 / 30 / 10, rules 19–21's faces), Technical's value is given; a style built from a spec
@@ -138,8 +136,8 @@ takes the spec's.
 
 11. **Choose the headline font first, then pair it.** Browse Fontshare, uncut.wtf and Fonts In Use; pick the
     display face that carries the brand, then a quiet text face. Technical ships one tested pairing
-    in three roles (see [Type roles](#type-roles)); a different pairing is a new style built from a
-    [written spec](system/styles/README.md), or the documented override: set `--web-font-display`
+    in three roles (see [Type roles](#type-roles)); a different pairing belongs to another site's
+    [spec](specs/README.md), or the documented override: set `--web-font-display`
     (and `--web-display-weight` / `--web-display-tracking`) on `.uipack-web`. (SMWD-6, RN)
 12. **Make a radically different version before refining.** Two or three divergent directions first,
     then polish the winner. (SMWD-6)
@@ -180,8 +178,7 @@ takes the spec's.
 19. **Three roles, one job each.** The faces are self-hosted: latin-subset woff2 files in the
     package's `fonts/` folder (`dist/fonts`, exported as `uipack/fonts/*`), each with its SIL OFL
     licence, `font-display: swap`, and no third-party request. A browser fetches a file only when an
-    element uses it; Technical's five files are about 101 KB. (The written specs give the faces a
-    Landing or Graphical build would add.)
+    element uses it; Technical's five files are about 101 KB.
 
     | Role | Token | Face | Weights | Jobs |
     | --- | --- | --- | --- | --- |

@@ -138,6 +138,7 @@ budget as `slot-budget` (a warning), and `slotProblems(slot, text)` checks one s
 are estimates at the slot's measure on the 1920×1080 canvas. The headline's length depends on the
 deck's mode (`TITLE_WORDS`), so `title-length` checks it instead of `slot-budget`.
 
+<!-- generated:slot-budgets -->
 | Slot | Budget | When it runs over |
 | --- | --- | --- |
 | eyebrow (optional) | 1–4 words, one line, never a sentence | wraps |
@@ -147,14 +148,15 @@ deck's mode (`TITLE_WORDS`), so `title-length` checks it instead of `slot-budget
 | point (body line) | at most 8 words, one line, a fragment with no full stop; 2–4 a slide | wraps |
 | label | at most 3 words, never a sentence | wraps |
 | quote | at most 30 words, 4 lines, 2 sentences | wraps, balanced |
-| attribution | at most 8 words | wraps |
+| attribution | at most 8 words, one line, never a sentence | wraps |
 | value / number | at most 6 / 3 characters | wraps |
-| unit | at most 4 words | wraps |
-| baseline | at most 12 words | wraps |
-| action | 2–12 words | wraps |
-| owner | 1–5 words | wraps |
-| date | 1–4 words | wraps |
-| source | at most 30 words | wraps |
+| unit | at most 4 words, never a sentence | wraps |
+| baseline | at most 12 words, one line, one sentence | wraps |
+| action | 2–12 words, 2 lines, one sentence | wraps |
+| owner | 1–5 words, never a sentence | wraps |
+| date | 1–4 words, never a sentence | wraps |
+| source | at most 30 words, 2 lines | wraps |
+<!-- /generated -->
 
 The web uses the same budgets for its eyebrows, headlines and labels; they are not linted there
 yet.

@@ -248,7 +248,12 @@ export default function DeckShowcase() {
 
   return (
     <>
-      <section ref={fitRef} className="deck-showcase" data-catalog-entry={deckEntries[0].id}>
+      <section
+        ref={fitRef}
+        className="deck-showcase"
+        data-catalog-entry={deckEntries[0].id}
+        data-presenting={presenting || undefined}
+      >
         <DeckPlayer
           id={deckId}
           title="Deck player example"

@@ -1,0 +1,56 @@
+# UiPack
+
+> A design system that draws explanations: diagrams, slides, web pages, motion and 3D, as React and SVG components. Its documentation is the Markdown in this package; the docs site renders the same files.
+
+Read docs/system/README.md first (style, writing and layout as three layers). Agent instructions are in AGENTS.md. Generated from playground/docs-manifest.ts by `npm run docs:sync`; do not edit by hand.
+
+## Start here
+
+- [What UiPack is](docs/README.md): UiPack is a design system that draws explanations: diagrams, slides, web pages, motion and 3D. This is the index of its documentation.
+- [Install and use](README.md): Install the package, draw a first figure, and the entries for charts, articles, 3D, web pages, decks and docs.
+
+## Rules
+
+- [Overview](docs/system/README.md): The canonical design-system spec: the philosophy, the three independent layers (style, writing, layout) and the contract between them, with what each medium needs.
+- [Style contract](docs/system/style.md): The roles every site spec fills and the ornament slots it paints, shown live with this site's values (Technical) in light and dark.
+- [Writing](docs/system/writing.md): Words are typed data: a claim per unit, a text budget per slot, and one place for each kind of sentence.
+- [Layout](docs/system/layout.md): Regions, archetypes and narrow forms: where each slot sits and in what order it is read.
+- [What a spec may set](docs/system/spec-settings.md): The boundary between a site spec and the core rules: what a spec chooses, and what holds on every site.
+
+## Components
+
+- [Drill-down figures](docs/drill.md): A stack of figures where a node zooms open into its own figure: the parts, keyboard, reduced motion and export.
+- [Charts](docs/charts.md): Layered and comparative charts for articles, previewed at a host's real figure width.
+- [Article parts](docs/article.md): Prose-friendly parts for long reads, shown inside a host article's text column.
+- [Deck player: Tech talk](docs/deck.md): The deck player: one transition grammar (advance, morph, zoom), builds, the overview, the speaker and read views, keyboard and touch.
+- [Deck player: Consulting](docs/deck-consulting.md): Dense consulting slides and their charts: tracker, action title, panels, so-what, footnotes, bars, waterfall, stacked bars, lines, KPI tiles, Harvey tables and a 2×2.
+- [Deck storytelling](docs/deck-storytelling.md): Storyline templates, slide roles and the checks lintDeck runs on a deck's argument.
+- [Slide starters](docs/presentations.md): Slide layouts with their speech notes, then a complete five-chapter narrative built from them.
+- [3D animations](docs/slides.md): Live 3D scenes with camera moves, animated flows and presentation controls.
+- [3D object scenes](docs/objects.md): Reusable, lazy 3D illustrations, their art directions and the player that shows them.
+- [Mechanism](docs/mechanism.md): Mechanical drawings that explain how a system moves, one part at a time.
+- [Docs layout](docs/docs-layout.md): A three-column product documentation shell with responsive navigation and Markdown prose.
+
+## Families
+
+- [Diagrams](docs/families/diagrams.md): The diagram family: figures, charts and drill-down look the same on every site; its fixed values, generated from code.
+
+## Specs
+
+- [How to write a spec](docs/specs/README.md): One spec per website, built from the core rules: the layers, how to write and check a spec, and how a spec becomes a live style.
+- [Spec template](docs/specs/TEMPLATE.md): The file a new site spec starts from: the frontmatter and the sections the checker requires.
+- [Technical](docs/specs/technical.md): The uipack site's spec: Cyanotype, Prussian ink and one amber mark, IBM Plex, with its role values generated from the style file.
+- [Registry](docs/specs/registry.md): Every site uipack designs for: where its spec lives, the families it uses and the uipack commit it pins.
+
+## Examples
+
+- [Web UI](docs/web-principles.md): The numbered rules for uipack/web pages in Technical, each with its source, motion and backgrounds included.
+
+## Reference
+
+- [Contributing](docs/contributing.md): Step-by-step recipes, with the exact files to touch, for a new style, page, deck, slide part, chart or figure.
+- [Component-first](docs/component-first.md): Build, register and verify a significant visual in the library before a consumer uses it.
+- [Design direction](docs/design-direction.md): The playground's visual direction, catalog taxonomy, interaction polish and presentation composition.
+- [Canvas and selection](docs/interaction.md): Mobile reading, item selection, expanded inspection and their limits.
+- [Web discoverability](docs/web-discoverability.md): How a uipack/web page gets found and quoted by search and answer engines: the checklist and the builders.
+- [Portfolio ideas](docs/portfolio-ideas.md): Prioritised places where uipack/web pieces would improve junxiong.dev, and what to avoid.

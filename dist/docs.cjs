@@ -11,11 +11,24 @@ var ReactMarkdown__default = /*#__PURE__*/_interopDefault(ReactMarkdown);
 var remarkGfm__default = /*#__PURE__*/_interopDefault(remarkGfm);
 
 // src/docs/DocsLayout.tsx
-function SectionNavigation({ sections, activeHref }) {
-  return /* @__PURE__ */ jsxRuntime.jsx("nav", { className: "uipack-docs__navigation", "aria-label": "Documentation", children: sections.map((section) => /* @__PURE__ */ jsxRuntime.jsxs("section", { className: "uipack-docs__nav-section", children: [
+function NavigationItem({ item, activeHref }) {
+  return /* @__PURE__ */ jsxRuntime.jsxs("li", { children: [
+    /* @__PURE__ */ jsxRuntime.jsx("a", { href: item.href, "aria-current": item.href === activeHref ? "page" : void 0, children: item.title }),
+    item.items && item.items.length > 0 && /* @__PURE__ */ jsxRuntime.jsx("ul", { className: "uipack-docs__nav-sub", "aria-label": item.title, children: item.items.map((sub) => /* @__PURE__ */ jsxRuntime.jsx(NavigationItem, { item: sub, activeHref }, sub.href)) })
+  ] });
+}
+function SectionNavigation({
+  sections,
+  activeHref,
+  label
+}) {
+  return /* @__PURE__ */ jsxRuntime.jsx("nav", { className: "uipack-docs__navigation", "aria-label": label, children: sections.map((section) => /* @__PURE__ */ jsxRuntime.jsxs("section", { className: "uipack-docs__nav-section", children: [
     /* @__PURE__ */ jsxRuntime.jsx("h2", { children: section.title }),
-    /* @__PURE__ */ jsxRuntime.jsx("ul", { children: section.items.map((item) => /* @__PURE__ */ jsxRuntime.jsx("li", { children: /* @__PURE__ */ jsxRuntime.jsx("a", { href: item.href, "aria-current": item.href === activeHref ? "page" : void 0, children: item.title }) }, item.href)) })
+    /* @__PURE__ */ jsxRuntime.jsx("ul", { children: section.items.map((item) => /* @__PURE__ */ jsxRuntime.jsx(NavigationItem, { item, activeHref }, item.href)) })
   ] }, section.title)) });
+}
+function flatItems(items) {
+  return items.flatMap((item) => [item, ...flatItems(item.items ?? [])]);
 }
 function useCurrentSection(ids) {
   const [current, setCurrent] = react.useState(null);
@@ -60,19 +73,31 @@ function DocsLayout({
   next,
   theme,
   palette = "warm",
+  width = "prose",
+  header,
+  mobileNavigation = true,
+  navigationLabel = "Documentation",
+  markdownHref,
+  editHref,
+  eyebrow,
+  landmark = "section",
+  contentId = "docs-content",
+  contentLabel = "Documentation content",
+  contentClassName,
   children
 }) {
   const mobileNavigationId = react.useId();
   const currentSection = useCurrentSection(onThisPage.map((item) => item.id));
-  const current = sections.flatMap((section) => section.items).find((item) => item.href === activeHref);
-  return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-docs", "data-theme": theme, "data-palette": palette, children: [
-    /* @__PURE__ */ jsxRuntime.jsx("a", { className: "uipack-docs__skip", href: "#docs-content", children: "Skip to documentation content" }),
-    /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-docs__identity", "aria-label": "Documentation home", children: [
+  const current = flatItems(sections.flatMap((section) => section.items)).find((item) => item.href === activeHref);
+  const Article = landmark;
+  return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-docs", "data-theme": theme, "data-palette": palette, "data-width": width === "wide" ? "wide" : void 0, children: [
+    /* @__PURE__ */ jsxRuntime.jsx("a", { className: "uipack-docs__skip", href: `#${contentId}`, children: "Skip to documentation content" }),
+    header ?? /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-docs__identity", "aria-label": "Documentation home", children: [
       /* @__PURE__ */ jsxRuntime.jsx("a", { href: productHref, children: productTitle }),
       /* @__PURE__ */ jsxRuntime.jsx("span", { "aria-hidden": "true", children: "/" }),
       /* @__PURE__ */ jsxRuntime.jsx("a", { href: sections[0]?.items[0]?.href || activeHref, children: docsTitle })
     ] }),
-    /* @__PURE__ */ jsxRuntime.jsxs(
+    mobileNavigation && /* @__PURE__ */ jsxRuntime.jsxs(
       "details",
       {
         className: "uipack-docs__mobile-navigation",
@@ -89,31 +114,47 @@ function DocsLayout({
             current && /* @__PURE__ */ jsxRuntime.jsx("small", { children: current.title }),
             /* @__PURE__ */ jsxRuntime.jsx("svg", { className: "uipack-docs__chevron", viewBox: "0 0 16 16", "aria-hidden": "true", focusable: "false", children: /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M4 6l4 4 4-4" }) })
           ] }),
-          /* @__PURE__ */ jsxRuntime.jsx("div", { id: mobileNavigationId, children: /* @__PURE__ */ jsxRuntime.jsx(SectionNavigation, { sections, activeHref }) })
+          /* @__PURE__ */ jsxRuntime.jsx("div", { id: mobileNavigationId, children: /* @__PURE__ */ jsxRuntime.jsx(SectionNavigation, { sections, activeHref, label: navigationLabel }) })
         ]
       }
     ),
-    /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-docs__grid", children: [
-      /* @__PURE__ */ jsxRuntime.jsx("aside", { className: "uipack-docs__sidebar", children: /* @__PURE__ */ jsxRuntime.jsx(SectionNavigation, { sections, activeHref }) }),
-      /* @__PURE__ */ jsxRuntime.jsxs("section", { className: "uipack-docs__article", id: "docs-content", "aria-label": "Documentation content", tabIndex: -1, children: [
-        children,
-        (previous || next) && /* @__PURE__ */ jsxRuntime.jsxs("nav", { className: "uipack-docs__pagination", "aria-label": "Previous and next documentation pages", children: [
-          previous && /* @__PURE__ */ jsxRuntime.jsxs("a", { href: previous.href, rel: "prev", children: [
-            /* @__PURE__ */ jsxRuntime.jsx("small", { children: "Previous" }),
-            /* @__PURE__ */ jsxRuntime.jsxs("span", { children: [
-              "\u2190 ",
-              previous.title
+    /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-docs__grid", "data-toc": onThisPage.length > 0 ? void 0 : "none", children: [
+      /* @__PURE__ */ jsxRuntime.jsx("aside", { className: "uipack-docs__sidebar", children: /* @__PURE__ */ jsxRuntime.jsx(SectionNavigation, { sections, activeHref, label: navigationLabel }) }),
+      /* @__PURE__ */ jsxRuntime.jsxs(
+        Article,
+        {
+          className: contentClassName ? `uipack-docs__article ${contentClassName}` : "uipack-docs__article",
+          id: contentId,
+          "aria-label": contentLabel,
+          tabIndex: -1,
+          children: [
+            (markdownHref || editHref || eyebrow) && /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-docs__page-bar", children: [
+              eyebrow,
+              (markdownHref || editHref) && /* @__PURE__ */ jsxRuntime.jsxs("span", { className: "uipack-docs__source-links", children: [
+                markdownHref && /* @__PURE__ */ jsxRuntime.jsx("a", { href: markdownHref, children: "View as Markdown" }),
+                editHref && /* @__PURE__ */ jsxRuntime.jsx("a", { href: editHref, children: "Edit on GitHub" })
+              ] })
+            ] }),
+            children,
+            (previous || next) && /* @__PURE__ */ jsxRuntime.jsxs("nav", { className: "uipack-docs__pagination", "aria-label": "Previous and next documentation pages", children: [
+              previous && /* @__PURE__ */ jsxRuntime.jsxs("a", { href: previous.href, rel: "prev", children: [
+                /* @__PURE__ */ jsxRuntime.jsx("small", { children: "Previous" }),
+                /* @__PURE__ */ jsxRuntime.jsxs("span", { children: [
+                  "\u2190 ",
+                  previous.title
+                ] })
+              ] }),
+              next && /* @__PURE__ */ jsxRuntime.jsxs("a", { href: next.href, rel: "next", children: [
+                /* @__PURE__ */ jsxRuntime.jsx("small", { children: "Next" }),
+                /* @__PURE__ */ jsxRuntime.jsxs("span", { children: [
+                  next.title,
+                  " \u2192"
+                ] })
+              ] })
             ] })
-          ] }),
-          next && /* @__PURE__ */ jsxRuntime.jsxs("a", { href: next.href, rel: "next", children: [
-            /* @__PURE__ */ jsxRuntime.jsx("small", { children: "Next" }),
-            /* @__PURE__ */ jsxRuntime.jsxs("span", { children: [
-              next.title,
-              " \u2192"
-            ] })
-          ] })
-        ] })
-      ] }),
+          ]
+        }
+      ),
       onThisPage.length > 0 && /* @__PURE__ */ jsxRuntime.jsxs("aside", { className: "uipack-docs__toc", "aria-label": "On this page", children: [
         /* @__PURE__ */ jsxRuntime.jsx("p", { children: "On this page" }),
         /* @__PURE__ */ jsxRuntime.jsx("ol", { children: onThisPage.map((item) => /* @__PURE__ */ jsxRuntime.jsx("li", { "data-level": item.level, children: /* @__PURE__ */ jsxRuntime.jsx("a", { href: `#${item.id}`, "aria-current": item.id === currentSection ? "location" : void 0, children: item.title }) }, item.id)) })
@@ -177,10 +218,11 @@ function tableColumns(node) {
 function isShortToken(text) {
   return /\s/.test(text) ? text.length <= 24 : text.length <= 32;
 }
-function headingComponent(level, headingIds) {
+function headingComponent(level, headingIds, lineOffset = 0) {
   return function DocsHeading({ node, children, ...props }) {
     const title = textFromChildren(children);
-    const id = headingIds.get(node?.position?.start.line || 0) || slugifyDocsHeading(title);
+    const line = node?.position?.start.line;
+    const id = line && headingIds.get(line + lineOffset) || slugifyDocsHeading(title);
     return react.createElement(
       `h${level}`,
       { ...props, id, "aria-label": title },
@@ -190,29 +232,100 @@ function headingComponent(level, headingIds) {
     );
   };
 }
-function DocsMarkdown({ source, headingOffset = 0 }) {
-  const headingIds = new Map(extractDocsHeadings(source).map((heading2) => [heading2.line, heading2.id]));
-  const heading = (level) => headingComponent(shiftLevel(level, headingOffset), headingIds);
-  const components = {
-    h1: heading(1),
-    h2: heading(2),
-    h3: heading(3),
-    h4: heading(4),
-    h5: heading(5),
-    h6: heading(6),
-    // A code block scrolls sideways when a line is longer than the column: a Tab stop, so a
-    // keyboard can scroll it (WCAG 2.1.1).
-    pre: ({ node: _node, ...props }) => /* @__PURE__ */ jsxRuntime.jsx("pre", { ...props, tabIndex: 0 }),
-    // A short inline code token ("--uipack-token-error", "user sessions") never breaks mid-token
-    // at a hyphen or space; a longer one still wraps, so it cannot push the column wide.
-    code: ({ node: _node, className, children, ...props }) => {
-      const text = textFromChildren(children);
-      const token = !className && !text.includes("\n") && isShortToken(text);
-      return /* @__PURE__ */ jsxRuntime.jsx("code", { ...props, className: token ? "uipack-docs__token" : className, children });
-    },
-    table: ({ node, ...props }) => /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-docs__table", tabIndex: 0, style: { "--docs-table-columns": tableColumns(node) }, children: /* @__PURE__ */ jsxRuntime.jsx("table", { ...props }) })
+var FENCE = /^ {0,3}(`{3,}|~{3,})(.*)$/;
+var DEFINITION = /^ {0,3}\[[^\]]+\]:\s*\S/;
+function splitSource(source, blocks) {
+  if (!blocks || Object.keys(blocks).length === 0) return [{ kind: "prose", source, lineOffset: 0 }];
+  const lines = source.split("\n");
+  const segments = [];
+  const definitions = [];
+  let runStart = 0;
+  let open = null;
+  lines.forEach((line, index) => {
+    const fence = FENCE.exec(line);
+    if (open) {
+      const closes = fence && fence[1][0] === open.char && fence[1].length >= open.length && fence[2].trim() === "";
+      if (!closes) return;
+      const [lang = "", id = "", ...flags] = open.info.split(/\s+/);
+      const render = open.host ? blocks[lang] : void 0;
+      if (render) {
+        const block = { lang, id, flags, value: lines.slice(open.start + 1, index).join("\n") };
+        const node = render(block);
+        if (node !== void 0) {
+          segments.push({ kind: "prose", source: lines.slice(runStart, open.start).join("\n"), lineOffset: runStart });
+          segments.push({ kind: "block", block, node });
+          runStart = index + 1;
+        }
+      }
+      open = null;
+      return;
+    }
+    if (fence && !(fence[1][0] === "`" && fence[2].includes("`"))) {
+      const info = fence[2].trim();
+      const lang = info.split(/\s+/)[0];
+      open = {
+        char: fence[1][0],
+        length: fence[1].length,
+        start: index,
+        info,
+        host: line.startsWith(fence[1]) && lang in blocks
+      };
+      return;
+    }
+    if (DEFINITION.test(line)) definitions.push(line);
+  });
+  if (segments.length === 0) return [{ kind: "prose", source, lineOffset: 0 }];
+  segments.push({ kind: "prose", source: lines.slice(runStart).join("\n"), lineOffset: runStart });
+  const references = definitions.length ? `
+
+${definitions.join("\n")}
+` : "";
+  return segments.filter((segment) => segment.kind === "block" || segment.source.trim() !== "").map((segment) => segment.kind === "prose" ? { ...segment, source: segment.source + references } : segment);
+}
+function DocsMarkdown({ source, headingOffset = 0, blocks, resolveUrl }) {
+  const headingIds = new Map(extractDocsHeadings(source).map((heading) => [heading.line, heading.id]));
+  const componentsFor = (lineOffset) => {
+    const heading = (level) => headingComponent(shiftLevel(level, headingOffset), headingIds, lineOffset);
+    return {
+      h1: heading(1),
+      h2: heading(2),
+      h3: heading(3),
+      h4: heading(4),
+      h5: heading(5),
+      h6: heading(6),
+      // A code block scrolls sideways when a line is longer than the column: a Tab stop, so a
+      // keyboard can scroll it (WCAG 2.1.1).
+      pre: ({ node: _node, ...props }) => /* @__PURE__ */ jsxRuntime.jsx("pre", { ...props, tabIndex: 0 }),
+      // A short inline code token ("--uipack-token-error", "user sessions") never breaks mid-token
+      // at a hyphen or space; a longer one still wraps, so it cannot push the column wide.
+      code: ({ node: _node, className, children, ...props }) => {
+        const text = textFromChildren(children);
+        const token = !className && !text.includes("\n") && isShortToken(text);
+        return /* @__PURE__ */ jsxRuntime.jsx("code", { ...props, className: token ? "uipack-docs__token" : className, children });
+      },
+      table: ({ node, ...props }) => /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-docs__table", tabIndex: 0, style: { "--docs-table-columns": tableColumns(node) }, children: /* @__PURE__ */ jsxRuntime.jsx("table", { ...props }) })
+    };
   };
-  return /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-docs__prose", children: /* @__PURE__ */ jsxRuntime.jsx(ReactMarkdown__default.default, { components, remarkPlugins: [remarkGfm__default.default], skipHtml: true, children: source }) });
+  const urlTransform = resolveUrl ? (url, key) => {
+    const safe = ReactMarkdown.defaultUrlTransform(url);
+    return safe ? resolveUrl(safe, key === "src" ? "image" : "link") : safe;
+  } : void 0;
+  const prose = (text, lineOffset, key) => /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-docs__prose", children: /* @__PURE__ */ jsxRuntime.jsx(ReactMarkdown__default.default, { components: componentsFor(lineOffset), remarkPlugins: [remarkGfm__default.default], urlTransform, skipHtml: true, children: text }) }, key);
+  const segments = splitSource(source, blocks);
+  if (segments.length === 1 && segments[0].kind === "prose") return prose(segments[0].source, 0);
+  return /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-docs__flow", children: segments.map(
+    (segment, index) => segment.kind === "prose" ? prose(segment.source, segment.lineOffset, index) : /* @__PURE__ */ jsxRuntime.jsx(
+      "div",
+      {
+        className: "uipack-docs__block",
+        "data-block": segment.block.lang,
+        "data-block-id": segment.block.id || void 0,
+        "data-width": segment.block.flags.includes("wide") ? "wide" : void 0,
+        children: segment.node
+      },
+      index
+    )
+  ) });
 }
 
 exports.DocsLayout = DocsLayout;

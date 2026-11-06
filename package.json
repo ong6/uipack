@@ -160,9 +160,14 @@
     "assets",
     "docs/assets",
     "README.md",
+    "llms.txt",
     "LICENSE",
     "docs/*.md",
     "docs/system/*.md",
+    "docs/specs/*.md",
+    "docs/families/*.md",
+    "scripts/check-spec.ts",
+    "scripts/style-contract.ts",
     "examples/web-starter/*",
     "AGENTS.md",
     "CLAUDE.md",
@@ -187,7 +192,8 @@
     "test:e2e": "playwright test",
     "screenshots": "SHOTS=1 playwright test --project=chromium e2e/screenshots.spec.ts",
     "manifest": "tsx scripts/build-manifest.tsx",
-    "attw": "attw --pack"
+    "attw": "attw --pack",
+    "docs:sync": "tsx scripts/docs-sync.ts"
   },
   "peerDependencies": {
     "gsap": "^3.15.0",

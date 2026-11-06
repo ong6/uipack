@@ -103,17 +103,15 @@ describe("Foundations guides agree with the pages they teach", () => {
     }
   });
 
-  it("the Foundations navigation separates the guides the pager counts from the reference pages", () => {
+  it("the Foundations sidebar group is the guide series, in reading order, and nothing else", () => {
+    // The pager (DocsLayout's previous and next) and the sidebar read one list, the docs manifest.
     const group = libraryPages.filter((p) => p.group === "foundations");
-    const run = (p: (typeof group)[number]) => ("run" in p ? (p as { run?: string }).run : undefined);
-    expect(
-      group.every((p) => run(p)),
-      "every Foundations page names its run",
-    ).toBe(true);
-    expect(group.filter((p) => run(p) === "Guides").map((p) => p.path)).toEqual(guides.map((g) => g.path));
+    expect(group.map((p) => p.path)).toEqual(guides.map((g) => g.path));
+    expect(group.length).toBeGreaterThanOrEqual(7);
   });
 
-  it("every guide names where its full rules live", () => {
-    for (const g of guides) expect(guideSources[g.path]?.length, g.path).toBeGreaterThan(0);
+  it("every guide still drawn by its showcase names where its full rules live (a Markdown guide is its doc)", () => {
+    for (const g of guides.filter((p) => "showcase" in p && p.showcase))
+      expect(guideSources[g.path]?.length, g.path).toBeGreaterThan(0);
   });
 });

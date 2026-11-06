@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { renderToString } from "react-dom/server";
-import { DocsLayout, DocsMarkdown, extractDocsHeadings, type DocsSection } from "../src/docs";
+import { DocsLayout, DocsMarkdown, extractDocsHeadings, type DocsMarkdownBlock, type DocsSection } from "../src/docs";
 
 const source = `# Overview
 
@@ -120,5 +120,148 @@ describe("product documentation", () => {
     expect(pagination.children).toHaveLength(1);
     expect(pagination.firstElementChild).toHaveAttribute("rel", "prev");
     expect(container.querySelector(".uipack-docs__chevron")).toBeInTheDocument();
+  });
+});
+
+describe("DocsMarkdown host blocks", () => {
+  const page = `# Page
+
+Lead with a [ref link][ref].
+
+\`\`\`uipack-demo layer-swap wide
+Swap the writing or the layout.
+\`\`\`
+
+## After the demo
+
+More text, the [same link][ref].
+
+\`\`\`\`md
+\`\`\`uipack-demo quoted
+Inside a longer fence: documentation, not a demo.
+\`\`\`
+\`\`\`\`
+
+- A list item
+
+  \`\`\`uipack-demo indented
+  Inside a list item: stays code.
+  \`\`\`
+
+[ref]: https://example.com/ref
+`;
+  const demo = (block: DocsMarkdownBlock) => (
+    <div data-testid={`demo-${block.id}`}>
+      {block.flags.join(",")}|{block.value}
+    </div>
+  );
+
+  it("renders exactly as before when no blocks are registered", () => {
+    expect(renderToString(<DocsMarkdown source={page} />)).toBe(renderToString(<DocsMarkdown source={page} blocks={{}} />));
+    const { container } = render(<DocsMarkdown source={page} />);
+    expect(container.querySelectorAll(".uipack-docs__prose")).toHaveLength(1);
+    expect(container.querySelector(".uipack-docs__block")).toBeNull();
+    expect(container.querySelector("code.language-uipack-demo")).toHaveTextContent("Swap the writing or the layout.");
+  });
+
+  it("replaces a registered top-level fence with the host's node, outside the prose", () => {
+    const { container } = render(<DocsMarkdown source={page} blocks={{ "uipack-demo": demo }} />);
+    const block = container.querySelector(".uipack-docs__block")!;
+    expect(block).toHaveAttribute("data-block", "uipack-demo");
+    expect(block).toHaveAttribute("data-block-id", "layer-swap");
+    expect(block).toHaveAttribute("data-width", "wide");
+    expect(block.closest(".uipack-docs__prose")).toBeNull();
+    expect(screen.getByTestId("demo-layer-swap")).toHaveTextContent("wide|Swap the writing or the layout.");
+    // Only that fence: one inside a longer fence or a list item stays code.
+    expect(container.querySelectorAll(".uipack-docs__block")).toHaveLength(1);
+    expect(container.textContent).toContain("Inside a longer fence");
+    expect(container.textContent).toContain("Inside a list item: stays code.");
+    expect(container.querySelectorAll(".uipack-docs__flow > .uipack-docs__prose")).toHaveLength(2);
+  });
+
+  it("keeps heading ids and reference links across the cut", () => {
+    const { container } = render(<DocsMarkdown source={page} blocks={{ "uipack-demo": demo }} />);
+    const ids = extractDocsHeadings(page).map((h) => h.id);
+    expect([...container.querySelectorAll("h1, h2")].map((h) => h.id)).toEqual(ids);
+    const refs = [...container.querySelectorAll("a")].filter((a) => a.getAttribute("href") === "https://example.com/ref");
+    expect(refs).toHaveLength(2);
+  });
+
+  it("keeps the code block when the host declines a block", () => {
+    const { container } = render(<DocsMarkdown source={page} blocks={{ "uipack-demo": () => undefined }} />);
+    expect(container.querySelector(".uipack-docs__block")).toBeNull();
+    expect(container.querySelector("code.language-uipack-demo")).toBeInTheDocument();
+  });
+
+  it("lets the host rewrite links and images, after sanitising", () => {
+    const { container } = render(
+      <DocsMarkdown
+        source={"[Style](style.md#roles) ![Shot](shot.png) [Bad](javascript:alert(1))"}
+        resolveUrl={(url, kind) => `/${kind}/${url}`}
+      />,
+    );
+    const links = container.querySelectorAll("a");
+    expect(links[0]).toHaveAttribute("href", "/link/style.md#roles");
+    expect(container.querySelector("img")).toHaveAttribute("src", "/image/shot.png");
+    expect(links[1].getAttribute("href") ?? "").not.toContain("javascript");
+  });
+});
+
+describe("DocsLayout host options", () => {
+  it("defaults keep the identity row, the disclosure, a section article and the prose width", () => {
+    const { container } = render(
+      <DocsLayout productTitle="Product" productHref="/product" sections={sections} activeHref="/docs">
+        <p>Body</p>
+      </DocsLayout>,
+    );
+    expect(container.querySelector(".uipack-docs__identity")).toBeInTheDocument();
+    expect(container.querySelector(".uipack-docs__mobile-navigation")).toBeInTheDocument();
+    expect(container.querySelector("section#docs-content")).toHaveAccessibleName("Documentation content");
+    expect(container.querySelector(".uipack-docs")).not.toHaveAttribute("data-width");
+    expect(container.querySelector(".uipack-docs__page-bar")).toBeNull();
+  });
+
+  it("takes a host header, a main landmark, a wide column, source links and nested items", () => {
+    const { container } = render(
+      <DocsLayout
+        productTitle="Product"
+        productHref="/product"
+        header={<header>Site header</header>}
+        mobileNavigation={false}
+        navigationLabel="Library"
+        width="wide"
+        landmark="main"
+        contentId="site-main"
+        contentLabel="Overview"
+        contentClassName="site-page"
+        markdownHref="/docs/README.md"
+        editHref="https://github.com/o/r/edit/main/docs/README.md"
+        eyebrow={<span>Start here</span>}
+        sections={[
+          {
+            title: "Components",
+            items: [{ title: "Deck player", href: "/deck", items: [{ title: "Bento", href: "/deck?deck=bento" }] }],
+          },
+        ]}
+        activeHref="/deck?deck=bento"
+      >
+        <p>Body</p>
+      </DocsLayout>,
+    );
+    expect(container.querySelector(".uipack-docs__identity")).toBeNull();
+    expect(screen.getByRole("banner")).toHaveTextContent("Site header");
+    expect(container.querySelector(".uipack-docs__mobile-navigation")).toBeNull();
+    expect(screen.getByRole("navigation", { name: "Library" })).toBeInTheDocument();
+    expect(container.querySelector(".uipack-docs")).toHaveAttribute("data-width", "wide");
+    expect(screen.getByRole("main", { name: "Overview" })).toHaveClass("uipack-docs__article", "site-page");
+    expect(screen.getByRole("link", { name: "Skip to documentation content" })).toHaveAttribute("href", "#site-main");
+    expect(screen.getByRole("link", { name: "View as Markdown" })).toHaveAttribute("href", "/docs/README.md");
+    expect(screen.getByRole("link", { name: "Edit on GitHub" })).toHaveAttribute(
+      "href",
+      "https://github.com/o/r/edit/main/docs/README.md",
+    );
+    expect(screen.getByRole("link", { name: "Bento" })).toHaveAttribute("aria-current", "page");
+    expect(screen.getByRole("link", { name: "Deck player" })).not.toHaveAttribute("aria-current");
+    expect(container.querySelector(".uipack-docs__grid")).toHaveAttribute("data-toc", "none");
   });
 });
