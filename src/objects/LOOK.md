@@ -53,6 +53,15 @@ material is themed, and a tick reads it. Paper's warm lantern and Kinetic's gall
 lights, a soft accent by day and the main light at night (Kinetic keeps its slate dark at night and
 lets the spot pool on it). Spot lights cast no shadow map; the rig's key still does.
 
+The expanded directions add theirs in their own files. Cartoon (`expanded-cartoon.ts`) layers toy
+finishes on the toon ramp (`withMoonRim`: a hard gloss from each directional light for vinyl, a dim
+one for satin, a grazing lift and fibre speckle for flock) and a warm practical `PointLight` per
+scene, on only at night. Realistic (`expanded-realistic.ts`) runs its surface back to a wall
+(`backdrop`) and softens both with distance from the subject (`defocus`, a mip bias on every map)
+instead of fading the surface out. Abstract (`expanded-abstract.ts`) lights its lacquer bars with a
+pool light (`poolLight`) and draws caustics with normal blending, since added light disappears on a
+pale card.
+
 ## Light rigs (`lightRigs`, `rig`)
 
 | Part | Light default | Dark default | Notes |

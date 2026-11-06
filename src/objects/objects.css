@@ -516,7 +516,7 @@
   background: radial-gradient(ellipse at 50% 40%, #f8fbff, #d6deef);
 }
 .uipack-object[data-theme="dark"][data-art-direction="cartoon"] {
-  background: radial-gradient(ellipse at 45% 35%, #374b50, #1a2e31);
+  background: radial-gradient(ellipse at 45% 30%, #2f4378, #121a3a);
 }
 .uipack-object[data-theme="dark"][data-art-direction="realistic"] {
   background: radial-gradient(ellipse at 40% 30%, #45433e, #212522);

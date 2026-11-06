@@ -4,7 +4,7 @@
 import * as THREE from "three";
 import { contactShadow, lookMaterial, themed, type ObjectLook } from "./look";
 import type { Tick } from "./procedural";
-import { group, mesh, paintTexture, roundedBox, smoothstep } from "./expanded-kit";
+import { group, mesh, paintTexture, roundedBox, smoothstep, themeProbe } from "./expanded-kit";
 import type { KindWithLook } from "./variants";
 
 type Kind = Exclude<KindWithLook<5>, "contact">;
@@ -35,34 +35,42 @@ const hues = { vermilion: 0xff5a36, ultramarine: 0x3d5afe, saffron: 0xffc23d };
 
 /* ---------------------------------------------------------------- Materials and staging */
 
+/**
+ * Clear optical glass. What read as frosted resin was the glass mirroring the bright softbox over
+ * whole faces and refracting a pale, soft-striped studio: low contrast in, milk out. So: a polished
+ * surface (roughness 0), reflections kept to the strip highlights, real thickness so the colour
+ * behind visibly shifts and magnifies, dispersion for the fringes at its edges, and only a trace of
+ * absorption.
+ */
 function opticalGlass(options: THREE.MeshPhysicalMaterialParameters = {}) {
   return lookMaterial("glass", 0xffffff, {
-    roughness: 0.02,
-    thickness: 0.7,
-    ior: 1.52,
-    dispersion: 0.4,
-    attenuationColor: new THREE.Color(0xdfeaff),
-    attenuationDistance: 3,
-    envMapIntensity: 1.2,
+    roughness: 0,
+    thickness: 1.1,
+    ior: 1.5,
+    dispersion: 0.9,
+    attenuationColor: new THREE.Color(0xf2f7ff),
+    attenuationDistance: 8,
+    envMapIntensity: 0.75,
+    specularIntensity: 1,
     ...options,
   });
 }
 
 /**
- * The colour's material: a satin lacquer with real thickness, so a band sits in the light (a soft
- * specular along its top edge, a shaded underside) instead of reading as a flat emissive ribbon. A
- * little self-light keeps the hue pure and saturated on the shaded faces.
+ * The colour's material: a deep lacquer, lit, not self-lit. A satin base coat under a glossy clear
+ * coat, so each bar shades from its lit top to its turned-away underside, carries the softbox as a
+ * crisp streak along its rounded edge and falls off in the pool light, instead of reading as a flat
+ * emissive strip.
  */
 const lacquers = new Map<number, THREE.MeshPhysicalMaterial>();
 function lacquer(color: number) {
   let material = lacquers.get(color);
   if (!material) {
     material = lookMaterial("ceramic", color, {
-      roughness: 0.34,
-      clearcoat: 0.7,
-      clearcoatRoughness: 0.22,
-      emissive: new THREE.Color(color),
-      emissiveIntensity: 0.22,
+      roughness: 0.42,
+      clearcoat: 1,
+      clearcoatRoughness: 0.06,
+      envMapIntensity: 0.8,
     }) as THREE.MeshPhysicalMaterial;
     lacquers.set(color, material);
   }
@@ -79,8 +87,9 @@ function band(
   z: number,
   rotation = 0,
 ) {
-  const depth = Math.min(0.1, Math.max(0.05, Math.min(width, height) * 0.6));
-  const card = mesh(parent, roundedBox(width, height, depth, Math.min(width, height) * 0.45, 4), lacquer(color), x, y, z);
+  // A bar with a fully rounded profile across its short side, so light rolls over it.
+  const depth = Math.min(0.2, Math.max(0.1, Math.min(width, height) * 0.9));
+  const card = mesh(parent, roundedBox(width, height, depth, Math.min(width, height, depth) * 0.48, 5), lacquer(color), x, y, z);
   card.rotation.z = rotation;
   return card;
 }
@@ -97,13 +106,13 @@ function stroke(parent: THREE.Object3D, color: number, points: [number, number][
   for (let i = points.length - 1; i >= 0; i--) shape.lineTo(points[i][0], points[i][1] - width / 2);
   shape.closePath();
   const geometry = new THREE.ExtrudeGeometry(shape, {
-    depth: 0.05,
+    depth: 0.06,
     bevelEnabled: true,
-    bevelSize: 0.02,
-    bevelThickness: 0.02,
-    bevelSegments: 3,
+    bevelSize: width * 0.3,
+    bevelThickness: 0.05,
+    bevelSegments: 5,
   });
-  return mesh(parent, geometry, lacquer(color), 0, 0, z - 0.025);
+  return mesh(parent, geometry, lacquer(color), 0, 0, z - 0.03);
 }
 let discShade: THREE.Texture | undefined;
 /** A disc of colour, lit like a sphere seen far off: lighter toward the key (upper left), deeper at the lower rim. */
@@ -160,19 +169,28 @@ function backGlow(parent: THREE.Object3D, theme: "light" | "dark", width = 5.2) 
   // strips stand either side of the subject (with a faint line where the floor bends up). Seen
   // through the glass they light its edges and leave its body clear, rather than filling it with
   // an even lavender glow that read as opaque plastic.
-  const map = paintTexture(128, 64, (u, v) => {
+  const map = paintTexture(256, 96, (u, v) => {
     const strip = (centre: number, width: number) => Math.exp(-(((u - centre) / width) ** 2));
     const wall = smoothstep(0.5, 0.7, v) * smoothstep(1, 0.92, v);
-    const strips = strip(0.36, 0.05) + strip(0.64, 0.05) + 0.55 * (strip(0.18, 0.04) + strip(0.82, 0.04));
     // A soft top light high on the wall catches the glass's upper edges; the floor bend glows faintly.
     const top = Math.exp(-(((v - 0.9) / 0.05) ** 2)) * smoothstep(0.1, 0.35, u) * smoothstep(0.9, 0.65, u);
     const bend = 0.3 * Math.exp(-(((v - 0.52) / 0.05) ** 2)) * smoothstep(0, 0.3, u) * smoothstep(1, 0.7, u);
-    const t = Math.min(1, strips * wall * 1.15 + 0.8 * top + bend);
-    // The navy itself is lifted a little, so the glass's body reads as clear dark glass, not black.
-    if (theme === "dark") return [34 + 196 * t, 42 + 200 * t, 78 + 172 * t];
-    // By day the same strips are soft greys on the card colour.
-    const d = 0.55 * Math.min(1, strips * wall + 0.6 * top);
-    return [233 - 150 * d, 231 - 146 * d, 246 - 120 * d];
+    if (theme === "dark") {
+      // Dark field: tall soft strips either side light the glass's edges; behind the subject a
+      // lavender pool (the night light on the wall), so the glass body refracts light, never black.
+      const strips = strip(0.36, 0.05) + strip(0.64, 0.05) + 0.55 * (strip(0.18, 0.04) + strip(0.82, 0.04));
+      const pool = Math.exp(-(((u - 0.5) / 0.2) ** 2) - ((v - 0.68) / 0.22) ** 2);
+      const t = Math.min(1, strips * wall * 1.15 + 0.8 * top + bend);
+      return [44 + 120 * pool + 186 * t, 52 + 112 * pool + 190 * t, 96 + 120 * pool + 150 * t];
+    }
+    // Bright field: the pale card with a few crisp dark lines (a window's mullions, the floor's far
+    // edge). Bent and split by the glass, they draw its edges and show it refracting, where broad
+    // soft greys only clouded it.
+    const lines =
+      strip(0.3, 0.008) + strip(0.7, 0.008) + 0.7 * (strip(0.42, 0.005) + strip(0.58, 0.005)) + 0.6 * strip(0.12, 0.012);
+    const horizon = Math.exp(-(((v - 0.6) / 0.012) ** 2));
+    const d = Math.min(1, 0.85 * lines * smoothstep(0.52, 0.62, v) + 0.6 * horizon + 0.25 * smoothstep(0.5, 0.3, v));
+    return [236 - 190 * d, 234 - 186 * d, 248 - 170 * d];
   });
   const material = themed(new THREE.MeshBasicMaterial({ map, depthWrite: false, toneMapped: false, side: THREE.DoubleSide }), {
     [theme === "dark" ? "light" : "dark"]: { opacity: 0 },
@@ -186,41 +204,71 @@ function backGlow(parent: THREE.Object3D, theme: "light" | "dark", width = 5.2) 
   return glow;
 }
 
-let causticMap: (() => THREE.Texture) | undefined;
-/** The floor under a glass piece: a cool shadow with a bright caustic of `hue` inside it. */
+let causticMap: THREE.Texture | undefined;
+/**
+ * A spectral caustic: light focused through the glass into a bright core with a ring whose red,
+ * green and blue edges land at slightly different radii (dispersion), painted in colour and added
+ * to the floor.
+ */
+function spectralCaustic() {
+  causticMap ??= paintTexture(128, 128, (u, v) => {
+    const r = Math.hypot(u - 0.5, v - 0.5) * 2;
+    const ring = (radius: number) => Math.exp(-(((r - radius) / 0.07) ** 2));
+    const core = Math.exp(-((r / 0.16) ** 2));
+    const fade = Math.max(0, 1 - r);
+    const channel = (radius: number) => Math.min(1, (0.9 * ring(radius) + 0.35 * ring(radius * 0.6) + core) * fade) * 255;
+    return [channel(0.62), channel(0.56), channel(0.5)];
+  });
+  return causticMap;
+}
+/**
+ * The floor under a glass piece: a cool shadow and, offset away from the key (light through glass
+ * lands beyond its shadow), a bright caustic tinted with `hue`. Returns the caustic so a subject
+ * can move and pulse it with the glass.
+ */
 function floor(parent: THREE.Object3D, width: number, depth: number, hue: number, x = 0, z = 0) {
-  parent.add(contactShadow(width, depth, { opacity: 0.32, color: 0x1b1840, x, z, y: 0.002 }));
-  causticMap ??= () =>
-    paintTexture(
-      64,
-      64,
-      (u, v) => {
-        const r = Math.hypot(u - 0.5, v - 0.5) * 2;
-        const ring = Math.exp(-(((r - 0.55) / 0.16) ** 2)) * 0.8 + Math.exp(-((r / 0.25) ** 2)) * 0.6;
-        const a = Math.min(1, ring) * Math.max(0, 1 - r) * 255;
-        return [a, a, a];
-      },
-      { srgb: false },
-    );
+  parent.add(contactShadow(width, depth, { opacity: 0.3, color: 0x1b1840, x, z, y: 0.002 }));
+  const material = new THREE.MeshBasicMaterial({
+    color: new THREE.Color(hue).lerp(new THREE.Color(0xffffff), 0.15),
+    map: spectralCaustic(),
+    // Its brightness is its coverage too. Normal blending, not additive: added light vanishes on the
+    // pale day card, while a saturated patch reads as focused coloured light on both cards.
+    alphaMap: spectralCaustic(),
+    transparent: true,
+    opacity: 0.95,
+    depthWrite: false,
+    toneMapped: false,
+  });
   const caustic = mesh(
     parent,
-    new THREE.PlaneGeometry(width * 0.62, depth * 0.62),
-    new THREE.MeshBasicMaterial({
-      color: hue,
-      alphaMap: causticMap(),
-      transparent: true,
-      opacity: 0.55,
-      depthWrite: false,
-      blending: THREE.AdditiveBlending,
-      toneMapped: false,
-    }),
-    x,
+    new THREE.PlaneGeometry(width * 0.55, depth * 0.5),
+    material,
+    x + width * 0.14,
     0.004,
-    z,
+    z - depth * 0.06,
   );
   caustic.rotation.x = -Math.PI / 2;
   caustic.renderOrder = -1;
   caustic.userData.frameIgnore = true;
+  return caustic;
+}
+
+/** The pool light: a warm point light above-left of the subject by day, a stronger cool one at night. */
+function poolLight(root: THREE.Object3D, ticks: Tick[]) {
+  const light = new THREE.PointLight(0xfff2e2, 0, 10, 2);
+  light.position.set(-1.5, 2.6, 2.0);
+  root.add(light);
+  // A low rim from behind right that runs up the glass's far edges at night.
+  const rim = new THREE.PointLight(0x9fb4ff, 0, 8, 2);
+  rim.position.set(1.9, 0.6, -1.6);
+  root.add(rim);
+  const dark = themeProbe(root);
+  ticks.push(() => {
+    const night = dark();
+    light.intensity = night ? 18 : 9;
+    light.color.setHex(night ? 0xe4e2ff : 0xfff2e2);
+    rim.intensity = night ? 10 : 0;
+  });
 }
 
 /* ---------------------------------------------------------------- Subjects */
@@ -265,9 +313,13 @@ const models: Record<Kind, Model> = {
     });
     prismGeometry.translate(0, 0.05, -0.31);
     const prism = mesh(root, prismGeometry, opticalGlass({ thickness: 0.9, dispersion: 1.2 }), 0, 0, 0);
-    floor(root, 2.0, 1.1, hues.saffron);
+    const caustic = floor(root, 2.0, 1.1, hues.saffron);
+    const causticX = caustic.position.x;
     ticks.push((angle) => {
       prism.rotation.y = 0.32 + 0.14 * Math.sin(angle);
+      // The focused light swings and brightens as the prism turns toward the key.
+      caustic.position.x = causticX + 0.18 * Math.sin(angle);
+      (caustic.material as THREE.MeshBasicMaterial).opacity = 0.75 + 0.25 * Math.sin(angle);
       const spread = 1 + 0.12 * Math.sin(angle * 2);
       for (const { ray, angle: base } of rays) ray.rotation.z = 0.15 + (base - 0.15) * spread;
     });
@@ -314,6 +366,7 @@ const models: Record<Kind, Model> = {
 export function abstract(kind: Kind, ticks: Tick[]) {
   const root = new THREE.Group();
   models[kind](root, ticks);
+  poolLight(root, ticks);
   backGlow(root, "dark");
   backGlow(root, "light");
   return root;
