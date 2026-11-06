@@ -43,6 +43,16 @@ from the subject and, at night, a pool behind it and a warm top-light pool on th
 Its geometry is stored small and scaled in the vertex shader, so it never counts towards bounds or
 framing.
 
+Paper and Kinetic add scene-local devices in `kinetic-sculptures.ts`, which `paper-worlds.ts` also
+imports. `surfaceFinish` gives a material a procedural surface in object space (no UVs needed):
+colour, roughness, normal and clearcoat-normal GLSL run after three's own chunks. Kinetic uses it
+for glazed stoneware (soft body under a clear glaze, mottling, iron speckle, orange-peel ripple),
+brass turning marks and honed slate; Paper for card formation, stray fibres and tooth on top of the
+fibre map. `themeSwitch` lets a scene own a light that changes with the theme: an invisible probe
+material is themed, and a tick reads it. Paper's warm lantern and Kinetic's gallery spot are such
+lights, a soft accent by day and the main light at night (Kinetic keeps its slate dark at night and
+lets the spot pool on it). Spot lights cast no shadow map; the rig's key still does.
+
 ## Light rigs (`lightRigs`, `rig`)
 
 | Part | Light default | Dark default | Notes |

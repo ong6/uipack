@@ -5,6 +5,7 @@
 // mesh per scene, so a whole stage costs a handful of draw calls.
 import * as THREE from "three";
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
+import { surfaceFinish, themeSwitch } from "./kinetic-sculptures";
 import { contactShadow, lookMaterial, themed, type ObjectLook } from "./look";
 import { TAU, type Tick } from "./procedural";
 import type { KindWithLook } from "./variants";
@@ -35,7 +36,24 @@ const BACK = -0.8; // the backdrop's plane
 const FRONT = 0.95; // the proscenium's plane
 const OPEN = 1.62; // half-width of the proscenium opening
 const SPRING = 0.5; // where the arch springs from its sides
-const CARD = 0.032; // card thickness
+const CARD = 0.036; // card thickness: enough for the white core to read on every cut edge at card size
+const FRAME_X = 1.86; // half-width of the proscenium's front panel: a slim frame, so the stage carries the card
+
+/**
+ * Card stock under one light: the shared fibre map, plus a cloudy formation (paper is never even
+ * under raking light), stray long fibres, a rough tooth in the normal, and a matt surface that gets
+ * a little burnish where the tooth is flattened. Object space, so every flat gets the same scale.
+ */
+function cardFinish<M extends THREE.MeshStandardMaterial>(material: M) {
+  return surfaceFinish(material, "card", {
+    color: `float cloud = fNoise(p * 3.5) * 0.55 + fNoise(p * 11.0) * 0.45;
+      float strand = smoothstep(0.9, 0.98, fNoise(vec3(p.x * 55.0 + p.y * 20.0, p.y * 14.0 - p.x * 4.0, p.z * 14.0)));
+      diffuseColor.rgb *= 0.9 + 0.13 * cloud;
+      diffuseColor.rgb = mix(diffuseColor.rgb, min(diffuseColor.rgb * 1.08 + 0.02, vec3(1.0)), strand * 0.35);`,
+    rough: "roughnessFactor = clamp(roughnessFactor - 0.12 * strand, 0.6, 1.0);",
+    normal: "normal = normalize(normal + 0.16 * fGrad(p * 70.0) + 0.1 * fGrad(p * 18.0));",
+  });
+}
 
 /** The paper's white core shows on every cut edge. */
 const edgeOf = (color: number) => new THREE.Color(color).lerp(new THREE.Color(0xfff8ec), color === C.cream ? 0.6 : 0.5);
@@ -142,9 +160,11 @@ class Theatre {
   private statics: THREE.BufferGeometry[] = [];
 
   constructor(readonly options: TheatreOptions) {
-    this.paper = lookMaterial("paper", 0xffffff, { vertexColors: true, grain: 1.15, normalScale: new THREE.Vector2(0.4, 0.4) });
-    themed(this.paper, { dark: { color: 0xcfc6bb } });
-    this.lamp = themed(lookMaterial("paper", 0xffffff, { vertexColors: true, grain: 1.15 }), {
+    this.paper = cardFinish(
+      lookMaterial("paper", 0xffffff, { vertexColors: true, grain: 1.15, normalScale: new THREE.Vector2(0.55, 0.55) }),
+    );
+    themed(this.paper, { dark: { color: 0xd8cfc4 } });
+    this.lamp = themed(cardFinish(lookMaterial("paper", 0xffffff, { vertexColors: true, grain: 1.15 })), {
       dark: { emissive: 0xffa04a, emissiveIntensity: 1.6 },
     });
     this.build();
@@ -152,6 +172,31 @@ class Theatre {
 
   add(...geometries: THREE.BufferGeometry[]) {
     this.statics.push(...geometries);
+  }
+
+  /**
+   * How a flat stands up in a real paper theatre: a glue tab folded back along its foot and lying on
+   * the stage floor (the fold is the flat's hinge), and, for flats that never move, a pair of
+   * triangular braces behind it at `braces` x positions, cut card standing square to the flat.
+   */
+  stand(x0: number, x1: number, z: number, color: number, braces: number[] = [], height = 0.32) {
+    const TAB = 0.11;
+    this.add(block(x1 - x0, 0.01, TAB, color, (x0 + x1) / 2, FLOOR + 0.005, z - TAB / 2 + 0.002));
+    for (const x of braces)
+      this.add(
+        card(
+          shape([
+            [0, FLOOR],
+            [0.2, FLOOR],
+            [0, FLOOR + height],
+          ]),
+          color,
+          0,
+          0.02,
+        )
+          .rotateY(Math.PI / 2)
+          .translate(x - 0.01, 0, z),
+      );
   }
 
   /** A moving part: geometries merged into one mesh under `parent`. */
@@ -173,25 +218,41 @@ class Theatre {
   private build() {
     const { frame, trims, arch, backdrop, floor, walls = backdrop } = this.options;
     // Proscenium: the front panel and two nested arches stepping back.
-    const outer = rect(-1.98, -1.42, 1.98, 1.44);
-    // A cream mat just proud of the frame's outline: a light rim that keeps the proscenium's edge
-    // readable on a dark card.
-    this.add(card(withHoles(shape(rect(-2.05, -1.49, 2.05, 1.51)), [opening(arch, 0.02)]), C.cream, FRONT - 0.012, 0.012));
+    // A slim front panel (the stage, not the frame, should fill the card) with a cream mat just proud
+    // of its outline, a light rim that keeps the edge readable on a dark card.
+    const outer = rect(-FRAME_X, FLOOR - 0.2, FRAME_X, 1.44);
+    this.add(
+      card(withHoles(shape(rect(-FRAME_X - 0.05, FLOOR - 0.25, FRAME_X + 0.05, 1.49)), [opening(arch, 0.02)]), C.cream, FRONT - 0.012, 0.012),
+    );
     this.add(card(withHoles(shape(outer), [opening(arch, 0)]), frame, FRONT));
-    this.add(card(withHoles(shape(rect(-1.92, FLOOR - 0.05, 1.92, 1.38)), [opening(arch, 0.085)]), trims[0], FRONT - 0.07));
-    this.add(card(withHoles(shape(rect(-1.88, FLOOR - 0.05, 1.88, 1.34)), [opening(arch, 0.15)]), trims[1], FRONT - 0.14));
+    // Two nested trims stepping back: narrow, so each reads as a cut layer rather than more frame.
+    this.add(card(withHoles(shape(rect(-1.84, FLOOR - 0.05, 1.84, 1.38)), [opening(arch, 0.05)]), trims[0], FRONT - 0.07));
+    this.add(card(withHoles(shape(rect(-1.83, FLOOR - 0.05, 1.83, 1.34)), [opening(arch, 0.09)]), trims[1], FRONT - 0.14));
     // The box: stage floor, side walls, ceiling and backdrop.
-    this.add(block(3.7, 0.3, FRONT - BACK, floor, 0, FLOOR - 0.15, (FRONT + BACK) / 2));
-    for (const side of [-1, 1]) this.add(block(0.04, 2.38, FRONT - BACK, walls, side * 1.83, 0.07, (FRONT + BACK) / 2));
+    this.add(block(3.7, 0.2, FRONT - BACK, floor, 0, FLOOR - 0.1, (FRONT + BACK) / 2));
+    for (const side of [-1, 1]) {
+      this.add(block(0.04, 2.38, FRONT - BACK, walls, side * 1.83, 0.07, (FRONT + BACK) / 2));
+      // The wall's glue flap, folded out along its back edge and stuck to the backdrop.
+      this.add(block(0.14, 2.3, 0.012, walls, side * 1.78, 0.07, BACK + CARD + 0.008));
+    }
     this.add(block(3.7, 0.04, FRONT - BACK, walls, 0, 1.26, (FRONT + BACK) / 2));
     this.add(card(shape(rect(-1.85, FLOOR, 1.85, 1.3)), backdrop, BACK));
   }
 
-  finish() {
+  finish(ticks: Tick[]) {
     this.part(this.root, this.statics);
     this.statics = [];
     // The box stands on the card: a soft shadow under its base.
-    this.root.add(contactShadow(4.8, 2.5, { y: -1.42, z: 0.1, opacity: 0.38, color: 0x2a1c12 }));
+    this.root.add(contactShadow(4.6, 2.5, { y: FLOOR - 0.2, z: 0.1, opacity: 0.38, color: 0x2a1c12 }));
+    // The one warm light: a lantern above the front of the stage, pooling on the floor and the middle
+    // flats and falling off towards the wings. A soft accent by day; at night it is the light.
+    const lantern = new THREE.SpotLight(0xffc98c, 0, 0, 0.42, 0.9, 2);
+    lantern.position.set(-0.6, 3.4, 4.2);
+    lantern.target.position.set(0.1, -0.5, -0.2);
+    this.root.add(lantern, lantern.target);
+    themeSwitch(this.root, ticks, (dark) => {
+      lantern.intensity = dark ? 120 : 22;
+    });
     return this.root;
   }
 }
@@ -291,6 +352,8 @@ const scenes: Record<Kind, (ticks: Tick[]) => THREE.Group> = {
         -0.38,
       ),
     );
+    t.stand(-1.85, 1.85, -0.62, 0xb9ccd3);
+    t.stand(-1.85, 1.85, -0.38, C.dusty);
     t.add(
       card(
         shape([
@@ -320,6 +383,7 @@ const scenes: Record<Kind, (ticks: Tick[]) => THREE.Group> = {
         -0.12,
       ),
     );
+    t.stand(-1.85, 1.85, -0.12, 0x5f9e8f, [-1.5, 1.5]);
     // Road strips drawn on each range: wide in front, narrowing as it climbs away.
     t.add(
       card(
@@ -335,6 +399,7 @@ const scenes: Record<Kind, (ticks: Tick[]) => THREE.Group> = {
       ),
     );
     const mid = t.hinge(0.12);
+    t.stand(-1.85, 1.85, 0.12, C.viridian);
     t.part(mid, [
       card(
         shape(
@@ -364,7 +429,7 @@ const scenes: Record<Kind, (ticks: Tick[]) => THREE.Group> = {
     ]);
     // The train runs on a slot in front of the middle range and slips behind the proscenium.
     const train = new THREE.Group();
-    train.position.set(0, FLOOR + 0.51 + 0.02, 0.2);
+    train.position.set(0, FLOOR + 0.51 + 0.02, 0.235);
     t.root.add(train);
     const trainParts = [
       card(
@@ -389,10 +454,52 @@ const scenes: Record<Kind, (ticks: Tick[]) => THREE.Group> = {
       trainParts.push(card(shape(rect(x - 0.08, 0.09, x + 0.08, 0.13)), C.ink, 0.035, 0.01));
     }
     for (const x of [-0.5, -0.34, -0.12, 0.1]) trainParts.push(card(circle(x, 0.02, 0.035) as THREE.Shape, C.ink, 0.035, 0.012));
-    const trainMesh = t.part(train, trainParts);
-    trainMesh.userData.frameIgnore = true;
+    t.part(train, trainParts);
+    // Tunnel portals at both ends of the line: rock flats cut with a dark arch, standing in front of
+    // the track. The train runs from one tunnel into the other and only jumps back while hidden in
+    // them, so it never leaves the stage.
+    const TRACK = FLOOR + 0.53;
+    const ROCK = 0x8a9a8c;
+    for (const side of [-1, 1]) {
+      // u runs from the rock's inner end (towards centre stage) out into the wing.
+      const at = (u: number) => side * (1.0 + u);
+      const rock = shape(
+        (
+          [
+            [0, 0],
+            [0.84, 0],
+            [0.84, 0.82],
+            [0.62, 0.96],
+            [0.36, 1.02],
+            [0.1, 0.92],
+            [0, 0.82],
+          ] as Pt[]
+        ).map(([u, y]) => [at(u), FLOOR + y] as Pt),
+      );
+      t.add(card(rock, ROCK, 0.3));
+      // The portal: an ink arch face with a cream ring, near the rock's inner end.
+      const portal = new THREE.Shape();
+      const cx = at(0.2);
+      portal.moveTo(cx - 0.15, TRACK - 0.03);
+      portal.lineTo(cx - 0.15, TRACK + 0.18);
+      portal.absarc(cx, TRACK + 0.18, 0.15, Math.PI, 0, true);
+      portal.lineTo(cx + 0.15, TRACK - 0.03);
+      portal.closePath();
+      t.add(card(portal, C.ink, 0.3 + CARD + 0.003, 0.012));
+      const ring = shape(sample(24, (s) => [cx + 0.19 * Math.cos(Math.PI * s), TRACK + 0.18 + 0.19 * Math.sin(Math.PI * s)]));
+      ring.holes.push(
+        poly(
+          sample(24, (s) => [cx + 0.15 * Math.cos(Math.PI * (1 - s)), TRACK + 0.18 + 0.15 * Math.sin(Math.PI * (1 - s))]),
+          true,
+        ),
+      );
+      t.add(card(ring, C.cream, 0.3 + CARD + 0.003, 0.014));
+      const [x0, x1] = [at(0.05), at(0.8)].sort((a, b) => a - b);
+      t.stand(x0, x1, 0.3, ROCK, [at(0.5)]);
+    }
     // Front hills with firs, and the road's nearest bend.
     const front = t.hinge(0.48);
+    t.stand(-1.85, 1.85, 0.48, C.sage);
     const frontParts = [
       card(
         shape(
@@ -432,15 +539,17 @@ const scenes: Record<Kind, (ticks: Tick[]) => THREE.Group> = {
     const drift = t.hinge(BACK + 0.3, 0);
     t.part(drift, [card(cloud(-0.9, 0.95, 1), C.cream, 0), card(cloud(0.2, 1.12, 0.62), C.cream, 0.05)]);
     ticks.push((angle) => {
-      sunRod.position.y = -0.82 + 0.2 * Math.sin(angle - 0.6);
-      // Two crossings a loop; the jump back happens while the train is hidden behind the frame.
+      sunRod.position.y = -0.86 + 0.32 * Math.sin(angle - 0.6);
+      // Two crossings a loop, tunnel to tunnel: at both ends of its run the whole train is inside a
+      // rock (x -1.25 is hidden by the left rock, 1.6 by the right), so the jump back is never seen.
       const u = ((((2 * angle) / TAU + 0.25) % 1) + 1) % 1;
-      train.position.x = -2.0 + 4.35 * u;
-      mid.rotation.x = 0.025 * Math.sin(angle + 1);
-      front.rotation.x = 0.035 * Math.sin(angle);
-      drift.position.x = 0.12 * Math.sin(angle);
+      train.position.x = -1.25 + 2.85 * u;
+      // The flats rock on their fold tabs, like scenery nudged on its hinge.
+      mid.rotation.x = 0.04 * Math.sin(angle + 1);
+      front.rotation.x = 0.09 * Math.sin(angle);
+      drift.position.x = 0.3 * Math.sin(angle);
     });
-    return t.finish();
+    return t.finish(ticks);
   },
 
   /** An open book on a raked floor; a castle pops up from its gutter as the pages breathe. */
@@ -583,12 +692,19 @@ const scenes: Record<Kind, (ticks: Tick[]) => THREE.Group> = {
       keep.rotation.x = -0.75 * (1 - open);
       firs.rotation.x = -0.9 * (1 - open);
     });
-    return t.finish();
+    return t.finish(ticks);
   },
 };
 
-/** Camera per subject: near-frontal, a little above, a little to the right so the layers stack. */
-const pitches: Record<Kind, number> = { travel: 6, reading: 12 };
+/**
+ * Camera per subject. The set shares one lens and one light, but each stage is seen from its own
+ * seat: from the left or right of the stalls (so the side walls, tabs and braces show and the flats
+ * stack up differently), and from higher where the floor carries the story (the book).
+ */
+const seats: Record<Kind, { pitch: number; yaw: number }> = {
+  travel: { pitch: 7, yaw: 14 },
+  reading: { pitch: 14, yaw: -10 },
+};
 
 export function paperLook(kind: Kind): ObjectLook {
   return {
@@ -605,12 +721,12 @@ export function paperLook(kind: Kind): ObjectLook {
         exposure: 1.0,
         hemisphere: { sky: 0x8796b8, ground: 0x15161c, intensity: 0.16 },
         // Footlights: the key comes from low in front, so flats throw their shadows up the stage.
-        key: { intensity: 3.6, color: 0xffcf96, position: [-2.5, -0.6, 8] },
+        key: { intensity: 2.3, color: 0xffcf96, position: [-2.5, -0.6, 8] },
         rim: { intensity: 0.9, color: 0x9fb8ff },
       },
     },
-    camera: { projection: "perspective", fov: 30, pitch: pitches[kind], yaw: 9 },
-    framing: { fill: 0.72, maxWidth: 0.8, sample: "rest" },
+    camera: { projection: "perspective", fov: 30, ...seats[kind] },
+    framing: { fill: 0.82, maxWidth: 0.9, sample: "rest" },
     castShadows: true,
   };
 }

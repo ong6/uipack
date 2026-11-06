@@ -25,7 +25,7 @@ export function createArtDirection(kind: ArtKind, variant: 1 | 2 | 3 | 4 | 5) {
     root.userData.look = paperLook(kind);
   } else if (variant === 2 && hasObjectLook(kind, 2)) {
     root = kineticWorld(kind, ticks);
-    root.userData.look = kineticLook;
+    root.userData.look = kineticLook(kind);
   } else throw new Error(`${kind} has no ${variant === 1 ? "paper" : "kinetic"} look`);
   root.userData.style = variant === 1 ? "paper-theatre" : "kinetic";
   playLoop(root, ticks, REST_MS, variant === 1 ? "paper-parallax" : "kinetic-orbit");
