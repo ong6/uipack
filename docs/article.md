@@ -215,7 +215,7 @@ Props: `index` (a number is padded: 8 → "08"), `zone?`, `metric?: { value, lab
 
 Props: `terms`, `label?` ("Learn"), `id?`, `className?`.
 
-### Callout
+### Callout (self-test, note)
 
 ```html
 <div class="uipack-callout uipack-callout--selftest">

@@ -55,8 +55,8 @@ const AREAS = [
   [/^src\/mechanism\//, ["mechanism"]],
   [/^src\/web\//, ["web"]],
   [/^playground\/(WebShowcase|web-showcase|web-seo|webTidyFlow|DeckShowcase|deck-showcase)/, ["web", "deck", "showcase-content"]],
-  // The sample product's facts and the guides' stated budgets: the content guard.
-  [/^playground\/(tidyFacts|guideFacts)/, ["showcase-content"]],
+  // The sample product's facts and section order: the content guard.
+  [/^playground\/tidyFacts/, ["showcase-content", "web"]],
   [/^src\/objects\//, ["objects", "art-directions", "contact-directions"]],
   [/^src\/slides\//, ["slides"]],
   [/^src\/browser\/|^assets\//, ["assets"]],
@@ -73,11 +73,19 @@ const AREAS = [
   [/^src\/(CanvasView|canvas)/, ["canvas", "canvas-gestures"]],
   // Root parts, theme, presets and the figures page: every figure-level spec.
   [/^src\/[^/]+\.(tsx?|css)$|^src\/presets\/|^playground\/figures\//, FIGURES],
-  // The Foundations guide pages: their outline, scale, alignment and overflow, and the nav rows.
-  [/^playground\/(Foundations|foundations)|^docs\/system\//, ["foundations", "nav", "page-audit", "showcase-content"]],
-  [/^playground\/(ShowcaseShell|showcase\.css|catalog|routes|nav|main|index\.html)/, SHELL],
+  // The Rules pages and their demos: outline, overflow and the nav rows.
+  [
+    /^playground\/(rulesDemos|foundations)|^docs\/(system|recipes|examples)\//,
+    ["foundations", "nav", "page-audit", "showcase-content"],
+  ],
+  [/^playground\/(ShowcaseShell|showcase\.css|catalog|figure-rows|routes|nav|main|index\.html)/, SHELL],
   // The /styles and /presentations pages (CatalogShowcase): slide starters and the style catalog demo.
   [/^playground\/(CatalogShowcase|StylePreviews|presentations\.css)/, ["web", "page-audit", "showcase"]],
+  // Component demos embedded in their docs pages.
+  [/^playground\/(ArticleShowcase|article-showcase)/, ["article"]],
+  [/^playground\/FiguresShowcase/, [...FIGURES, "charts", "assets", "gallery"]],
+  [/^playground\/(MechanismShowcase|mechanism-showcase)/, ["mechanism"]],
+  [/^playground\/(SlideShowcase|slides-showcase)/, ["slides", "objects"]],
   [/^dist\//, ["dist-smoke"]],
 ];
 

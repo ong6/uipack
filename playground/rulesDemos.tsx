@@ -460,7 +460,7 @@ function SlideSketch({ eyebrow, title, lede, points }: { eyebrow?: string; title
   return (
     <WebSurface theme={theme} className="fdn-mini">
       {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
-      <Heading level={4} size={3}>
+      <Heading level={3} size={3}>
         {title}
       </Heading>
       {lede && <Body>{lede}</Body>}
@@ -507,14 +507,14 @@ export function PairOverBudget() {
       <Pair
         dont={
           <WebSurface theme={theme} className="fdn-mini">
-            <Heading level={4} size={3}>
+            <Heading level={3} size={3}>
               <OverBudget text={longHeadline} max={SLOT_BUDGETS.headline.maxWords ?? 14} />
             </Heading>
           </WebSurface>
         }
         doit={
           <WebSurface theme={theme} className="fdn-mini">
-            <Heading level={4} size={3}>
+            <Heading level={3} size={3}>
               Review decisions: 3 meetings → 1
             </Heading>
             <ul className="fdn-points">

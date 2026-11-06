@@ -8,7 +8,7 @@ test.describe("figure entrance", () => {
     { tag: "@cross-browser" },
     async ({ page }) => {
       await page.setViewportSize({ width: 1440, height: 900 });
-      await page.goto("/");
+      await page.goto("/components/diagrams");
       const first = page.locator("figure.uipack").first().locator(".uipack__canvas");
       const late = page.locator("figure.uipack", { hasText: "Annotated curve" }).locator(".uipack__canvas");
       await late.waitFor({ state: "attached" });
@@ -26,7 +26,7 @@ test.describe("figure entrance", () => {
     },
   );
 
-  for (const path of ["/", "/web", "/foundations/layout"]) {
+  for (const path of ["/components/diagrams", "/web", "/foundations/layout"]) {
     test(`jumping straight to the bottom of ${path} leaves every figure drawn`, async ({ page }) => {
       await page.setViewportSize({ width: 1440, height: 900 });
       await page.goto(path, { waitUntil: "load" });
@@ -84,7 +84,7 @@ test.describe("figure entrance", () => {
   test("reduced motion shows every figure at once", async ({ browser }) => {
     const context = await browser.newContext({ reducedMotion: "reduce" });
     const page = await context.newPage();
-    await page.goto("/");
+    await page.goto("/components/diagrams");
     await page.locator("figure.uipack").last().waitFor({ state: "attached" });
     await expect(page.locator(".uipack__canvas[data-enter]")).toHaveCount(0);
     await context.close();

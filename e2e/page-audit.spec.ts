@@ -58,7 +58,7 @@ for (const { label, path } of ALL) {
         await checkAlignment(page);
         await checkPairedBoxes(page);
         await checkHeadingOrphans(page);
-        if (path === "/") {
+        if (path === "/components/diagrams") {
           // Sections on the diagrams page are one shell gap apart.
           const gaps = await page.evaluate(() => {
             const sections = [...document.querySelectorAll("[data-section]")];

@@ -8,7 +8,7 @@ const focusedName = (page: Page) =>
 
 test.describe("figure keyboard: one Tab stop per drawing", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/components/diagrams");
     await page.locator("#e2e-node-alpha").waitFor();
     await page.locator("#drill-main").waitFor();
   });

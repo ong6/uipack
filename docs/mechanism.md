@@ -2,11 +2,6 @@
 
 `uipack/mechanism` (with `uipack/mechanism.css`) draws one real, well-made isometric machine whose working *is* the concept. Its first machine is the **verification gate**, for an agent-harness talk: an agent proposes actions, and a check stands between a proposal and its result.
 
-![The verification gate, light](mechanism-1440-light.png)
-![The verification gate on a phone, dark](mechanism-390-dark.png)
-
-The style follows [Anatomy](https://github.com/wheresryan22/anatomy) by Ryan (MIT), pinned at commit `1482e8469b0a9e0d8cc18ea2740a01423d29ae80`: "the object is the explanation". It is drawn in the Technical palette, so it belongs to the same family as the figures.
-
 Choose a pose the way a slide would; the machine moves there from wherever it is. The thumbnails
 are `interactive={false}` and `frame={false}`: one still frame per pose, no loops and no card, as a
 deck renders its slide strip.
@@ -14,6 +9,11 @@ deck renders its slide strip.
 ```uipack-demo mechanism-gate wide
 The verification gate with Idle tour, Pass, Return and Apart poses, then one still thumbnail per pose.
 ```
+
+![The verification gate, light](mechanism-1440-light.png)
+![The verification gate on a phone, dark](mechanism-390-dark.png)
+
+The style follows [Anatomy](https://github.com/wheresryan22/anatomy) by Ryan (MIT), pinned at commit `1482e8469b0a9e0d8cc18ea2740a01423d29ae80`: "the object is the explanation". It is drawn in the Technical palette, so it belongs to the same family as the figures.
 
 ## When to use it
 

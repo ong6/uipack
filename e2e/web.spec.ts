@@ -127,7 +127,7 @@ test.describe("/web collection", () => {
       await page.setViewportSize({ width: 390, height: 844 });
       await page.goto(`/web?theme=${theme}`);
       await expect(page.locator(".uipack-web").first()).toHaveAttribute("data-theme", theme);
-      await expect(page.locator(".showcase-menu-button")).toHaveAccessibleName("Examples: Web UI");
+      await expect(page.locator(".showcase-menu-button")).toHaveAccessibleName("Examples: Example landing page");
       // The context line names the page's style, Technical (the one implemented style); no switcher.
       await expect(page.locator(".showcase-context a")).toHaveText("Technical style");
       await expect(page.locator(".showcase-context").getByRole("group", { name: "Style" })).toHaveCount(0);
@@ -460,12 +460,6 @@ test.describe("/web collection", () => {
       expect(gap).toBeGreaterThanOrEqual(16);
       expect(gap).toBeLessThanOrEqual(56);
       await expect(page.locator("#web-proof")).toBeFocused();
-      // The page index works the same way.
-      await page.getByRole("navigation", { name: "On this page" }).getByRole("link", { name: "Type" }).click();
-      // Its scroll-margin-top is 24px; allow a pixel of device rounding.
-      await expect
-        .poll(() => page.locator("#web-type").evaluate((el) => Math.abs(el.getBoundingClientRect().top - 24)), { timeout: 4_000 })
-        .toBeLessThanOrEqual(1.5);
     },
   );
 
@@ -616,7 +610,7 @@ test.describe("/web discoverability", () => {
     // The canonical drops the theme parameter: one URL per page, whatever the view state.
     await expect(page.locator('head link[rel="canonical"]')).toHaveAttribute("href", `${origin}/web`);
     // The tab names the playground page; the sample's own title is its og:title and the generated head.
-    await expect(page).toHaveTitle("Web UI · uipack");
+    await expect(page).toHaveTitle("Example landing page · uipack");
     // The playground is an illustrative demo: its index.html keeps it out of search indexes.
     await expect(page.locator('head meta[name="robots"]')).toHaveAttribute("content", "noindex");
     const meta = (sel: string) => page.locator(`head meta[${sel}]`).getAttribute("content");

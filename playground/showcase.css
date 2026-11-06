@@ -84,10 +84,16 @@ body {
 .showcase-shell > section {
   min-width: 0;
 }
+/* A gallery demo of several sections (the diagram catalogue, the web parts) keeps the shell's
+   gap between them, as the page's own sections had. */
+.showcase-shell .uipack-docs__block[data-block="uipack-demo"]:has(> section + section) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 32px;
+}
 /* The heading scale (docs/design-direction.md): page title 40, section heading 24 (22 on
    phones), card and figure titles 18–20 at 600. e2e/page-audit.spec.ts holds every page to it. */
 .showcase-shell > section > h2,
-.showcase-shell .deck-showcase__reference > section > h2,
 .showcase-shell .uipack-docs__block[data-block="uipack-demo"] > section > h2 {
   font-family: var(--show-font-display);
   font-size: 24px;
@@ -554,7 +560,7 @@ body {
 }
 @media (max-width: 540px) {
   .showcase-shell > section > h2,
-  .showcase-shell .deck-showcase__reference > section > h2 {
+  .showcase-shell .uipack-docs__block[data-block="uipack-demo"] > section > h2 {
     font-size: 22px;
   }
 }

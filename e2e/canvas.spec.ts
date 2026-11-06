@@ -4,7 +4,7 @@ test.use({ hasTouch: true });
 
 test("mobile presets remain readable and selection works without hover", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("/?theme=light");
+  await page.goto("/components/diagrams?theme=light");
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
   // The drill-down stacks its narrow drawings per level; drill.spec checks those.
   for (const figure of await page.locator("figure.uipack--has-narrow:not(.uipack-drill)").all()) {
@@ -77,7 +77,7 @@ test("catalog filters, style grouping, and presentation composition work on mobi
   await page.getByRole("searchbox", { name: "Search animations" }).fill("retrieval");
   await expect(page.getByRole("navigation", { name: "Example stories" }).getByRole("button")).toHaveCount(1);
   await page.locator(".showcase-menu-button").click();
-  await page.getByRole("dialog", { name: "Library menu" }).getByRole("link", { name: "Styles", exact: true }).click();
+  await page.getByRole("dialog", { name: "Library menu" }).getByRole("link", { name: "Technical", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Technical", exact: true })).toBeVisible();
   await page.locator(".showcase-menu-button").click();
   await page.getByRole("dialog", { name: "Library menu" }).getByRole("link", { name: "Slide starters", exact: true }).click();

@@ -32,6 +32,8 @@ export interface DocsPageEntry {
   /** The page this one is a sub-page of: the sidebar lists it indented under that page. */
   readonly parent?: string;
   readonly demos?: readonly { readonly id: string; readonly at?: string }[];
+  /** The page's demos need the whole content width (a gallery of figures, charts, a 3D scene): no "On this page" column. */
+  readonly fullWidth?: boolean;
   /** The page hosts a complete sample page with its own h1 (the /web sample). */
   readonly hostsPage?: boolean;
   /** The `visualStyles` name the page's content uses; default "Technical". */
@@ -195,35 +197,35 @@ export const docsManifest = [
     pages: [
       {
         id: "recipes",
-        label: "Overview",
+        label: "Recipes overview",
         path: "/recipes",
         file: "docs/recipes/README.md",
         intro: "One recipe per page type: the section order, the parts to use, and the rules each relies on.",
       },
       {
         id: "recipe-landing",
-        label: "Landing page",
+        label: "Build a landing page",
         path: "/recipes/landing",
         file: "docs/recipes/landing.md",
         intro: "Build a landing page: the section order the example renders, the parts per section, the steps.",
       },
       {
         id: "recipe-documentation",
-        label: "Documentation and article",
+        label: "Build a docs page",
         path: "/recipes/documentation",
         file: "docs/recipes/documentation.md",
         intro: "Build a reading page: the order inside it, the docs and article parts, the steps.",
       },
       {
         id: "recipe-deck-slide",
-        label: "Deck slide",
+        label: "Build a deck",
         path: "/recipes/deck-slide",
         file: "docs/recipes/deck-slide.md",
         intro: "Build a deck: the storylines, the slide roles, the parts and every check lintDeck runs.",
       },
       {
         id: "recipe-dashboard",
-        label: "Dashboard",
+        label: "Build a dashboard",
         path: "/recipes/dashboard",
         file: "docs/recipes/dashboard.md",
         intro: "Build a dashboard: the order, the parts, the steps.",
@@ -236,6 +238,7 @@ export const docsManifest = [
     pages: [
       {
         id: "figures",
+        fullWidth: true,
         label: "Architecture diagrams",
         path: "/components/diagrams",
         file: "docs/diagrams.md",
@@ -251,6 +254,7 @@ export const docsManifest = [
       },
       {
         id: "charts",
+        fullWidth: true,
         label: "Charts",
         path: "/charts",
         file: "docs/charts.md",
@@ -314,6 +318,7 @@ export const docsManifest = [
       },
       {
         id: "presentations",
+        fullWidth: true,
         label: "Slide starters",
         path: "/presentations",
         file: "docs/presentations.md",
@@ -321,6 +326,7 @@ export const docsManifest = [
       },
       {
         id: "animations",
+        fullWidth: true,
         label: "3D animations",
         path: "/animations",
         file: "docs/slides.md",
@@ -335,6 +341,7 @@ export const docsManifest = [
       },
       {
         id: "mechanism",
+        fullWidth: true,
         label: "Mechanism",
         path: "/mechanism",
         file: "docs/mechanism.md",

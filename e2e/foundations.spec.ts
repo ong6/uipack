@@ -2,7 +2,7 @@ import { libraryPages } from "../playground/catalog";
 import { expect, test, waitForPage } from "./fixtures";
 import { expectPageTitle } from "./page-audit";
 
-// The Foundations guides link to each other, to the live pages and into the docs. Every internal
+// The Rules pages link to each other, to the live pages and into the docs. Every internal
 // link must land on a real page (not the shell's "Page not found"), and no guide logs an error.
 const guides = libraryPages.filter((p) => p.group === "foundations" && p.path.startsWith("/foundations"));
 
@@ -39,25 +39,20 @@ test("every Foundations guide renders without console errors, and its internal l
   expect(broken).toEqual([]);
 });
 
-test("a guide's per-medium tabs work from the keyboard, and the full spec opens", async ({ page }) => {
-  await page.goto("/foundations/style?theme=light");
-  const tabs = page.getByRole("tablist", { name: "Style by medium" });
-  const first = tabs.getByRole("tab").first();
-  await first.focus();
-  await page.keyboard.press("ArrowRight");
-  const second = tabs.getByRole("tab").nth(1);
-  await expect(second).toBeFocused();
-  await expect(second).toHaveAttribute("aria-selected", "true");
-  await expect(page.getByRole("tabpanel")).toBeVisible();
-  const spec = page.locator("details.fdn-spec");
-  await expect(spec).not.toHaveAttribute("open");
-  await spec.locator("summary").click();
-  await expect(spec).toHaveAttribute("open");
+test("the budget checker on General rules gives the linter's verdict, from the keyboard", async ({ page }) => {
+  await page.goto("/foundations/writing/general?theme=light");
+  await waitForPage(page);
+  const demo = page.locator('.uipack-docs__block[data-block-id="budget-checker"]');
+  await demo.getByRole("combobox").selectOption("label");
+  const words = demo.getByRole("textbox");
+  await words.fill("Validate");
+  await expect(demo.getByRole("status")).toHaveText(/Fits the budget/);
+  await words.fill("This service checks that each request is valid.");
+  await expect(demo.getByRole("status")).toHaveText(/Over budget/);
 });
 
-test("an address into the full spec opens it at that heading", async ({ page }) => {
+test("an address into a Rules page's section lands on that heading", async ({ page }) => {
   await page.goto("/foundations/style#where-the-code-stands");
-  await expect(page.locator("details.fdn-spec")).toHaveAttribute("open");
   await expect(page.locator("#where-the-code-stands")).toBeInViewport();
 });
 
@@ -70,7 +65,7 @@ test("guides fit a phone: no page overflow at 390px", async ({ page }) => {
   }
 });
 
-test("the overview renders docs/system/README.md with the live swap demo, and the pager walks the guides", async ({ page }) => {
+test("the overview renders docs/system/README.md with the live swap demo, and the pager walks the recipes", async ({ page }) => {
   await page.goto("/foundations?theme=light");
   await waitForPage(page);
   await expect(page.getByRole("heading", { level: 1 })).toHaveAccessibleName("The UI Pack design system");
@@ -84,31 +79,24 @@ test("the overview renders docs/system/README.md with the live swap demo, and th
   await expect(
     page.locator("main .uipack-docs__prose").getByRole("link", { name: "Writing", exact: true }).first(),
   ).toHaveAttribute("href", "/foundations/writing?theme=light");
-  await page.goto("/foundations/recipes?theme=light");
+  await page.goto("/recipes?theme=light");
   const pager = page.getByRole("navigation", { name: "Previous and next documentation pages" });
-  await expect(pager.getByRole("link", { name: /Next.*Do and don't/ })).toHaveAttribute(
+  await expect(pager.getByRole("link", { name: /Next.*Build a landing page/ })).toHaveAttribute(
     "href",
-    "/foundations/do-and-dont?theme=light",
+    "/recipes/landing?theme=light",
   );
+  await page.goto("/recipes/landing?theme=light");
   await expect(page.getByRole("heading", { name: "Before you ship" })).toBeVisible();
 });
 
-test("at 390px a guide table stacks into rows that keep every column readable", async ({ page }) => {
+test("at 390px a Rules table scrolls inside its own box and the page never widens", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("/foundations/writing?theme=light");
-  const table = page.getByRole("region", { name: "Slot budgets" });
-  const row = table.locator("tbody tr").first();
-  // Every cell sits inside the viewport, under its column name.
-  for (const cell of await row.locator("th, td").all()) {
-    const box = (await cell.boundingBox())!;
-    expect(box.x + box.width).toBeLessThanOrEqual(390);
+  for (const path of ["/foundations/writing/general", "/foundations?theme=light"]) {
+    await page.goto(path);
+    await waitForPage(page);
+    await expect(page.locator("main .uipack-docs__table").first()).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
   }
-  await expect(row.locator("td").nth(1)).toHaveAttribute("data-label", "Budget");
-  // A Markdown page's tables scroll inside their own box; the page never widens.
-  await page.goto("/foundations?theme=light");
-  await waitForPage(page);
-  await expect(page.locator("main .uipack-docs__table").first()).toBeVisible();
-  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
 });
 
 test("the guides use no emoji as icons", async ({ page }) => {

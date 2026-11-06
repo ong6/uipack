@@ -100,7 +100,9 @@ export async function waitForStable<T>(read: () => Promise<T>, { every = 100, ti
  */
 export async function waitForPage(page: Page) {
   // The shell's main, then the page's title: the manifest's on a showcase page, the file's own h1 on a Markdown page.
-  await baseExpect(page.locator("main .showcase-title, main .uipack-docs__prose h1").first()).toBeVisible();
+  await baseExpect(
+    page.locator("main .showcase-title, main .uipack-docs__prose h1, main .uipack-docs__block h1").first(),
+  ).toBeVisible();
   await baseExpect(page.locator(".showcase-loading")).toHaveCount(0);
   await page.evaluate(() => document.fonts.ready);
 }

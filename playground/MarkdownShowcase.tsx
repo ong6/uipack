@@ -24,6 +24,15 @@ function showFrontmatter(text: string) {
   return title ? `${title[1]}\n${block}${body.slice(title[1].length)}` : block + body;
 }
 
+/**
+ * A sub-view's h1 names the view too ("Deck player · Bento") when the file's `#` is the page's
+ * title, so the deck examples that share docs/deck.md still say which one is open.
+ */
+export function withSubViewTitle(text: string, page: Pick<PageDef, "title" | "label" | "query"> | undefined) {
+  if (!page?.query || !page.title) return text;
+  return text.replace(/^# (.+)$/m, (line, h1: string) => (h1.trim() === page.title ? `# ${h1.trim()} · ${page.label}` : line));
+}
+
 /** The page for this address: the manifest entry whose route it is. */
 function currentPage(): PageDef | undefined {
   const id = routes.get(routePath(location.pathname));
@@ -47,7 +56,7 @@ export default function MarkdownShowcase() {
     if (!load) return;
     let live = true;
     load().then(
-      (text) => live && setSource(withDemos(showFrontmatter(text), page?.demos)),
+      (text) => live && setSource(withDemos(withSubViewTitle(showFrontmatter(text), page), page?.demos)),
       () => live && setFailed(true),
     );
     return () => {

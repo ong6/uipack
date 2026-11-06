@@ -292,7 +292,7 @@ export function ShowcaseShell({ active, children }: { active: LibraryPage | "not
         header={header}
         sections={sidebarSections(theme)}
         activeHref={notFound ? "" : pageHref(page, theme)}
-        onThisPage={markdown ? toc : []}
+        onThisPage={markdown && !hostsPage && !page.fullWidth ? toc : []}
         previous={neighbour(pageDefs[index - 1])}
         next={neighbour(pageDefs[index + 1])}
         theme={theme}

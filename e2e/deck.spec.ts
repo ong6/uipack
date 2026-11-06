@@ -175,21 +175,21 @@ test.describe("/deck player", () => {
       .toBeLessThanOrEqual(900);
   });
 
-  test("beside a laptop-sized slide sits only the intro; the reference tables run under the controls", async ({ page }) => {
+  test("on a laptop the slide and its controls fill the first screen, with the guide below them", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto("/deck");
-    await expect(page.locator(".deck-showcase")).toHaveAttribute("data-layout", "side");
-    const box = await page.evaluate(() => {
-      const r = (s: string) => document.querySelector(s)!.getBoundingClientRect();
-      const tables = Array.from(document.querySelectorAll(".deck-showcase__reference > section"), (el) =>
-        el.getBoundingClientRect(),
-      );
-      return { controls: r(".uipack-deck-controls").bottom, tables: tables.map((t) => ({ top: t.top, left: t.left })) };
-    });
-    // Two columns, side by side, both under the controls.
-    expect(box.tables).toHaveLength(2);
-    for (const t of box.tables) expect(t.top).toBeGreaterThan(box.controls);
-    expect(box.tables[1].left).toBeGreaterThan(box.tables[0].left);
+    await expect
+      .poll(() => page.locator(".uipack-deck-controls").evaluate((el) => el.getBoundingClientRect().bottom))
+      .toBeLessThanOrEqual(900);
+    // The transitions and keys the old reference tables listed are the guide's own sections, under the deck.
+    const controls = await page.locator(".uipack-deck-controls").evaluate((el) => el.getBoundingClientRect().bottom);
+    for (const name of ["Transitions", "Controls"]) {
+      const top = await page
+        .locator("main .uipack-docs__prose h2", { hasText: name })
+        .first()
+        .evaluate((el) => el.getBoundingClientRect().top);
+      expect(top, name).toBeGreaterThan(controls);
+    }
   });
 
   // Presenting on a laptop, the slide gets the window: the page scrolls past its header (which stays

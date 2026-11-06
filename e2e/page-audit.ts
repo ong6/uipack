@@ -19,9 +19,11 @@ export const ALL = GROUPS.flatMap((g) => g.pages.map(([label, path]) => ({ group
 // no `#` hosts a sample page whose own hero is the h1 (the example landing page, /web).
 const byPath = (path: string) => pageDefs.find((p) => pagePath(p) === path || p.path === path);
 export const isMarkdownPage = (path: string) => !!byPath(path);
-/** A Markdown page's h1, as the file writes it (inline code and link syntax dropped). */
+/** A Markdown page's h1, as the file writes it (inline code and link syntax dropped), with a sub-view's name. */
 export function markdownH1(path: string) {
-  const line = /^# (.+)$/m.exec(readFileSync(byPath(path)!.file, "utf8"))?.[1] ?? "";
+  const page = byPath(path)!;
+  let line = /^# (.+)$/m.exec(readFileSync(page.file, "utf8"))?.[1] ?? "";
+  if (page.query && page.title && line.trim() === page.title) line = `${line.trim()} · ${page.label}`;
   return line
     .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
     .replace(/[`*_]/g, "")
@@ -82,7 +84,7 @@ export async function checkHeadingOutline(page: Page, label: string, path: strin
     previous = h.level;
   }
   // Every main is named by the page: by its h1, or on /web (whose h1 is the sample's hero) by its label.
-  if (path === "/web") await expect(page.getByRole("main", { name: "Web UI" })).toBeVisible();
+  if (path === "/web") await expect(page.getByRole("main", { name: "Example landing page" })).toBeVisible();
   else if (isMarkdownPage(path)) await expect(page.getByRole("main", { name: label })).toBeVisible();
   else
     for (const h of headings.filter((h) => h.level === 2))

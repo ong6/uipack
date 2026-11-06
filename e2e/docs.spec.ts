@@ -4,9 +4,11 @@ test("docs gallery renders desktop navigation and table of contents", { tag: "@c
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto("/docs?theme=light");
 
-  await expect(page.locator('[data-catalog-entry="product-docs-layout"]')).toBeVisible();
-  await expect(page.getByRole("navigation", { name: "Documentation", exact: true })).toBeVisible();
-  await expect(page.getByRole("complementary", { name: "On this page" })).toBeVisible();
+  // The demo is a docs layout inside the site's own: check the demo's parts, not the shell's.
+  const demo = page.locator('[data-catalog-entry="product-docs-layout"]');
+  await expect(demo).toBeVisible();
+  await expect(demo.getByRole("navigation", { name: "Documentation", exact: true })).toBeVisible();
+  await expect(demo.getByRole("complementary", { name: "On this page" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Overview", exact: true }).last()).toHaveAttribute("aria-current", "page");
 });
 
@@ -20,7 +22,7 @@ test("docs gallery uses its navigation disclosure at 390px", { tag: "@cross-brow
   await disclosure.locator("summary").click();
   await expect(disclosure).toHaveAttribute("open", "");
   await expect(disclosure.getByRole("link", { name: "Getting started" })).toBeVisible();
-  await expect(page.locator(".uipack-docs__toc")).toBeHidden();
+  await expect(page.locator('[data-catalog-entry="product-docs-layout"] .uipack-docs__toc')).toBeHidden();
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
 });
 

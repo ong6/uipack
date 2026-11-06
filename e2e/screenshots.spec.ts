@@ -13,7 +13,7 @@ for (const theme of ["light", "dark"] as const) {
     test(`shot ${theme} ${w}`, async ({ page }) => {
       test.setTimeout(60_000);
       await page.setViewportSize({ width: w, height: h });
-      await page.goto(`/?theme=${theme}`);
+      await page.goto(`/components/diagrams?theme=${theme}`);
       await page.waitForTimeout(600);
       await page.screenshot({ path: `docs/playground-${w}-${theme}.png`, fullPage: true });
       await page.goto(`/assets?theme=${theme}`);
@@ -49,7 +49,7 @@ for (const theme of ["light", "dark"] as const) {
   }
   test(`shot presets ${theme}`, async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 1100 });
-    await page.goto(`/?theme=${theme}`);
+    await page.goto(`/components/diagrams?theme=${theme}`);
     await page.waitForTimeout(600);
     await page.locator('section[data-section="service-map"] figure').screenshot({ path: `docs/habitat-${theme}.png` });
     await page.locator('section[data-section="parts"] figure').screenshot({ path: `docs/parts-${theme}.png` });

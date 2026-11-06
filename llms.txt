@@ -29,11 +29,11 @@ Read docs/system/README.md first (style, writing and layout as three layers). Ag
 
 ## Recipes
 
-- [Overview](docs/recipes/README.md): One recipe per page type: the section order, the parts to use, and the rules each relies on.
-- [Landing page](docs/recipes/landing.md): Build a landing page: the section order the example renders, the parts per section, the steps.
-- [Documentation and article](docs/recipes/documentation.md): Build a reading page: the order inside it, the docs and article parts, the steps.
-- [Deck slide](docs/recipes/deck-slide.md): Build a deck: the storylines, the slide roles, the parts and every check lintDeck runs.
-- [Dashboard](docs/recipes/dashboard.md): Build a dashboard: the order, the parts, the steps.
+- [Recipes overview](docs/recipes/README.md): One recipe per page type: the section order, the parts to use, and the rules each relies on.
+- [Build a landing page](docs/recipes/landing.md): Build a landing page: the section order the example renders, the parts per section, the steps.
+- [Build a docs page](docs/recipes/documentation.md): Build a reading page: the order inside it, the docs and article parts, the steps.
+- [Build a deck](docs/recipes/deck-slide.md): Build a deck: the storylines, the slide roles, the parts and every check lintDeck runs.
+- [Build a dashboard](docs/recipes/dashboard.md): Build a dashboard: the order, the parts, the steps.
 
 ## Components
 

@@ -10,7 +10,7 @@ test.describe("reduced motion", () => {
   test("renders one static token at the midpoint and hides the controls", { tag: "@cross-browser" }, async ({ page }) => {
     const console_: string[] = [];
     page.on("console", (m) => (m.type() === "error" || m.type() === "warning") && console_.push(m.text()));
-    await page.goto("/");
+    await page.goto("/components/diagrams");
     const packet = page.locator("#e2e-packet");
     await expect(packet).toHaveAttribute("data-static", "true");
     expect(await page.locator("animateMotion").count()).toBe(0);
