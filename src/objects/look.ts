@@ -178,7 +178,7 @@ export function addRigLights(scene: THREE.Scene, rig: LightRig, phone = false) {
   const key = new THREE.DirectionalLight(rig.key.color, rig.key.intensity);
   key.position.set(...rig.key.position);
   key.castShadow = rig.key.shadow;
-  const texels = phone ? 0.5 : 1;
+  const texels = phone && !(typeof localStorage!=="undefined"&&localStorage.getItem("sm1024")) ? 0.5 : 1;
   key.shadow.mapSize.set(rig.key.shadowMapSize * texels, rig.key.shadowMapSize * texels);
   key.shadow.radius = rig.key.shadowRadius * texels;
   Object.assign(key.shadow.camera, { left: -4, right: 4, top: 4, bottom: -4 });

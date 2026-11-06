@@ -117,7 +117,7 @@ export function mountObjectScene(canvas: HTMLCanvasElement, options: ObjectScene
         const gl = new THREE.WebGLRenderer({
           canvas,
           alpha: true,
-          antialias: true,
+          antialias: !(typeof localStorage!=="undefined"&&localStorage.getItem("aa0")),
           powerPreference: "default",
         });
         renderer = gl;
@@ -158,7 +158,7 @@ export function mountObjectScene(canvas: HTMLCanvasElement, options: ObjectScene
               item.receiveShadow = true;
             }
           });
-        if (rig.key.shadow) {
+        if (rig.key.shadow && !(typeof localStorage!=="undefined"&&localStorage.getItem("nosh"))) {
           gl.shadowMap.enabled = true;
           gl.shadowMap.type = THREE.PCFShadowMap;
         }

@@ -97,7 +97,7 @@ function expanded(geometry: THREE.BufferGeometry) {
  * wide, where a long lens's falloff and the lid's wear read as nothing, so the set skips them: the
  * floor and wall fill most of the frame, and their per-pixel cost is most of the frame's.
  */
-const phoneStage = () => typeof window !== "undefined" && window.matchMedia?.("(max-width: 767px)").matches;
+const phoneStage = () => !(typeof localStorage!=="undefined"&&localStorage.getItem("full")) && typeof window !== "undefined" && window.matchMedia?.("(max-width: 767px)").matches;
 
 function defocus<M extends THREE.MeshStandardMaterial>(material: M, object: THREE.Mesh, strength = 6) {
   object.frustumCulled = false;
@@ -161,6 +161,7 @@ function surface(root: THREE.Object3D, map: THREE.Texture, normalMap: THREE.Text
     .translate(0, 0, GROUND_NEAR - GROUND_DEPTH / 2);
   const plane = mesh(root, expanded(ground), material);
   plane.renderOrder = -2;
+  if ((typeof localStorage!=="undefined"&&localStorage.getItem("noground"))) plane.visible = false;
   plane.receiveShadow = true;
   plane.userData.frameIgnore = true;
   defocus(material, plane);
@@ -220,6 +221,7 @@ function backdrop(root: THREE.Object3D, kind: Backdrop) {
   if (kind === "rack") Object.assign(material, { emissiveMap: texture, emissive: new THREE.Color(0x777777) });
   const wall = mesh(root, expanded(new THREE.PlaneGeometry(GROUND_WIDTH, 8).translate(0, 3.6, WALL_Z)), material);
   wall.renderOrder = -3;
+  if ((typeof localStorage!=="undefined"&&localStorage.getItem("nowall"))) wall.visible = false;
   wall.userData.frameIgnore = true;
   defocus(material, wall, 2);
   return wall;
