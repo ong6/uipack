@@ -31,6 +31,13 @@ editions fall back to the defaults in `scenes.ts#createObject`), `paperLook` in 
 `kineticLook` in `kinetic-sculptures.ts`, and `cartoonLook`, `realisticLook` and `abstractLook` in
 `expanded-cartoon.ts`, `expanded-realistic.ts` and `expanded-abstract.ts`. Change those, not `mount.ts`.
 
+Studio adds two scene-local devices in `studio.ts` on top of its rig. A rim term on every lit,
+non-paper material (`addRim`) brightens surfaces that turn away from the lens towards the rim's
+side; it rides in the emissive colour, so `themed` switches it (white and faint by day, store green
+at night). A sweep (`sweep`) draws the seamless backdrop only as light: a falloff away from the
+subject and, at night, a green pool behind it. Its geometry is stored small and scaled in the vertex
+shader, so it never counts towards bounds or framing.
+
 ## Light rigs (`lightRigs`, `rig`)
 
 | Part | Light default | Dark default | Notes |
