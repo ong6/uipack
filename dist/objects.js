@@ -1,5 +1,5 @@
-import { chooseObjectVariant, normalizeObjectVariant, objectVariants, objectEditions, hasObjectLook, objectDirections, directionSymbols, objectLooks, objectDirectionIndex, transferObjectVariant } from './chunk-3FKMP2QD.js';
-export { chooseObjectVariant, directionSymbols, hasObjectLook, normalizeObjectVariant, objectDirectionIndex, objectDirections, objectEditions, objectLooks, objectVariants, parseObjectVariant, transferObjectVariant } from './chunk-3FKMP2QD.js';
+import { chooseObjectVariant, normalizeObjectVariant, objectVariants, objectEditions, hasObjectLook, objectDirections, directionSymbols, objectLooks, objectDirectionIndex, transferObjectVariant } from './chunk-GYLWOS3N.js';
+export { chooseObjectVariant, directionSymbols, hasObjectLook, normalizeObjectVariant, objectDirectionIndex, objectDirections, objectEditions, objectLooks, objectVariants, parseObjectVariant, transferObjectVariant } from './chunk-GYLWOS3N.js';
 import { studioObjectPalettes } from './chunk-VNW5HB27.js';
 import { CanvasView } from './chunk-MKST5NJE.js';
 import { keepFocusedInView, usePrefersReducedMotion, REDUCED_MOTION_QUERY } from './chunk-LWCZ6GEJ.js';
@@ -48,7 +48,7 @@ function mountObjectScene(canvas, options) {
     onReady(false);
   };
   canvas.addEventListener("webglcontextlost", handleContextLost);
-  Promise.all([import('three'), import('./scenes-U25NCNZX.js'), import('./look-THOY3OIA.js')]).then(async ([THREE, { createObject, disposeObject }, look]) => {
+  Promise.all([import('three'), import('./scenes-O32JZW67.js'), import('./look-THOY3OIA.js')]).then(async ([THREE, { createObject, disposeObject }, look]) => {
     if (disposed) return;
     materialTextures = look.materialTextures;
     try {
@@ -615,7 +615,7 @@ function ObjectInspector({
     index,
     look: objectLooks[kind].find((look) => objectDirectionIndex(kind, look) === index)
   })).filter((entry) => entry.look !== void 0);
-  return /* @__PURE__ */ jsxs("aside", { className: "uipack-object-inspector", children: [
+  return /* @__PURE__ */ jsxs("div", { className: "uipack-object-inspector", children: [
     /* @__PURE__ */ jsxs(Fragment, { children: [
       /* @__PURE__ */ jsx("h3", { children: "Art direction" }),
       /* @__PURE__ */ jsx("div", { role: "group", "aria-label": "3D art direction", className: "uipack-direction-list", children: directions.map(({ direction, index, look }) => /* @__PURE__ */ jsxs(

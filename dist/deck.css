@@ -420,6 +420,13 @@
   font-family: var(--deck-sans);
   outline: none;
 }
+
+/* Body copy never ends on a one-word line. The longhand leaves wrap mode alone; zero specificity, so
+   a part's own text-wrap (balanced titles) wins. */
+:where(.uipack-deck) :where(p, li, td, th, dd, figcaption) {
+  text-wrap-style: pretty;
+}
+
 .uipack-deck[data-theme="dark"] {
   color-scheme: dark;
 }
@@ -603,7 +610,7 @@
   padding-top: 24px;
   border-top: 1.5px solid var(--deck-rule);
   color: var(--deck-muted);
-  font: 500 20px/1.4 var(--deck-mono);
+  font: 400 20px/1.4 var(--deck-mono);
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
@@ -801,7 +808,7 @@
   border-radius: var(--deck-radius-sm);
   background: transparent;
   color: var(--deck-fg);
-  font: 500 13px/1 var(--deck-mono);
+  font: 400 13px/1 var(--deck-mono);
   /* A label face with wide tracking tracks tighter, so the row still fits on one line. */
   letter-spacing: min(0.04em, var(--ui-label-tracking, 0.04em));
   white-space: nowrap;
@@ -870,7 +877,7 @@
 .uipack-deck-counter {
   min-width: 7ch;
   color: var(--deck-muted);
-  font: 500 13px/1 var(--deck-mono);
+  font: 400 13px/1 var(--deck-mono);
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.06em;
   text-align: center;
@@ -923,6 +930,10 @@
   .uipack-deck-tools button {
     padding: 0 8px;
   }
+  /* An odd last tool (Full screen) takes the whole row instead of sitting alone in half of it. */
+  .uipack-deck-tools > :last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
 }
 /* Present view on a phone: one quiet line over the stage offering the read view. */
 .uipack-deck-phone-hint {
@@ -954,7 +965,7 @@
   border-radius: var(--deck-radius-sm);
   background: transparent;
   color: var(--deck-fg);
-  font: 500 13px/1 var(--deck-mono);
+  font: 400 13px/1 var(--deck-mono);
   cursor: pointer;
 }
 .uipack-deck-phone-hint button:focus-visible {
@@ -1037,7 +1048,7 @@
   border-radius: var(--deck-radius-sm);
   background: transparent;
   color: var(--deck-fg);
-  font: 500 13px/1 var(--deck-mono);
+  font: 400 13px/1 var(--deck-mono);
   cursor: pointer;
 }
 .uipack-deck-overview__grid {
@@ -1125,7 +1136,7 @@
   flex-wrap: wrap;
 }
 .uipack-deck-presenter__clock > span:first-child {
-  font: 500 36px/1 var(--deck-mono);
+  font: 400 36px/1 var(--deck-mono);
   font-variant-numeric: tabular-nums;
 }
 /* The budget: the total, how this slide's window compares with the clock, and a bar of both. */
@@ -1133,7 +1144,7 @@
   display: grid;
   flex: 1 1 160px;
   gap: 6px;
-  font: 500 13px/1.3 var(--deck-mono);
+  font: 400 13px/1.3 var(--deck-mono);
   font-variant-numeric: tabular-nums;
 }
 .uipack-deck-presenter__budget > span:first-child {
@@ -1330,7 +1341,7 @@
 }
 .uipack-deck-read__detail figcaption {
   color: var(--deck-muted);
-  font: 500 12px/1.35 var(--deck-mono);
+  font: 400 12px/1.35 var(--deck-mono);
   text-wrap: balance;
 }
 /* Cue notes are short lines; keep the author's line breaks wherever the track is shown. */
@@ -1352,7 +1363,7 @@
   border-radius: var(--deck-radius-sm);
   background: transparent;
   color: var(--deck-fg);
-  font: 500 13px/1 var(--deck-mono);
+  font: 400 13px/1 var(--deck-mono);
   white-space: nowrap;
   cursor: pointer;
 }
@@ -1461,7 +1472,7 @@
 }
 .uipack-deck-storyline__findings b {
   margin-right: 6px;
-  font: 700 12px/1 var(--deck-mono);
+  font: 600 12px/1 var(--deck-mono);
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
@@ -1836,7 +1847,7 @@
 .uipack-deck-bento-title {
   margin: 14px 0 0;
   font-size: 38px;
-  font-weight: 650;
+  font-weight: 600;
   line-height: 1.12;
   letter-spacing: -0.02em;
   text-wrap: balance;
@@ -1850,7 +1861,7 @@
 .uipack-deck-bento-detail-title {
   margin: 0 0 10px;
   font-size: 24px;
-  font-weight: 650;
+  font-weight: 600;
   letter-spacing: -0.01em;
 }
 .uipack-deck-bento-small {
@@ -1952,7 +1963,7 @@
   padding: 6px 0 8px;
   border-bottom: 4px solid transparent;
   color: var(--deck-muted);
-  font: 500 20px/1.2 var(--deck-mono);
+  font: 400 20px/1.2 var(--deck-mono);
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -1968,7 +1979,7 @@
 .uipack-cx-tracker li[aria-current] {
   border-bottom-color: var(--deck-accent);
   color: var(--deck-fg);
-  font-weight: 700;
+  font-weight: 600;
 }
 .uipack-cx-tracker li[aria-current] > i {
   border-color: var(--deck-accent);
@@ -1993,7 +2004,7 @@
   /* The style's heading face: Technical's display face, the text face elsewhere. */
   font-family: var(--ui-font-heading, var(--deck-sans));
   font-size: 54px;
-  font-weight: 650;
+  font-weight: 600;
   line-height: 1.12;
   letter-spacing: -0.022em;
   text-wrap: balance;
@@ -2095,7 +2106,7 @@
 .uipack-cx-sowhat > b,
 .uipack-cx-takeaway > b {
   color: var(--uipack-cx-accent-ink);
-  font: 700 20px/1.2 var(--deck-mono);
+  font: 600 20px/1.2 var(--deck-mono);
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
@@ -2110,7 +2121,7 @@
   margin-bottom: 0;
 }
 .uipack-cx-sowhat strong {
-  font-weight: 650;
+  font-weight: 600;
 }
 .uipack-cx-takeaway {
   display: flex;
@@ -2165,7 +2176,7 @@
   align-items: baseline;
   gap: 20px;
   margin: 0;
-  font: 500 20px/1.4 var(--deck-mono);
+  font: 400 20px/1.4 var(--deck-mono);
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }

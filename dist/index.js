@@ -1,7 +1,7 @@
 import { useLayerFlight, zoomSamples, zoomFrame } from './chunk-H33EHDSS.js';
 export { innerClipStart, zoomFrame, zoomSamples } from './chunk-H33EHDSS.js';
-import { useFigureHover, hoverAttrs, connectorStroke, flowList, useItemSelection, FocusRing, Node, nodeName, SelectionContext, isPointer, useRovingFocus, FigureHoverContext, Legend, ReplayGlyph, PauseGlyph, PlayGlyph, placeNote } from './chunk-FQJPLKUS.js';
-export { Bus, Chip, Connector, Defs, Figure, FigureHoverContext, Group, Label, Lane, Legend, Node, PACKET_POP, PACKET_SINK, Packet, anchor, busStub, busStubs, connectorStroke, flowList, grid, hoverAttrs, icons, isPointer, packetScaleKeys, pathFromPoints, pointAlong, polylineLength, route, trim, useFigureHover } from './chunk-FQJPLKUS.js';
+import { useFigureHover, hoverAttrs, connectorStroke, flowList, useItemSelection, FocusRing, Node, nodeName, SelectionContext, isPointer, useRovingFocus, FigureHoverContext, Legend, ReplayGlyph, PauseGlyph, PlayGlyph, placeNote } from './chunk-6TLVYZLS.js';
+export { Bus, Chip, Connector, Defs, Figure, FigureHoverContext, Group, Label, Lane, Legend, Node, PACKET_POP, PACKET_SINK, Packet, anchor, busStub, busStubs, connectorStroke, flowList, grid, hoverAttrs, icons, isPointer, packetScaleKeys, pathFromPoints, pointAlong, polylineLength, route, trim, useFigureHover } from './chunk-6TLVYZLS.js';
 import { useFontFloor, FigureScaleContext } from './chunk-HCR2C6OV.js';
 export { DEFAULT_RENDER_WIDTH, FigureScaleProvider, TOKEN_SHAPE, Token, fontFloor, tokenColor, useFontFloor } from './chunk-HCR2C6OV.js';
 import { CanvasView } from './chunk-MKST5NJE.js';
@@ -28,7 +28,7 @@ function Badge({ cx, cy, text, accent, r = 9, size: size0 = 10 }) {
         textAnchor: "middle",
         fontSize: size,
         fontFamily: "var(--uipack-mono)",
-        fontWeight: 700,
+        fontWeight: 600,
         fill: stroke,
         children: text
       }
@@ -296,7 +296,7 @@ function CurvePlot({ x, y, w, h, points, xTitle, yTitle, xEnds, notes = [], meas
   const segs = curveSegments(points);
   const d = `M${px(points[0][0])},${py(points[0][1])} ` + segs.map(([, c1, c2, p]) => `C${px(c1[0])},${py(c1[1])} ${px(c2[0])},${py(c2[1])} ${px(p[0])},${py(p[1])}`).join(" ");
   const head = 6;
-  const tracked = { fontFamily: "var(--uipack-mono)", letterSpacing: ".1em", fontWeight: 500 };
+  const tracked = { fontFamily: "var(--uipack-mono)", letterSpacing: ".1em", fontWeight: 400 };
   return /* @__PURE__ */ jsxs("g", { "data-uipack": "curve-plot", children: [
     /* @__PURE__ */ jsx(
       "path",
@@ -411,8 +411,8 @@ function Wordmark({ size = 24 }) {
         x: "40",
         y: "22",
         fontSize: "18",
-        fontWeight: 700,
-        fontFamily: "var(--uipack-mono, ui-monospace, monospace)",
+        fontWeight: 600,
+        fontFamily: "var(--uipack-mono, var(--ui-font-label, ui-monospace, monospace))",
         letterSpacing: ".02em",
         fill: "currentColor",
         children: "uipack"

@@ -45,7 +45,7 @@ declare const objectDirections: readonly [{
  * original numeric IDs: 0–2 are Studio inbox editions and 3 is Cartoon.
  */
 declare const lookTable: {
-    readonly ai: readonly [readonly [5, "Abstract · Thought lattice"], readonly [2, "Kinetic · Neural orrery"], readonly [3, "Cartoon · Night workshop"]];
+    readonly ai: readonly [readonly [2, "Kinetic · Neural orrery"], readonly [5, "Abstract · Thought lattice"], readonly [3, "Cartoon · Night workshop"]];
     readonly contact: readonly [readonly [0, "Signature inbox"], readonly [1, "Blue inbox"], readonly [2, "Terracotta inbox"], readonly [3, "Cartoon · Little post office"]];
     readonly tennis: readonly [readonly [4, "Realistic · Match point"], readonly [3, "Cartoon · Courtside club"], readonly [0, "Studio · Club rally"]];
     readonly trading: readonly [readonly [2, "Kinetic · Market balance"], readonly [5, "Abstract · Risk rhythm"], readonly [0, "Studio · Market abacus"]];

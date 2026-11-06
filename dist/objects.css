@@ -441,7 +441,7 @@
   color: var(--object-accent);
 }
 .uipack-object__fallback-caption {
-  font: 600 12px/1.2 var(--uipack-mono, ui-monospace, monospace);
+  font: 600 12px/1.2 var(--uipack-mono, var(--ui-font-label, ui-monospace, monospace));
   letter-spacing: 0.06em;
 }
 .uipack-object__illustration {
@@ -454,7 +454,7 @@
 .uipack-object__illustration text {
   stroke: none;
   fill: currentColor;
-  font: 10px monospace;
+  font: 10px var(--uipack-mono, var(--ui-font-label, monospace));
   text-anchor: middle;
 }
 /* Quiet chrome: the art owns the card. Open canvas and Pause are ghost icon buttons in one top-right
@@ -476,7 +476,7 @@
   border-radius: 50%;
   color: inherit;
   background: transparent;
-  font: 500 12px/1 var(--uipack-mono, ui-monospace, monospace);
+  font: 400 12px/1 var(--uipack-mono, var(--ui-font-label, ui-monospace, monospace));
   cursor: pointer;
 }
 .uipack-object-open {
@@ -566,7 +566,7 @@
   align-items: center;
   gap: 2px;
   color: color-mix(in srgb, var(--object-control-muted) 78%, transparent);
-  font: 500 12px/1.3 var(--uipack-mono, ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace);
+  font: 400 12px/1.3 var(--uipack-mono, var(--ui-font-label, ui-monospace, monospace));
   letter-spacing: 0.04em;
 }
 /* Leave room for the top-right controls; a long name wraps instead of running under them. */
@@ -575,6 +575,8 @@
 }
 .uipack-object-edition span {
   min-width: 0;
+  /* A wrapped name breaks evenly ("Abstract · / Thought lattice"), never one word alone. */
+  text-wrap-style: balance;
   padding-top: 13px;
   align-self: flex-start;
 }

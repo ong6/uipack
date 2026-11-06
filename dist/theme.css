@@ -506,7 +506,7 @@
   background: var(--uipack-surface);
   color: var(--uipack-fg);
   /* Controls are mono, like the rest of the Technical chrome (labels, IDs, the shell's buttons). */
-  font: 500 12px/1 var(--uipack-mono);
+  font: 400 12px/1 var(--uipack-mono);
   cursor: pointer;
 }
 .uipack__ctl:hover {
@@ -787,7 +787,7 @@
   animation: uipack-note-in 140ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 .uipack__note strong {
-  font-weight: 700;
+  font-weight: 600;
 }
 @keyframes uipack-note-in {
   from {
