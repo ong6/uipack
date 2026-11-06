@@ -1,8 +1,8 @@
 # Writing: general rules
 
-The rules every kind of UiPack text follows (slides, documents, web copy, figure labels), with
-the place each word lives and every slot's text budget. The kind files add to these; they never
-override them. Start at [Writing](README.md) for the index.
+The rules every kind of UiPack text follows on every site (slides, documents, web copy, figure
+labels), with the place each word lives and every slot's text budget. The kind files and a site's
+writing style add to these; they never override them. Start at [Writing](README.md) for the index.
 
 ## Rules for every kind
 
@@ -53,7 +53,7 @@ override them. Start at [Writing](README.md) for the index.
 | Label | Inside the drawing | A name in the input's words; a mono sub-label for a value (`1536-dim`, `p95 198ms`) |
 | Arrow label | On the line | What travels or the rule (`decoded image`, `cosine · floor 0.35`), never a vague noun (`data`) |
 | Eyebrow | Above the title; optional, off on slides | A category or section (`FIGURE 02 · RETRIEVAL`), never the claim |
-| Title, headline | The top of the unit | See [Lengths at a glance](README.md#lengths-at-a-glance) and your kind's file |
+| Title, headline | The top of the unit | The form the site's spec chose ([title forms](README.md#title-forms)) and your kind's file |
 | Caption, lede | Under a figure; rarely under a slide title | One plain sentence for the why or a caveat |
 | Body | Slides and pages | Slides: fragments that carry the numbers. Pages: short paragraphs |
 | Notes, narration | Speaker view, voice-over | What the unit can't hold: why, so-what, trade-off, bridge |
@@ -106,7 +106,8 @@ implement it. The archetype factories (`pointsSlide`, `sectionSlide`, `quoteSlid
 
 Each slot holds a fixed amount of text before it stops reading at a glance. The budget belongs
 to the slot, so it holds in every layout and every style: a condensed face is no excuse for a
-longer headline. `SLOT_BUDGETS` in `uipack/deck` is the table; `lintDeck` reports a slot over
+longer headline. These are the core ceilings and Technical's values: a site's spec may tighten
+any of them in its `## Writing style`, never loosen one. `SLOT_BUDGETS` in `uipack/deck` is the table; `lintDeck` reports a slot over
 budget as `slot-budget`, and `slotProblems(slot, text)` checks one string. Line counts are
 estimates at the slot's measure on the slide canvas. The headline's length depends on the deck's
 mode (`TITLE_WORDS`), so `title-length` checks it instead.

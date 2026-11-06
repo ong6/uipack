@@ -177,7 +177,8 @@ export const docsManifest = [
         label: "Layout",
         path: "/foundations/layout",
         file: "docs/system/layout/README.md",
-        intro: "The layout rules every page follows, figures, motion and 3D, and one file per page type.",
+        intro:
+          "The layout floors every site keeps, the library of layout archetypes a spec picks from, and the layout of figures, motion and 3D.",
       },
       {
         id: "layout-landing",
@@ -185,15 +186,23 @@ export const docsManifest = [
         label: "Landing",
         path: "/foundations/layout/landing",
         file: "docs/system/layout/landing.md",
-        intro: "A landing page's grid, section archetypes, order, and product surfaces at a phone's width.",
+        intro: "The product landing archetype: its grid, section archetypes, order, and product surfaces at a phone's width.",
       },
       {
         id: "layout-documentation",
         parent: "foundations-layout",
-        label: "Documentation and article",
+        label: "Documentation",
         path: "/foundations/layout/documentation",
         file: "docs/system/layout/documentation.md",
-        intro: "A reading page's regions, the order inside it, and the parts of a long article's section.",
+        intro: "The docs shell archetype: a reading page's regions and the order inside it.",
+      },
+      {
+        id: "layout-article",
+        parent: "foundations-layout",
+        label: "Article",
+        path: "/foundations/layout/article",
+        file: "docs/system/layout/article.md",
+        intro: "The layered long read archetype: one text column and the parts of each section.",
       },
       {
         id: "layout-deck-slide",
@@ -201,7 +210,8 @@ export const docsManifest = [
         label: "Deck slide",
         path: "/foundations/layout/deck-slide",
         file: "docs/system/layout/deck-slide.md",
-        intro: "A slide's canvas, the regions every archetype shares, the archetypes and the transitions.",
+        intro:
+          "The slide canvas archetype: the canvas, the regions every slide shares, the slide archetypes and the transitions.",
       },
       {
         id: "layout-dashboard",
@@ -209,14 +219,15 @@ export const docsManifest = [
         label: "Dashboard",
         path: "/foundations/layout/dashboard",
         file: "docs/system/layout/dashboard.md",
-        intro: "A screen someone checks: its regions, equal boxes, and the narrow form.",
+        intro: "The one-question dashboard archetype: its regions, equal boxes, and the narrow form.",
       },
       {
         id: "spec-settings",
         label: "What a spec may set",
         path: "/foundations/spec-settings",
         file: "docs/system/spec-settings.md",
-        intro: "The boundary between a site spec and the core rules: what a spec chooses, and what holds on every site.",
+        intro:
+          "The boundary between a site spec and the core rules: a site's look, layout, writing style and component looks, and what holds on every site.",
       },
       {
         id: "foundations-dont",
@@ -393,16 +404,38 @@ export const docsManifest = [
     ],
   },
   {
-    id: "families",
-    label: "Families",
+    id: "looks",
+    label: "Component looks",
     pages: [
       {
-        id: "family-diagrams",
-        label: "Diagrams",
-        path: "/families/diagrams",
-        file: "docs/families/diagrams.md",
+        id: "component-looks",
+        label: "Component looks",
+        path: "/looks",
+        file: "docs/components/README.md",
         intro:
-          "The diagram family: figures, charts and drill-down look the same on every site; its fixed values, generated from code.",
+          "Each component's named looks, fixed (the same on every site) or flex (taking the site's palette and faces), and how a spec picks them.",
+      },
+      {
+        id: "component-diagrams",
+        label: "Diagram look",
+        path: "/looks/diagrams",
+        file: "docs/components/diagrams.md",
+        intro:
+          "The Blueprint look: figures, charts and drill-down look the same on every site; its fixed values, generated from code.",
+      },
+      {
+        id: "component-3d",
+        label: "3D looks",
+        path: "/looks/3d",
+        file: "docs/components/3d.md",
+        intro: "The six 3D looks, which subjects offer each, and which one takes the site's palette.",
+      },
+      {
+        id: "component-mechanism",
+        label: "Mechanism look",
+        path: "/looks/mechanism",
+        file: "docs/components/mechanism.md",
+        intro: "The isometric machine look: its fixed drawing and the roles it takes from the site.",
       },
     ],
   },
@@ -416,14 +449,15 @@ export const docsManifest = [
         path: "/styles",
         file: "docs/specs/README.md",
         intro:
-          "One spec per website, built from the core rules: the layers, how to write and check a spec, and how a spec becomes a live style.",
+          "One spec per website: its look, layout, writing style and component looks on top of the core rules; how to write and check one, and how it becomes a live style.",
       },
       {
         id: "spec-template",
         label: "Spec template",
         path: "/specs/template",
         file: "docs/specs/TEMPLATE.md",
-        intro: "The file a new site spec starts from: the frontmatter and the sections the checker requires.",
+        intro:
+          "The file a new site spec starts from: the frontmatter (pages, layouts, component looks) and the sections the checker requires.",
       },
       {
         id: "spec-technical",
@@ -439,7 +473,7 @@ export const docsManifest = [
         label: "Registry",
         path: "/specs/registry",
         file: "docs/specs/registry.md",
-        intro: "Every site uipack designs for: where its spec lives, the families it uses and the uipack commit it pins.",
+        intro: "Every site uipack designs for: where its spec lives, the component looks it picks and the uipack commit it pins.",
       },
     ],
   },
@@ -637,6 +671,15 @@ export const docsManifest = [
   },
 ] as const satisfies readonly DocsGroupEntry[];
 
+/**
+ * Old routes that still open a page (routes.ts adds them to the route table): the Families group
+ * became Component looks on 2026-11-06.
+ */
+export const docsRedirects: Readonly<Record<string, string>> = {
+  "/families": "component-looks",
+  "/families/diagrams": "component-diagrams",
+};
+
 /** Every page in reading order, with its group's id. */
 export const docsPages = docsManifest.flatMap((group) =>
   group.pages.map((page): DocsPageEntry & { group: string } => ({ ...page, group: group.id })),
@@ -657,7 +700,7 @@ export const blobUrl = (file: string) => `${REPO_URL}/blob/main/${file}`;
 
 /**
  * Every site uipack designs for (docs/specs/registry.md is generated from this): where its spec
- * lives, the shared families it uses and the uipack commit it pins. One spec per site; a site
+ * lives, the component looks it picks and the uipack commit it pins. One spec per site; a site
  * reusing another's look names that spec in its own spec's `extends`.
  */
 export interface SiteEntry {
@@ -667,7 +710,8 @@ export interface SiteEntry {
   readonly spec: string;
   /** "written" when the spec exists; otherwise what is still to do. */
   readonly specStatus: "written" | "todo";
-  readonly families: readonly string[];
+  /** The component looks it picks, as `component: look` (its spec's `components:`). */
+  readonly components: readonly string[];
   /** The uipack commit the site installs; "current" for uipack itself. */
   readonly pins: string;
   readonly notes: string;
@@ -679,7 +723,7 @@ export const siteRegistry: readonly SiteEntry[] = [
     repo: "ong6/uipack",
     spec: "docs/specs/technical.md",
     specStatus: "written",
-    families: ["diagrams"],
+    components: ["diagrams: blueprint", "3d: all six", "mechanism: isometric"],
     pins: "current",
     notes: "Technical, the implemented style (src/styles/technical.css)",
   },
@@ -688,7 +732,7 @@ export const siteRegistry: readonly SiteEntry[] = [
     repo: "ong6/junxiong-homepage",
     spec: "junxiong-homepage:STYLE.md",
     specStatus: "todo",
-    families: ["diagrams"],
+    components: ["diagrams: blueprint"],
     pins: "e6b6ed7",
     notes: "TODO: spec not written (on hold); a Chakra theme maps the --uipack-* variables",
   },
@@ -697,7 +741,7 @@ export const siteRegistry: readonly SiteEntry[] = [
     repo: "ong6/junxiong-notes",
     spec: "junxiong-notes:STYLE.md",
     specStatus: "todo",
-    families: ["diagrams"],
+    components: ["diagrams: blueprint"],
     pins: "3886f0d",
     notes: "TODO: spec not written (on hold); warm paper #fffdf9, rust accent #9a3412, serif and sans",
   },

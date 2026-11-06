@@ -26,12 +26,13 @@ Agents: read docs/agents/README.md first, then the skill for your job in skills/
 - [Writing: Read-alone documents](docs/system/writing/documents.md): How to write what is read without its author: pre-reads, read-alone decks, documentation, articles.
 - [Writing: Web and landing copy](docs/system/writing/web.md): How to write a product or launch page: the goal, the hero, section heads, proof and the FAQ.
 - [Writing: Figure labels and captions](docs/system/writing/figures.md): How to write a figure's words: caption, labels, arrows, statistics, motion beats and 3D stops.
-- [Layout](docs/system/layout/README.md): The layout rules every page follows, figures, motion and 3D, and one file per page type.
-- [Layout: Landing](docs/system/layout/landing.md): A landing page's grid, section archetypes, order, and product surfaces at a phone's width.
-- [Layout: Documentation and article](docs/system/layout/documentation.md): A reading page's regions, the order inside it, and the parts of a long article's section.
-- [Layout: Deck slide](docs/system/layout/deck-slide.md): A slide's canvas, the regions every archetype shares, the archetypes and the transitions.
-- [Layout: Dashboard](docs/system/layout/dashboard.md): A screen someone checks: its regions, equal boxes, and the narrow form.
-- [What a spec may set](docs/system/spec-settings.md): The boundary between a site spec and the core rules: what a spec chooses, and what holds on every site.
+- [Layout](docs/system/layout/README.md): The layout floors every site keeps, the library of layout archetypes a spec picks from, and the layout of figures, motion and 3D.
+- [Layout: Landing](docs/system/layout/landing.md): The product landing archetype: its grid, section archetypes, order, and product surfaces at a phone's width.
+- [Layout: Documentation](docs/system/layout/documentation.md): The docs shell archetype: a reading page's regions and the order inside it.
+- [Layout: Article](docs/system/layout/article.md): The layered long read archetype: one text column and the parts of each section.
+- [Layout: Deck slide](docs/system/layout/deck-slide.md): The slide canvas archetype: the canvas, the regions every slide shares, the slide archetypes and the transitions.
+- [Layout: Dashboard](docs/system/layout/dashboard.md): The one-question dashboard archetype: its regions, equal boxes, and the narrow form.
+- [What a spec may set](docs/system/spec-settings.md): The boundary between a site spec and the core rules: a site's look, layout, writing style and component looks, and what holds on every site.
 - [Do and don't](docs/system/do-and-dont.md): Paired examples of the rules, drawn live, and the checklist of generic AI-landing tropes to keep out.
 
 ## Recipes
@@ -58,16 +59,19 @@ Agents: read docs/agents/README.md first, then the skill for your job in skills/
 - [Mechanism](docs/mechanism.md): Mechanical drawings that explain how a system moves, one part at a time.
 - [Docs layout](docs/docs-layout.md): A three-column product documentation shell with responsive navigation and Markdown prose.
 
-## Families
+## Component looks
 
-- [Diagrams](docs/families/diagrams.md): The diagram family: figures, charts and drill-down look the same on every site; its fixed values, generated from code.
+- [Component looks](docs/components/README.md): Each component's named looks, fixed (the same on every site) or flex (taking the site's palette and faces), and how a spec picks them.
+- [Diagram look](docs/components/diagrams.md): The Blueprint look: figures, charts and drill-down look the same on every site; its fixed values, generated from code.
+- [3D looks](docs/components/3d.md): The six 3D looks, which subjects offer each, and which one takes the site's palette.
+- [Mechanism look](docs/components/mechanism.md): The isometric machine look: its fixed drawing and the roles it takes from the site.
 
 ## Specs
 
-- [How to write a spec](docs/specs/README.md): One spec per website, built from the core rules: the layers, how to write and check a spec, and how a spec becomes a live style.
-- [Spec template](docs/specs/TEMPLATE.md): The file a new site spec starts from: the frontmatter and the sections the checker requires.
+- [How to write a spec](docs/specs/README.md): One spec per website: its look, layout, writing style and component looks on top of the core rules; how to write and check one, and how it becomes a live style.
+- [Spec template](docs/specs/TEMPLATE.md): The file a new site spec starts from: the frontmatter (pages, layouts, component looks) and the sections the checker requires.
 - [Technical](docs/specs/technical.md): The uipack site's spec: Cyanotype, Prussian ink and one amber mark, IBM Plex, with its role values generated from the style file.
-- [Registry](docs/specs/registry.md): Every site uipack designs for: where its spec lives, the families it uses and the uipack commit it pins.
+- [Registry](docs/specs/registry.md): Every site uipack designs for: where its spec lives, the component looks it picks and the uipack commit it pins.
 
 ## Examples
 

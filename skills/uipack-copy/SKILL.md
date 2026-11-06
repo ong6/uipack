@@ -25,8 +25,12 @@ Words are typed data with no colour, face or position in them. Write them into t
 | Figure labels and captions | [Writing, diagrams](../../docs/system/writing/figures.md) |
 | Every kind | [Rules for every kind](../../docs/system/writing/general.md#rules-for-every-kind) and the [slot budgets](../../docs/system/writing/general.md#slot-budgets) |
 
-The site's spec (`STYLE.md`, "Settings chosen") sets voice and register: how formal, house words to
-prefer or avoid. The rules above hold on every site.
+The site's spec (`STYLE.md`, `## Writing style`) sets the tone and register, the title form for
+each page type (short spoken verdict, full-sentence claim or plain name), copy density, house words
+and any budget it tightens: read it before drafting. The rules above and the
+[core writing rules](../../docs/system/writing/README.md#core-and-site) hold on every site, and no
+spec loosens a [slot ceiling](../../docs/system/writing/general.md#slot-budgets). A deck takes its
+site's writing style for talks. Figure labels follow the Blueprint look's lengths on every site.
 
 ## Non-negotiables
 
@@ -41,4 +45,5 @@ prefer or avoid. The rules above hold on every site.
 
 Decks: `lintDeck(slides, { mode })` from `uipack/deck` and fix every finding. Then reread as the
 person who must act on it against general rule 9's checklist in
-[writing.md](../../docs/system/writing/general.md#rules-for-every-kind) and revise once.
+[general.md](../../docs/system/writing/general.md#rules-for-every-kind) and the spec's writing
+style, and revise once.

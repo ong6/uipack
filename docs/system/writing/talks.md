@@ -5,16 +5,20 @@ How to write a deck you present: titles, points, speaker cues, order and the ask
 ([documents.md](documents.md#read-alone-decks)). The full storytelling guide is
 [Deck storytelling](../../deck-storytelling.md); `lintDeck` checks both.
 
-## Lengths
+## Title form and lengths
 
-<!-- generated:headline-rule -->
-- **Presented** (a speaker in the room): aim for 2–5 words; the check stops at 6 (`title-length`). A verdict you would say aloud.
-- **Read alone** (a pre-read, a forwarded deck, a figure): the claim as one sentence of 3–14 words.
-- **Web section head:** 2–5 plain words naming what the reader gets.
+The site's spec chooses the title form for its decks (Technical: a short spoken verdict when
+presented, a full-sentence claim read alone; [its writing style](../../specs/technical.md#writing-style)).
+The core ceilings:
+
+<!-- generated:title-forms -->
+- **Short spoken verdict** (a speaker in the room): the check stops at 6 words (`title-length`, `presented` mode).
+- **Full-sentence claim** (read without its author: a pre-read, a forwarded deck, a figure): one sentence; the check stops at 14 words (`read-alone` mode).
+- **Plain name** (a web section head, a docs heading): names what the reader gets, never a sentence; held to the headline slot's 14 words, not linted on the web yet.
 <!-- /generated -->
 
-Points, cues and every other slot are in the [lengths table](README.md#lengths-at-a-glance) and
-[slot budgets](general.md#slot-budgets).
+Points, cues and every other slot are in the [slot budgets](general.md#slot-budgets); a spec may
+tighten them, never loosen them.
 
 ## Titles
 
@@ -25,8 +29,8 @@ Points, cues and every other slot are in the [lengths table](README.md#lengths-a
 - Bare labels ("Crash rate") only on agenda, section and mechanism slides (`title-claim`).
 - A question only about something not yet known ("Will the cache hold?"), never about a measured
   fact.
-- No eyebrow and no lede by default. Add a lede only for a caveat that would change the decision
-  and doesn't fit as a point.
+- No eyebrow and no lede by default (a spec may turn eyebrows on for its decks). Add a lede only for
+  a caveat that would change the decision and doesn't fit as a point.
 
 ## Points
 

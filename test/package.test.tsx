@@ -50,6 +50,12 @@ describe("package entries", () => {
     expect(pkg.files).toContain("docs/*.md");
     // The design-system spec ships too: the uipack-design skill reads node_modules/uipack/docs/system.
     expect(pkg.files).toContain("docs/system/*.md");
+    // Its writing and layout folders, the recipes and the component looks, which skills link to.
+    expect(pkg.files).toEqual(expect.arrayContaining(["docs/system/*/*.md", "docs/recipes/*.md", "docs/components/*.md"]));
+    // The spec checker and the data it reads run from node_modules/uipack in a site.
+    expect(pkg.files).toEqual(
+      expect.arrayContaining(["scripts/check-spec.ts", "scripts/style-contract.ts", "scripts/site-model.ts"]),
+    );
     // The web starter ships so a builder copies a working page instead of discovering the API.
     expect(pkg.files).toContain("examples/web-starter/*");
     // The agent skills and the agent guide ship so a site reads the guidance for the code it installed.

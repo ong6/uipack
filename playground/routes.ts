@@ -1,4 +1,5 @@
 import { libraryPages, pageDefs, type LibraryPage } from "./catalog";
+import { docsRedirects } from "./docs-manifest";
 
 /**
  * The playground module (`playground/<name>.tsx`, default export) that renders each page, loaded
@@ -30,6 +31,7 @@ const aliases: Record<string, LibraryPage> = {
 export const routes = new Map<string, LibraryPage>();
 for (const p of libraryPages) if (!routes.has(p.path)) routes.set(p.path, p.id);
 for (const [path, id] of Object.entries(aliases)) routes.set(path, id);
+for (const [path, id] of Object.entries(docsRedirects)) routes.set(path, id as LibraryPage);
 
 /** A location's path as the route table keys it: no trailing slash, except "/". */
 export const routePath = (pathname: string) => pathname.replace(/(.)\/$/, "$1");

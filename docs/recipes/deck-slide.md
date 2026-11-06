@@ -6,6 +6,12 @@ archetype, write it to the mode, and run the checks. Compare your draft with the
 
 ## Relies on
 
+- The site's spec: a deck is a page of the site (an HTML deck), so it takes the spec's slide faces
+  (`--ui-slide-font-*`), palette and ornaments, its `### Deck` layout (`slide-canvas` or an extension)
+  and its writing style for talks: the title form for presented and read-alone decks, tone and house
+  words. A talk series that should look unlike any site has its own spec
+  ([presentations](../system/README.md#presentations-are-websites)). Pass the style as
+  `<DeckPlayer uiStyle="<id>">` when uipack renders it; otherwise the site's own CSS sets the roles.
 - Words: [talks and slides](../system/writing/talks.md) for a presented deck,
   [read-alone documents](../system/writing/documents.md#read-alone-decks) for one that travels.
 - Layout: [deck slide](../system/layout/deck-slide.md): canvas, regions, archetypes, transitions.
@@ -65,7 +71,7 @@ Each storyline orders the slide roles; pick the one that matches the job (`STORY
 
 1. Write slide one's outcome and the ask first.
 2. Pick a storyline, then a role per slide and an archetype per role.
-3. Write titles to the mode ([lengths](../system/writing/README.md#lengths-at-a-glance)), points
+3. Write titles to the mode ([title forms](../system/writing/README.md#title-forms) and the site spec's writing style), points
    that carry the numbers, and cues that add what the slide can't hold.
 4. Read the titles alone, in order (`storylineOf`): they should outline the argument.
 5. Run the checks below and fix every warning or say why it stays.

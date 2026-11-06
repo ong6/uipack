@@ -7,10 +7,13 @@ report, product documentation, an article or a blog post. It adds to the
 
 ## Titles
 
-<!-- generated:headline-rule -->
-- **Presented** (a speaker in the room): aim for 2–5 words; the check stops at 6 (`title-length`). A verdict you would say aloud.
-- **Read alone** (a pre-read, a forwarded deck, a figure): the claim as one sentence of 3–14 words.
-- **Web section head:** 2–5 plain words naming what the reader gets.
+The site's spec chooses the title form for each page type; a read-alone piece usually takes the
+full-sentence claim. The core ceilings:
+
+<!-- generated:title-forms -->
+- **Short spoken verdict** (a speaker in the room): the check stops at 6 words (`title-length`, `presented` mode).
+- **Full-sentence claim** (read without its author: a pre-read, a forwarded deck, a figure): one sentence; the check stops at 14 words (`read-alone` mode).
+- **Plain name** (a web section head, a docs heading): names what the reader gets, never a sentence; held to the headline slot's 14 words, not linted on the web yet.
 <!-- /generated -->
 
 Read in order, the titles and headings tell the argument. A sentence title is only as good as the
@@ -54,8 +57,9 @@ A deck that goes out without you keeps the slide shape but writes it out:
 
 ## Articles and blog posts
 
-Blog-style prose follows the owner's house voice, which lives in the private `write-a-blog` skill
-(`references/house-voice.md`); these public rules stay generic. Before writing, choose one finding,
+Blog-style prose follows the blog's own writing style: its spec's `## Writing style` sets the tone
+and house words (the owner's blog voice lives in the private `write-a-blog` skill,
+`references/house-voice.md`, which that spec points to); these public rules stay generic. Before writing, choose one finding,
 the three to five numbers that carry it and an order that lands. Prefer paragraphs to bullets, add
 headings only past about 1,500 words, and stop at the last fact.
 

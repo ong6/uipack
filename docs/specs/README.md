@@ -1,14 +1,18 @@
 # How to write a site spec
 
-UiPack is the design manager for every site that uses it. The docs are layered so an agent reads
-any site the same way:
+UiPack is the design manager for every site that uses it. Each website has its own layout,
+writing style, theme, fonts and design direction, all in its spec; the core rules keep only what
+must hold everywhere. The docs are layered so an agent reads any site the same way:
 
 | Layer | Holds | Where |
 | --- | --- | --- |
-| **Core rules** | What every site shares: spacing and type scale, motion timings, accessibility, writing, layout, component behaviour, and the role contract a spec fills | [`docs/system/`](../system/README.md) |
-| **Shared families** | A look that is the same on every site that uses it; only light and dark follow the host. The first is [Diagrams](../families/diagrams.md): figures, charts, drill-down | [`docs/families/`](../families/diagrams.md) |
-| **Site specs** | One per website: the brand. Palette, faces, radii and ornaments through the roles, voice, density, the page types it uses | This folder, or the site's own repo |
+| **Core rules** | What every site keeps: the role contract a spec fills, contrast and motion timings, the [layout floors](../system/layout/README.md#floors-what-holds-on-every-site), the [core writing rules](../system/writing/README.md#core-and-site) and slot ceilings, component behaviour | [`docs/system/`](../system/README.md) |
+| **Libraries a spec picks from** | Layout [archetypes](../system/layout/README.md#archetype-library) per page type, and each component's named [looks](../components/README.md), `fixed` (the same on every site) or `flex` (taking the site's roles) | `docs/system/layout/`, [`docs/components/`](../components/README.md) |
+| **Site specs** | One per website: palette, faces, radii and ornaments through the roles; density; the page types it has and a layout for each; its writing style; the component looks it picks | This folder, or the site's own repo |
 | **Components** | Read roles, never values, so one component serves every spec | `src/`, documented under Components |
+
+A deck is a page of a site and reads the site's spec; a talk series with its own look has its own
+spec ([presentations](../system/README.md#presentations-are-websites)).
 
 **One spec per website.** A new site gets its own spec. A site that should look like an existing
 one reuses that spec (`extends: <spec id>` in its frontmatter) instead of copying it. Every site
@@ -18,21 +22,27 @@ and its spec are listed in the [registry](registry.md).
 
 1. Copy [TEMPLATE.md](TEMPLATE.md). In uipack it goes here as `docs/specs/<id>.md`; in a site's own
    repo it is `STYLE.md` at the repo root, which is where an agent working on that site looks.
-2. Fill the frontmatter: `extends: core` (or another spec's id), `uses:` the shared families the
-   site draws with (`[diagrams]`), and `uipack:` the commit the site pins.
+2. Fill the frontmatter: `extends: core` (or another spec's id); `pages:` the page types the site
+   has; `layouts:` an archetype id or `custom` for each; `components:` the looks it picks
+   (`{ diagrams: blueprint }` at least, if it draws figures); and `uipack:` the commit the site pins.
 3. Give every role in the [role contract](../system/style.md#the-role-contract) a light and a dark
    value. A value you can't determine yet is a `TODO:` line, never a guess.
-4. Choose only what a spec [may set](../system/spec-settings.md). Everything else is a core rule
-   and holds unchanged. A family's fixed values (a figure's flow colours, strokes, label face) are
+4. Choose only what a spec [may set](../system/spec-settings.md): the look through the roles, a
+   layout per page type (`## Layout`, one `###` each), the writing style (`## Writing style`, the
+   five rows) and why each component look fits (`## Component looks`). Everything else is a core
+   rule and holds unchanged. A fixed look's values (a figure's flow colours, strokes, label face) are
    not the spec's to change.
 5. Check it: `npx tsx scripts/check-spec.ts <file>` from a uipack checkout (or
    `node_modules/uipack/scripts/check-spec.ts` in a site that installs uipack). It fails on a
-   missing frontmatter key or section, a contract role with neither a value nor a `TODO:`, a family
-   that doesn't exist, or a spec that overrides a family's fixed value. `test/specs.test.tsx` runs
-   it on every spec in this folder.
+   missing frontmatter key or section, a contract role with neither a value nor a `TODO:`, a page
+   type with no layout (or a custom one missing its Grid, Regions, Section order or Hero row), a
+   Writing style table missing a row, a component or look that doesn't exist or isn't offered, and a
+   spec that sets a value a fixed look owns. An older spec's `uses: [diagrams]` still reads as
+   `components: { diagrams: blueprint }`. `test/specs.test.tsx` runs it on every spec in this folder.
 
 [Technical](technical.md) is the reference: the uipack site's own spec, written to the template,
-with its role values generated from `src/styles/technical.css` so the two cannot drift.
+with its role values generated from `src/styles/technical.css` so the two cannot drift. Its layout
+picks and writing style are its own choices; a new site makes its own.
 
 ## Building a style from a spec
 
@@ -57,7 +67,7 @@ or figures in its look):
    it. Update the font tests in `test/web.test.tsx`, which list the shipped files and licences.
 4. **Register it.** Add the file to `styleFiles` in `scripts/css-bundles.ts`, the id to `UiStyleId`
    and an entry to `uiStyles` in `src/style.ts` (name, summary, `fonts`, the display face to
-   `preload`, and the opt-in `prefers` order and `layout` defaults from the spec), and the file to
+   `preload`, and the opt-in `prefers` order and `layout` defaults from the spec's `## Layout`), and the file to
    `STYLE_FILES` in `test/style-values.ts`.
 5. **Test it.**
    - Role completeness: `test/style-roles.test.tsx` fails on a missing core role.

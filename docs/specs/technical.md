@@ -2,7 +2,9 @@
 spec: technical
 site: uipack (this repo's docs site, playground and package defaults)
 extends: core
-uses: [diagrams]
+pages: [landing, documentation, article, deck, dashboard]
+layouts: { landing: product-landing, documentation: docs-shell, article: layer-article, deck: slide-canvas, dashboard: one-question-dashboard }
+components: { diagrams: blueprint, 3d: [studio, paper-theatre, kinetic, cartoon, realistic, abstract], mechanism: isometric }
 status: implemented
 uipack: current
 values: src/styles/technical.css
@@ -11,7 +13,9 @@ values: src/styles/technical.css
 # Technical: the uipack site's spec
 
 Technical is the spec of the uipack site itself and the package's default look: what a figure,
-deck or page renders in when nothing else is set. It is written to the [template](TEMPLATE.md);
+deck or page renders in when nothing else is set. Its layout picks (every archetype in the library
+was first drawn for it) and its writing style (the aims in `src/deck/budgets.ts` are its defaults)
+are this site's choices, not rules for other sites. It is written to the [template](TEMPLATE.md);
 its role values are generated from `src/styles/technical.css` by `npm run docs:sync`, so this page
 and the code cannot drift.
 
@@ -231,7 +235,7 @@ Sans and IBM Plex Mono before the system stacks.
 ## Density and rhythm
 
 Density 0.9: compact sections, vertical rhythm only. Type ratio and measure are the core defaults.
-The container radius is 0 (square); inside a drawing, nodes keep the diagram family's 6px.
+The container radius is 0 (square); inside a drawing, nodes keep the Blueprint look's 6px.
 
 ## Ornaments
 
@@ -280,21 +284,77 @@ The container radius is 0 (square); inside a drawing, nodes keep the diagram fam
 | `ProductShot` | A drawing sheet: an inner keyline, numbered balloon pins, Prussian tag notes, a title-block caption; photos printed as a cyanotype |
 | Bands | Plain |
 
-## Settings chosen
+## Layout
+
+Technical uses every page type and picks the library's archetype for each, unchanged: they were
+drawn for this site first. Density 0.9 compacts vertical rhythm only.
+
+### Landing
+
+`product-landing` as is: the 1120px column, the split hero with the product's real output (the
+`/web` sample), the author's section order. Its own opt-in order (`WebPage layout="style"`,
+`uiStyles[].prefers`) is listed in [landing layout, Order](../system/layout/landing.md#order).
+
+### Documentation
+
+`docs-shell` as is: this docs site, with "View as Markdown" and "Edit on GitHub" in the context row
+and `width="wide"` on pages with wide demos.
+
+### Article
+
+`layer-article` as is, with every part (the article parts page and the AI-stack example).
+
+### Deck
+
+`slide-canvas` as is: eyebrows off, Points the default slide, advance on nearly every slide (the
+deck player examples).
+
+### Dashboard
+
+`one-question-dashboard` as is; no page here is a dashboard yet.
+
+## Writing style
+
+The house voice. Its title aims are the code defaults in `src/deck/budgets.ts` (`WORD_GUIDES`),
+generated below; the ceilings they sit under are core.
 
 | Setting | Technical |
 | --- | --- |
-| Voice and register | The house voice: plain, specific, answer first (core [writing rules](../system/writing/README.md)) |
-| Density | 0.9 |
-| Page types | All four core types |
-| Section order | The author's order by default; its own opt-in order (`WebPage layout="style"`) is `uiStyles[].prefers`, listed in [landing layout, Order](../system/layout/landing.md#order) |
-| Families | Diagrams, unchanged |
-| Illustration looks | Mechanism and the 3D art directions draw within Technical (the catalog on this page) |
+| Tone and register | The house voice: plain and specific, answer first, as these docs are written |
+| Title form | Deck presented: short spoken verdict. Deck read alone, figure, documentation, article: full-sentence claim (docs headings are plain names). Landing: plain-name section heads; the hero headline says what changed for the reader |
+| Copy density | Compact: short paragraphs of at most three sentences on a scanned page; fragments on slides; tables over prose for values |
+| House words | "UiPack" for the product; plain names, never coined labels; internal codes only in parentheses |
+| Budgets | The aims below, inside the core ceilings |
 
-## Page types
+<!-- generated:headline-rule -->
+- **Presented** (a speaker in the room): aim for 2–5 words; the check stops at 6 (`title-length`). A verdict you would say aloud.
+- **Read alone** (a pre-read, a forwarded deck, a figure): the claim as one sentence of 3–14 words.
+- **Web section head:** 2–5 plain words naming what the reader gets.
+<!-- /generated -->
 
-Landing (the `/web` sample), documentation and article (this docs site), deck slide (the deck
-player examples) and dashboard. It uses every core page type.
+<!-- generated:word-guides -->
+| Text | Length | The check |
+| --- | --- | --- |
+| Presented slide title | aim for 2–5 words | `title-length` stops at 6 |
+| Read-alone title, figure title | 3–14 words, one sentence | `title-length` stops at 14 |
+| Web section head | 2–5 words | not linted |
+| Label in a drawing | 2–3 words | `slot-budget` stops at 3 |
+| Slide points | 2–4 a slide, each at most 8 words | `slot-budget` |
+| Speaker cues (`say`, presented) | at most 60 words | `notes-cues` |
+<!-- /generated -->
+
+The presented title has two numbers on purpose. Writers under the trimmed rules wrote titles of up
+to six words that passed the check, and no judge marked one down, so the check allows the longest
+of those and Technical asks for the shorter aim. The lint message (`title-length`) says the same
+thing in the same words.
+
+## Component looks
+
+| Component | Technical picks | Why |
+| --- | --- | --- |
+| Diagrams | `blueprint` | The one diagram look, shared with every site; its values are Technical's today |
+| 3D object scenes | All six | The gallery shows every look; each scene offers its subject's two or three ([which](../components/3d.md#which-subjects-offer-each-look)) |
+| Mechanism | `isometric` | Drawn in the Cyanotype roles: Prussian tones, the amber (gold in dark) lit part |
 
 ## Reuse
 
@@ -303,6 +363,6 @@ Extends `core` only. No other site reuses Technical yet; one that should look li
 
 ## Open TODOs
 
-- TODO: the diagram family's values are Technical's today and figures still read them from the
-  host's roles; once the family owns them ([Diagrams](../families/diagrams.md)), this spec stops
+- TODO: the Blueprint diagram look's values are Technical's today and figures still read them from
+  the host's roles; once the look owns them ([Diagrams](../components/diagrams.md)), this spec stops
   listing the flow roles as its own.

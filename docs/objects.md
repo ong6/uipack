@@ -26,6 +26,9 @@ The Studio sequences show two opposing tennis players rallying across a net and 
 
 ## Curated variations
 
+The six directions are the 3D component's looks: a site's spec picks the ones it uses, and Studio is
+the one that takes the site's palette ([3D object scenes](components/3d.md)).
+
 There are six named directions, and each subject offers only the two or three that suit it
 (below). `objectLooks` lists each kind's variant IDs, its default first; `objectVariants` names them.
 `variant="random"` is the default: selection happens on the client once per component mount, among

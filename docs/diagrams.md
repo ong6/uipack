@@ -39,7 +39,7 @@ Generated from the catalogue's own list (`playground/figure-rows.ts`), in page o
 2. Pick the pattern whose shape matches the claim ([layout, figures](system/layout/README.md#figures)).
 3. Start from a preset (`uipack/presets`) when one fits; otherwise compose `Figure` from the parts.
 4. Check the narrow drawing at 390 and both themes; the look is the
-   [diagram family](families/diagrams.md), the same on every site.
+   [Blueprint look](components/diagrams.md), the same on every site.
 
 A published figure that needs a pattern not listed here adds it to `figureEntries` and
 `playground/figures/` the first time it is used ([contributing](contributing.md)).

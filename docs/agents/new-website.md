@@ -4,10 +4,12 @@ A new site gets its spec before its first page. The order is fixed: write the sp
 template, check it, register it, then build.
 
 1. **Decide: reuse or new.** If the site should look like an existing one, its spec is short:
-   `extends: <that spec's id>` plus only what differs. Otherwise `extends: core`.
+   `extends: <that spec's id>` plus only what differs. Otherwise `extends: core`. A talk series
+   with its own look is a site too: `pages: [deck]`, the same steps.
 2. **Write the spec.** Copy [the template](../specs/TEMPLATE.md) to `STYLE.md` at the site repo's
-   root. Fill the frontmatter (`spec`, `site`, `extends`, `uses: [diagrams]`, `status: draft`,
-   `uipack:` the commit or tag you install) and every role, light and dark. Unknown values are
+   root. Fill the frontmatter (`spec`, `site`, `extends`, `pages`, `layouts`, `components`,
+   `status: draft`, `uipack:` the commit or tag you install), every role, light and dark, a layout
+   for each page type and the writing style: they are this site's own, not Technical's. Unknown values are
    `TODO:` lines naming what would decide them, never guesses. Stay inside
    [what a spec may set](../system/spec-settings.md). The full steps:
    [how to write a site spec](../specs/README.md#writing-one); the `uipack-spec` skill walks them.

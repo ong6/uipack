@@ -8,7 +8,7 @@ subagent gets is the [subagent brief template](subagent-brief.md).
 
 | The lead owns | Each subagent owns |
 | --- | --- |
-| The site spec (`STYLE.md`) and any change to it | One page or one section, in the files the brief names |
+| The site spec (`STYLE.md`): its look, layout per page type, writing style, component looks, and any change to it | One page or one section, in the files the brief names |
 | The shared shell: header, nav, footer, theme and style boot (`styleBootScript`), page width | The words and parts inside its section, from the allowed list |
 | The section manifest: every page's section ids, their order and which subagent builds each | Its own screenshots and self-check |
 | Integration, the review pass and the final grade | Reporting what it could not do |
@@ -24,7 +24,9 @@ file; the shell and the manifest are written only by the lead.
 - **New parts**: no new shared component and no bespoke copy of an existing one. If no part fits,
   it builds the section from roles, marks it, and the lead decides whether it becomes a uipack
   part ([contributing](../contributing.md)).
-- **Section order** and which sections exist: that is the manifest.
+- **Section order** and which sections exist: that is the manifest, from the spec's layout.
+- **Layout and writing style**: grid, regions, hero pattern, tone, title form and house words come
+  from the spec; a subagent that finds them missing reports it.
 - **The shell**: header, nav, footer, theme toggle, page width.
 - **Facts**: no number, claim or name beyond the facts source in the brief.
 
@@ -34,8 +36,9 @@ file; the shell and the manifest are written only by the lead.
    new site starts with [starting a new website](new-website.md).
 2. **Shell first.** Build and render the shared shell (nav with the one CTA, footer, theme, style
    boot) before any subagent starts, so every section lands inside the real frame.
-3. **Section manifest.** List each page's sections in order: id, position, recipe archetype (see
-   the page-type recipes and [layout, web](../system/layout/landing.md)), the facts each section
+3. **Section manifest.** List each page's sections in the order the spec's `### <Page type>` gives:
+   id, position, section archetype (from the layout archetype the spec picked, e.g.
+   [product landing](../system/layout/landing.md), and the page-type recipe), the facts each section
    carries, the parts allowed, the owning subagent and its files. Assign each fact to one section
    so no number repeats across the page.
 4. **Brief and launch.** Fill one [brief](subagent-brief.md) per subagent from the manifest.

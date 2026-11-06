@@ -1,10 +1,25 @@
-# Layout: documentation and article
+# Layout archetype: docs shell
 
-The layout of a page someone reads: product documentation, a reference page or a long article.
-It covers the docs shell's regions, the prose column, where demos and tables sit, and the parts of
-a long article's section. It adds to the [rules for every layout](README.md#rules-for-every-layout).
-The words are [read-alone documents](../writing/documents.md); the build steps are the
+The `docs-shell` archetype: a page someone reads in a navigable set, such as product documentation
+or a reference page. It covers the shell's regions, the prose column, where demos and tables sit,
+and the narrow form. A site's spec picks it for its `documentation` page type
+(`layouts: { documentation: docs-shell }`) or extends it; every site keeps the
+[layout floors](README.md#floors-what-holds-on-every-site). A long read is the
+[layered article](article.md). The words follow the site's writing style and
+[read-alone documents](../writing/documents.md); the build steps are the
 [documentation recipe](../../recipes/documentation.md).
+
+<!-- generated:layout-archetype -->
+- **Archetype:** `docs-shell` (Docs shell), for the `documentation` page type.
+- **Grid:** Sidebar, article column at the reading measure, On this page; one column below 900px.
+- **Regions:** Header, sidebar, context row, article, On this page, pager.
+- **Section order:** h1, what the page is for, the values table, the detail, related pages.
+- **Hero:** None: the page's h1 and its first line.
+- **Rendered by:** `DocsLayout`, `DocsMarkdown` (`uipack/docs`).
+<!-- /generated -->
+
+**Extending it.** A spec may change the measure, which regions it shows (no "On this page", no
+pager) and the context row's links, and says so under its `### Documentation`.
 
 ## Regions
 
@@ -36,27 +51,9 @@ box; the page never widens. A live demo is a `uipack-demo` block between prose r
 ([how](../../docs-layout.md#live-blocks-inside-the-markdown)), so the raw file still says what it
 shows.
 
-## A long article's section
-
-A long read is a run of sections, each built from `uipack/article` parts in the order
-`LayerSection` renders them (`examples/articleParts.tsx`):
-
-<!-- generated:article-section-order -->
-1. `LayerHead`: the strip above the heading: the layer's index, its zone and one metric
-2. `<h2> or <h3>`: the section's heading, a plain name
-3. `<p>`: the prose: the argument, a few short paragraphs
-4. `TermList`: the terms the section uses, each with a one-line gloss
-5. `ChangeNote`: what changed recently, dated
-6. `Callout`: a self-test question for the reader
-7. `LinkList`: where to go deeper
-8. `NoteCluster`: the writer's own notes on the layer
-<!-- /generated -->
-
-Clusters stay in the text column; a `wide` cluster breaks out to the figure slot. Figures follow
-the [figure layout](README.md#figures): decide the render width first, then size the drawing.
-
 ## Narrow
 
 Below 900px the sidebar and contents leave the page; the article is the column. Tables keep a
 readable width per column and scroll inside their wrapper; figures switch to their authored narrow
-drawing or scroll inside their frame. Nothing widens the page at 390px.
+drawing or scroll inside their frame. Nothing widens the page at 390px. (The 900px switch is literal
+in `src/docs/docs.css`.)
