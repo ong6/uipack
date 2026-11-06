@@ -505,13 +505,6 @@
 .fdn-deck .uipack-deck {
   --deck-chrome: 200px;
 }
-/* On a phone the deck tools sit in two columns; an odd last tool (Full screen) takes the whole
-   row instead of sitting alone in half of it. */
-@media (max-width: 640px) {
-  :is(.fdn-unit__deck, .fdn-deck) .uipack-deck-tools > :last-child:nth-child(odd) {
-    grid-column: 1 / -1;
-  }
-}
 
 /* Recipes. */
 .fdn-recipes {

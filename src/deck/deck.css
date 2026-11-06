@@ -538,6 +538,10 @@
   .uipack-deck-tools button {
     padding: 0 8px;
   }
+  /* An odd last tool (Full screen) takes the whole row instead of sitting alone in half of it. */
+  .uipack-deck-tools > :last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
 }
 /* Present view on a phone: one quiet line over the stage offering the read view. */
 .uipack-deck-phone-hint {
