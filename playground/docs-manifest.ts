@@ -304,7 +304,8 @@ export const docsManifest = [
         label: "Figure parts API",
         path: "/components/figure-api",
         file: "docs/figure-api.md",
-        intro: "Every figure part and its props, the connector rule, hover, motion, theming, the seven presets and static SVG export.",
+        intro:
+          "Every figure part and its props, the connector rule, hover, motion, theming, the seven presets and static SVG export.",
       },
       {
         id: "charts",
@@ -658,7 +659,8 @@ export const docsManifest = [
         label: "Grading docs for agents",
         path: "/grading/agent-docs",
         file: "docs/grading/agent-docs.md",
-        intro: "How to grade uipack's own docs for their agent readers: the mechanical check, task-based judging and the frozen tasks.",
+        intro:
+          "How to grade uipack's own docs for their agent readers: the mechanical check, task-based judging and the frozen tasks.",
       },
       {
         id: "rubric-landing",
@@ -700,7 +702,8 @@ export const docsManifest = [
         label: "Agent docs rubric",
         path: "/grading/rubrics/agent-docs-v1",
         file: "docs/grading/rubrics/agent-docs-v1.md",
-        intro: "Version 1 of the frozen rubric for a documentation set read by agents: routing, progressive disclosure, index, executable rules, currency, stop conditions.",
+        intro:
+          "Version 1 of the frozen rubric for a documentation set read by agents: routing, progressive disclosure, index, executable rules, currency, stop conditions.",
       },
     ],
   },
@@ -778,6 +781,7 @@ export const siteRegistry: readonly SiteEntry[] = [
     specStatus: "todo",
     components: ["diagrams: blueprint"],
     pins: "3886f0d",
-    notes: "TODO: spec not written (on hold); warm paper #fffdf9, rust accent #9a3412, serif and sans",
+    notes:
+      "TODO: spec not written (on hold). Its live look (warm paper, rust accent, serif and sans) is a description, not values to build with; hold until the spec exists",
   },
 ];

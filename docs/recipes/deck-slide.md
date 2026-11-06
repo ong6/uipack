@@ -24,14 +24,14 @@ Each storyline orders the slide roles; pick the one that matches the job (`STORY
 `starterDeck(id)` builds a draft deck from one):
 
 <!-- generated:storylines -->
-| Storyline | Use it for | Slides | Minutes | Beats in order (optional in brackets) |
-| --- | --- | --- | --- | --- |
-| Project update / results | Status to leadership or stakeholders: where it stands, what it delivered, what you need. | 5–8 | 5–10 | answer → evidence → evidence → (risk) → plan → ask |
-| Proposal / decision request | You want a decision, budget or headcount. SCQA with the recommendation stated up front. | 6–9 | 8–15 | answer → context → problem → option → recommendation → plan → (risk) → ask |
-| Technical deep dive | Explaining a system to engineers: why it matters, how it works, trade-offs, what's next. | 7–12 | 12–25 | answer → problem → mechanism → mechanism → (mechanism) → evidence → option → (plan) → ask |
-| Launch / demo | Something shipped or is about to: show the before and after, earn adoption. | 5–8 | 5–12 | answer → problem → demo → (mechanism) → evidence → plan → ask |
-| Postmortem / incident review | After an incident: what happened, why, and what changes. Blameless and specific. | 6–9 | 8–15 | answer → evidence → evidence → mechanism → problem → plan → ask |
-| Quarterly / performance review highlights | Your or your team's period in review: impact, not activity. | 5–8 | 5–10 | answer → evidence → evidence → (problem) → plan → ask |
+| Storyline | `starterDeck` / `template` id | Use it for | Slides | Minutes | Beats in order (optional in brackets) |
+| --- | --- | --- | --- | --- | --- |
+| Project update / results | `project-update` | Status to leadership or stakeholders: where it stands, what it delivered, what you need. | 5–8 | 5–10 | answer → evidence → evidence → (risk) → plan → ask |
+| Proposal / decision request | `decision-request` | You want a decision, budget or headcount. SCQA with the recommendation stated up front. | 6–9 | 8–15 | answer → context → problem → option → recommendation → plan → (risk) → ask |
+| Technical deep dive | `deep-dive` | Explaining a system to engineers: why it matters, how it works, trade-offs, what's next. | 7–12 | 12–25 | answer → problem → mechanism → mechanism → (mechanism) → evidence → option → (plan) → ask |
+| Launch / demo | `launch-demo` | Something shipped or is about to: show the before and after, earn adoption. | 5–8 | 5–12 | answer → problem → demo → (mechanism) → evidence → plan → ask |
+| Postmortem / incident review | `postmortem` | After an incident: what happened, why, and what changes. Blameless and specific. | 6–9 | 8–15 | answer → evidence → evidence → mechanism → problem → plan → ask |
+| Quarterly / performance review highlights | `review-highlights` | Your or your team's period in review: impact, not activity. | 5–8 | 5–10 | answer → evidence → evidence → (problem) → plan → ask |
 <!-- /generated -->
 
 ## Slide roles

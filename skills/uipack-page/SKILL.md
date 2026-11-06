@@ -65,5 +65,5 @@ starts from.
 ## Check
 
 Render at 1440 and 390, light and dark, reduced motion, with a headless browser you launch
-yourself (never a tab the user has open), then run `uipack-review`. If you can't render, say so;
+yourself (never a tab the user has open), then grade tier 1 with `npx uipack-grade check <url> --spec STYLE.md` (inside uipack: `npm run grade -- check <url> --spec uipack`) and finish with `uipack-review`. If you can't render, say so;
 never report a look you didn't see.

@@ -110,3 +110,12 @@ Agents: read docs/agents/README.md first, then the skill for your job in skills/
 - [Dashboard rubric](docs/grading/rubrics/dashboard-v1.md): Version 1 of the frozen judge rubric for dashboards.
 - [Diagram rubric](docs/grading/rubrics/diagram-v1.md): Version 1 of the frozen judge rubric for figures.
 - [Agent docs rubric](docs/grading/rubrics/agent-docs-v1.md): Version 1 of the frozen rubric for a documentation set read by agents: routing, progressive disclosure, index, executable rules, currency, stop conditions.
+
+## Skills
+
+- [Skills index](skills/README.md): one skill per job; read the one for your job after docs/agents/README.md.
+- [uipack-copy](skills/uipack-copy/SKILL.md): Write or tighten the words of a UiPack piece: slide titles, points and speaker notes, a read-alone deck or document, landing and web copy, figure labels and captions.
+- [uipack-diagram](skills/uipack-diagram/SKILL.md): Draw a diagram in UiPack's Blueprint look: a system or architecture figure, a request flow, a before/after, a drill-down figure or a layered chart for a site, article, doc or slide.
+- [uipack-page](skills/uipack-page/SKILL.md): Build or restyle a page or deck with UiPack from its recipe: a landing or product page, a documentation or article page, a slide deck or talk, a dashboard, or a 3D hero or motion explainer on one of them.
+- [uipack-review](skills/uipack-review/SKILL.md): Review or grade a UiPack page, deck, figure or section before it ships or is handed off: the tier-1 mechanical grader, then a read against the site spec and the core rules, with findings by layer.
+- [uipack-spec](skills/uipack-spec/SKILL.md): Write, update or check a website's UiPack site spec (its STYLE.md): palette, faces, radii, ornaments, density, a layout per page type, writing style and component looks, from the template, checked by check-spec and listed in the registry.

@@ -19,7 +19,7 @@ Diagrams have one look, **Blueprint**, and it is `fixed`: a figure looks the sam
 [docs/components/diagrams.md](../../docs/components/diagrams.md) first: it fixes the card surface,
 shapes, flow colours, label face, strokes and radii; only light and dark follow the host. The site's
 spec picks it (`components: { diagrams: blueprint }`) but never changes it, and its layout and
-writing style stop at the figure's frame: the labels and lengths below hold on every site.
+writing style stop at the figure's frame: the labels and lengths below hold on every site. That is the intent; today figures still read the host's palette ([where the code stands](../../docs/components/diagrams.md#where-the-code-stands)), so check the render on the site before promising an identical look.
 A site spec never recolours a figure, and neither do you: no brand accent on a connector, no
 site face in a label, no hex anywhere. A slide or page gives the figure a region; it never
 restyles it.

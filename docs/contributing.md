@@ -85,6 +85,29 @@ Three entries draw slides. New slide work goes in `uipack/deck`; the other two a
 5. Document it in the parts table of `docs/deck-consulting.md` (or `docs/deck.md`), and use it on a slide of an example deck.
 6. `npm run build` and commit `dist/` with the change.
 
+## A new web part
+
+For a part in `uipack/web` (a stat strip, a new product surface, a closing block). A significant
+visual follows [component-first](component-first.md) first.
+
+1. The part: a component in `src/web/` (one file, or beside its family in `Blocks.tsx` or
+   `ProductMock.tsx`), reading only `var(--ui-*)` roles and the web tokens; no hex literal
+   (`test/no-hex.test.tsx`). Anything a style should draw differently is a treatment role
+   ([style roles](system/style.md), "Treatment roles"), never a new layout per style.
+2. Styles in `src/web/web.css`, in the matching family block, scoped under `.uipack-web`, with the
+   interaction polish in [design direction](design-direction.md#interaction-polish-the-standard-for-every-new-part-figure-and-page),
+   a real 390px layout and 44px targets.
+3. Export it by name from `src/web/index.ts`; `test/exports.test.tsx` fails on a name clash.
+4. A unit test beside the family's (`test/web-blocks.test.tsx` or `test/web-product.test.tsx`),
+   including the server render.
+5. Show it on `/web`: add it to `playground/WebShowcase.tsx` with its words and numbers from
+   `playground/tidyFacts.ts` (a new claim is an edit there) and keep
+   `e2e/showcase-content.spec.ts` and `e2e/web.spec.ts` green.
+6. Document its props in [docs/web-api.md](web-api.md) and, if it changes a rule, in
+   [web principles](web-principles.md).
+7. `npm run format`, `npm run typecheck`, `npm run lint`, `npm run build` (commit `dist/`) and
+   `npm run test:affected`.
+
 ## A new figure pattern on `/`
 
 The diagrams page shows each pattern once, simplest first. Add one the first time a published figure (notes, homepage) uses a pattern the page does not show.

@@ -51,7 +51,9 @@ for (const theme of ["light", "dark"] as const) {
     await page.setViewportSize({ width: 1440, height: 1100 });
     await page.goto(`/components/diagrams?theme=${theme}`);
     await page.waitForTimeout(600);
-    await page.locator('section[data-section="service-map"] figure').screenshot({ path: `docs/screenshots/habitat-${theme}.png` });
+    await page
+      .locator('section[data-section="service-map"] figure')
+      .screenshot({ path: `docs/screenshots/habitat-${theme}.png` });
     await page.locator('section[data-section="parts"] figure').screenshot({ path: `docs/screenshots/parts-${theme}.png` });
     for (const name of PRESETS) {
       await page.locator(`[data-preset="${name}"] figure`).screenshot({ path: `docs/screenshots/presets/${name}-${theme}.png` });

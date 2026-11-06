@@ -112,7 +112,10 @@ const tests = changed.filter((f) => /^test\/.*\.test\.tsx?$/.test(f) && existsSy
 // generated blocks, llms.txt).
 if (changed.some((f) => /^docs\/.*\.md$|^README\.md$|^llms\.txt$/.test(f)) && !tests.includes("test/docs-manifest.test.tsx"))
   tests.push("test/docs-manifest.test.tsx");
-if (changed.some((f) => /^docs\/.*\.md$|^README\.md$|^AGENTS\.md$|^skills\/|^scripts\/check-agent-docs/.test(f)) && !tests.includes("test/agent-docs.test.tsx"))
+if (
+  changed.some((f) => /^docs\/.*\.md$|^README\.md$|^AGENTS\.md$|^skills\/|^scripts\/check-agent-docs/.test(f)) &&
+  !tests.includes("test/agent-docs.test.tsx")
+)
   tests.push("test/agent-docs.test.tsx");
 
 console.log(`Changed since ${base}: ${changed.length} file(s)`);

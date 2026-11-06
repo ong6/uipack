@@ -1,11 +1,9 @@
 # Diagrams: the Blueprint look
 
 Diagrams have one look, **Blueprint**, and it is `fixed`: a figure looks the same on every site
-that draws one, and only light and dark follow the host. Members: figures
-(`uipack`, the presets), drill-down figures (`uipack/drill`) and the HTML charts (`uipack/charts`:
-`SpanChart`, `LayerStack`, drawn in the same language). A spec picks it with
+that draws one, and only light and dark follow the host. Members: figures, drill-down figures and the HTML charts. A spec picks it with
 `components: { diagrams: blueprint }` and never sets its values: `scripts/check-spec.ts` fails a
-spec that does. The model behind looks and modes is in [Component looks](README.md).
+spec that does. Not yet enforced in code: figures still take the host's palette ([where the code stands](#where-the-code-stands)), so check the render on the site.
 
 <!-- generated:component-look-list -->
 A spec picks one look: `components: { diagrams: blueprint }`.
