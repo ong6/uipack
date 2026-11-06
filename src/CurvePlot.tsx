@@ -153,7 +153,7 @@ export function CurvePlot({ x, y, w, h, points, xTitle, yTitle, xEnds, notes = [
     `M${px(points[0][0])},${py(points[0][1])} ` +
     segs.map(([, c1, c2, p]) => `C${px(c1[0])},${py(c1[1])} ${px(c2[0])},${py(c2[1])} ${px(p[0])},${py(p[1])}`).join(" ");
   const head = 6;
-  const tracked = { fontFamily: "var(--uipack-mono)", letterSpacing: ".1em", fontWeight: 500 } as const;
+  const tracked = { fontFamily: "var(--uipack-mono)", letterSpacing: ".1em", fontWeight: 400 } as const;
   return (
     <g data-uipack="curve-plot">
       {/* Axes: from the origin up and to the right, each ending in an open arrowhead. */}

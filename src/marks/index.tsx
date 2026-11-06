@@ -71,8 +71,8 @@ export function Wordmark({ size = 24 }: { size?: number }) {
         x="40"
         y="22"
         fontSize="18"
-        fontWeight={700}
-        fontFamily="var(--uipack-mono, ui-monospace, monospace)"
+        fontWeight={600}
+        fontFamily="var(--uipack-mono, var(--ui-font-label, ui-monospace, monospace))"
         letterSpacing=".02em"
         fill="currentColor"
       >

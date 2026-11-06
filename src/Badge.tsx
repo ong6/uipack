@@ -22,7 +22,7 @@ export function Badge({ cx, cy, text, accent, r = 9, size: size0 = 10 }: BadgePr
         textAnchor="middle"
         fontSize={size}
         fontFamily="var(--uipack-mono)"
-        fontWeight={700}
+        fontWeight={600}
         fill={stroke}
       >
         {text}

@@ -354,8 +354,8 @@
   outline-offset: 2px;
   /* The host's control font inside a figure (the playground's --show-control-font-sm), else the
      chart's own. The weight still marks the chosen one. */
-  font: var(--show-control-font-sm, 500 13px/1 var(--sp-sans));
-  font-weight: calc(500 + var(--sp-sel, 0) * 150);
+  font: var(--show-control-font-sm, 400 13px/1 var(--sp-sans));
+  font-weight: calc(400 + var(--sp-sel, 0) * 200);
   /* Chosen: the accent ink (accent 75%, ink 25%), 4.5:1 on the tint in both themes. */
   color: color-mix(in srgb, var(--sp-accent) calc(var(--sp-sel, 0) * 75%), var(--sp-fg));
   white-space: nowrap;
@@ -702,6 +702,8 @@
   display: var(--sp-label-abbr, block);
   font: inherit;
   font-family: var(--sp-mono);
+  /* The column's 500 is a Sans weight; the mono abbreviation takes a loaded Mono weight. */
+  font-weight: 400;
   font-size: 11px;
   line-height: 16px;
   white-space: nowrap;
@@ -872,7 +874,7 @@
   background: var(--sp-accent);
 }
 .uipack-span .uipack-span__count {
-  font: 500 11px/16px var(--sp-mono);
+  font: 400 11px/16px var(--sp-mono);
   font-variant-numeric: tabular-nums;
   color: var(--sp-muted);
 }
@@ -1004,7 +1006,7 @@
   border-color: transparent;
   background: transparent;
   filter: none;
-  font: 700 11px/1 var(--sp-mono);
+  font: 600 11px/1 var(--sp-mono);
   letter-spacing: -0.02em;
   color: var(--sp-muted);
 }
@@ -1066,7 +1068,7 @@
   padding: 0 5px;
   border: 1px solid var(--sp-change);
   border-radius: 2px;
-  font: 500 11px/14px var(--sp-mono);
+  font: 400 11px/14px var(--sp-mono);
   color: var(--sp-change-ink);
   text-wrap: balance;
 }
@@ -1400,7 +1402,7 @@
 }
 .uipack-stack .uipack-stack__index {
   grid-area: idx;
-  font: 500 12px/20px var(--sp-mono);
+  font: 400 12px/20px var(--sp-mono);
   font-variant-numeric: tabular-nums;
   color: var(--sp-muted);
 }

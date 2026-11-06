@@ -1,3 +1,12 @@
+/* Faces come from the style's type roles (src/styles): Plex Sans text and headings, Plex Mono
+   labels and code in Technical. Set on the prose too, for DocsMarkdown used without DocsLayout. */
+.uipack-docs,
+.uipack-docs__prose {
+  --docs-font-text: var(--ui-font-text);
+  --docs-font-heading: var(--ui-font-heading, var(--ui-font-text));
+  --docs-font-mono: var(--ui-font-label);
+}
+
 /* Two palettes, both from the roles (src/styles): the warm docs palette by default (optional
    --ui-docs-warm-* roles; a style that leaves them unset falls back to its core roles), and the
    style's own palette with palette="technical". Dark follows data-theme only. */
@@ -11,7 +20,7 @@
   --docs-focus: var(--tune-docs-warm-focus, var(--ui-accent));
   color-scheme: light;
   color: var(--docs-ink);
-  font-family: var(--font-sans, system-ui, sans-serif);
+  font-family: var(--docs-font-text);
   position: relative;
   padding: 40px 0 32px;
 }
@@ -71,7 +80,7 @@
 .uipack-docs a.uipack-docs__skip:focus {
   background: var(--docs-ink);
   color: var(--docs-surface);
-  font-weight: 700;
+  font-weight: 600;
   left: 8px;
   padding: 10px 14px;
   position: fixed;
@@ -83,9 +92,9 @@
 .uipack-docs__identity {
   align-items: center;
   display: flex;
-  font-family: var(--font-mono, ui-monospace, monospace);
+  font-family: var(--docs-font-mono);
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 600;
   gap: 9px;
   /* The grid's width (200 + 680 + 160 + two 24px gaps), centred like the grid, so the
      breadcrumb starts on the navigation column's edge. */
@@ -140,9 +149,9 @@
 .uipack-docs__nav-section h2,
 .uipack-docs__toc > p {
   color: var(--docs-muted);
-  font-family: var(--font-mono, ui-monospace, monospace);
+  font-family: var(--docs-font-mono);
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 0.08em;
   margin: 0 0 7px;
   text-transform: uppercase;
@@ -173,7 +182,7 @@
   background: var(--docs-surface);
   border-left-color: var(--docs-accent);
   color: var(--docs-ink);
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .uipack-docs__article {
@@ -209,7 +218,7 @@
 .uipack-docs__toc a[aria-current="location"] {
   border-left-color: var(--docs-accent);
   color: var(--docs-ink);
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .uipack-docs__mobile-navigation {
@@ -225,6 +234,20 @@
   margin-top: 0;
 }
 
+/* No one-word last lines in body copy; short headings and table cells (a few lines each, where
+   pretty leaves the orphan) break evenly. */
+.uipack-docs__prose :is(p, li, dd, blockquote, figcaption, caption) {
+  text-wrap-style: pretty;
+}
+.uipack-docs__table td {
+  text-wrap-style: balance;
+}
+
+/* Bold is the style's heading weight, not the UA's bolder (700, or 900 inside a 600 cell). */
+.uipack-docs__prose :is(strong, b) {
+  font-weight: 600;
+}
+
 .uipack-docs__prose h1,
 .uipack-docs__prose h2,
 .uipack-docs__prose h3,
@@ -232,9 +255,10 @@
 .uipack-docs__prose h5,
 .uipack-docs__prose h6 {
   color: var(--docs-ink);
-  font-family: var(--font-sans, system-ui, sans-serif);
-  font-weight: 700;
+  font-family: var(--docs-font-heading);
+  font-weight: 600;
   letter-spacing: -0.035em;
+  text-wrap-style: balance;
   line-height: 1.15;
   scroll-margin-top: 96px;
 }
@@ -279,7 +303,7 @@
 .uipack-docs__prose a.uipack-docs__heading-anchor {
   align-items: center;
   display: inline-flex;
-  font-family: var(--font-mono, ui-monospace, monospace);
+  font-family: var(--docs-font-mono);
   font-size: 0.65em;
   font-weight: 400;
   justify-content: center;
@@ -340,7 +364,7 @@
 .uipack-docs__prose code {
   background: var(--docs-surface-strong);
   border-radius: 3px;
-  font-family: var(--font-mono, ui-monospace, monospace);
+  font-family: var(--docs-font-mono);
   font-size: 0.86em;
   padding: 2px 5px;
 }
@@ -392,7 +416,7 @@
 
 .uipack-docs__table th {
   background: var(--docs-surface);
-  font-weight: 700;
+  font-weight: 600;
   text-wrap: balance;
 }
 
@@ -433,7 +457,7 @@
 
 .uipack-docs__pagination small {
   color: var(--docs-muted);
-  font-family: var(--font-mono, ui-monospace, monospace);
+  font-family: var(--docs-font-mono);
   font-size: 12px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -441,7 +465,7 @@
 
 .uipack-docs__pagination span {
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 @media (max-width: 899px) {
@@ -501,12 +525,12 @@
 
   .uipack-docs__mobile-navigation summary span {
     font-size: 14px;
-    font-weight: 700;
+    font-weight: 600;
   }
 
   .uipack-docs__mobile-navigation summary small {
     color: var(--docs-muted);
-    font-family: var(--font-mono, ui-monospace, monospace);
+    font-family: var(--docs-font-mono);
     font-size: 12px;
     margin-left: auto;
     text-align: right;

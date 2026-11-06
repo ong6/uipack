@@ -35,7 +35,7 @@ function Txt({
       textAnchor={anchor}
       fontFamily={mono ? "var(--uipack-mono)" : undefined}
       letterSpacing={mono ? ".06em" : undefined}
-      fontWeight={mono ? 500 : 400}
+      fontWeight={400}
       fill="currentColor"
       fillOpacity={muted ? 0.72 : 1}
     >

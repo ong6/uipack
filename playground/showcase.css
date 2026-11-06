@@ -1,5 +1,5 @@
 /* Shell tokens. Controls: one set for every playground control (and the Mechanism page's, through
-   its --font-mono hook): mono 500, 13px on the page and 12px inside a figure or stage frame, a 6px
+   its --font-mono hook): mono 400, 13px on the page and 12px inside a figure or stage frame, a 6px
    radius. Radius scale: docs/design-direction.md. */
 :root {
   --show-control-radius: 6px;
@@ -13,8 +13,8 @@ body {
   --show-font-sans: var(--ui-font-text);
   --show-font-display: var(--ui-font-display);
   --show-font-mono: var(--ui-font-label);
-  --show-control-font: 500 13px/1.2 var(--show-font-mono);
-  --show-control-font-sm: 500 12px/1.2 var(--show-font-mono);
+  --show-control-font: 400 13px/1.2 var(--show-font-mono);
+  --show-control-font-sm: 400 12px/1.2 var(--show-font-mono);
   /* The one shell eyebrow (a figure's "Figure 01 · …", a Mechanism plate's corners, a 3D stage's
      edition): tracked mono caps. Slides keep the deck's own eyebrow (deck.css .uipack-deck-eyebrow). */
   --show-eyebrow-font: 600 12px/1.3 var(--show-font-mono);
@@ -67,11 +67,7 @@ body {
   border-radius: var(--show-control-radius);
   background: var(--show-surface);
   color: var(--show-ink);
-  font:
-    600 14px system-ui,
-    -apple-system,
-    "Segoe UI",
-    sans-serif;
+  font: 600 14px var(--show-font-sans);
   text-decoration: none;
   transform: translateY(calc(-100% - 16px));
 }
@@ -90,7 +86,7 @@ body {
   font-family: var(--show-font-display);
   font-size: 24px;
   line-height: 1.25;
-  font-weight: 650;
+  font-weight: 600;
   letter-spacing: -0.01em;
   margin: 0 0 8px;
   color: var(--show-ink);
@@ -110,6 +106,8 @@ body {
   gap: 16px;
 }
 .showcase-brand {
+  /* The wordmark's SVG text reads the shell mono. */
+  --uipack-mono: var(--show-font-mono);
   color: inherit;
   display: flex;
   align-items: center;
@@ -148,14 +146,14 @@ body {
   min-height: 44px;
   box-sizing: border-box;
   padding: 0 12px;
-  font: 500 13px var(--show-font-mono);
+  font: 400 13px var(--show-font-mono);
   color: var(--show-muted);
   text-decoration: none;
   white-space: nowrap;
   border-bottom: 2px solid transparent;
 }
 .showcase-groups a {
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 0.04em;
 }
 .showcase-groups a:first-child,
@@ -228,7 +226,7 @@ body {
   margin: 0;
   color: var(--show-ink);
   font-family: var(--show-font-display);
-  font-weight: 700;
+  font-weight: 600;
   font-size: clamp(28px, 4.5vw, 40px);
   line-height: 1.1;
   letter-spacing: -0.02em;
@@ -362,6 +360,24 @@ body {
   line-height: 1.6;
   color: var(--show-muted);
 }
+/* Line breaks: body copy never ends on a one-word line and short headings and table cells (a few
+   lines each, where pretty leaves the orphan) break evenly. The longhand leaves wrap mode alone (a
+   nowrap label stays nowrap); zero specificity, so a part's own choice wins. */
+:where(.showcase-frame) :where(p, li, dd, figcaption, caption, blockquote, summary) {
+  text-wrap-style: pretty;
+}
+:where(.showcase-frame) :where(h1, h2, h3, h4, h5, h6, td, th) {
+  text-wrap-style: balance;
+}
+/* Bold is the style's 600 (the loaded weight), not the UA's bolder/bold (700 or 900). */
+:where(.showcase-frame) :where(strong, b, h1, h2, h3, h4, h5, h6, th) {
+  font-weight: 600;
+}
+.showcase-section-intro,
+.collection-intro,
+.showcase-title p {
+  text-wrap-style: pretty;
+}
 .showcase-section-intro a,
 .collection-intro a {
   color: var(--show-accent);
@@ -452,16 +468,12 @@ body {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    font: 500 12px/14px var(--show-font-mono);
+    font: 400 12px/14px var(--show-font-mono);
     color: var(--show-muted);
   }
   .showcase-menu-button__page {
     white-space: nowrap;
-    font:
-      600 14px/18px system-ui,
-      -apple-system,
-      "Segoe UI",
-      sans-serif;
+    font: 600 14px/18px var(--show-font-sans);
   }
   .showcase-header button.theme {
     display: grid;
@@ -543,7 +555,7 @@ body {
   .showcase-menu__group a[aria-current="page"] {
     border-left-color: var(--show-accent);
     background: var(--show-surface);
-    font-weight: 700;
+    font-weight: 600;
   }
   .showcase-menu__group a[aria-current="page"]::after {
     content: "✓ Current";

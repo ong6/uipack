@@ -28,6 +28,13 @@
   font-family: var(--deck-sans);
   outline: none;
 }
+
+/* Body copy never ends on a one-word line. The longhand leaves wrap mode alone; zero specificity, so
+   a part's own text-wrap (balanced titles) wins. */
+:where(.uipack-deck) :where(p, li, td, th, dd, figcaption) {
+  text-wrap-style: pretty;
+}
+
 .uipack-deck[data-theme="dark"] {
   color-scheme: dark;
 }
@@ -211,7 +218,7 @@
   padding-top: 24px;
   border-top: 1.5px solid var(--deck-rule);
   color: var(--deck-muted);
-  font: 500 20px/1.4 var(--deck-mono);
+  font: 400 20px/1.4 var(--deck-mono);
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
@@ -409,7 +416,7 @@
   border-radius: var(--deck-radius-sm);
   background: transparent;
   color: var(--deck-fg);
-  font: 500 13px/1 var(--deck-mono);
+  font: 400 13px/1 var(--deck-mono);
   /* A label face with wide tracking tracks tighter, so the row still fits on one line. */
   letter-spacing: min(0.04em, var(--ui-label-tracking, 0.04em));
   white-space: nowrap;
@@ -478,7 +485,7 @@
 .uipack-deck-counter {
   min-width: 7ch;
   color: var(--deck-muted);
-  font: 500 13px/1 var(--deck-mono);
+  font: 400 13px/1 var(--deck-mono);
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.06em;
   text-align: center;
@@ -562,7 +569,7 @@
   border-radius: var(--deck-radius-sm);
   background: transparent;
   color: var(--deck-fg);
-  font: 500 13px/1 var(--deck-mono);
+  font: 400 13px/1 var(--deck-mono);
   cursor: pointer;
 }
 .uipack-deck-phone-hint button:focus-visible {
@@ -645,7 +652,7 @@
   border-radius: var(--deck-radius-sm);
   background: transparent;
   color: var(--deck-fg);
-  font: 500 13px/1 var(--deck-mono);
+  font: 400 13px/1 var(--deck-mono);
   cursor: pointer;
 }
 .uipack-deck-overview__grid {
@@ -733,7 +740,7 @@
   flex-wrap: wrap;
 }
 .uipack-deck-presenter__clock > span:first-child {
-  font: 500 36px/1 var(--deck-mono);
+  font: 400 36px/1 var(--deck-mono);
   font-variant-numeric: tabular-nums;
 }
 /* The budget: the total, how this slide's window compares with the clock, and a bar of both. */
@@ -741,7 +748,7 @@
   display: grid;
   flex: 1 1 160px;
   gap: 6px;
-  font: 500 13px/1.3 var(--deck-mono);
+  font: 400 13px/1.3 var(--deck-mono);
   font-variant-numeric: tabular-nums;
 }
 .uipack-deck-presenter__budget > span:first-child {
@@ -938,7 +945,7 @@
 }
 .uipack-deck-read__detail figcaption {
   color: var(--deck-muted);
-  font: 500 12px/1.35 var(--deck-mono);
+  font: 400 12px/1.35 var(--deck-mono);
   text-wrap: balance;
 }
 /* Cue notes are short lines; keep the author's line breaks wherever the track is shown. */
@@ -960,7 +967,7 @@
   border-radius: var(--deck-radius-sm);
   background: transparent;
   color: var(--deck-fg);
-  font: 500 13px/1 var(--deck-mono);
+  font: 400 13px/1 var(--deck-mono);
   white-space: nowrap;
   cursor: pointer;
 }
@@ -1069,7 +1076,7 @@
 }
 .uipack-deck-storyline__findings b {
   margin-right: 6px;
-  font: 700 12px/1 var(--deck-mono);
+  font: 600 12px/1 var(--deck-mono);
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }

@@ -55,7 +55,7 @@ export function Chip({ x, y, w, h = 24, label, dashed, kind, flow, size: size0 =
           y={y + h / 2 + size * 0.36}
           textAnchor="middle"
           fontSize={size}
-          fontWeight={shape === "tag" ? 500 : 700}
+          fontWeight={shape === "tag" ? 400 : 600}
           fontFamily="var(--uipack-mono)"
           letterSpacing={shape === "tag" ? ".06em" : undefined}
           fill="currentColor"
