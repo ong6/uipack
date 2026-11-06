@@ -88,6 +88,11 @@ export interface PageDef {
   hostsPage?: boolean;
   /** The `visualStyles` name the page's content uses, shown in the shell's context line; default "Technical". */
   styleName?: string;
+  /**
+   * A labelled run in the second nav row and the menu sheet: Foundations lists its seven guides
+   * (the run the guide pager counts) apart from its reference pages.
+   */
+  run?: string;
 }
 
 /**
@@ -188,14 +193,16 @@ export const libraryPages = [
   {
     id: "foundations",
     group: "foundations",
+    run: "Guides",
     label: "Overview",
     path: "/foundations",
     intro:
-      "Style, writing and layout are three separate layers. Swap the writing and the layout live below; the style layer is the role contract Technical fills.",
+      "UiPack draws explanations: diagrams, slides, web pages, motion and 3D. Start here: style, writing and layout are three separate layers. Swap the writing and the layout live below; the style layer is the role contract Technical fills.",
   },
   {
     id: "foundations-style",
     group: "foundations",
+    run: "Guides",
     label: "Style roles",
     path: "/foundations/style",
     intro:
@@ -204,6 +211,7 @@ export const libraryPages = [
   {
     id: "foundations-writing",
     group: "foundations",
+    run: "Guides",
     label: "Writing",
     path: "/foundations/writing",
     intro: "Words are typed data: a claim per unit, a text budget per slot, and one place for each kind of sentence.",
@@ -211,6 +219,7 @@ export const libraryPages = [
   {
     id: "foundations-layout",
     group: "foundations",
+    run: "Guides",
     label: "Layout",
     path: "/foundations/layout",
     intro: "Regions, archetypes and narrow forms: where each slot sits and in what order it is read.",
@@ -218,6 +227,7 @@ export const libraryPages = [
   {
     id: "foundations-mix",
     group: "foundations",
+    run: "Guides",
     label: "Mix and match",
     path: "/foundations/mix",
     intro: "What each layer owns, and the four places one layer still leaks into another.",
@@ -225,6 +235,7 @@ export const libraryPages = [
   {
     id: "foundations-recipes",
     group: "foundations",
+    run: "Guides",
     label: "Recipes",
     path: "/foundations/recipes",
     intro: "Six common jobs, each as a style, an archetype sequence and a content template, with the live page.",
@@ -232,6 +243,7 @@ export const libraryPages = [
   {
     id: "foundations-dont",
     group: "foundations",
+    run: "Guides",
     label: "Do and don't",
     path: "/foundations/do-and-dont",
     intro: "Paired examples of the rules, and the checklist of generic AI-landing tropes to keep out.",
@@ -239,6 +251,7 @@ export const libraryPages = [
   {
     id: "styles",
     group: "foundations",
+    run: "Reference",
     label: "Styles",
     path: "/styles",
     intro:
@@ -247,6 +260,7 @@ export const libraryPages = [
   {
     id: "assets",
     group: "foundations",
+    run: "Reference",
     label: "Icons & marks",
     path: "/assets",
     intro: "Searchable icons, marks, canvas backgrounds and motion tokens, each with a preview and a copy button.",

@@ -238,7 +238,7 @@ test.describe("deck sub-views in the 390px menu", () => {
     await expect(page.locator(".showcase-menu-button")).toHaveAccessibleName("Presentations: Consulting");
     await page.locator(".showcase-menu-button").click();
     const sheet = page.getByRole("dialog", { name: "Library menu" });
-    await expect(sheet.locator(".showcase-menu__sub")).toHaveText("Deck player");
+    await expect(sheet.getByRole("group", { name: "Presentations" }).locator(".showcase-menu__sub")).toHaveText("Deck player");
     await expect(sheet.locator('[aria-current="page"]')).toHaveText("Consulting");
     const pad = async (name: string) =>
       sheet.getByRole("link", { name, exact: true }).evaluate((el) => parseFloat(getComputedStyle(el).paddingLeft));
@@ -246,6 +246,20 @@ test.describe("deck sub-views in the 390px menu", () => {
     await sheet.getByRole("link", { name: "Bento", exact: true }).click();
     await expect(page).toHaveURL(/\/deck\?deck=bento&theme=light$/);
     await expect(page.locator(".showcase-menu-button")).toHaveAccessibleName("Presentations: Bento");
+  });
+});
+
+test.describe("desktop Foundations runs", () => {
+  test.use({ viewport: { width: 1280, height: 900 } });
+  test("the guides the pager counts sit in a Guides run, apart from the reference pages", async ({ page }) => {
+    await page.goto("/foundations/writing");
+    const guides = pagesNav(page).getByRole("group", { name: "Guides" }).getByRole("link");
+    await expect(guides).toHaveCount(7);
+    await expect(page.locator(".fdn-pager__count")).toHaveText("Guide 3 of 7");
+    await expect(pagesNav(page).getByRole("group", { name: "Reference" }).getByRole("link")).toHaveText([
+      "Styles",
+      "Icons & marks",
+    ]);
   });
 });
 

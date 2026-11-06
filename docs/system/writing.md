@@ -86,7 +86,7 @@ render in any layout that has matching slots, in any style. See [the system over
    | Three items where one would do | "faster, cheaper and simpler" | Keep the item that carries the point |
    | A coined term used as if established | "Answer-first reviews" | Say what happened: reviews that opened with the answer |
    | The same shape on every unit | eyebrow, sentence headline, lede, slide after slide | Vary the form: labels, verdicts, the occasional question |
-   | A one-word caps eyebrow | `REVIEWS`, `SEARCH` | Drop it; the title names the topic |
+   | A one-word caps eyebrow on a slide | `REVIEWS`, `SEARCH` | Drop it; the title names the topic (a web page's numbered section eyebrow is wayfinding and stays) |
 
    Hoffman's note on his own LinkedIn pitch applies too: be wary of adjectives and especially
    adverbs (cut "very" from "very high").

@@ -123,17 +123,14 @@ const features = [
   {
     title: "Ask in a sentence",
     body: "No rules to write. Describe the outcome and the agent plans the steps.",
-    icon: <RhymeIcon at={0.1} />,
   },
   {
     title: "Watch every action",
     body: "Each change is listed as it happens, so you can stop it or undo it.",
-    icon: <RhymeIcon at={0.55} />,
   },
   {
     title: "Decide what is left",
     body: "You see the few messages that need a person, with drafts ready.",
-    icon: <RhymeIcon at={1} />,
   },
 ];
 
@@ -420,7 +417,7 @@ function exampleSections(seo: ReturnType<typeof tidySeo>): WebPageProps["section
       <Section
         id="web-demo"
         eyebrow="Demo"
-        title="Watch it clear an inbox in nine seconds."
+        title="Watch one inbox clear."
         intro="The three steps, played on a sample inbox. Pick a step to see it."
       >
         <div data-section-id="demo">{demo}</div>
@@ -476,7 +473,12 @@ function exampleSections(seo: ReturnType<typeof tidySeo>): WebPageProps["section
                 price: "$8",
                 period: "a month",
                 summary: "After a free 30-day trial.",
-                features: ["One inbox", "Every action listed as it happens", "Drafts wait for your approval", "Cancel any time"],
+                features: [
+                  "One inbox",
+                  "Every action listed as it happens",
+                  "Drafts wait for your approval",
+                  "Nothing is deleted",
+                ],
               },
             ]}
             note="Illustrative prices for a sample product."
@@ -488,7 +490,7 @@ function exampleSections(seo: ReturnType<typeof tidySeo>): WebPageProps["section
       <ClosingCta
         id="web-closing"
         eyebrow="Start"
-        title="Try it on your own inbox."
+        title="Try it on your inbox."
         intro="Thirty days free. Tidy drafts replies but never sends them."
         action={{ label: "Start free", href: "#web-pricing" }}
         note="No card needed for the trial."
@@ -496,6 +498,9 @@ function exampleSections(seo: ReturnType<typeof tidySeo>): WebPageProps["section
     ),
   };
 }
+
+/** The sample page's section ids in its own order (the keys of its sections). */
+export const exampleSectionIds = () => Object.keys(exampleSections(tidySeo("https://tidy.example")));
 
 export default function WebShowcase() {
   const { theme, flip } = useShowcaseTheme();
@@ -513,7 +518,9 @@ export default function WebShowcase() {
       <SmoothScroll />
       <section data-route="web" id="web-example" className="web-anchor">
         <p className="collection-intro">
-          One page built from <code>uipack/web</code>, with one call to action in the hero, the nav and the end.
+          UiPack is a design system that draws explanations: diagrams, slides, web pages, motion and 3D, in one style with one set
+          of writing and layout rules. New to it? <a href="/foundations">Start with the Foundations overview</a>. Below, one page
+          built from <code>uipack/web</code>, with one call to action in the hero, the nav and the end.
         </p>
         <PageIndex />
         {painted && (
@@ -801,21 +808,21 @@ function Replay({ onClick }: { onClick: () => void }) {
 }
 
 function ViewTransitionDemo() {
-  const [yearly, setYearly] = useState(false);
+  const [after, setAfter] = useState(false);
   return (
-    <div className="web-block">
+    <div className="web-block" data-sample>
       <Eyebrow>View transition · with fallback</Eyebrow>
       <div className="web-price" style={{ viewTransitionName: "web-price" } as CSSProperties}>
-        <strong>{yearly ? "$96" : "$10"}</strong>
-        <span>{yearly ? "per year, two months free" : "per month"}</span>
+        <strong>{after ? "3" : "40"}</strong>
+        <span>{after ? "need you, after one run" : "in your inbox"}</span>
       </div>
       <div className="web-buttons">
         <CtaButton
           variant="secondary"
-          aria-pressed={yearly}
-          onClick={() => void withViewTransition(() => flushSync(() => setYearly((y) => !y)))}
+          aria-pressed={after}
+          onClick={() => void withViewTransition(() => flushSync(() => setAfter((a) => !a)))}
         >
-          {yearly ? "Show monthly" : "Show yearly"}
+          {after ? "Show before" : "Show after"}
         </CtaButton>
       </div>
       <Body>Cross-fades where the browser supports View Transitions; swaps instantly elsewhere and under reduced motion.</Body>
@@ -860,7 +867,7 @@ function MotionSection({ theme, flip }: { theme: "light" | "dark"; flip: () => v
       <WebSurface theme={theme} className="web-panel">
         <Grid>
           <GridItem span={[4, 4, 4]}>
-            <div className="web-block">
+            <div className="web-block" data-sample>
               <Eyebrow>Reveal on scroll · staggered</Eyebrow>
               <Reveal key={revealKey} variant="blur" className="web-reveal-list">
                 <div>Ask in a sentence</div>
@@ -871,7 +878,7 @@ function MotionSection({ theme, flip }: { theme: "light" | "dark"; flip: () => v
             </div>
           </GridItem>
           <GridItem span={[4, 4, 4]}>
-            <div className="web-block" key={scrambleKey}>
+            <div className="web-block" data-sample key={scrambleKey}>
               <Eyebrow>Text scramble · typewriter</Eyebrow>
               <Heading level={3} size={3}>
                 <TextScramble text="Forty in. Three left." />
@@ -883,7 +890,7 @@ function MotionSection({ theme, flip }: { theme: "light" | "dark"; flip: () => v
             </div>
           </GridItem>
           <GridItem span={[4, 8, 4]}>
-            <div className="web-block">
+            <div className="web-block" data-sample>
               <Eyebrow>Number ticker · proof stats</Eyebrow>
               <dl className="web-stats" data-align="start" key={tickerKey}>
                 <div>
@@ -893,9 +900,9 @@ function MotionSection({ theme, flip }: { theme: "light" | "dark"; flip: () => v
                   </dd>
                 </div>
                 <div>
-                  <dt>saved each week</dt>
+                  <dt>drafted</dt>
                   <dd>
-                    <NumberTicker value={4.5} format={{ minimumFractionDigits: 1, maximumFractionDigits: 1 }} suffix=" h" />
+                    <NumberTicker value={4} />
                   </dd>
                 </div>
               </dl>
@@ -914,7 +921,7 @@ function MotionSection({ theme, flip }: { theme: "light" | "dark"; flip: () => v
             </div>
           </GridItem>
           <GridItem span={[4, 8, 4]}>
-            <div className="web-block">
+            <div className="web-block" data-sample>
               <Eyebrow>Tilt card · magnetic button</Eyebrow>
               <TiltCard href="#web-how">
                 <RhymeIcon at={0.55} />
