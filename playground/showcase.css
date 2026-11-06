@@ -45,6 +45,24 @@ body {
 .showcase-frame > .uipack-docs {
   padding: 0;
 }
+/* A 176px sidebar (the longest page name needs 156) and a 32px gap, not docs.css's 220px and
+   40px: at 1440 the page column is then 1184px, so a 1120-unit figure draws at its own size
+   (its canvas adds 64px of padding) and the 11px text floor never enlarges a subtitle past its
+   box. In the 1132px column the wide default left, subtitles grew 4-5% and, where glyph advances
+   round to whole pixels (Linux), crossed node borders. Outranks docs.css (loaded after this
+   file); the compact rule below outranks this one. */
+.showcase-frame > .uipack-docs[data-width="wide"] > .uipack-docs__grid {
+  gap: 32px;
+  grid-template-columns: 176px minmax(0, 1fr) 176px;
+}
+.showcase-frame > .uipack-docs[data-width="wide"] > .uipack-docs__grid[data-toc="none"] {
+  grid-template-columns: 176px minmax(0, 1fr);
+}
+@media (max-width: 1279px) {
+  .showcase-frame > .uipack-docs[data-width="wide"] > .uipack-docs__grid {
+    grid-template-columns: 176px minmax(0, 1fr);
+  }
+}
 .showcase-frame .showcase-header {
   margin-bottom: 32px;
 }
