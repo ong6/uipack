@@ -154,6 +154,15 @@
 .uipack-object-frame[data-theme="dark"] {
   color-scheme: dark;
 }
+/* Realistic tennis and server stand before a dark set (a court's windscreen, a rack aisle) in both
+   themes, so their caption and controls take light ink even on a light page. */
+.uipack-object-frame:has(.uipack-object[data-art-direction="realistic"]:is([data-kind="tennis"], [data-kind="server"])) {
+  --object-control-bg: rgb(20 24 28 / 0.55);
+  --object-control-fg: rgb(244 246 248);
+  --object-control-muted: rgb(222 228 234);
+  --object-control-border: rgb(255 255 255 / 0.22);
+  color-scheme: dark;
+}
 .uipack-canvas-content .uipack-object {
   height: 100%;
   min-height: 60vh;
