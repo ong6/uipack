@@ -62,7 +62,8 @@ export default function MarkdownShowcase() {
     return () => {
       live = false;
     };
-  }, [load, page?.demos]);
+    // `page` is the manifest's own entry (a stable object), so this runs once per address.
+  }, [load, page]);
 
   const toc = useMemo(
     () =>

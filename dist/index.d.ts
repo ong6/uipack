@@ -147,6 +147,22 @@ declare function polylineLength(points: Point[]): number;
  * trims meet, the polyline collapses to its midpoint.
  */
 declare function trim(points: Point[], start?: number, end?: number): Point[];
+/**
+ * The figure grid, in viewBox units: the spacing every hand-drawn figure and preset sits on, and
+ * the width below which a figure shows its authored narrow drawing (theme.css). The layout docs
+ * state these through `npm run docs:sync`.
+ */
+declare const FIGURE_GRID: {
+    readonly step: 8;
+    readonly margin: 40;
+    readonly flowGap: 40;
+    readonly minFlowGap: 32;
+    readonly groupGap: 64;
+    readonly groupPadding: 24;
+    readonly nodeHeight: 56;
+    readonly nodeHeightWithSub: 72;
+    readonly narrowBelow: 720;
+};
 /** Snap a value to the 8px grid. */
 declare const grid: (v: number, step?: number) => number;
 
@@ -664,4 +680,4 @@ declare const drillMotion: {
     readonly reduced: 160;
 };
 
-export { Badge, type BadgeProps, type Box, Bus, type BusProps, type BusStub, Chip, type ChipProps, Connector, type ConnectorKind, type ConnectorProps, Cross, type CrossProps, type CurveMeasure, type CurveNote, CurvePlot, type CurvePlotProps, type CurvePoint, DEFAULT_RENDER_WIDTH, DRILL_GROW, Defs, type DefsProps, type DrillAction, DrillFigure, type DrillFigureProps, type DrillFocus, type DrillLevel, type DrillMove, DrillNode, type DrillNodeProps, type DrillPath, type DrillRenderContext, type DrillStaticFigure, type FigureHover, FigureHoverContext, type FigureScale, FigureScaleProvider, FileMark, type Flow, FolderMark, Group, type GroupProps, IconName, Label, type LabelProps, Lane, type LaneProps, LegendItem, type MarkName, Node, type NodeProps, PACKET_POP, PACKET_SINK, Packet, type PacketProps, type Point, Sheet, type SheetProps, type Side, TokenKind, TokenShape, type TreeMarkProps, TreeRail, type TreeRailProps, Wall, type WallProps, Wordmark, anchor, busStub, busStubs, connectorStroke, curveAt, curveSegments, drillAnnouncement, drillBox, drillFocusTarget, drillMotion, drillMove, drillReducer, drillStatic, flowList, fontFloor, grid, hoverAttrs, isPointer, marks, normalizePath as normalizeDrillPath, packetScaleKeys, pathFromPoints, pointAlong, polylineLength, route, trim, useFigureHover, useFontFloor, usePrefersReducedMotion, wallSegments };
+export { Badge, type BadgeProps, type Box, Bus, type BusProps, type BusStub, Chip, type ChipProps, Connector, type ConnectorKind, type ConnectorProps, Cross, type CrossProps, type CurveMeasure, type CurveNote, CurvePlot, type CurvePlotProps, type CurvePoint, DEFAULT_RENDER_WIDTH, DRILL_GROW, Defs, type DefsProps, type DrillAction, DrillFigure, type DrillFigureProps, type DrillFocus, type DrillLevel, type DrillMove, DrillNode, type DrillNodeProps, type DrillPath, type DrillRenderContext, type DrillStaticFigure, FIGURE_GRID, type FigureHover, FigureHoverContext, type FigureScale, FigureScaleProvider, FileMark, type Flow, FolderMark, Group, type GroupProps, IconName, Label, type LabelProps, Lane, type LaneProps, LegendItem, type MarkName, Node, type NodeProps, PACKET_POP, PACKET_SINK, Packet, type PacketProps, type Point, Sheet, type SheetProps, type Side, TokenKind, TokenShape, type TreeMarkProps, TreeRail, type TreeRailProps, Wall, type WallProps, Wordmark, anchor, busStub, busStubs, connectorStroke, curveAt, curveSegments, drillAnnouncement, drillBox, drillFocusTarget, drillMotion, drillMove, drillReducer, drillStatic, flowList, fontFloor, grid, hoverAttrs, isPointer, marks, normalizePath as normalizeDrillPath, packetScaleKeys, pathFromPoints, pointAlong, polylineLength, route, trim, useFigureHover, useFontFloor, usePrefersReducedMotion, wallSegments };

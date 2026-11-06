@@ -7,7 +7,7 @@ export { R as Rect } from './zoom-math-DJBPrdGD.cjs';
 
 /**
  * Slot text budgets: how much text each slot of the shared slide region map holds before it stops
- * reading at a glance (docs/system/writing.md, "Each word has one place to live"; layout.md,
+ * reading at a glance (docs/system/writing/general.md, "Slot budgets"; layout/deck-slide.md,
  * "Regions"). Every archetype fills these slots, so a budget holds in every layout and every style.
  * `lintDeck` reports a slot over budget as `slot-budget`.
  *
