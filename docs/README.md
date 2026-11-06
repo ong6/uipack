@@ -23,3 +23,16 @@ Agent instructions live in [AGENTS.md](../AGENTS.md). Setup and verification liv
 - [Portfolio ideas](portfolio-ideas.md): prioritized places where `uipack/web` pieces would improve junxiong.dev, and what to avoid.
 - [Mechanism style](mechanism.md): `uipack/mechanism`, crafted isometric machines after Anatomy (MIT); the verification gate, its pose API for slides, and how to build a new machine.
 - [Object scenes](objects.md): seven reusable, lazy 3D illustrations and their player.
+
+## Site map
+
+Every page of the docs site, by sidebar group, linked to the file it renders. Generated from
+`playground/docs-manifest.ts` by `npm run docs:sync`; edit the manifest, not this list.
+
+<!-- generated:site-map -->
+- **Start here:** [What UiPack is](README.md), [Install and use](../README.md)
+- **Foundations:** [Overview](system/README.md), [Style roles](system/style.md), [Writing](system/writing.md), [Layout](system/layout.md), [Mix and match](system/README.md), [Recipes](system/layout.md), [Do and don't](system/writing.md)
+- **Components:** [Architecture diagrams](../README.md), [Drill-down figures](drill.md), [Charts](charts.md), [Article parts](article.md), [Deck player: Tech talk](deck.md), [Deck player: Bento](deck.md), [Deck player: Consulting](deck-consulting.md), [Deck storytelling](deck-storytelling.md), [Slide starters](presentations.md), [3D animations](slides.md), [3D object scenes](objects.md), [Mechanism](mechanism.md), [Web UI](web-principles.md), [Docs layout](docs-layout.md)
+- **Styles:** [Styles](system/styles/README.md), [Landing spec](system/styles/landing.md), [Graphical spec](system/styles/graphical.md)
+- **Reference:** [Icons & marks](../README.md), [Contributing](contributing.md), [Component-first](component-first.md), [Design direction](design-direction.md), [Canvas and selection](interaction.md), [Web principles](web-principles.md), [Web discoverability](web-discoverability.md), [Portfolio ideas](portfolio-ideas.md)
+<!-- /generated -->

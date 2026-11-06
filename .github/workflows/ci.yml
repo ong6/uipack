@@ -16,6 +16,8 @@ jobs:
       - run: npm run lint
       - run: npm run format:check
       - run: npm test
+      - name: Docs generated blocks and llms.txt are current (npm run docs:sync)
+        run: npm run docs:sync -- --check
       - run: npm run build
       - name: dist is committed as built
         run: |

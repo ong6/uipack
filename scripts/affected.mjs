@@ -62,7 +62,12 @@ const AREAS = [
   [/^src\/browser\/|^assets\//, ["assets"]],
   [/^src\/drill\//, ["drill", "geometry"]],
   [/^src\/static\//, ["static"]],
-  [/^src\/docs\/|^playground\/Docs/, ["docs"]],
+  [/^src\/docs\/|^playground\/Docs/, ["docs", "foundations", "nav"]],
+  // The docs site: its manifest, the Markdown page, demos, links and generated blocks.
+  [
+    /^playground\/(docs-manifest|docs-links|demos|MarkdownShowcase)|^scripts\/docs-sync|^docs\/(?!system\/)|^README\.md$|^llms\.txt$/,
+    ["foundations", "nav", "page-audit"],
+  ],
   [/^src\/(CanvasView|canvas)/, ["canvas", "canvas-gestures"]],
   // Root parts, theme, presets and the figures page: every figure-level spec.
   [/^src\/[^/]+\.(tsx?|css)$|^src\/presets\/|^playground\/figures\//, FIGURES],
@@ -93,6 +98,10 @@ for (const f of changed) {
 const e2e = [...specs].map((s) => `e2e/${s}.spec.ts`).filter((p) => existsSync(p));
 const sources = changed.filter((f) => /^(src|playground|scripts)\/.*\.(tsx?|mjs)$/.test(f));
 const tests = changed.filter((f) => /^test\/.*\.test\.tsx?$/.test(f) && existsSync(f));
+// A docs file has no import graph: any change to one runs the docs-site checks (manifest, links,
+// generated blocks, llms.txt).
+if (changed.some((f) => /^docs\/.*\.md$|^README\.md$|^llms\.txt$/.test(f)) && !tests.includes("test/docs-manifest.test.tsx"))
+  tests.push("test/docs-manifest.test.tsx");
 
 console.log(`Changed since ${base}: ${changed.length} file(s)`);
 console.log(`Unit: vitest related ${sources.length} source file(s) + ${tests.length} changed test file(s)`);

@@ -1,0 +1,47 @@
+# UiPack
+
+> A design system that draws explanations: diagrams, slides, web pages, motion and 3D, as React and SVG components. Its documentation is the Markdown in this package; the docs site renders the same files.
+
+Read docs/system/README.md first (style, writing and layout as three layers). Agent instructions are in AGENTS.md. Generated from playground/docs-manifest.ts by `npm run docs:sync`; do not edit by hand.
+
+## Start here
+
+- [What UiPack is](docs/README.md): UiPack is a design system that draws explanations: diagrams, slides, web pages, motion and 3D. This is the index of its documentation.
+- [Install and use](README.md): Install the package, draw a first figure, and the entries for charts, articles, 3D, web pages, decks and docs.
+
+## Foundations
+
+- [Overview](docs/system/README.md): The canonical design-system spec: the philosophy, the three independent layers (style, writing, layout) and the contract between them, with what each medium needs.
+- [Style roles](docs/system/style.md): The roles every style fills, the ornament slots it paints, Technical's values in light and dark, and the written specs that fill the same contract.
+- [Writing](docs/system/writing.md): Words are typed data: a claim per unit, a text budget per slot, and one place for each kind of sentence.
+- [Layout](docs/system/layout.md): Regions, archetypes and narrow forms: where each slot sits and in what order it is read.
+
+## Components
+
+- [Drill-down figures](docs/drill.md): A stack of figures where a node zooms open into its own figure: the parts, keyboard, reduced motion and export.
+- [Charts](docs/charts.md): Layered and comparative charts for articles, previewed at a host's real figure width.
+- [Article parts](docs/article.md): Prose-friendly parts for long reads, shown inside a host article's text column.
+- [Deck player: Tech talk](docs/deck.md): The deck player: one transition grammar (advance, morph, zoom), builds, the overview, the speaker and read views, keyboard and touch.
+- [Deck player: Consulting](docs/deck-consulting.md): Dense consulting slides and their charts: tracker, action title, panels, so-what, footnotes, bars, waterfall, stacked bars, lines, KPI tiles, Harvey tables and a 2×2.
+- [Deck storytelling](docs/deck-storytelling.md): Storyline templates, slide roles and the checks lintDeck runs on a deck's argument.
+- [Slide starters](docs/presentations.md): Slide layouts with their speech notes, then a complete five-chapter narrative built from them.
+- [3D animations](docs/slides.md): Live 3D scenes with camera moves, animated flows and presentation controls.
+- [3D object scenes](docs/objects.md): Reusable, lazy 3D illustrations, their art directions and the player that shows them.
+- [Mechanism](docs/mechanism.md): Mechanical drawings that explain how a system moves, one part at a time.
+- [Web UI](docs/web-principles.md): The numbered rules for uipack/web pages in Technical, each with its source, motion and backgrounds included.
+- [Docs layout](docs/docs-layout.md): A three-column product documentation shell with responsive navigation and Markdown prose.
+
+## Styles
+
+- [Styles](docs/system/styles/README.md): Technical, the one implemented style; the illustration looks drawn within it; and the styles written as specs for agents to build.
+- [Landing spec](docs/system/styles/landing.md): A written style spec for product marketing: label stock, one ledger-green accent and editorial serif headlines.
+- [Graphical spec](docs/system/styles/graphical.md): A written style spec for launches and campaigns: a poster in black ink, one signal-orange accent and condensed caps.
+
+## Reference
+
+- [Contributing](docs/contributing.md): Step-by-step recipes, with the exact files to touch, for a new style, page, deck, slide part, chart or figure.
+- [Component-first](docs/component-first.md): Build, register and verify a significant visual in the library before a consumer uses it.
+- [Design direction](docs/design-direction.md): The playground's visual direction, catalog taxonomy, interaction polish and presentation composition.
+- [Canvas and selection](docs/interaction.md): Mobile reading, item selection, expanded inspection and their limits.
+- [Web discoverability](docs/web-discoverability.md): How a uipack/web page gets found and quoted by search and answer engines: the checklist and the builders.
+- [Portfolio ideas](docs/portfolio-ideas.md): Prioritised places where uipack/web pieces would improve junxiong.dev, and what to avoid.
