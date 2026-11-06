@@ -545,7 +545,7 @@ function racket(root: THREE.Object3D) {
     DEPTH = 0.2;
   // Head behind and left of the ball, the throat and handle running away from the lens toward the
   // windscreen, so the racket stays inside the direction's envelope across the frame.
-  const set = group(root, -0.75, 0, -1.55);
+  const set = group(root, -0.36, 0, -1.55);
   set.rotation.y = 1.25;
   const ellipse = (a: number, b: number, reverse = false) =>
     Array.from({ length: 97 }, (_, i) => {
@@ -779,7 +779,9 @@ const models: Record<Kind, Model> = {
       }),
       { dark: { color: 0xa9aaa6 } },
     );
-    const line = mesh(root, new THREE.PlaneGeometry(GROUND_WIDTH, 0.5), paint, 0, 0.002, 0.05);
+    // Stored small and blown up in the shader like the court itself, so it never counts toward bounds.
+    const line = mesh(root, expanded(new THREE.PlaneGeometry(GROUND_WIDTH, 0.5)), paint, 0, 0.002, 0.05);
+    defocus(paint, line);
     line.rotation.x = -Math.PI / 2;
     line.renderOrder = -1;
     line.receiveShadow = true;
@@ -846,7 +848,7 @@ const models: Record<Kind, Model> = {
     const shadow = pool(roller, 0.9, 0.6, 0, 0, 0.7);
     // Bounced at the baseline before a serve: eight bounces a loop, a parabolic arc (|sin|), a
     // squash on contact, the contact shadow tightening and darkening as the ball comes down.
-    const HOP = 0.62;
+    const HOP = 0.56;
     ticks.push((angle) => {
       // Phased so the rest frame catches the ball just off the court.
       const arc = Math.abs(Math.sin(angle * 4 - 0.53));

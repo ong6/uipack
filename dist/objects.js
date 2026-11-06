@@ -48,7 +48,7 @@ function mountObjectScene(canvas, options) {
     onReady(false);
   };
   canvas.addEventListener("webglcontextlost", handleContextLost);
-  Promise.all([import('three'), import('./scenes-OYBUI5LE.js'), import('./look-THOY3OIA.js')]).then(async ([THREE, { createObject, disposeObject }, look]) => {
+  Promise.all([import('three'), import('./scenes-G43M26FI.js'), import('./look-THOY3OIA.js')]).then(async ([THREE, { createObject, disposeObject }, look]) => {
     if (disposed) return;
     materialTextures = look.materialTextures;
     try {
