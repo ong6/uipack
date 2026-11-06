@@ -1,13 +1,17 @@
 // Data-only modules, not the uipack/objects barrel: this file is in the playground's entry chunk.
 import { objectDirections } from "../src/objects/variants";
 import { objectScenes } from "../src/objects/scene-list";
-/** Content type and visual style are independent axes. Register styles here, never fork the shell. */
+/**
+ * Content type and visual style are independent axes. Technical is the one style (pages, documents,
+ * slides, figures); Mechanism and the 3D art directions are illustration looks drawn within it.
+ * Register them here, never fork the shell.
+ */
 export const visualStyles = [
   {
     id: "technical",
     name: "Technical",
     description:
-      "The one implemented web style, a blueprint: precise system diagrams in Prussian-blue ink, one amber mark, square hairlines and a drafting grid on the hero and figures. On the web, a page leads with the product's real output.",
+      "The one implemented style, for pages, documents, slides and figures. A blueprint: precise system diagrams in Prussian-blue ink, one amber mark, square hairlines and a drafting grid on the hero and figures. On the web, a page leads with the product's real output.",
     tokens: "src/styles/technical.css",
     guidance: "docs/system/style.md",
   },
@@ -164,7 +168,6 @@ export const libraryPages = [
     group: "motion",
     label: "Mechanism",
     path: "/mechanism",
-    styleName: "Mechanism",
     intro: "Mechanical drawings that explain how a system moves, one part at a time.",
   },
   {
@@ -238,7 +241,7 @@ export const libraryPages = [
     group: "foundations",
     label: "Styles",
     path: "/styles",
-    intro: "The visual languages in the library, where each one is used, and the styles written as specs for agents to build.",
+    intro: "Technical, the one implemented style; the illustration looks drawn within it; and the styles written as specs for agents to build.",
   },
   {
     id: "assets",
@@ -508,7 +511,7 @@ export const deckEntries: CatalogEntry[] = [
   { id: "deck-read", title: "Read view", type: "deck", styleId: "technical", tags: ["Presentation", "Mobile", "Async"] },
 ];
 
-/** Mechanism-style machines (uipack/mechanism), rendered on /mechanism. */
+/** Mechanism machines (uipack/mechanism, an illustration look within Technical), rendered on /mechanism. */
 export const mechanismEntries: CatalogEntry[] = [
   {
     id: "verification-gate",

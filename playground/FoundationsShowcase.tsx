@@ -322,28 +322,21 @@ function Choice<T extends string>({
 }
 
 /**
- * The style layer, shown beside the live controls: Technical is the one implemented style, so it
- * is a fact, not a choice; the written specs that fill the same contract are a link away.
+ * The style layer, under the live controls: Technical is the one implemented style, so it is a
+ * sentence, not a control; the written specs that fill the same contract are a link away.
  */
 function StyleLayer() {
   return (
-    <div className="fdn-fixed" role="group" aria-labelledby="fdn-style-layer">
-      <p className="fdn-fixed__legend" id="fdn-style-layer">
-        Style
-      </p>
-      <p className="fdn-fixed__value">
-        <span className="fdn-fixed__chip">{uiStyles[0].name}</span>
-        <span className="fdn-fixed__note">
-          Written specs:{" "}
-          {writtenStyleSpecs.map((spec, i) => (
-            <span key={spec.id}>
-              {i > 0 && ", "}
-              <a href={specHref(spec.spec)}>{spec.name}</a>
-            </span>
-          ))}
+    <p className="fdn-fixed">
+      <span className="fdn-fixed__label">Style:</span> <a href="/foundations/style">{uiStyles[0].name}</a> (the one
+      implemented style) · written specs:{" "}
+      {writtenStyleSpecs.map((spec, i) => (
+        <span key={spec.id}>
+          {i > 0 && ", "}
+          <a href={specHref(spec.spec)}>{spec.name}</a>
         </span>
-      </p>
-    </div>
+      ))}
+    </p>
   );
 }
 
@@ -1243,9 +1236,21 @@ function RecipesPage() {
 
 /* ---------------------------------------------------------------- do and don't */
 
-function Pair({ title, dont, doit, why }: { title: string; dont: ReactNode; doit: ReactNode; why: string }) {
+function Pair({
+  title,
+  dont,
+  doit,
+  why,
+  wide,
+}: {
+  title: string;
+  dont: ReactNode;
+  doit: ReactNode;
+  why: string;
+  wide?: boolean;
+}) {
   return (
-    <article className="fdn-pair">
+    <article className={wide ? "fdn-pair fdn-pair--wide" : "fdn-pair"}>
       <h3>{title}</h3>
       <div className="fdn-pair__row">
         <figure data-verdict="dont">
@@ -1488,8 +1493,16 @@ function DontPage() {
         <div className="fdn-pairs">
           <Pair
             title="Labels, not sentences, in the drawing"
-            dont={<NodeSketch label="This service checks that" wrapped="each request is valid" />}
-            doit={<NodeSketch label="Validate" sub="schema · 1 ms" />}
+            dont={
+              <WebSurface theme={theme} className="fdn-mini fdn-mini--node">
+                <NodeSketch label="This service checks that" wrapped="each request is valid" />
+              </WebSurface>
+            }
+            doit={
+              <WebSurface theme={theme} className="fdn-mini fdn-mini--node">
+                <NodeSketch label="Validate" sub="schema · 1 ms" />
+              </WebSurface>
+            }
             why="A label that wraps is doing two jobs. Two or three words in the box; the sentence goes in the caption or the selection note."
           />
           <Pair
@@ -1509,6 +1522,7 @@ function DontPage() {
             why="Two filled buttons compete. The accent marks the one action the page is for."
           />
           <Pair
+            wide
             title="Glow only for selection"
             dont={
               <div className="fdn-glow" data-glow="ambient">

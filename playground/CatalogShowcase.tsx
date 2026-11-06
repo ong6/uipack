@@ -26,6 +26,41 @@ const objectLinks = {
   abstract: { story: "ai", label: "Open the thought lattice" },
 };
 
+type VisualStyle = (typeof visualStyles)[number];
+const technical = visualStyles.find((s) => s.id === "technical")!;
+const mechanism = visualStyles.find((s) => s.id === "mechanism");
+const directions = visualStyles.filter((s) => "variant" in s);
+
+/** One style or look: its preview drawn by the style itself, what it is, and where it is used. */
+function StyleCard({ style, theme, wide }: { style: VisualStyle; theme: "light" | "dark"; wide?: boolean }) {
+  return (
+    <article className={wide ? "style-card style-card--wide" : "style-card"}>
+      <StylePreview id={style.id} theme={theme} />
+      <h3>{style.name}</h3>
+      <p>{style.description}</p>
+      <div>
+        {style.id === "technical" ? (
+          <>
+            <a href={`/?theme=${theme}`}>Diagrams</a>
+            <a href={`/animations?theme=${theme}`}>3D animations</a>
+            <a href={`/presentations?theme=${theme}`}>Presentations</a>
+            <a href={`/web?theme=${theme}`}>Product page</a>
+            <a href={`/deck?theme=${theme}`}>Deck</a>
+          </>
+        ) : style.id === "mechanism" ? (
+          <a href={`/mechanism?theme=${theme}`}>Verification gate machine</a>
+        ) : (
+          <a
+            href={`/animations?story=${objectLinks[style.id as keyof typeof objectLinks].story}&variant=${"variant" in style ? style.variant : 0}&theme=${theme}`}
+          >
+            {objectLinks[style.id as keyof typeof objectLinks].label}
+          </a>
+        )}
+      </div>
+    </article>
+  );
+}
+
 /* A talk given from the slides: short titles, the points the speaker talks from, no eyebrow or lede. */
 const chapters = [
   {
@@ -128,46 +163,29 @@ export default function CatalogShowcase() {
     <>
       {styles ? (
         <section>
-          <h2>Visual styles</h2>
+          <h2>The style: Technical</h2>
           <p className="collection-intro">
-            Choose a visual language first, then explore its diagrams, icons, and animations. Light and dark are themes within a
-            style.
+            Technical is the one implemented style: every page, document, slide and figure in the library is drawn in it. Light
+            and dark are its colour themes, not further styles.
           </p>
           <div className="style-grid">
-            {visualStyles.map((style) => (
-              <article className="style-card" key={style.id}>
-                <StylePreview id={style.id} theme={theme} />
-                <h3>{style.name}</h3>
-                <p>{style.description}</p>
-                <div>
-                  {style.id === "technical" ? (
-                    <>
-                      <a href={`/?theme=${theme}`}>Diagrams</a>
-                      <a href={`/animations?theme=${theme}`}>3D animations</a>
-                      <a href={`/presentations?theme=${theme}`}>Presentations</a>
-                      <a href={`/web?theme=${theme}`}>Product page</a>
-                      <a href={`/deck?theme=${theme}`}>Deck</a>
-                    </>
-                  ) : style.id === "mechanism" ? (
-                    <a href={`/mechanism?theme=${theme}`}>Verification gate machine</a>
-                  ) : (
-                    <a
-                      href={`/animations?story=${objectLinks[style.id as keyof typeof objectLinks].story}&variant=${"variant" in style ? style.variant : 0}&theme=${theme}`}
-                    >
-                      {objectLinks[style.id as keyof typeof objectLinks].label}
-                    </a>
-                  )}
-                </div>
-              </article>
+            <StyleCard style={technical} theme={theme} wide />
+          </div>
+          <h2 className="style-specs__heading">Illustration looks within Technical</h2>
+          <p className="collection-intro">
+            An illustration can take one of these looks. They draw the picture only; the page, the slide and the type around it
+            stay Technical. Mechanism draws isometric machines in Technical&rsquo;s palette; each 3D subject offers two or three
+            of the art directions, each with its own models, materials, perspective and motion.
+          </p>
+          <div className="style-grid">
+            {mechanism && <StyleCard style={mechanism} theme={theme} wide />}
+            {directions.map((style) => (
+              <StyleCard key={style.id} style={style} theme={theme} />
             ))}
           </div>
-          <p className="collection-intro style-grid__note">
-            Technical diagrams and web pages, Mechanism machines, and six object art directions. Each object direction has its own
-            models, materials, perspective and motion.
-          </p>
           <h2 className="style-specs__heading">Written style specs</h2>
           <p className="collection-intro">
-            Technical is the one implemented web style. Landing and Graphical are written specs that fill the same role contract;
+            Technical is the one implemented style. Landing and Graphical are written specs that fill the same role contract;
             an agent builds a new style from a spec by adding one value set in <code>src/styles</code>, registering it in{" "}
             <code>uiStyles</code>, and testing it (<a href={`${REPO}/docs/system/styles/README.md`}>how</a>).
           </p>

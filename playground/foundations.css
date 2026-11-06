@@ -73,12 +73,16 @@
   display: grid;
   grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
   gap: 24px;
-  align-items: start;
 }
 .fdn-unit__deck .uipack-deck {
   --deck-chrome: 220px;
 }
+/* The web card stretches to the slide's height (deck and controls) and centres the section in that
+   frame, so the two renderings of one unit read as a pair of equal frames. */
 .fdn-unit__web {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   border: 1px solid var(--show-rule);
   border-radius: var(--show-radius);
   overflow: hidden;
@@ -288,44 +292,22 @@
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
   gap: 16px;
 }
-/* The style layer beside the live controls: a fact, not a choice (one implemented style). */
-.fdn-fixed__legend {
-  margin: 0 0 4px;
-  color: var(--show-muted);
-  font: var(--show-eyebrow-font);
-  letter-spacing: var(--show-eyebrow-tracking);
-  text-transform: uppercase;
-}
-.fdn-fixed__value {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 4px 12px;
-  min-height: 44px;
-  margin: 0;
-}
+/* The style layer under the live controls: a sentence, not a control (one implemented style), so
+   it carries no chip or border that could read as a one-option switcher. */
 .fdn-fixed {
-  min-width: 0;
-}
-.fdn-fixed__chip {
-  display: inline-flex;
-  align-items: center;
-  min-height: 36px;
-  padding: 0 12px;
-  border: 1px solid var(--show-rule);
-  border-radius: var(--show-control-radius);
-  background: var(--show-surface);
-  color: var(--show-ink);
-  font: var(--show-control-font);
-}
-.fdn-fixed__note {
+  flex: 1 0 100%;
+  margin: 0;
   color: var(--show-muted);
   font-size: 14px;
+  line-height: 1.6;
 }
-.fdn-fixed__note a {
-  display: inline-block;
-  padding: 12px 0;
+.fdn-fixed__label {
+  color: var(--show-ink);
+  font-weight: 600;
+}
+.fdn-fixed a {
   color: var(--show-accent);
+  text-underline-offset: 0.2em;
 }
 /* The written specs: cards without swatches, dashed because nothing implements them yet. */
 .fdn-steps {
@@ -448,6 +430,11 @@
   gap: 12px;
   padding: 20px;
 }
+/* A node shown on a small canvas: the frame fills the shared example height, the node sits centred. */
+.fdn-mini--node {
+  align-content: center;
+  padding: 20px;
+}
 
 /* Writing: the budget checker. */
 .fdn-checker {
@@ -517,6 +504,13 @@
 /* Layout: the archetype deck. */
 .fdn-deck .uipack-deck {
   --deck-chrome: 200px;
+}
+/* On a phone the deck tools sit in two columns; an odd last tool (Full screen) takes the whole
+   row instead of sitting alone in half of it. */
+@media (max-width: 640px) {
+  :is(.fdn-unit__deck, .fdn-deck) .uipack-deck-tools > :last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
 }
 
 /* Recipes. */
@@ -592,6 +586,10 @@
   grid-template-rows: subgrid;
   row-gap: 0;
   align-content: start;
+}
+/* A pair with a wide example (the glow row) takes the whole row rather than leaving an empty cell. */
+.fdn-pairs > .fdn-pair--wide {
+  grid-column: 1 / -1;
 }
 .fdn-pair__row {
   display: grid;
@@ -871,6 +869,9 @@
 .fdn-index a {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
+  /* Rows pack to the top: a stretched card never spreads its title and description apart, so
+     titles and descriptions start on one line across the row. */
+  align-content: start;
   gap: 2px 12px;
   height: 100%;
   box-sizing: border-box;

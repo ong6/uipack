@@ -42,7 +42,7 @@ const drawingContext = () =>
   }) as unknown as CanvasRenderingContext2D;
 describe("authored object animation envelopes", () => {
   it("can select every look a kind offers, and only those, with controlled randomness", () => {
-    expect([0, 0.34, 0.67, 0.99].map((value) => chooseObjectVariant("ai", () => value))).toEqual([5, 2, 3, 3]);
+    expect([0, 0.34, 0.67, 0.99].map((value) => chooseObjectVariant("ai", () => value))).toEqual([2, 5, 3, 3]);
     expect([0, 0.5, 0.99].map((value) => chooseObjectVariant("server", () => value))).toEqual([4, 0, 0]);
     // Another look steps on through the kind's list and wraps.
     expect([0, 1, 2, 3].map((step) => chooseObjectVariant("travel", () => 0.5, step))).toEqual([1, 2, 0, 1]);
@@ -62,7 +62,7 @@ describe("authored object animation envelopes", () => {
     expect(normalizeObjectVariant("contact", 4)).toBe(0);
     // Switching subjects keeps the direction where the next subject has it.
     expect(transferObjectVariant("travel", "trading", 2)).toBe(2);
-    expect(transferObjectVariant("travel", "ai", 0)).toBe(5);
+    expect(transferObjectVariant("travel", "ai", 0)).toBe(2);
     expect(transferObjectVariant("tennis", "contact", 3)).toBe(3);
     expect(transferObjectVariant("trading", "contact", 2)).toBe(0);
     expect(transferObjectVariant("contact", "reading", 3)).toBe(3);
@@ -70,8 +70,8 @@ describe("authored object animation envelopes", () => {
   it("builds a kind's default look for a variant it does not offer", async () => {
     vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue(drawingContext());
     const object = await createObject("ai", objectPalettes.light, 0);
-    expect(object.userData.variant).toBe(5);
-    expect(object.userData.style).toBe("abstract");
+    expect(object.userData.variant).toBe(2);
+    expect(object.userData.style).toBe("kinetic");
     disposeObject(object);
   });
   for (const kind of ["ai", "contact", "tennis", "trading", "server", "travel", "reading"] as ObjectKind[]) {

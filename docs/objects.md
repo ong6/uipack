@@ -54,8 +54,8 @@ it). The first listed is the subject's default.
 
 | Subject | Keeps (variant) | Why |
 | --- | --- | --- |
-| AI | Abstract (5) | A glass prism splitting a beam: "best concept in the set", praised by 6/6. |
-| | Kinetic (2) | The orrery with a chip reads AI as a mechanism: "chip makes AI legible" (5/6). |
+| AI | Kinetic (2) | The orrery with a chip reads AI as a mechanism: "chip makes AI legible" (5/6). The default since 2026-11-06: Abstract's saturated bands were the loudest, most off-palette first frame on the site. |
+| | Abstract (5) | A glass prism splitting a beam: "best concept in the set", praised by 6/6. |
 | | Cartoon (3) | A robot at a desk reads at a glance and suits a friendly AI. Dropped: Studio (the laptop screen is "a stock AI cliché"), Paper ("stock" gear-in-head), Realistic (keyboard layout errors, 6/6). |
 | Tennis | Realistic (4) | A ball on the court line in macro; the felt reads (5/6). |
 | | Cartoon (3) | The clay court with bean players reads well at 1x once strung (4/6). |

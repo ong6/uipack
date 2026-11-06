@@ -10,6 +10,7 @@ import { aiStack, aiStackDiagram } from "../examples/aiStack";
 import { chartEntries, figureEntries } from "./catalog";
 import { figureSections } from "./figures";
 import "../src/charts/charts.css";
+import { useShowcaseTheme } from "./ShowcaseShell";
 
 declare const __UIPACK_ROOT__: string;
 
@@ -132,6 +133,31 @@ function Charts() {
 
 /* One section per pattern, in catalog order: the h2 is the catalog title, the intro says when
    to use it and what it is built from, and figures are numbered in page order. */
+/**
+ * What UiPack is and how to get it, for a first-time visitor: one line, the install command and
+ * where to go next. It sits under the page's h1 in the shell's own type, not as a hero.
+ */
+function Orientation() {
+  const { theme } = useShowcaseTheme();
+  return (
+    <div className="home-about">
+      <p className="home-about__what">
+        <strong>UiPack</strong> is a set of React and SVG parts for diagrams, charts, decks, web pages and 3D animations, drawn
+        in one Technical style, with style, writing and layout as separate layers.
+      </p>
+      <div className="home-about__get">
+        <span className="home-about__install">
+          <span className="home-about__label">Install</span>
+          <code>npm install github:ong6/uipack</code>
+        </span>
+        <a href="https://github.com/ong6/uipack">GitHub</a>
+        <a href={`/foundations?theme=${theme}`}>Foundations › Overview</a>
+        <a href={`/web?theme=${theme}`}>Web UI</a>
+      </div>
+    </div>
+  );
+}
+
 function Diagrams() {
   // /drill is an alias that opens this page at the drill-down section.
   useEffect(() => {
@@ -140,6 +166,7 @@ function Diagrams() {
   let n = 0;
   return (
     <>
+      <Orientation />
       {figureEntries.map((e) => {
         const s = figureSections.find((x) => x.id === e.id)!;
         // The bare figure has no header, so it takes no number.

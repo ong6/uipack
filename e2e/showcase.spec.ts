@@ -42,7 +42,7 @@ test.describe("3D animations library", () => {
     await page.goto("/animations?story=bogus&variant=99");
     const note = page.locator(".showcase-title__note");
     await expect(note).toHaveText(
-      "Story “bogus” not found, showing Agent session. Variant “99” not found, showing Abstract forms.",
+      "Story “bogus” not found, showing Agent session. Variant “99” not found, showing Kinetic sculptures.",
     );
     await expect(page.locator(".uipack-animation-heading h3")).toHaveText("Agent session");
     // Choosing a story rewrites the address, and the note goes.

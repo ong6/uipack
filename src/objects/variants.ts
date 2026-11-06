@@ -33,8 +33,8 @@ export const objectDirections = [
  */
 const lookTable = {
   ai: [
-    [5, "Abstract · Thought lattice"],
     [2, "Kinetic · Neural orrery"],
+    [5, "Abstract · Thought lattice"],
     [3, "Cartoon · Night workshop"],
   ],
   contact: [

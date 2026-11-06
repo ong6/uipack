@@ -27,9 +27,28 @@
   letter-spacing: -0.2px;
   margin: 24px 0 8px;
 }
-/* The note under the grid keeps clear of the last row of cards. */
-.style-grid + .style-grid__note {
-  margin-top: 32px;
+/* A wide card (Technical, Mechanism) takes the whole row: the preview on the left, the words and
+   links on the right, so the six art directions below fill two even rows of three. */
+.style-card--wide {
+  grid-column: 1 / -1;
+}
+@media (min-width: 900px) {
+  .style-card--wide {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: auto auto 1fr;
+    column-gap: 32px;
+  }
+  .style-card--wide > .style-preview {
+    grid-row: 1 / -1;
+    align-self: start;
+  }
+  .style-card--wide h3 {
+    margin-top: 0;
+  }
+  .style-card--wide > :last-child {
+    align-self: end;
+  }
 }
 .style-card p {
   max-width: 60ch;

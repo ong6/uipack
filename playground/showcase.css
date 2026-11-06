@@ -740,3 +740,62 @@ body {
     transition: none;
   }
 }
+
+/* Home: orientation */
+/* What UiPack is and how to get it, under the home page's title: one sentence, the install line
+   and where to go next, in the shell's own type and frame (FiguresShowcase.tsx). */
+.home-about {
+  display: grid;
+  gap: 8px;
+  max-width: 880px;
+  padding: 16px 20px 8px;
+  border: 1px solid var(--show-rule);
+  border-left: 3px solid var(--show-accent);
+  border-radius: var(--show-radius);
+  background: var(--show-surface);
+}
+.home-about__what {
+  margin: 0;
+  max-width: 72ch;
+  color: var(--show-ink);
+  font-size: 15px;
+  line-height: 1.6;
+  text-wrap-style: pretty;
+}
+.home-about__get {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 20px;
+}
+.home-about__install {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  min-height: 44px;
+  margin-right: 4px;
+}
+.home-about__label {
+  color: var(--show-muted);
+  font: var(--show-eyebrow-font);
+  letter-spacing: var(--show-eyebrow-tracking);
+  text-transform: uppercase;
+}
+.home-about__install code {
+  padding: 3px 8px;
+  border: 1px solid var(--show-rule);
+  border-radius: 4px;
+  color: var(--show-ink);
+  font: 500 13px/1.5 var(--show-font-mono);
+  user-select: all;
+  overflow-wrap: anywhere;
+}
+.home-about__get a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--show-accent);
+  font-size: 14px;
+  text-underline-offset: 0.2em;
+}

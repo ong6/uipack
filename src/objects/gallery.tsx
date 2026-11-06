@@ -58,7 +58,7 @@ export function ObjectInspector({
     }))
     .filter((entry): entry is typeof entry & { look: ObjectVariant } => entry.look !== undefined);
   return (
-    <aside className="uipack-object-inspector">
+    <div className="uipack-object-inspector">
       {
         <>
           <h3>Art direction</h3>
@@ -99,7 +99,7 @@ export function ObjectInspector({
           <small>{contact ? "Three original inbox finishes." : "The original looks, kept together in Studio."}</small>
         </label>
       )}
-    </aside>
+    </div>
   );
 }
 export function ObjectGallery({
