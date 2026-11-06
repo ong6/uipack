@@ -116,3 +116,22 @@ test("on a phone, a docs page offers the two views in its menu", async ({ page }
   // The Assets view has no menu button, so its tabs stay in the header.
   await expect(page.locator(".showcase-tabs")).toBeVisible();
 });
+
+test("previews fill in without scrolling, so a card jumped or scrolled past is never left empty", async ({ page }) => {
+  // Idle-time mounting, not the viewport, is what this covers: the page never moves.
+  test.setTimeout(90_000);
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/gallery?theme=light#gallery-icons");
+  await expect(page.locator("[data-gallery-item]").first()).toBeAttached();
+  await expect
+    .poll(
+      () =>
+        page.evaluate(() =>
+          [...document.querySelectorAll<HTMLElement>("[data-gallery-item]")]
+            .filter((card) => !card.querySelector(".gallery-preview")?.children.length)
+            .map((card) => card.dataset.galleryItem),
+        ),
+      { timeout: 60_000, intervals: [500] },
+    )
+    .toEqual([]);
+});
