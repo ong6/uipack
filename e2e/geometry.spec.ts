@@ -7,7 +7,7 @@ import { expect, test, type Page } from "./fixtures";
 
 async function open(page: Page, width: number) {
   await page.setViewportSize({ width, height: 1100 });
-  await page.goto("/");
+  await page.goto("/components/diagrams");
   await page.locator("[data-section] figure.uipack").first().waitFor();
   await page.evaluate(() => document.fonts.ready);
 }

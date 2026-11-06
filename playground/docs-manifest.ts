@@ -6,11 +6,9 @@
  * `llms.txt` and the site map in docs/README.md (`npm run docs:sync`), and the test that fails
  * when a page has no file or a docs file has no page (test/docs-manifest.test.ts).
  *
- * A page with `showcase` still renders that playground module (its Markdown is not written yet);
- * its `file` is the doc it will render, and what "View as Markdown" opens meanwhile. A page
- * without `showcase` renders `file` through DocsMarkdown (MarkdownShowcase.tsx). `demos` are live
- * demos the page embeds (playground/demos.tsx): the file names each one in a fenced block,
- * "```uipack-demo <id>"; `at` places one the file does not name yet, before that heading's id.
+ * Every page renders its `file` through DocsMarkdown (MarkdownShowcase.tsx). The live demos it shows
+ * are named in the file, each in a fenced block ("```uipack-demo <id>", registered in
+ * playground/demos.tsx); `demos` places one the file does not name, before the heading `at`.
  *
  * Data only, no imports: Node scripts and the Vite config read it too.
  */
@@ -25,15 +23,17 @@ export interface DocsPageEntry {
   readonly isDefault?: boolean;
   /** The h1 when `label` names only a sub-view ("Deck player"). */
   readonly title?: string;
-  /** One sentence: what the page is for. The shell's intro on showcase pages; llms.txt's description. */
+  /** One sentence: what the page is for; llms.txt's description. */
   readonly intro: string;
   /** What `file` is for, when `intro` describes the page's demo instead (llms.txt reads this first). */
   readonly summary?: string;
-  /** The repo-relative Markdown file the page renders (or will render, with `showcase`). */
+  /** The repo-relative Markdown file the page renders. */
   readonly file: string;
-  /** The playground module rendered until the page's Markdown is written. */
-  readonly showcase?: string;
+  /** The page this one is a sub-page of: the sidebar lists it indented under that page. */
+  readonly parent?: string;
   readonly demos?: readonly { readonly id: string; readonly at?: string }[];
+  /** The page's demos need the whole content width (a gallery of figures, charts, a 3D scene): no "On this page" column. */
+  readonly fullWidth?: boolean;
   /** The page hosts a complete sample page with its own h1 (the /web sample). */
   readonly hostsPage?: boolean;
   /** The `visualStyles` name the page's content uses; default "Technical". */
@@ -56,10 +56,10 @@ export const docsManifest = [
       {
         id: "start",
         label: "What UiPack is",
-        path: "/start",
+        path: "/",
         file: "docs/README.md",
         intro:
-          "UiPack is a design system that draws explanations: diagrams, slides, web pages, motion and 3D. This is the index of its documentation.",
+          "What UiPack is, who it is for (people and agents), how its layers fit, where to start and how to install it, then every page of the docs.",
       },
       {
         id: "install",
@@ -76,39 +76,104 @@ export const docsManifest = [
     pages: [
       {
         id: "foundations",
-        summary:
-          "The canonical design-system spec: the philosophy, the three independent layers (style, writing, layout) and the contract between them, with what each medium needs.",
         label: "Overview",
         path: "/foundations",
         file: "docs/system/README.md",
-        demos: [{ id: "layer-swap", at: "philosophy" }],
         intro:
-          "UiPack draws explanations: diagrams, slides, web pages, motion and 3D. Start here: style, writing and layout are three separate layers. Swap the writing and the layout live below; the style layer is the role contract Technical fills.",
+          "The core rules: the philosophy, the three independent layers (style, writing, layout), what each owns and where one leaks into another.",
       },
       {
         id: "foundations-style",
         label: "Style contract",
         path: "/foundations/style",
         file: "docs/system/style.md",
-        showcase: "FoundationsShowcase",
-        intro:
-          "The roles every site spec fills and the ornament slots it paints, shown live with this site's values (Technical) in light and dark.",
+        intro: "The roles every site spec fills and the ornament slots it paints, with this site's values (Technical) live.",
       },
       {
         id: "foundations-writing",
         label: "Writing",
         path: "/foundations/writing",
-        file: "docs/system/writing.md",
-        showcase: "FoundationsShowcase",
-        intro: "Words are typed data: a claim per unit, a text budget per slot, and one place for each kind of sentence.",
+        file: "docs/system/writing/README.md",
+        intro: "The writing rules, by kind of text, and every length they state, generated from the code.",
+      },
+      {
+        id: "writing-general",
+        parent: "foundations-writing",
+        label: "General rules",
+        path: "/foundations/writing/general",
+        file: "docs/system/writing/general.md",
+        intro: "The rules every kind of text follows, where each word lives, and every slot's text budget.",
+      },
+      {
+        id: "writing-talks",
+        parent: "foundations-writing",
+        label: "Talks and slides",
+        path: "/foundations/writing/talks",
+        file: "docs/system/writing/talks.md",
+        intro: "How to write a deck you present: titles, points, speaker cues, order and the ask.",
+      },
+      {
+        id: "writing-documents",
+        parent: "foundations-writing",
+        label: "Read-alone documents",
+        path: "/foundations/writing/documents",
+        file: "docs/system/writing/documents.md",
+        intro: "How to write what is read without its author: pre-reads, read-alone decks, documentation, articles.",
+      },
+      {
+        id: "writing-web",
+        parent: "foundations-writing",
+        label: "Web and landing copy",
+        path: "/foundations/writing/web",
+        file: "docs/system/writing/web.md",
+        intro: "How to write a product or launch page: the goal, the hero, section heads, proof and the FAQ.",
+      },
+      {
+        id: "writing-figures",
+        parent: "foundations-writing",
+        label: "Figure labels and captions",
+        path: "/foundations/writing/figures",
+        file: "docs/system/writing/figures.md",
+        intro: "How to write a figure's words: caption, labels, arrows, statistics, motion beats and 3D stops.",
       },
       {
         id: "foundations-layout",
         label: "Layout",
         path: "/foundations/layout",
-        file: "docs/system/layout.md",
-        showcase: "FoundationsShowcase",
-        intro: "Regions, archetypes and narrow forms: where each slot sits and in what order it is read.",
+        file: "docs/system/layout/README.md",
+        intro: "The layout rules every page follows, figures, motion and 3D, and one file per page type.",
+      },
+      {
+        id: "layout-landing",
+        parent: "foundations-layout",
+        label: "Landing",
+        path: "/foundations/layout/landing",
+        file: "docs/system/layout/landing.md",
+        intro: "A landing page's grid, section archetypes, order, and product surfaces at a phone's width.",
+      },
+      {
+        id: "layout-documentation",
+        parent: "foundations-layout",
+        label: "Documentation and article",
+        path: "/foundations/layout/documentation",
+        file: "docs/system/layout/documentation.md",
+        intro: "A reading page's regions, the order inside it, and the parts of a long article's section.",
+      },
+      {
+        id: "layout-deck-slide",
+        parent: "foundations-layout",
+        label: "Deck slide",
+        path: "/foundations/layout/deck-slide",
+        file: "docs/system/layout/deck-slide.md",
+        intro: "A slide's canvas, the regions every archetype shares, the archetypes and the transitions.",
+      },
+      {
+        id: "layout-dashboard",
+        parent: "foundations-layout",
+        label: "Dashboard",
+        path: "/foundations/layout/dashboard",
+        file: "docs/system/layout/dashboard.md",
+        intro: "A screen someone checks: its regions, equal boxes, and the narrow form.",
       },
       {
         id: "spec-settings",
@@ -118,28 +183,52 @@ export const docsManifest = [
         intro: "The boundary between a site spec and the core rules: what a spec chooses, and what holds on every site.",
       },
       {
-        id: "foundations-mix",
-        label: "Mix and match",
-        path: "/foundations/mix",
-        file: "docs/system/README.md",
-        showcase: "FoundationsShowcase",
-        intro: "What each layer owns, and the four places one layer still leaks into another.",
-      },
-      {
-        id: "foundations-recipes",
-        label: "Recipes",
-        path: "/foundations/recipes",
-        file: "docs/system/layout.md",
-        showcase: "FoundationsShowcase",
-        intro: "Five common jobs, each as a style, an archetype sequence and a content template, with the live page.",
-      },
-      {
         id: "foundations-dont",
         label: "Do and don't",
         path: "/foundations/do-and-dont",
-        file: "docs/system/writing.md",
-        showcase: "FoundationsShowcase",
-        intro: "Paired examples of the rules, and the checklist of generic AI-landing tropes to keep out.",
+        file: "docs/system/do-and-dont.md",
+        intro: "Paired examples of the rules, drawn live, and the checklist of generic AI-landing tropes to keep out.",
+      },
+    ],
+  },
+  {
+    id: "recipes",
+    label: "Recipes",
+    pages: [
+      {
+        id: "recipes",
+        label: "Recipes overview",
+        path: "/recipes",
+        file: "docs/recipes/README.md",
+        intro: "One recipe per page type: the section order, the parts to use, and the rules each relies on.",
+      },
+      {
+        id: "recipe-landing",
+        label: "Build a landing page",
+        path: "/recipes/landing",
+        file: "docs/recipes/landing.md",
+        intro: "Build a landing page: the section order the example renders, the parts per section, the steps.",
+      },
+      {
+        id: "recipe-documentation",
+        label: "Build a docs page",
+        path: "/recipes/documentation",
+        file: "docs/recipes/documentation.md",
+        intro: "Build a reading page: the order inside it, the docs and article parts, the steps.",
+      },
+      {
+        id: "recipe-deck-slide",
+        label: "Build a deck",
+        path: "/recipes/deck-slide",
+        file: "docs/recipes/deck-slide.md",
+        intro: "Build a deck: the storylines, the slide roles, the parts and every check lintDeck runs.",
+      },
+      {
+        id: "recipe-dashboard",
+        label: "Build a dashboard",
+        path: "/recipes/dashboard",
+        file: "docs/recipes/dashboard.md",
+        intro: "Build a dashboard: the order, the parts, the steps.",
       },
     ],
   },
@@ -149,12 +238,12 @@ export const docsManifest = [
     pages: [
       {
         id: "figures",
+        fullWidth: true,
         label: "Architecture diagrams",
-        path: "/",
-        file: "README.md",
-        showcase: "FiguresShowcase",
+        path: "/components/diagrams",
+        file: "docs/diagrams.md",
         intro:
-          "The figure design system: each diagram pattern once, from the bare canvas to a figure you drill into, with the parts it is built from.",
+          "The diagram catalogue: each figure pattern once, from the bare canvas to a figure you drill into, with the parts it is built from.",
       },
       {
         id: "drill",
@@ -165,19 +254,26 @@ export const docsManifest = [
       },
       {
         id: "charts",
+        fullWidth: true,
         label: "Charts",
         path: "/charts",
         file: "docs/charts.md",
-        showcase: "FiguresShowcase",
-        intro: "Layered and comparative charts for articles, previewed at a host's real figure width.",
+        intro: "SpanChart and LayerStack: layered and comparative charts for articles, static HTML with no JavaScript.",
       },
       {
         id: "article",
         label: "Article parts",
         path: "/article",
         file: "docs/article.md",
-        showcase: "ArticleShowcase",
-        intro: "Prose-friendly parts for long reads, shown inside a host article's text column.",
+        intro: "The labelled blocks of a long article section, with their HTML and class contract.",
+      },
+      {
+        id: "article-verification",
+        parent: "article",
+        label: "Verification",
+        path: "/components/article/verification",
+        file: "docs/article-verification.md",
+        intro: "How the article parts are tested, the measured section rhythm and screenshots.",
       },
       {
         id: "deck",
@@ -189,9 +285,8 @@ export const docsManifest = [
         query: { deck: "moves" },
         isDefault: true,
         file: "docs/deck.md",
-        showcase: "DeckShowcase",
         intro:
-          "Tech talk deck: a team lead argues that reviews should open with their answer, with evidence, a pilot and a dated ask. Written to present: short titles, the numbers in points, cue notes in the speaker view (S). Every slide advances except one morph (the same number becoming a table row) and one zoom (into the slide the ghost deck flags). Swipe on a touch screen, or click the deck and use the arrow keys.",
+          "The deck player's guide, with the Tech talk example: reviews should open with their answer, every slide advancing except one morph and one zoom.",
       },
       {
         id: "deck-bento",
@@ -200,9 +295,7 @@ export const docsManifest = [
         path: "/deck",
         query: { deck: "bento" },
         file: "docs/deck.md",
-        showcase: "DeckShowcase",
-        intro:
-          "Bento review deck: a quarterly review on one bento slide. Next moves a camera between the containers, and each one shows denser detail when it is in focus.",
+        intro: "The deck player's guide, with the Bento example: a quarterly review on one bento slide the camera tours.",
       },
       {
         id: "deck-consulting",
@@ -213,9 +306,8 @@ export const docsManifest = [
         path: "/deck",
         query: { deck: "consulting" },
         file: "docs/deck-consulting.md",
-        showcase: "DeckShowcase",
         intro:
-          "Consulting deck: a decision request in consulting style, with dense charts, callouts, a so-what panel and sources. Written to be read without the presenter, so every title is a full-sentence conclusion.",
+          "Consulting slides, with the example decision request: dense charts, a so-what panel and sources, written read-alone.",
       },
       {
         id: "deck-storytelling",
@@ -226,18 +318,18 @@ export const docsManifest = [
       },
       {
         id: "presentations",
+        fullWidth: true,
         label: "Slide starters",
         path: "/presentations",
         file: "docs/presentations.md",
-        showcase: "CatalogShowcase",
         intro: "Slide layouts with their speech notes, then a complete five-chapter narrative built from them.",
       },
       {
         id: "animations",
+        fullWidth: true,
         label: "3D animations",
         path: "/animations",
         file: "docs/slides.md",
-        showcase: "SlideShowcase",
         intro: "Live 3D scenes with camera moves, animated flows and presentation controls.",
       },
       {
@@ -249,10 +341,10 @@ export const docsManifest = [
       },
       {
         id: "mechanism",
+        fullWidth: true,
         label: "Mechanism",
         path: "/mechanism",
         file: "docs/mechanism.md",
-        showcase: "MechanismShowcase",
         intro: "Mechanical drawings that explain how a system moves, one part at a time.",
       },
       {
@@ -260,7 +352,6 @@ export const docsManifest = [
         label: "Docs layout",
         path: "/docs",
         file: "docs/docs-layout.md",
-        showcase: "DocsShowcase",
         intro: "A three-column product documentation shell with responsive navigation and Markdown prose.",
       },
     ],
@@ -322,13 +413,18 @@ export const docsManifest = [
     pages: [
       {
         id: "web",
-        summary: "The numbered rules for uipack/web pages in Technical, each with its source, motion and backgrounds included.",
-        label: "Web UI",
+        label: "Example landing page",
         path: "/web",
-        file: "docs/web-principles.md",
-        showcase: "WebShowcase",
+        file: "docs/examples/landing-page.md",
         hostsPage: true,
-        intro: "A product page in Technical, the one implemented style, then every part it is made of.",
+        intro: "A landing page built with uipack/web in Technical, how it is built, and every part it is made of.",
+      },
+      {
+        id: "example-text",
+        label: "Example text page",
+        path: "/examples/text-page",
+        file: "docs/examples/text-page.md",
+        intro: "A documentation page written to the read-alone rules: how to check a deck before you present it.",
       },
     ],
   },
@@ -340,8 +436,7 @@ export const docsManifest = [
         id: "assets",
         label: "Icons & marks",
         path: "/assets",
-        file: "README.md",
-        showcase: "FiguresShowcase",
+        file: "docs/icons-and-marks.md",
         intro: "Searchable icons, marks, canvas backgrounds and motion tokens, each with a preview and a copy button.",
       },
       {
@@ -380,11 +475,43 @@ export const docsManifest = [
         intro: "The numbered rules for uipack/web pages, each with its number and source, motion and backgrounds included.",
       },
       {
+        id: "smooth-scroll",
+        parent: "web-principles",
+        label: "Smooth scrolling",
+        path: "/reference/web-principles/smooth-scroll",
+        file: "docs/web-smooth-scroll.md",
+        intro: "How SmoothScroll eases the wheel on a landing page, what stays native, anchors and its API.",
+      },
+      {
         id: "discoverability",
         label: "Web discoverability",
         path: "/reference/discoverability",
         file: "docs/web-discoverability.md",
-        intro: "How a uipack/web page gets found and quoted by search and answer engines: the checklist and the builders.",
+        intro: "How a uipack/web page gets found and quoted by search and answer engines: the checklist and the crawler stance.",
+      },
+      {
+        id: "discoverability-head",
+        parent: "discoverability",
+        label: "Head and structured data",
+        path: "/reference/discoverability/head",
+        file: "docs/web-discoverability/head-and-structured-data.md",
+        intro: "pageMeta, the head helpers, font preloads, the JSON-LD builders and the FAQ.",
+      },
+      {
+        id: "discoverability-crawl",
+        parent: "discoverability",
+        label: "Crawl files",
+        path: "/reference/discoverability/crawl-files",
+        file: "docs/web-discoverability/crawl-files.md",
+        intro: "buildCrawlFiles for robots.txt, sitemap.xml and llms.txt, rssFeed, and Section lazyRender.",
+      },
+      {
+        id: "discoverability-performance",
+        parent: "discoverability",
+        label: "Performance",
+        path: "/reference/discoverability/performance",
+        file: "docs/web-discoverability/performance.md",
+        intro: "Load and paint numbers measured on the /web demo, the method, and what changed each.",
       },
       {
         id: "portfolio-ideas",
@@ -479,10 +606,9 @@ export const docsPages = docsManifest.flatMap((group) =>
   group.pages.map((page): DocsPageEntry & { group: string } => ({ ...page, group: group.id })),
 );
 
-/** The page that renders `file` as Markdown, else the first that names it: where a link to the file goes. */
+/** The first page that renders `file`: where a link to the file goes. */
 export function pageForFile(file: string) {
-  const pages = docsPages.filter((page) => page.file === file);
-  return pages.find((page) => !page.showcase) ?? pages[0];
+  return docsPages.find((page) => page.file === file);
 }
 
 /** Every Markdown file the site renders or names, once. */

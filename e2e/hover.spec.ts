@@ -3,7 +3,7 @@ import { expect, test } from "./fixtures";
 // Hover highlighting is CSS on data-state; check the computed opacity, not the attribute alone.
 test.describe("hover", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/components/diagrams");
     await page.locator("#e2e-node-alpha").waitFor();
   });
 

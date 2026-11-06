@@ -1,6 +1,6 @@
-import { pageDefs as libraryPages } from "../playground/catalog";
+import { pageDefs } from "../playground/catalog";
 import { tidyFacts } from "../playground/tidyFacts";
-import { wordRules } from "../playground/guideFacts";
+import { WORD_GUIDES } from "../src/deck/budgets";
 import { expect, test, type Page } from "./fixtures";
 
 // The /web sample page and its gallery are example data any area can edit: a styles fix once put
@@ -65,7 +65,7 @@ test.describe("/web sample content", () => {
       .locator(".web-example .uipack-web-section__index")
       .evaluateAll((els) => els.filter((e) => (e as HTMLElement).offsetParent).map((e) => (e as HTMLElement).innerText.trim()));
     indices.forEach((ix, i) => expect(Number(ix.replace(/\D/g, "")), `index ${ix}`).toBe(i + 1));
-    const [min, max] = wordRules.webSectionHead;
+    const [min, max] = WORD_GUIDES.webSectionHead;
     const heads = await page
       .locator(".web-example .uipack-web-section h2")
       .evaluateAll((els) => els.map((e) => (e as HTMLElement).innerText.trim()));
@@ -78,16 +78,15 @@ test.describe("/web sample content", () => {
   });
 });
 
-test("every Foundations guide links to where its full rules live", async ({ page }) => {
+test("every Rules and Recipes page is its Markdown file, with a link to the raw file", async ({ page }) => {
   test.setTimeout(90_000);
-  // A guide still drawn by its showcase module; a Markdown guide (the Overview) is its doc.
-  const guides = libraryPages.filter((p) => p.group === "foundations" && p.path.startsWith("/foundations") && p.showcase);
+  // A guide is its doc, so it can't lose the link to its rules: the page shows the file and opens it raw.
+  const guides = pageDefs.filter((p) => p.group === "foundations" || p.group === "recipes");
   const missing: string[] = [];
   for (const g of guides) {
     await page.goto(`${g.path}?theme=light`);
-    await expect(page.locator("main > section h2").first()).toBeVisible();
-    const links = await page.locator('main a[href*="github.com/ong6/uipack/blob/main/docs/"]').count();
-    if (!links) missing.push(g.path);
+    await expect(page.locator("main .uipack-docs__prose h1").first()).toBeVisible();
+    if (!(await page.locator(`a[href="/${g.file}"]`).count())) missing.push(g.path);
   }
   expect(missing).toEqual([]);
 });

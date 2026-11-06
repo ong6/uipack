@@ -35,6 +35,8 @@ describe("docs manifest", () => {
   it("a link to a file goes to the page that renders it", () => {
     expect(pageForFile("docs/system/README.md")?.id).toBe("foundations");
     expect(pageForFile("docs/system/style.md")?.id).toBe("foundations-style");
+    expect(pageForFile("docs/system/writing/talks.md")?.id).toBe("writing-talks");
+    expect(pageForFile("docs/deck.md")?.id).toBe("deck");
     expect(pageForFile("docs/specs/technical.md")?.id).toBe("spec-technical");
   });
 });
@@ -47,15 +49,22 @@ describe("generated blocks and llms.txt (npm run docs:sync)", () => {
     expect(stale, "run npm run docs:sync").toEqual([]);
   });
 
-  it("the slot budget table in docs/system/writing.md is generated", () => {
-    expect(blockNames(read("docs/system/writing.md"))).toContain("slot-budgets");
+  it("the numbers and sequences the Rules and recipes state are generated", () => {
+    expect(blockNames(read("docs/system/writing/general.md"))).toContain("slot-budgets");
     expect(blockNames(read("docs/README.md"))).toContain("site-map");
+    expect(blockNames(read("docs/recipes/landing.md"))).toContain("web-section-order");
+    expect(blockNames(read("docs/recipes/deck-slide.md"))).toEqual(expect.arrayContaining(["storylines", "lint-rules"]));
+    expect(blockNames(read("docs/system/layout/deck-slide.md"))).toContain("slide-canvas");
+  });
+
+  it("every page renders Markdown: no page is still a playground module", () => {
+    for (const p of docsPages) expect(Object.keys(p), p.id).not.toContain("showcase");
   });
 
   it("a stale block is rewritten and an unknown one fails", () => {
     const stale = "Before\n<!-- generated:slot-budgets -->\n| old |\n<!-- /generated -->\nAfter";
-    const synced = syncSource("docs/system/writing.md", stale);
-    expect(synced).toContain(generators["slot-budgets"]("docs/system/writing.md"));
+    const synced = syncSource("docs/system/writing/general.md", stale);
+    expect(synced).toContain(generators["slot-budgets"]("docs/system/writing/general.md"));
     expect(synced.startsWith("Before\n") && synced.endsWith("\nAfter")).toBe(true);
     expect(() => syncSource("x.md", "<!-- generated:nope -->\n<!-- /generated -->")).toThrow(/no generator "nope"/);
   });

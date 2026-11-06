@@ -10,7 +10,7 @@ test(
   "trackpad pinch zooms around the pointer, clamps, resets, and stays inside the canvas",
   { tag: "@cross-browser" },
   async ({ page }) => {
-    await page.goto("/?theme=light");
+    await page.goto("/components/diagrams?theme=light");
     // The first figure that offers a canvas (the bare figure at the top of the page does not).
     const inline = expandableFigure(page);
     const outsidePrevented = await inline.locator(".uipack__canvas").evaluate((el) => {
@@ -88,7 +88,7 @@ test(
   { tag: "@cross-browser" },
   async ({ page }, testInfo) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto("/?theme=dark");
+    await page.goto("/components/diagrams?theme=dark");
     await expandableFigure(page).getByRole("button", { name: "Open canvas", exact: true }).click();
     const dialog = page.getByRole("dialog");
     const surface = dialog.locator(".uipack__canvas");

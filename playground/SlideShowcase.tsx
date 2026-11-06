@@ -21,7 +21,8 @@ import "../src/canvas.css";
 import "./slides-showcase.css";
 import { keepFocusedInView } from "../src/env";
 
-export default function Slides() {
+/** `animation-library` (docs/slides.md): the scene library, the live preview and its camera stops. */
+export function AnimationLibrary() {
   const params = new URLSearchParams(location.search);
   const surface = params.get("surface") === "page" ? "page" : "styled";
   const defaultStory = location.pathname === "/slides" ? slideStories[0].id : objectScenes[0].id;

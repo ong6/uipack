@@ -21,7 +21,8 @@ function initialPose(): GatePose {
   return POSES.some((pose) => pose.id === value) ? (value as GatePose) : "idle";
 }
 
-export default function MechanismShowcase() {
+/** `mechanism-gate` (docs/mechanism.md): the verification gate driven by a pose, and its still thumbnails. */
+export function MechanismDemo() {
   const { theme } = useShowcaseTheme();
   const [pose, setPose] = useState<GatePose>(initialPose);
   const choose = (next: GatePose) => {
@@ -35,10 +36,6 @@ export default function MechanismShowcase() {
     <>
       <section data-catalog-entry={entry.id} id={entry.id} className="mechanism-page">
         <h2>{entry.title}</h2>
-        <p className="collection-intro">
-          The object is the explanation: an agent proposes, a check stands between proposal and result. Choose a pose the way a
-          slide would; the machine moves there from wherever it is.
-        </p>
         <div className="mechanism-poses" role="group" aria-label="Pose">
           {POSES.map((item) => (
             <button key={item.id} type="button" aria-pressed={item.id === pose} onClick={() => choose(item.id)}>
@@ -53,10 +50,6 @@ export default function MechanismShowcase() {
       </section>
       <section className="mechanism-page" id="thumbnails">
         <h2>Thumbnails</h2>
-        <p className="collection-intro">
-          <code>interactive={"{false}"}</code> and <code>frame={"{false}"}</code>: one still frame per pose, no loops and no card,
-          as a deck renders its slide strip.
-        </p>
         <ul className="mechanism-thumbs">
           {POSES.map((item) => (
             <li key={item.id}>

@@ -2,7 +2,7 @@
 import { WORDS_PER_MINUTE, type SpeechGuide } from "../../speech";
 import type { SlideRole } from "./roles";
 import type { StorylineTemplateId } from "./templates";
-import { TITLE_WORDS, type DeckMode, type SlotName } from "../budgets";
+import { NOTE_CUE_WORDS, PRESENTED_TITLE_AIM, TITLE_WORDS, type DeckMode, type SlotName } from "../budgets";
 
 /**
  * The minimal slide shape the linter reads. A `DeckSlide` already fits; add `role`, and
@@ -92,8 +92,7 @@ export const LINT_RULES: Readonly<Record<LintRule, { severity: LintSeverity; che
   },
   "title-length": {
     severity: "warn",
-    check:
-      "Presented: the title is at most 6 words, a spoken verdict, never a sentence to read out. Read-alone: at most 14 words.",
+    check: `Presented: aim for ${PRESENTED_TITLE_AIM.join("–")} words; the check stops at ${TITLE_WORDS.presented}. A spoken verdict, never a sentence to read out. Read-alone: at most ${TITLE_WORDS["read-alone"]} words.`,
   },
   "title-specific": {
     severity: "warn",
@@ -151,8 +150,7 @@ export const LINT_RULES: Readonly<Record<LintRule, { severity: LintSeverity; che
   },
   "notes-cues": {
     severity: "warn",
-    check:
-      "Presented: each slide's `say` is cues, not a script: at most 60 words (why it matters, the so-what, the trade-off), with the bridge in `next`. A `say` of stage directions only ('Point at the 9', 'Walk the figure') warns; a stage direction beside content is a tip to move it to `delivery`.",
+    check: `Presented: each slide's \`say\` is cues, not a script: at most ${NOTE_CUE_WORDS} words (why it matters, the so-what, the trade-off), with the bridge in \`next\`. A \`say\` of stage directions only ('Point at the 9', 'Walk the figure') warns; a stage direction beside content is a tip to move it to \`delivery\`.`,
   },
   "notes-echo": {
     severity: "warn",

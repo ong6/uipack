@@ -6,22 +6,42 @@ Read docs/system/README.md first (style, writing and layout as three layers). Ag
 
 ## Start here
 
-- [What UiPack is](docs/README.md): UiPack is a design system that draws explanations: diagrams, slides, web pages, motion and 3D. This is the index of its documentation.
+- [What UiPack is](docs/README.md): What UiPack is, who it is for (people and agents), how its layers fit, where to start and how to install it, then every page of the docs.
 - [Install and use](README.md): Install the package, draw a first figure, and the entries for charts, articles, 3D, web pages, decks and docs.
 
 ## Rules
 
-- [Overview](docs/system/README.md): The canonical design-system spec: the philosophy, the three independent layers (style, writing, layout) and the contract between them, with what each medium needs.
-- [Style contract](docs/system/style.md): The roles every site spec fills and the ornament slots it paints, shown live with this site's values (Technical) in light and dark.
-- [Writing](docs/system/writing.md): Words are typed data: a claim per unit, a text budget per slot, and one place for each kind of sentence.
-- [Layout](docs/system/layout.md): Regions, archetypes and narrow forms: where each slot sits and in what order it is read.
+- [Overview](docs/system/README.md): The core rules: the philosophy, the three independent layers (style, writing, layout), what each owns and where one leaks into another.
+- [Style contract](docs/system/style.md): The roles every site spec fills and the ornament slots it paints, with this site's values (Technical) live.
+- [Writing](docs/system/writing/README.md): The writing rules, by kind of text, and every length they state, generated from the code.
+- [Writing: General rules](docs/system/writing/general.md): The rules every kind of text follows, where each word lives, and every slot's text budget.
+- [Writing: Talks and slides](docs/system/writing/talks.md): How to write a deck you present: titles, points, speaker cues, order and the ask.
+- [Writing: Read-alone documents](docs/system/writing/documents.md): How to write what is read without its author: pre-reads, read-alone decks, documentation, articles.
+- [Writing: Web and landing copy](docs/system/writing/web.md): How to write a product or launch page: the goal, the hero, section heads, proof and the FAQ.
+- [Writing: Figure labels and captions](docs/system/writing/figures.md): How to write a figure's words: caption, labels, arrows, statistics, motion beats and 3D stops.
+- [Layout](docs/system/layout/README.md): The layout rules every page follows, figures, motion and 3D, and one file per page type.
+- [Layout: Landing](docs/system/layout/landing.md): A landing page's grid, section archetypes, order, and product surfaces at a phone's width.
+- [Layout: Documentation and article](docs/system/layout/documentation.md): A reading page's regions, the order inside it, and the parts of a long article's section.
+- [Layout: Deck slide](docs/system/layout/deck-slide.md): A slide's canvas, the regions every archetype shares, the archetypes and the transitions.
+- [Layout: Dashboard](docs/system/layout/dashboard.md): A screen someone checks: its regions, equal boxes, and the narrow form.
 - [What a spec may set](docs/system/spec-settings.md): The boundary between a site spec and the core rules: what a spec chooses, and what holds on every site.
+- [Do and don't](docs/system/do-and-dont.md): Paired examples of the rules, drawn live, and the checklist of generic AI-landing tropes to keep out.
+
+## Recipes
+
+- [Recipes overview](docs/recipes/README.md): One recipe per page type: the section order, the parts to use, and the rules each relies on.
+- [Build a landing page](docs/recipes/landing.md): Build a landing page: the section order the example renders, the parts per section, the steps.
+- [Build a docs page](docs/recipes/documentation.md): Build a reading page: the order inside it, the docs and article parts, the steps.
+- [Build a deck](docs/recipes/deck-slide.md): Build a deck: the storylines, the slide roles, the parts and every check lintDeck runs.
+- [Build a dashboard](docs/recipes/dashboard.md): Build a dashboard: the order, the parts, the steps.
 
 ## Components
 
+- [Architecture diagrams](docs/diagrams.md): The diagram catalogue: each figure pattern once, from the bare canvas to a figure you drill into, with the parts it is built from.
 - [Drill-down figures](docs/drill.md): A stack of figures where a node zooms open into its own figure: the parts, keyboard, reduced motion and export.
-- [Charts](docs/charts.md): Layered and comparative charts for articles, previewed at a host's real figure width.
-- [Article parts](docs/article.md): Prose-friendly parts for long reads, shown inside a host article's text column.
+- [Charts](docs/charts.md): SpanChart and LayerStack: layered and comparative charts for articles, static HTML with no JavaScript.
+- [Article parts](docs/article.md): The labelled blocks of a long article section, with their HTML and class contract.
+- [Article parts: Verification](docs/article-verification.md): How the article parts are tested, the measured section rhythm and screenshots.
 - [Deck player: Tech talk](docs/deck.md): The deck player: one transition grammar (advance, morph, zoom), builds, the overview, the speaker and read views, keyboard and touch.
 - [Deck player: Consulting](docs/deck-consulting.md): Dense consulting slides and their charts: tracker, action title, panels, so-what, footnotes, bars, waterfall, stacked bars, lines, KPI tiles, Harvey tables and a 2×2.
 - [Deck storytelling](docs/deck-storytelling.md): Storyline templates, slide roles and the checks lintDeck runs on a deck's argument.
@@ -44,15 +64,22 @@ Read docs/system/README.md first (style, writing and layout as three layers). Ag
 
 ## Examples
 
-- [Web UI](docs/web-principles.md): The numbered rules for uipack/web pages in Technical, each with its source, motion and backgrounds included.
+- [Example landing page](docs/examples/landing-page.md): A landing page built with uipack/web in Technical, how it is built, and every part it is made of.
+- [Example text page](docs/examples/text-page.md): A documentation page written to the read-alone rules: how to check a deck before you present it.
 
 ## Reference
 
+- [Icons & marks](docs/icons-and-marks.md): Searchable icons, marks, canvas backgrounds and motion tokens, each with a preview and a copy button.
 - [Contributing](docs/contributing.md): Step-by-step recipes, with the exact files to touch, for a new style, page, deck, slide part, chart or figure.
 - [Component-first](docs/component-first.md): Build, register and verify a significant visual in the library before a consumer uses it.
 - [Design direction](docs/design-direction.md): The playground's visual direction, catalog taxonomy, interaction polish and presentation composition.
 - [Canvas and selection](docs/interaction.md): Mobile reading, item selection, expanded inspection and their limits.
-- [Web discoverability](docs/web-discoverability.md): How a uipack/web page gets found and quoted by search and answer engines: the checklist and the builders.
+- [Web principles](docs/web-principles.md): The numbered rules for uipack/web pages, each with its number and source, motion and backgrounds included.
+- [Web principles: Smooth scrolling](docs/web-smooth-scroll.md): How SmoothScroll eases the wheel on a landing page, what stays native, anchors and its API.
+- [Web discoverability](docs/web-discoverability.md): How a uipack/web page gets found and quoted by search and answer engines: the checklist and the crawler stance.
+- [Web discoverability: Head and structured data](docs/web-discoverability/head-and-structured-data.md): pageMeta, the head helpers, font preloads, the JSON-LD builders and the FAQ.
+- [Web discoverability: Crawl files](docs/web-discoverability/crawl-files.md): buildCrawlFiles for robots.txt, sitemap.xml and llms.txt, rssFeed, and Section lazyRender.
+- [Web discoverability: Performance](docs/web-discoverability/performance.md): Load and paint numbers measured on the /web demo, the method, and what changed each.
 - [Portfolio ideas](docs/portfolio-ideas.md): Prioritised places where uipack/web pieces would improve junxiong.dev, and what to avoid.
 
 ## Grading

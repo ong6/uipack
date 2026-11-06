@@ -46,6 +46,7 @@ export {
   trim,
   polylineLength,
   grid,
+  FIGURE_GRID,
   type Point,
   type Side,
   type Box,

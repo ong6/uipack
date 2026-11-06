@@ -4,7 +4,7 @@ import { dist, packetCentre, pathPoint } from "./helpers";
 
 test.describe("packet motion", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/components/diagrams");
     await page.locator("#e2e-packet").waitFor();
     // The initial token is static until hydration, and offscreen SVG animation
     // may be throttled by the browser. Measure the visible, animated figure.
@@ -49,7 +49,7 @@ test.describe("themes", () => {
       const errors: string[] = [];
       page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
       page.on("pageerror", (e) => errors.push(e.message));
-      await page.goto(`/?theme=${theme}`);
+      await page.goto(`/components/diagrams?theme=${theme}`);
       await expect(page.locator("figure.uipack")).toHaveCount(20); // one per pattern section, the drill-down included
       await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
       const bg = await page

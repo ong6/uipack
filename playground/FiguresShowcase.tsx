@@ -1,3 +1,5 @@
+// The live demos of the diagram catalogue, the charts and the asset browser, registered in
+// playground/demos.tsx and embedded in docs/diagrams.md, docs/charts.md and docs/icons-and-marks.md.
 // Figure styles and the canvas workspace; the shell's own CSS is in main.tsx.
 import "../src/theme.css";
 import "../src/canvas.css";
@@ -10,7 +12,6 @@ import { aiStack, aiStackDiagram } from "../examples/aiStack";
 import { chartEntries, figureEntries } from "./catalog";
 import { figureSections } from "./figures";
 import "../src/charts/charts.css";
-import { useShowcaseTheme } from "./ShowcaseShell";
 
 declare const __UIPACK_ROOT__: string;
 
@@ -93,72 +94,41 @@ function ChartFrame({ children }: { children: React.ReactNode }) {
   );
 }
 
-function Assets() {
+/** `asset-browser` (docs/icons-and-marks.md): search, preview and copy every icon, mark, background and token. */
+export function AssetsDemo() {
   return (
     <section data-route="assets">
-      <h2>Browse and copy</h2>
-      <p className="showcase-section-intro">
-        Filter by category, search by name or tag, then copy the import line or the SVG. Diagrams are coded figures, so they live
-        on the Architecture diagrams page instead.
-      </p>
       <AssetBrowser manifest={manifest as never} base={`/@fs${__UIPACK_ROOT__}/`} />
     </section>
   );
 }
 
-function Charts() {
+/** `layer-stack-chart` (docs/charts.md): the layer stack at a host's figure width. */
+export function LayerStackFramed() {
   return (
-    <>
-      <section data-catalog-entry="layer-stack" id="layer-stack">
-        <h2>{entry("layer-stack").title}</h2>
-        <p className="showcase-section-intro">
-          A stack of layers that opens band by band, for explaining how a system is built up.
-        </p>
-        <ChartFrame>
-          <LayerStackDemo />
-        </ChartFrame>
-      </section>
-      <section data-catalog-entry="span-chart" id="span-chart">
-        <h2>{entry("span-chart").title}</h2>
-        <p className="showcase-section-intro">
-          A comparison across the same layers, with filters that keep one selection at a time.
-        </p>
-        <ChartFrame>
-          <SpanChartDemo />
-        </ChartFrame>
-      </section>
-    </>
+    <section data-catalog-entry="layer-stack" id="layer-stack" aria-label={entry("layer-stack").title}>
+      <ChartFrame>
+        <LayerStackDemo />
+      </ChartFrame>
+    </section>
+  );
+}
+
+/** `span-chart` (docs/charts.md): the span chart at a host's figure width, with its filters. */
+export function SpanChartFramed() {
+  return (
+    <section data-catalog-entry="span-chart" id="span-chart" aria-label={entry("span-chart").title}>
+      <ChartFrame>
+        <SpanChartDemo />
+      </ChartFrame>
+    </section>
   );
 }
 
 /* One section per pattern, in catalog order: the h2 is the catalog title, the intro says when
    to use it and what it is built from, and figures are numbered in page order. */
-/**
- * What UiPack is and how to get it, for a first-time visitor: one line, the install command and
- * where to go next. It sits under the page's h1 in the shell's own type, not as a hero.
- */
-function Orientation() {
-  const { theme } = useShowcaseTheme();
-  return (
-    <div className="home-about">
-      <p className="home-about__what">
-        <strong>UiPack</strong> is a set of React and SVG parts for diagrams, charts, decks, web pages and 3D animations, drawn in
-        one Technical style, with style, writing and layout as separate layers.
-      </p>
-      <div className="home-about__get">
-        <span className="home-about__install">
-          <span className="home-about__label">Install</span>
-          <code>npm install github:ong6/uipack</code>
-        </span>
-        <a href="https://github.com/ong6/uipack">GitHub</a>
-        <a href={`/foundations?theme=${theme}`}>Foundations › Overview</a>
-        <a href={`/web?theme=${theme}`}>Web UI</a>
-      </div>
-    </div>
-  );
-}
-
-function Diagrams() {
+/** `diagram-catalogue` (docs/diagrams.md): one section per pattern, in catalog order, figures numbered in page order. */
+export function DiagramCatalogue() {
   // /drill is an alias that opens this page at the drill-down section.
   useEffect(() => {
     if (location.pathname.replace(/\/$/, "") === "/drill") document.getElementById("drill-figure")?.scrollIntoView();
@@ -166,7 +136,6 @@ function Diagrams() {
   let n = 0;
   return (
     <>
-      <Orientation />
       {figureEntries.map((e) => {
         const s = figureSections.find((x) => x.id === e.id)!;
         // The bare figure has no header, so it takes no number.
@@ -181,10 +150,4 @@ function Diagrams() {
       })}
     </>
   );
-}
-
-/** Serves "/", "/charts" and "/assets"; the shell around it comes from main.tsx. */
-export default function FiguresShowcase() {
-  const path = location.pathname.replace(/\/$/, "");
-  return path === "/assets" ? <Assets /> : path === "/charts" ? <Charts /> : <Diagrams />;
 }

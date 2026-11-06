@@ -1,16 +1,17 @@
 # The UI Pack design system
 
-This is the canonical spec for anything UI Pack draws: diagrams, slides, web pages, motion and 3D.
-Read this page first. The three layer guides hold the detail:
+The core rules for anything UI Pack draws (diagrams, slides, web pages, motion and 3D): the
+philosophy, the three independent layers and the contract between them. Read this page first; the
+layer guides hold the detail:
 
 | Layer | Answers | Guide |
 | --- | --- | --- |
 | **Style** | How does it look? Colour, type, line, radius, texture, motion feel, 3D material. | [Style roles](style.md) |
-| **Writing** | What does it say? Claims, titles, labels, captions, narration, numbers and sources. | [Writing](writing.md) |
-| **Layout** | Where does each thing sit, and in what order does it appear? Canvases, grids, regions, archetypes, beats, camera stops. | [Layout](layout.md) |
+| **Writing** | What does it say? Claims, titles, labels, captions, narration, numbers and sources. | [Writing](writing/README.md), one file per kind of text |
+| **Layout** | Where does each thing sit, and in what order does it appear? Canvases, grids, regions, archetypes, beats, camera stops. | [Layout](layout/README.md), one file per page type |
 
-Each guide has one section per medium (Diagrams, Slides, Web, Motion, 3D), so "the slide rules"
-are three short sections: slide style, slide writing and slide layout.
+To build a page, start from its [recipe](../recipes/README.md): it names the writing and layout
+files that page relies on.
 
 ## Philosophy
 
@@ -66,14 +67,18 @@ Four more rules keep the split honest where it would otherwise leak:
 - **A style may own scalars and ornaments, never positions or words.** Density, type ratio,
   line length and display scale are style roles. Shapes a style adds (Technical's drafting grid,
   for example) go in named ornament slots that never take space, so every region stays put.
-- **Every slot has a text budget.** A presented slide's headline is 2–5 words (at most 14 when the
-  deck is read without its speaker), a body point a fragment of at most 8 words, an optional
-  eyebrow 1–4 words, a label 2–3. The linter flags any slot over budget
-  ([Writing, slot budgets](writing.md#slot-budgets)).
+- **Every slot has a text budget.** The linter flags any slot over budget
+  ([Writing, slot budgets](writing/general.md#slot-budgets)). The headline rule:
+
+  <!-- generated:headline-rule -->
+- **Presented** (a speaker in the room): aim for 2–5 words; the check stops at 6 (`title-length`). A verdict you would say aloud.
+- **Read alone** (a pre-read, a forwarded deck, a figure): the claim as one sentence of 3–14 words.
+- **Web section head:** 2–5 plain words naming what the reader gets.
+<!-- /generated -->
 - **A style never moves a section.** A web page keeps its author's section order and layout in
   every style; a style changes colours, type and ornaments only, never the writing, the order or
   what sits in the hero. A style's own recommended order is an explicit opt-in
-  ([Layout, web](layout.md#web)).
+  ([Layout, landing](layout/landing.md#order)).
 - **The web loads one style.** The library's CSS sits in cascade layers, so a page's own rules win
   without `!important`. A small script in the page head sets the style and theme before the first
   paint, and the style fetches only its own fonts, preloads only its display face and swaps it in
@@ -81,8 +86,39 @@ Four more rules keep the split honest where it would otherwise leak:
 
 This folder ships in the npm package: a consumer reads it at `node_modules/uipack/docs/system/`.
 What exists in code and what is still missing is in
-[Style roles, "Where the code stands"](style.md#where-the-code-stands). The Foundations pages show
-each layer in Technical.
+[Style roles, "Where the code stands"](style.md#where-the-code-stands).
+
+## What each layer owns, and where it leaks
+
+Changing one layer leaves the other two where they were. Swap the writing and the layout here; the
+style layer is the role contract, which each site's spec fills (Technical on this site).
+
+```uipack-demo layer-swap wide
+One unit drawn as a slide and as a web section: swap the writing or the layout, and the other layers hold still.
+```
+
+Both frames take a `uiStyle` prop; omitted, they paint in Technical. The number's colour differs
+on purpose: a slide spends its one accent on the fact it states, while Technical draws web stats in
+ink and keeps its accent for its marks.
+
+| Layer | Changes | Stays put |
+| --- | --- | --- |
+| Style | Colours, faces, radii, motion feel, ornaments | Words, regions, reading order, slide order |
+| Writing | The words in each slot | Style, regions, order |
+| Layout | Where slots sit, the archetype, section order | Words, style |
+
+Four places one layer still reaches into another, and what holds each:
+
+| Leak | What happens | What holds it |
+| --- | --- | --- |
+| Text length | A long headline wraps to three lines in any style and pushes the body down | Slot budgets, linted |
+| Faces | A spec's display face sets a heading's height: condensed caps run narrower and taller | Region order and columns stay fixed; heights may move |
+| Density | A spec with a larger density gets a page that grows vertically | Density scales vertical section padding only; columns keep their widths |
+| Ornaments | A disc behind the copy would hide words | Ornament slots never take space and sit behind or beside text |
+
+To check a draft: swap the writing and the layout once each and compare (only that layer
+changed); headings may change height between widths or faces, regions and their order must not;
+long text is fixed in the words, never by shrinking the type.
 
 **For implementers.** Roles are CSS custom properties (`--ui-paper`, `--ui-ink`, `--ui-accent`,
 `--ui-flow-request`, `--ui-font-display`, `--ui-radius`, `--ui-ease-settle`…), so a layout writes
@@ -101,13 +137,15 @@ fallback; a stored style only with `persist: true`) and, only when `?theme=` or 
 
 ## Media at a glance
 
+Where each medium's rules live: its entry in the package, then the writing and layout files.
+
 | Medium | Entry | Default style | Writing core | Layout core |
 | --- | --- | --- | --- | --- |
-| Diagrams | `uipack` (`Figure`), `uipack/presets`, `uipack/drill`, `uipack/charts`, `uipack/article` | Technical | Claim sentence, 2–3 word labels, labelled arrows, one-line caption | 8px grid, lanes, groups, authored narrow drawing |
-| Slides | `uipack/deck` (new work), `uipack/presentations` (three starters) | Technical (deck tokens) | Short titles and fragment points with cue notes (presented) or full-sentence titles (read-alone), ghost deck, slide roles, storylines, a concrete ask | 1920×1080 canvas, headline/body/footer regions, slide archetypes |
-| Web | `uipack/web`, `uipack/docs` | Technical | One goal per page, outcome headline, one CTA in three places | 12/8/4 grid, 8pt spacing, section archetypes, the author's section order |
-| Motion | Packets, entrance, deck transitions, `uipack/web` motion | Inherits the host style's motion tokens | One sentence per beat | Beats, the timing scale, transition grammar |
-| 3D | `uipack/slides` (camera stories), `uipack/objects`, `uipack/mechanism` | Studio / Mechanism | A label set and one line of narration per stop | Camera stops, framing, the 2D fallback |
+| Diagrams | `uipack` (`Figure`), `uipack/presets`, `uipack/drill`, `uipack/charts`, `uipack/article` | Technical | [Figure labels and captions](writing/figures.md) | [Figures](layout/README.md#figures) |
+| Slides | `uipack/deck` (new work), `uipack/presentations` (three starters) | Technical (deck tokens) | [Talks and slides](writing/talks.md), [read-alone decks](writing/documents.md#read-alone-decks) | [Deck slide](layout/deck-slide.md) |
+| Web | `uipack/web`, `uipack/docs` | Technical | [Web and landing copy](writing/web.md), [documents](writing/documents.md) | [Landing](layout/landing.md), [documentation](layout/documentation.md), [dashboard](layout/dashboard.md) |
+| Motion | Packets, entrance, deck transitions, `uipack/web` motion | Inherits the host style's motion tokens | [Motion beats](writing/figures.md#motion-beats) | [Motion](layout/README.md#motion) |
+| 3D | `uipack/slides` (camera stories), `uipack/objects`, `uipack/mechanism` | Studio / Mechanism | [3D stops](writing/figures.md#3d-stops) | [3D](layout/README.md#3d) |
 
 ## Skills that use this spec
 
@@ -117,7 +155,7 @@ values:
 | Skill | Role | Reads |
 | --- | --- | --- |
 | `uipack-design` | The entry point for any UI Pack visual: pick the medium, write the content, choose the layout, apply a style, review against the three layers. Routes execution to the skills below. | This folder |
-| `system-diagram` (existing) | Executes diagrams. Its taste table defers to [Style roles, diagrams](style.md#diagrams) and [Layout, diagrams](layout.md#diagrams). | Diagram sections |
+| `system-diagram` (existing) | Executes diagrams. Its taste table defers to [Style roles, diagrams](style.md#diagrams) and [Layout, figures](layout/README.md#figures). | Diagram sections |
 | `3d-design`, `blender-authoring` (existing) | Execute 3D. Art direction comes from [Style roles, 3D](style.md#3d). | 3D sections |
 | `frontend-design`, `ux-design` | Execute web pages in Technical. Another site's look comes from its [spec](../specs/README.md). | Web sections, [Web principles](../web-principles.md) |
 | `create-fde-deck` (existing) | Customer field-engineering decks; its evidence ledger is a writing layer of its own and renders through `uipack/deck` layouts. | Slide sections |

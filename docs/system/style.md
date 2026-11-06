@@ -24,6 +24,12 @@ halves of one value set, resolved from the element's `color-scheme`. `test/style
 fails if a style leaves a core role out, and `scripts/check-spec.ts` fails a spec that gives one
 neither a value nor a `TODO:`.
 
+Every colour role below, live from this site's value set (Technical) in its light and dark halves:
+
+```uipack-demo role-swatches wide
+The colour roles as swatches, light and dark side by side, each named by its custom property, with the fonts the style loads.
+```
+
 **Colour**
 
 | Role | Means | Entry names that read it |
@@ -64,6 +70,10 @@ neither a value nor a `TODO:`.
 move a box, so a style changes how a page looks and never where anything sits
 (`src/web/web-styles.css`). Each spec gives a value for every slot; Technical's are in
 [its spec](../specs/technical.md#ornaments).
+
+```uipack-demo ornament-slots wide
+The same markup with its ornament slots painted by Technical: the hero backdrop, the eyebrow marker, the card frame and the primary button.
+```
 
 | Slot role | Painted where |
 | --- | --- |

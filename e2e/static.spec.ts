@@ -7,7 +7,7 @@ import { expect, test } from "./fixtures";
 // SMIL runs inside the image. That the file carries no CSS variables and keeps SMIL is a unit test
 // on renderStatic (test/static.test.tsx).
 async function mount(page: import("@playwright/test").Page, src: string) {
-  await page.goto("/");
+  await page.goto("/components/diagrams");
   await page.evaluate((src) => {
     document.body.innerHTML = `<img id="static-img" src="${src}" style="width:900px;display:block">`;
   }, src);

@@ -38,9 +38,12 @@ test("previous and next follow the sidebar's order", async ({ page }) => {
     "href",
     "/foundations/style?theme=light",
   );
-  await expect(pager.getByRole("link", { name: /Next.*Layout/ })).toHaveAttribute("href", "/foundations/layout?theme=light");
+  await expect(pager.getByRole("link", { name: /Next.*General rules/ })).toHaveAttribute(
+    "href",
+    "/foundations/writing/general?theme=light",
+  );
   // The first page has no previous link.
-  await page.goto("/start");
+  await page.goto("/");
   await expect(
     page.getByRole("navigation", { name: "Previous and next documentation pages" }).locator('[rel="prev"]'),
   ).toHaveCount(0);
@@ -68,30 +71,39 @@ test("the theme toggle updates the sidebar links and keeps the page", async ({ p
   await page.getByRole("button", { name: "dark mode", exact: true }).click();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
   await expect(sidebar(page).getByRole("link", { name: "Article parts" })).toHaveAttribute("href", "/article?theme=dark");
-  await expect(sidebar(page).getByRole("link", { name: "Overview" })).toHaveAttribute("href", "/foundations?theme=dark");
+  await expect(sidebar(page).getByRole("link", { name: "Overview", exact: true })).toHaveAttribute(
+    "href",
+    "/foundations?theme=dark",
+  );
   await expect(currentLink(page)).toHaveText("Charts");
 });
 
 test("aliases /diagrams, /drill and /slides open their pages", async ({ page }) => {
   await page.goto("/diagrams?theme=dark");
-  await expect(title(page)).toHaveText("Architecture diagrams");
+  await expectPageTitle(page, "Architecture diagrams", "/components/diagrams");
   await expect(currentLink(page)).toHaveText("Architecture diagrams");
   await expect(page.locator('section[data-section="pipeline"]')).toBeVisible();
   // /drill is the diagrams page opened at its drill-down section.
   await page.goto("/drill?theme=dark");
-  await expect(title(page)).toHaveText("Architecture diagrams");
+  await expectPageTitle(page, "Architecture diagrams", "/components/diagrams");
   await expect(currentLink(page)).toHaveText("Architecture diagrams");
   await expect(page.locator('section[data-section="drill-figure"]')).toBeInViewport();
   await page.goto("/slides");
-  await expect(title(page)).toHaveText("3D animations");
+  await expectPageTitle(page, "3D animations", "/animations");
   await expect(currentLink(page)).toHaveText("3D animations");
+  // "/" is the home page now; an old link into the catalogue's sections moves to its page.
+  await page.goto("/#pipeline");
+  await expect(page).toHaveURL(/\/components\/diagrams#pipeline$/);
+  await expect(page.locator('section[data-section="pipeline"]')).toBeVisible();
+  await page.goto("/start");
+  await expectPageTitle(page, "What UiPack is", "/");
 });
 
 test("diagrams page has its named sections and charts moved out", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/components/diagrams");
   // The page's sections load after the shell (a lazy chunk).
   await page.locator("[data-section]").first().waitFor();
-  const headings = (await outline(page)).filter((h) => h.level === 2).map((h) => h.text);
+  const headings = await page.locator("[data-section] > h2").allTextContents();
   // One section per pattern, simplest first, titled from figureEntries in catalog.ts.
   expect(headings).toEqual(figureEntries.map((e) => e.title));
   // Every section but the bare figure holds one numbered figure, numbered in page order.
@@ -105,7 +117,9 @@ test("diagrams page has its named sections and charts moved out", async ({ page 
   await expect(page.locator("#layer-stack, #span-chart")).toHaveCount(0);
   await page.goto("/charts");
   await page.locator("#span-chart").waitFor();
-  expect((await outline(page)).filter((h) => h.level === 2).map((h) => h.text)).toEqual(["Layer stack", "Span chart"]);
+  await expect(page.locator("#layer-stack")).toHaveCount(1);
+  const heads = (await outline(page)).filter((h) => h.level === 2).map((h) => h.text);
+  expect(heads.map((h) => h.replace(/\s*#$/, ""))).toEqual(expect.arrayContaining(["SpanChart", "LayerStack"]));
 });
 
 test("assets page lists no diagrams", async ({ page }) => {
@@ -145,13 +159,13 @@ test.describe("390px header and menu", () => {
     expect(hrefs.every((h) => h!.endsWith("theme=dark"))).toBe(true);
     await sheet.getByRole("link", { name: "Icons & marks" }).click();
     await expect(page).toHaveURL(/\/assets\?theme=dark$/);
-    await expect(title(page)).toHaveText("Icons & marks");
+    await expectPageTitle(page, "Icons & marks", "/assets");
     await expect(page.locator(".showcase-menu-button")).toHaveAccessibleName("Reference: Icons & marks");
     await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
   });
 
   test("Escape and Close both close the menu and return focus to the button", { tag: "@cross-browser" }, async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/components/diagrams");
     const button = page.locator(".showcase-menu-button");
     const sheet = page.getByRole("dialog", { name: "Library menu" });
     await button.click();
@@ -299,15 +313,14 @@ test.describe("desktop sidebar groups", () => {
     const foundations = sidebar(page).locator(".uipack-docs__nav-section", {
       has: page.getByRole("heading", { name: "Rules" }),
     });
-    await expect(foundations.getByRole("link")).toHaveText([
-      "Overview",
-      "Style contract",
-      "Writing",
-      "Layout",
-      "What a spec may set",
-      "Mix and match",
-      "Recipes",
-      "Do and don't",
+    // The manifest's Rules group, sub-pages indented under Writing and Layout.
+    await expect(foundations.getByRole("link")).toHaveText(ALL.filter((p) => p.group === "Rules").map((p) => p.label));
+    await expect(sidebar(page).getByRole("list", { name: "Writing" }).getByRole("link")).toHaveText([
+      "General rules",
+      "Talks and slides",
+      "Read-alone documents",
+      "Web and landing copy",
+      "Figure labels and captions",
     ]);
   });
 
@@ -325,7 +338,7 @@ test.describe("desktop sidebar groups", () => {
       a.getBoundingClientRect().left + parseFloat(getComputedStyle(a).paddingLeft);
     const parent = await sidebar(page).getByRole("link", { name: "Deck player", exact: true }).evaluate(textLeft);
     expect(await run.getByRole("link").first().evaluate(textLeft)).toBeGreaterThan(parent);
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Deck player · Bento");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveAccessibleName("Deck player · Bento");
   });
 });
 
@@ -343,7 +356,7 @@ test.describe("landmarks and skip link", () => {
         await expect(page.getByRole("banner")).toHaveCount(1);
         await expect(page.getByRole("main")).toHaveCount(1);
         await expect(page.locator("main header, main nav.uipack-docs__navigation")).toHaveCount(0);
-        await expect(page.locator("main h1")).toHaveText("Charts");
+        await expectPageTitle(page, "Charts", "/charts");
         // The skip link is hidden (a clipped 1px box) until it takes focus, as the first Tab stop.
         const skip = page.getByRole("link", { name: "Skip to documentation content" });
         expect((await skip.boundingBox())!.width).toBeLessThanOrEqual(1);
@@ -385,7 +398,7 @@ test("an unknown address says so and links to every page", async ({ page }) => {
   expect(hrefs.every((h) => h!.endsWith("theme=dark"))).toBe(true);
   await page.getByRole("main").getByRole("link", { name: "Charts" }).click();
   await expect(page).toHaveURL(/\/charts\?theme=dark$/);
-  await expect(title(page)).toHaveText("Charts");
+  await expectPageTitle(page, "Charts", "/charts");
 });
 
 test("an unknown deck shows a visible note and the default deck", async ({ page }) => {
@@ -393,7 +406,7 @@ test("an unknown deck shows a visible note and the default deck", async ({ page 
   await expect(page.getByRole("status").filter({ hasText: "not found" })).toHaveText(
     "Deck “bogus” not found, showing Tech talk.",
   );
-  await expect(title(page)).toHaveText("Deck player · Tech talk");
+  await expect(title(page)).toHaveAccessibleName("Deck player · Tech talk");
   await page.goto("/deck?deck=bento");
   await expect(page.locator(".showcase-title__note")).toHaveCount(0);
   await page.goto("/deck");
@@ -422,9 +435,9 @@ test.describe("a #fragment link opens its target once the lazy page has rendered
     });
   }
 
-  test("every page benefits: /#decision-tree and /article#callout", async ({ page }) => {
+  test("every page benefits: /components/diagrams#decision-tree and /article#callout", async ({ page }) => {
     for (const [path, id] of [
-      ["/#decision-tree", "decision-tree"],
+      ["/components/diagrams#decision-tree", "decision-tree"],
       ["/article#callout", "callout"],
     ]) {
       await page.goto(path);
@@ -469,24 +482,24 @@ test("the deck's print page and speaker window name themselves: tab title and on
 });
 
 test("while a page's chunk loads, the shell stays and a status line says what is loading", async ({ page }) => {
-  // Hold the page module until the shell has been checked. Dev serves it as /DocsShowcase.tsx; a build as a hashed chunk.
+  // Hold the page module until the shell has been checked. Dev serves it as /MarkdownShowcase.tsx; a build as a hashed chunk.
   let release!: () => void;
   const held = new Promise<void>((resolve) => (release = resolve));
-  await page.route(/\/(assets\/)?DocsShowcase[-.][^/]*$/, async (route) => {
+  await page.route(/\/(assets\/)?MarkdownShowcase[-.][^/]*$/, async (route) => {
     await held;
     await route.continue();
   });
   await page.goto("/docs?theme=dark");
   await expect(page.getByRole("banner")).toBeVisible();
   await expect(currentLink(page)).toHaveText("Docs layout");
-  await expect(title(page)).toHaveText("Docs layout");
   const status = page.getByRole("main").getByRole("status");
   await expect(status).toHaveText("Loading Docs layout…");
-  const titleBox = await title(page).boundingBox();
+  const context = await page.locator(".showcase-context").boundingBox();
   release();
   await expect(status).toHaveCount(0);
+  await expectPageTitle(page, "Docs layout", "/docs");
   await expect(page.locator('section[data-route="docs"]')).toBeVisible();
   await expect(page.getByRole("banner")).toBeVisible();
-  // The page fills in below the intro; nothing above it moves.
-  expect(await title(page).boundingBox()).toEqual(titleBox);
+  // The page fills in below the context row; nothing above it moves.
+  expect(await page.locator(".showcase-context").boundingBox()).toEqual(context);
 });

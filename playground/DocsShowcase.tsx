@@ -89,7 +89,8 @@ const sections: DocsSection[] = [
   },
 ];
 
-export default function DocsShowcase() {
+/** `docs-layout` (docs/docs-layout.md): the docs shell with real navigation and Markdown, inside a frame. */
+export function DocsLayoutDemo() {
   const { theme } = useShowcaseTheme();
   const onThisPage = extractDocsHeadings(source)
     .filter((heading) => heading.level === 2 || heading.level === 3)

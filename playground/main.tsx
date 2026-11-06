@@ -10,6 +10,7 @@ import "../src/web/fonts.css";
 import "./showcase.css";
 import { libraryGroups, pageDefs, pageHeading, pageHref, resolvePage } from "./catalog";
 import { pageModules, routePath, routes } from "./routes";
+import { figureRows } from "./figure-rows";
 import { ShowcaseShell, ShowcaseThemeProvider, useShowcaseTheme } from "./ShowcaseShell";
 
 // Every page module is its own chunk, with its own CSS. The shell (header, h1, intro) is in this
@@ -104,13 +105,19 @@ function OpenHashTarget() {
   return null;
 }
 
+// The diagram catalogue used to be "/": an old link to one of its sections moves to the catalogue's page.
+if (routePath(location.pathname) === "/" && figureRows.some(([id]) => `#${id}` === location.hash))
+  history.replaceState(null, "", `/components/diagrams${location.search}${location.hash}`);
+
 const path = routePath(location.pathname);
 const active = routes.get(path);
-const load = active && pageLoaders[`./${pageModules[active]}.tsx`];
-if (active && !load) throw new Error(`No playground/${pageModules[active]}.tsx for page "${active}"`);
-const Page = load ? lazy(load) : NotFound;
-// The deck's printable page and its speaker window are documents of their own, without the shell.
+// The deck's printable page and its speaker window are documents of their own, without the shell:
+// DeckShowcase renders them; every other /deck address is the deck's docs page.
 const standalone = path === "/deck" && (params.get("view") === "print" || params.get("presenter") === "1");
+const module = standalone ? "DeckShowcase" : active && pageModules[active];
+const load = module && pageLoaders[`./${module}.tsx`];
+if (active && !load) throw new Error(`No playground/${module}.tsx for page "${active}"`);
+const Page = load ? lazy(load) : NotFound;
 // While the page's chunk loads, the shell stays and a status line under the intro says so.
 const loading = active ? `Loading ${pageHeading(resolvePage(active, location.search))}` : "Loading";
 const page = (
