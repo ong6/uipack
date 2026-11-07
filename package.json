@@ -1,6 +1,6 @@
 {
   "name": "uipack",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "React and SVG figure components for engineering write-ups: framed figures, lanes, nodes, connectors, animated packets.",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -170,6 +170,7 @@
     "assets",
     "docs/assets",
     "README.md",
+    "CHANGELOG.md",
     "llms.txt",
     "LICENSE",
     "docs/*.md",

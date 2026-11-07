@@ -1,4 +1,4 @@
-import { fontFloor, DEFAULT_RENDER_WIDTH, FigureScaleProvider, Token, TOKEN_SHAPE } from './chunk-HCR2C6OV.js';
+import { fontFloor, DEFAULT_RENDER_WIDTH, FigureScaleProvider, Token, TOKEN_SHAPE } from './chunk-OBRYIOBM.js';
 import { technicalValues, technicalFonts } from './chunk-ESGEH25T.js';
 import { FigureMotionContext } from './chunk-63XCOWAV.js';
 import { isValidElement } from 'react';

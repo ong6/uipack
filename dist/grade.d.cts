@@ -281,6 +281,7 @@ interface CheckResult {
 /** A platform font Chromium used to draw an element's text (CDP CSS.getPlatformFontsForNode). */
 interface PlatformFontUse {
     selector: string;
+    /** The element's whole text (whitespace collapsed): symbols are counted over all of it. */
     text: string;
     box: Box;
     fonts: {
@@ -531,6 +532,10 @@ interface Tally {
     /** Two judges' overall deltas differ by 2 or more, or their preferences point opposite ways. */
     disagreement: boolean;
     needsThirdJudge: boolean;
+    /** Verdicts whose packet the key does not name; they are dropped from every number above. */
+    unmatched: string[];
+    /** False when any verdict was unmatched or none matched: the numbers are not a result. */
+    valid: boolean;
     problems: string[];
 }
 declare function tallyJudges(key: PacketKey, verdicts: JudgeVerdict[]): Tally;

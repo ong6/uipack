@@ -51,8 +51,11 @@
 .deck-demo-caveat {
   color: var(--deck-muted);
 }
+/* The key hint sits on the accent slide, where the muted label ink (--ui-accent-ink-2) holds only
+   3.4:1 in light; it is an instruction, so it takes the slide's full ink (5.6:1). */
 .deck-demo-keys {
   margin-top: 48px;
+  color: var(--deck-fg);
 }
 
 /* Tech talk: the problem. Three meetings on the left, the number they add up to on the right. */

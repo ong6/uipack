@@ -376,6 +376,9 @@
     letter-spacing: -0.01em;
   }
   .uipack-web-nav__brand a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
     color: inherit;
     text-decoration: none;
   }
@@ -640,7 +643,7 @@
   }
   .uipack-web-hero__stamp-label {
     max-width: var(--ui-stamp-label-width, 9em);
-    font: 600 0.6875rem / 1.3 var(--web-font-mono);
+    font: 600 0.75rem / 1.3 var(--web-font-mono);
     letter-spacing: var(--web-label-tracking);
     text-transform: uppercase;
   }
@@ -733,7 +736,7 @@
     }
     .uipack-web-hero__proof > .uipack-web-hero__stamp .uipack-web-hero__stamp-label {
       max-width: var(--ui-stamp-label-width, 9em);
-      font-size: 0.625rem;
+      font-size: 0.75rem;
     }
   }
   @container web (max-width: 1023px) {
@@ -2423,6 +2426,13 @@
     color: var(--web-ink);
     text-decoration: none;
   }
+  /* A linked wordmark is a 44px tap target; the word keeps its place at the start. */
+  a.uipack-web-brand {
+    display: inline-flex;
+    align-items: center;
+    min-width: 44px;
+    min-height: 44px;
+  }
 }
 
 /* ---------- Product surfaces: window, table, schedule, list, record, file; worked numbers ----------
@@ -2515,7 +2525,7 @@
     gap: 6px;
   }
   .uipack-web-window__source {
-    font: 400 0.6875rem / 1.2 var(--web-font-mono);
+    font: 400 0.75rem / 1.2 var(--web-font-mono);
     letter-spacing: var(--web-label-tracking);
     text-transform: uppercase;
     color: var(--web-ink-low);
@@ -2631,7 +2641,7 @@
     }
     .uipack-web-table[data-narrow="stack"] .uipack-web-table__label {
       display: inline;
-      font: 400 0.6875rem / 1.6 var(--web-font-mono);
+      font: 400 0.75rem / 1.6 var(--web-font-mono);
       letter-spacing: var(--web-label-tracking);
       text-transform: uppercase;
       color: var(--web-ink-low);
@@ -2648,6 +2658,10 @@
     outline-offset: 2px;
   }
   .uipack-web-table table,
+  /* A grid item: without min-width 0 a wide week stretches the section instead of scrolling in its frame. */
+  .uipack-web-schedule {
+    min-width: 0;
+  }
   .uipack-web-schedule table {
     width: 100%;
     border-collapse: collapse;
@@ -2675,7 +2689,7 @@
   .uipack-web-schedule thead th {
     padding-top: 0;
     border-bottom: var(--ui-rule-width) solid var(--web-rule);
-    font: 400 0.6875rem / 1.2 var(--web-font-mono);
+    font: 400 0.75rem / 1.2 var(--web-font-mono);
     letter-spacing: var(--web-label-tracking);
     text-transform: uppercase;
     color: var(--web-ink-low);
@@ -2755,7 +2769,7 @@
   }
   .uipack-web-schedule tbody th small {
     display: block;
-    font: 0.6875rem / 1.3 var(--web-font-mono);
+    font: 0.75rem / 1.3 var(--web-font-mono);
     color: var(--web-ink-low);
   }
   .uipack-web-schedule td > span {
@@ -2813,12 +2827,13 @@
     background: transparent;
   }
   @container web (max-width: 720px) {
-    /* A week of seven columns fits a 390px phone: compact mono cells, a narrow name column. */
+    /* A phone: compact mono cells at the 12px text floor and a narrow name column; a week too wide
+       for the column scrolls inside its frame (.uipack-web-table__scroll), never the page. */
     .uipack-web-schedule td > span {
       min-width: 2.25rem;
       min-height: 2.125rem;
       padding: 2px;
-      font-size: 0.625rem;
+      font-size: 0.75rem;
       letter-spacing: -0.02em;
     }
     .uipack-web-schedule :is(th, td) {
@@ -2912,7 +2927,7 @@
   }
   .uipack-web-record__eyebrow {
     margin: 0 0 2px;
-    font: 400 0.6875rem / 1.2 var(--web-font-mono);
+    font: 400 0.75rem / 1.2 var(--web-font-mono);
     letter-spacing: var(--web-label-tracking);
     text-transform: uppercase;
     color: var(--web-ink-low);
@@ -2930,7 +2945,7 @@
     border-top: 1px var(--ui-perf, solid) var(--web-hairline);
   }
   .uipack-web-record dt {
-    font: 0.6875rem / 1.3 var(--web-font-mono);
+    font: 0.75rem / 1.3 var(--web-font-mono);
     letter-spacing: 0.04em;
     text-transform: uppercase;
     color: var(--web-ink-low);
@@ -3144,7 +3159,7 @@
     gap: 4px 12px;
   }
   .uipack-web-compare__tag {
-    font: 600 0.6875rem / 1.2 var(--web-font-mono);
+    font: 600 0.75rem / 1.2 var(--web-font-mono);
     letter-spacing: var(--web-label-tracking);
     text-transform: uppercase;
     color: var(--web-ink);
@@ -3365,7 +3380,7 @@
     padding: 3px 7px;
     background: var(--ui-media-ink);
     color: var(--ui-media-ground);
-    font: 600 0.6875rem / 1.3 var(--web-font-mono);
+    font: 600 0.75rem / 1.3 var(--web-font-mono);
     letter-spacing: var(--web-label-tracking);
     text-transform: uppercase;
   }
@@ -3482,7 +3497,7 @@
     color: var(--web-ink);
   }
   .uipack-web-shot__inset-label {
-    font: 600 0.625rem / 1.2 var(--web-font-mono);
+    font: 600 0.75rem / 1.2 var(--web-font-mono);
     letter-spacing: var(--web-label-tracking);
     text-transform: uppercase;
     color: var(--web-ink-low);
@@ -3532,7 +3547,7 @@
     .uipack-web-shot__note {
       max-width: 9rem;
       padding: 3px 6px;
-      font-size: 0.6875rem;
+      font-size: 0.75rem;
     }
     /* The detail view leaves the plate for a row under it: label, then the drawing. */
     .uipack-web-shot__inset {
@@ -3551,7 +3566,7 @@
       left: 8px;
     }
     .uipack-web-shot__readouts {
-      font-size: 0.6875rem;
+      font-size: 0.75rem;
     }
   }
 

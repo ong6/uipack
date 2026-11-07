@@ -5,7 +5,8 @@ import { createHash } from "node:crypto";
 import { existsSync, mkdtempSync, readdirSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+import { main } from "../src/grade/cli";
 import { validateLedger } from "../src/grade/ledger";
 import {
   assignOrders,
@@ -68,6 +69,28 @@ describe("tally", () => {
     expect(t.problems.join("\n")).toMatch(
       /rubric version 2.*carried 1[\s\S]*unknown packet "judge-9"[\s\S]*fewer than two judges/,
     );
+    expect(t.unmatched).toEqual(["judge-9"]);
+    expect(t.valid).toBe(false);
+  });
+  it("is not a result when every verdict is dropped, or any one is, and the CLI exits 1", async () => {
+    const none = tallyJudges(key, [verdict("judge-8", 7, 8, "B"), verdict("judge-9", 7, 8, "B")]);
+    expect(none).toMatchObject({ judges: 0, valid: false, unmatched: ["judge-8", "judge-9"] });
+    expect(formatTally(none)).toMatch(/^NOT A RESULT: 2 of 2 verdict\(s\) matched no packet/);
+    expect(none.problems).toContain("no verdict matched a packet in the key: nothing was tallied");
+    const ok = tallyJudges(key, [verdict("judge-1", 8, 7, "A"), verdict("judge-2", 7, 8, "B")]);
+    expect(ok.valid).toBe(true);
+    expect(formatTally(ok)).not.toMatch(/NOT A RESULT/);
+    // The command: a key and two verdict files that name no packet in it.
+    const dir = mkdtempSync(join(tmpdir(), "tally-"));
+    const file = (name: string, data: unknown) => (writeFileSync(join(dir, name), JSON.stringify(data)), join(dir, name));
+    const log = vi.spyOn(console, "log").mockImplementation(() => {});
+    const args = ["tally", "--key", file("key.json", key)];
+    expect(await main([...args, file("a.json", verdict("x", 7, 8, "B")), file("b.json", verdict("y", 7, 8, "B"))])).toBe(1);
+    expect(log.mock.calls.flat().join("\n")).toMatch(/NOT A RESULT/);
+    expect(
+      await main([...args, file("c.json", verdict("judge-1", 8, 7, "A")), file("d.json", verdict("judge-2", 7, 8, "B"))]),
+    ).toBe(0);
+    log.mockRestore();
   });
 });
 

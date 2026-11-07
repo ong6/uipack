@@ -197,10 +197,14 @@ export function Figure({
   const narrowRef = useRef<SVGSVGElement>(null);
   const wideW = useRenderedWidth(wideRef, measuredWidth ?? hostWidth, expanded);
   const narrowW = useRenderedWidth(narrowRef, measuredWidth ?? hostWidth, expanded);
-  const wideScale = useMemo(() => ({ floor: fontFloor(vbWidth(viewBox), wideW, minFont) }), [viewBox, wideW, minFont]);
+  const wideScale = useMemo(
+    () => ({ floor: fontFloor(vbWidth(viewBox), wideW, minFont), unitsPerPx: fontFloor(vbWidth(viewBox), wideW, 1) }),
+    [viewBox, wideW, minFont],
+  );
   const narrowScale = useMemo(
     () => ({
       floor: fontFloor(vbWidth(narrowViewBox ?? viewBox), narrowW, minFont),
+      unitsPerPx: fontFloor(vbWidth(narrowViewBox ?? viewBox), narrowW, 1),
     }),
     [narrowViewBox, viewBox, narrowW, minFont],
   );

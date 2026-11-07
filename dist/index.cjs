@@ -1,8 +1,8 @@
 'use strict';
 
 var chunkKNRWTQ4K_cjs = require('./chunk-KNRWTQ4K.cjs');
-var chunkXVT76R2Q_cjs = require('./chunk-XVT76R2Q.cjs');
-var chunkLF6OWAHL_cjs = require('./chunk-LF6OWAHL.cjs');
+var chunkK52F3SPM_cjs = require('./chunk-K52F3SPM.cjs');
+var chunkUAE3UZQU_cjs = require('./chunk-UAE3UZQU.cjs');
 var chunkTLBFVTUY_cjs = require('./chunk-TLBFVTUY.cjs');
 var chunk4F5ZRRHH_cjs = require('./chunk-4F5ZRRHH.cjs');
 var chunkSDBNPDW6_cjs = require('./chunk-SDBNPDW6.cjs');
@@ -12,7 +12,7 @@ var jsxRuntime = require('react/jsx-runtime');
 var react = require('react');
 
 function Badge({ cx, cy, text, accent, r = 9, size: size0 = 10 }) {
-  const size = chunkLF6OWAHL_cjs.useFontFloor(size0);
+  const size = chunkUAE3UZQU_cjs.useFontFloor(size0);
   const stroke = accent ? "var(--uipack-accent)" : "currentColor";
   return /* @__PURE__ */ jsxRuntime.jsxs("g", { "data-uipack": "badge", children: [
     /* @__PURE__ */ jsxRuntime.jsx("circle", { cx, cy, r, fill: "var(--uipack-bg)", stroke, strokeOpacity: accent ? 1 : 0.6, strokeWidth: 1.25 }),
@@ -42,8 +42,8 @@ function wallSegments(from, to, holes = [], gap = 9) {
   return segs;
 }
 function Wall({ at, from, to, holes = [], axis = "v", thickness: t = 16, gap = 9, flow }) {
-  const hover = chunkXVT76R2Q_cjs.useFigureHover();
-  return /* @__PURE__ */ jsxRuntime.jsx("g", { "data-uipack": "wall", ...chunkXVT76R2Q_cjs.hoverAttrs(flow, void 0, hover), children: wallSegments(from, to, holes, gap).map(([a, b]) => {
+  const hover = chunkK52F3SPM_cjs.useFigureHover();
+  return /* @__PURE__ */ jsxRuntime.jsx("g", { "data-uipack": "wall", ...chunkK52F3SPM_cjs.hoverAttrs(flow, void 0, hover), children: wallSegments(from, to, holes, gap).map(([a, b]) => {
     const r = axis === "v" ? { x: at - t / 2, y: a, width: t, height: b - a } : { x: a, y: at - t / 2, width: b - a, height: t };
     return /* @__PURE__ */ jsxRuntime.jsx(
       "rect",
@@ -64,7 +64,7 @@ function Cross({ x, y, r = 5, kind }) {
     "g",
     {
       "data-uipack": "cross",
-      stroke: chunkXVT76R2Q_cjs.connectorStroke(kind),
+      stroke: chunkK52F3SPM_cjs.connectorStroke(kind),
       strokeOpacity: kind ? 1 : 0.8,
       strokeWidth: 1.75,
       strokeLinecap: "round",
@@ -139,23 +139,23 @@ function Sheet({
   flow,
   hint
 }) {
-  const hover = chunkXVT76R2Q_cjs.useFigureHover();
-  const flows = chunkXVT76R2Q_cjs.flowList(flow);
+  const hover = chunkK52F3SPM_cjs.useFigureHover();
+  const flows = chunkK52F3SPM_cjs.flowList(flow);
   const label = title ?? name ?? "File";
-  const selection = chunkXVT76R2Q_cjs.useItemSelection(label, hint, flows[0], true, name || title ? null : label);
+  const selection = chunkK52F3SPM_cjs.useItemSelection(label, hint, flows[0], true, name || title ? null : label);
   const handlers = flows.length ? {
-    onPointerEnter: (e) => chunkXVT76R2Q_cjs.isPointer(e) && hover.setFlow(flows[0]),
-    onPointerLeave: (e) => chunkXVT76R2Q_cjs.isPointer(e) && hover.setFlow(null)
+    onPointerEnter: (e) => chunkK52F3SPM_cjs.isPointer(e) && hover.setFlow(flows[0]),
+    onPointerLeave: (e) => chunkK52F3SPM_cjs.isPointer(e) && hover.setFlow(null)
   } : {};
-  const size = chunkLF6OWAHL_cjs.useFontFloor(size0);
-  const eyebrow = chunkLF6OWAHL_cjs.useFontFloor(12);
-  const noteSize = chunkLF6OWAHL_cjs.useFontFloor(size0 - 2);
+  const size = chunkUAE3UZQU_cjs.useFontFloor(size0);
+  const eyebrow = chunkUAE3UZQU_cjs.useFontFloor(12);
+  const noteSize = chunkUAE3UZQU_cjs.useFontFloor(size0 - 2);
   const stroke = accent ? "var(--uipack-accent)" : "currentColor";
   const head = head0 ?? (name ? 76 : 52);
   const pad = 20;
   const top = name ? 30 : 0;
   const rowY = (children ? y + top + (head - top) / 2 : y + top + (h - top) / 2) - (name ? 2 : 0);
-  return /* @__PURE__ */ jsxRuntime.jsxs("g", { "data-uipack": "sheet", ...chunkXVT76R2Q_cjs.hoverAttrs(flow, void 0, hover), ...handlers, ...selection, children: [
+  return /* @__PURE__ */ jsxRuntime.jsxs("g", { "data-uipack": "sheet", ...chunkK52F3SPM_cjs.hoverAttrs(flow, void 0, hover), ...handlers, ...selection, children: [
     /* @__PURE__ */ jsxRuntime.jsx(
       "rect",
       {
@@ -170,7 +170,7 @@ function Sheet({
         strokeWidth: 1.25
       }
     ),
-    selection.role ? /* @__PURE__ */ jsxRuntime.jsx(chunkXVT76R2Q_cjs.FocusRing, { x, y, w, h, rx: 6 }) : null,
+    selection.role ? /* @__PURE__ */ jsxRuntime.jsx(chunkK52F3SPM_cjs.FocusRing, { x, y, w, h, rx: 6 }) : null,
     name ? /* @__PURE__ */ jsxRuntime.jsx(
       "text",
       {
@@ -285,7 +285,7 @@ function Pin({
   ] });
 }
 function CurvePlot({ x, y, w, h, points, xTitle, yTitle, xEnds, notes = [], measure, size: size0 = 14 }) {
-  const small = chunkLF6OWAHL_cjs.useFontFloor(size0 - 2);
+  const small = chunkUAE3UZQU_cjs.useFontFloor(size0 - 2);
   const bottom = y + h;
   const px = (u) => r1(x + u * w);
   const py = (v) => r1(bottom - v * h);
@@ -448,7 +448,7 @@ function DrillControls({ parentLabel, onBack, onOpen, openerRef, motion }) {
     onOpen ? /* @__PURE__ */ jsxRuntime.jsx("button", { type: "button", className: "uipack__ctl", ref: openerRef, onClick: onOpen, children: "Open canvas" }) : null,
     motion ? /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
       /* @__PURE__ */ jsxRuntime.jsxs("button", { type: "button", className: "uipack__ctl uipack__ctl--motion", onClick: motion.replay, children: [
-        /* @__PURE__ */ jsxRuntime.jsx(chunkXVT76R2Q_cjs.ReplayGlyph, {}),
+        /* @__PURE__ */ jsxRuntime.jsx(chunkK52F3SPM_cjs.ReplayGlyph, {}),
         " Replay"
       ] }),
       /* @__PURE__ */ jsxRuntime.jsxs(
@@ -459,7 +459,7 @@ function DrillControls({ parentLabel, onBack, onOpen, openerRef, motion }) {
           onClick: motion.toggle,
           "aria-pressed": !motion.playing,
           children: [
-            motion.playing ? /* @__PURE__ */ jsxRuntime.jsx(chunkXVT76R2Q_cjs.PauseGlyph, {}) : /* @__PURE__ */ jsxRuntime.jsx(chunkXVT76R2Q_cjs.PlayGlyph, {}),
+            motion.playing ? /* @__PURE__ */ jsxRuntime.jsx(chunkK52F3SPM_cjs.PauseGlyph, {}) : /* @__PURE__ */ jsxRuntime.jsx(chunkK52F3SPM_cjs.PlayGlyph, {}),
             " ",
             motion.playing ? "Pause" : "Play"
           ]
@@ -565,7 +565,7 @@ var DrillLayer = /* @__PURE__ */ react.memo(function DrillLayer2({
       preserveAspectRatio: "xMidYMid meet",
       role: "group",
       "aria-label": level.alt,
-      children: /* @__PURE__ */ jsxRuntime.jsx(DrillContext.Provider, { value: ctx(variant), children: /* @__PURE__ */ jsxRuntime.jsx(chunkLF6OWAHL_cjs.FigureScaleContext.Provider, { value: { floor }, children: render({ id: variant === "wide" ? lid : `${lid}-n`, variant, ghost: false, level }) }) })
+      children: /* @__PURE__ */ jsxRuntime.jsx(DrillContext.Provider, { value: ctx(variant), children: /* @__PURE__ */ jsxRuntime.jsx(chunkUAE3UZQU_cjs.FigureScaleContext.Provider, { value: { floor }, children: render({ id: variant === "wide" ? lid : `${lid}-n`, variant, ghost: false, level }) }) })
     }
   );
   return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-drill__layer", "data-level": level.id, "data-current": current ? "true" : void 0, children: [
@@ -658,7 +658,7 @@ function useNotePlacement(canvasRef, noteRef, note, zoom, expanded) {
     const anchor2 = note?.anchor;
     if (!canvas || !el || !anchor2) return;
     const place = () => {
-      if (anchor2.isConnected) setNotePos(chunkXVT76R2Q_cjs.placeNote(canvas, el, anchor2));
+      if (anchor2.isConnected) setNotePos(chunkK52F3SPM_cjs.placeNote(canvas, el, anchor2));
     };
     place();
     if (typeof ResizeObserver === "undefined") return;
@@ -983,7 +983,7 @@ function DrillFigureRoot({
   const note = selected?.detail ? selected : null;
   const notePos = useNotePlacement(canvasRef, noteRef, note, zoom, expanded);
   const frame = react.useMemo(() => ({ wide: viewBox, narrow: narrowViewBox }), [viewBox, narrowViewBox]);
-  chunkXVT76R2Q_cjs.useRovingFocus(canvasRef, expanded);
+  chunkK52F3SPM_cjs.useRovingFocus(canvasRef, expanded);
   const openCanvas = react.useCallback(() => {
     select(null);
     setExpanded(true);
@@ -1014,7 +1014,7 @@ function DrillFigureRoot({
       theme,
       layout: "figure",
       zoom: { value: zoom, min: 1, max: 3, onChange: setZoom },
-      children: /* @__PURE__ */ jsxRuntime.jsx(chunkXVT76R2Q_cjs.SelectionContext.Provider, { value: { enabled: true, selected, select }, children: /* @__PURE__ */ jsxRuntime.jsx(chunkPT2CSIXM_cjs.FigureMotionContext.Provider, { value: motion, children: /* @__PURE__ */ jsxRuntime.jsx(chunkXVT76R2Q_cjs.FigureHoverContext.Provider, { value: hover, children: /* @__PURE__ */ jsxRuntime.jsxs(
+      children: /* @__PURE__ */ jsxRuntime.jsx(chunkK52F3SPM_cjs.SelectionContext.Provider, { value: { enabled: true, selected, select }, children: /* @__PURE__ */ jsxRuntime.jsx(chunkPT2CSIXM_cjs.FigureMotionContext.Provider, { value: motion, children: /* @__PURE__ */ jsxRuntime.jsx(chunkK52F3SPM_cjs.FigureHoverContext.Provider, { value: hover, children: /* @__PURE__ */ jsxRuntime.jsxs(
         "figure",
         {
           id: figId,
@@ -1077,7 +1077,7 @@ function DrillFigureRoot({
                   motion: controls && !reduced ? motion : null
                 }
               ),
-              /* @__PURE__ */ jsxRuntime.jsx(chunkXVT76R2Q_cjs.Legend, { items: current.legend ?? [] })
+              /* @__PURE__ */ jsxRuntime.jsx(chunkK52F3SPM_cjs.Legend, { items: current.legend ?? [] })
             ] }),
             /* @__PURE__ */ jsxRuntime.jsx("p", { className: "uipack__sr", role: "status", children: note ? `${note.label}: ${note.detail}` : "" }),
             /* @__PURE__ */ jsxRuntime.jsx("p", { className: "uipack__sr", "aria-live": "polite", "data-drill-announce": "", children: announcement }),
@@ -1171,7 +1171,7 @@ function Ghost({
       ] }),
       /* @__PURE__ */ jsxRuntime.jsx("rect", { x: port.x, y: port.y, width: port.width, height: port.height, fill: `url(#${uid}-fade-g)` })
     ] }) : null,
-    /* @__PURE__ */ jsxRuntime.jsx("svg", { ...port, preserveAspectRatio: "xMaxYMid meet", overflow: "hidden", children: /* @__PURE__ */ jsxRuntime.jsx("svg", { width: f.w, height: f.h, viewBox: levelVb, preserveAspectRatio: "xMidYMid meet", children: /* @__PURE__ */ jsxRuntime.jsx(chunkXVT76R2Q_cjs.SelectionContext.Provider, { value: noSelection, children: /* @__PURE__ */ jsxRuntime.jsx(chunkPT2CSIXM_cjs.FigureMotionContext.Provider, { value: stillMotion, children: /* @__PURE__ */ jsxRuntime.jsx(chunkLF6OWAHL_cjs.FigureScaleContext.Provider, { value: { floor: 0 }, children: /* @__PURE__ */ jsxRuntime.jsx(DrillContext.Provider, { value: inner, children: render({ id: `${ctx.idPrefix}-g${uid}`, variant: narrow ? "narrow" : "wide", ghost: true, level: child }) }) }) }) }) }) })
+    /* @__PURE__ */ jsxRuntime.jsx("svg", { ...port, preserveAspectRatio: "xMaxYMid meet", overflow: "hidden", children: /* @__PURE__ */ jsxRuntime.jsx("svg", { width: f.w, height: f.h, viewBox: levelVb, preserveAspectRatio: "xMidYMid meet", children: /* @__PURE__ */ jsxRuntime.jsx(chunkK52F3SPM_cjs.SelectionContext.Provider, { value: noSelection, children: /* @__PURE__ */ jsxRuntime.jsx(chunkPT2CSIXM_cjs.FigureMotionContext.Provider, { value: stillMotion, children: /* @__PURE__ */ jsxRuntime.jsx(chunkUAE3UZQU_cjs.FigureScaleContext.Provider, { value: { floor: 0 }, children: /* @__PURE__ */ jsxRuntime.jsx(DrillContext.Provider, { value: inner, children: render({ id: `${ctx.idPrefix}-g${uid}`, variant: narrow ? "narrow" : "wide", ghost: true, level: child }) }) }) }) }) }) })
   ] });
 }
 function DrillNode({ drill, label, grow = DRILL_GROW, preview = true, ...node }) {
@@ -1185,11 +1185,11 @@ function DrillNode({ drill, label, grow = DRILL_GROW, preview = true, ...node })
     const g = ghostRef.current;
     if (g) setCount(g.querySelectorAll('[data-uipack="node"]').length);
   }, [drill, ctx?.variant]);
-  if (!ctx || !child) return /* @__PURE__ */ jsxRuntime.jsx(chunkXVT76R2Q_cjs.Node, { ...node, label: text });
+  if (!ctx || !child) return /* @__PURE__ */ jsxRuntime.jsx(chunkK52F3SPM_cjs.Node, { ...node, label: text });
   const box = drillBox({ x: node.x, y: node.y, w: node.w, h: node.h }, grow);
-  if (ctx.ghost) return /* @__PURE__ */ jsxRuntime.jsx(chunkXVT76R2Q_cjs.Node, { ...node, ...box, label: text });
+  if (ctx.ghost) return /* @__PURE__ */ jsxRuntime.jsx(chunkK52F3SPM_cjs.Node, { ...node, ...box, label: text });
   const summary = child.summary ?? (count ? `${count} part${count === 1 ? "" : "s"} inside` : "");
-  const name = `${chunkXVT76R2Q_cjs.nodeName(text, node.sub)}, open${summary ? `: ${summary}` : ""}`;
+  const name = `${chunkK52F3SPM_cjs.nodeName(text, node.sub)}, open${summary ? `: ${summary}` : ""}`;
   const interactive = ctx.interactive && !!ctx.open;
   const activate = (e) => {
     e.preventDefault();
@@ -1238,8 +1238,8 @@ function DrillNode({ drill, label, grow = DRILL_GROW, preview = true, ...node })
             "aria-hidden": "true"
           }
         ),
-        /* @__PURE__ */ jsxRuntime.jsx(chunkXVT76R2Q_cjs.SelectionContext.Provider, { value: noSelection, children: /* @__PURE__ */ jsxRuntime.jsx(
-          chunkXVT76R2Q_cjs.Node,
+        /* @__PURE__ */ jsxRuntime.jsx(chunkK52F3SPM_cjs.SelectionContext.Provider, { value: noSelection, children: /* @__PURE__ */ jsxRuntime.jsx(
+          chunkK52F3SPM_cjs.Node,
           {
             ...node,
             ...box,
@@ -1277,7 +1277,7 @@ function DrillNode({ drill, label, grow = DRILL_GROW, preview = true, ...node })
             ] })
           }
         ) }),
-        interactive ? /* @__PURE__ */ jsxRuntime.jsx(chunkXVT76R2Q_cjs.FocusRing, { x: box.x, y: box.y, w: box.w, h: box.h, rx: RADIUS }) : null,
+        interactive ? /* @__PURE__ */ jsxRuntime.jsx(chunkK52F3SPM_cjs.FocusRing, { x: box.x, y: box.y, w: box.w, h: box.h, rx: RADIUS }) : null,
         /* @__PURE__ */ jsxRuntime.jsx(
           "g",
           {
@@ -1312,155 +1312,155 @@ Object.defineProperty(exports, "zoomSamples", {
 });
 Object.defineProperty(exports, "Bus", {
   enumerable: true,
-  get: function () { return chunkXVT76R2Q_cjs.Bus; }
+  get: function () { return chunkK52F3SPM_cjs.Bus; }
 });
 Object.defineProperty(exports, "Chip", {
   enumerable: true,
-  get: function () { return chunkXVT76R2Q_cjs.Chip; }
+  get: function () { return chunkK52F3SPM_cjs.Chip; }
 });
 Object.defineProperty(exports, "Connector", {
   enumerable: true,
-  get: function () { return chunkXVT76R2Q_cjs.Connector; }
+  get: function () { return chunkK52F3SPM_cjs.Connector; }
 });
 Object.defineProperty(exports, "Defs", {
   enumerable: true,
-  get: function () { return chunkXVT76R2Q_cjs.Defs; }
+  get: function () { return chunkK52F3SPM_cjs.Defs; }
 });
 Object.defineProperty(exports, "FIGURE_GRID", {
   enumerable: true,
-  get: function () { return chunkXVT76R2Q_cjs.FIGURE_GRID; }
+  get: function () { return chunkK52F3SPM_cjs.FIGURE_GRID; }
 });
 Object.defineProperty(exports, "Figure", {
   enumerable: true,
-  get: function () { return chunkXVT76R2Q_cjs.Figure; }
+  get: function () { return chunkK52F3SPM_cjs.Figure; }
 });
 Object.defineProperty(exports, "FigureHoverContext", {
   enumerable: true,
-  get: function () { return chunkXVT76R2Q_cjs.FigureHoverContext; }
+  get: function () { return chunkK52F3SPM_cjs.FigureHoverContext; }
 });
 Object.defineProperty(exports, "Group", {
   enumerable: true,
-  get: function () { return chunkXVT76R2Q_cjs.Group; }
+  get: function () { return chunkK52F3SPM_cjs.Group; }
 });
 Object.defineProperty(exports, "Label", {
   enumerable: true,
-  get: function () { return chunkXVT76R2Q_cjs.Label; }
+  get: function () { return chunkK52F3SPM_cjs.Label; }
 });
 Object.defineProperty(exports, "Lane", {
   enumerable: true,
-  get: function () { return chunkXVT76R2Q_cjs.Lane; }
+  get: function () { return chunkK52F3SPM_cjs.Lane; }
 });
 Object.defineProperty(exports, "Legend", {
   enumerable: true,
-  get: function () { return chunkXVT76R2Q_cjs.Legend; }
+  get: function () { return chunkK52F3SPM_cjs.Legend; }
 });
 Object.defineProperty(exports, "Node", {
   enumerable: true,
-  get: function () { return chunkXVT76R2Q_cjs.Node; }
+  get: function () { return chunkK52F3SPM_cjs.Node; }
 });
 Object.defineProperty(exports, "PACKET_POP", {
   enumerable: true,
-  get: function () { return chunkXVT76R2Q_cjs.PACKET_POP; }
+  get: function () { return chunkK52F3SPM_cjs.PACKET_POP; }
 });
 Object.defineProperty(exports, "PACKET_SINK", {
   enumerable: true,
-  get: function () { return chunkXVT76R2Q_cjs.PACKET_SINK; }
+  get: function () { return chunkK52F3SPM_cjs.PACKET_SINK; }
 });
 Object.defineProperty(exports, "Packet", {
   enumerable: true,
-  get: function () { return chunkXVT76R2Q_cjs.Packet; }
+  get: function () { return chunkK52F3SPM_cjs.Packet; }
 });
 Object.defineProperty(exports, "anchor", {
   enumerable: true,
-  get: function () { return chunkXVT76R2Q_cjs.anchor; }
+  get: function () { return chunkK52F3SPM_cjs.anchor; }
 });
 Object.defineProperty(exports, "busStub", {
   enumerable: true,
-  get: function () { return chunkXVT76R2Q_cjs.busStub; }
+  get: function () { return chunkK52F3SPM_cjs.busStub; }
 });
 Object.defineProperty(exports, "busStubs", {
   enumerable: true,
-  get: function () { return chunkXVT76R2Q_cjs.busStubs; }
+  get: function () { return chunkK52F3SPM_cjs.busStubs; }
 });
 Object.defineProperty(exports, "connectorStroke", {
   enumerable: true,
-  get: function () { return chunkXVT76R2Q_cjs.connectorStroke; }
+  get: function () { return chunkK52F3SPM_cjs.connectorStroke; }
 });
 Object.defineProperty(exports, "flowList", {
   enumerable: true,
-  get: function () { return chunkXVT76R2Q_cjs.flowList; }
+  get: function () { return chunkK52F3SPM_cjs.flowList; }
 });
 Object.defineProperty(exports, "grid", {
   enumerable: true,
-  get: function () { return chunkXVT76R2Q_cjs.grid; }
+  get: function () { return chunkK52F3SPM_cjs.grid; }
 });
 Object.defineProperty(exports, "hoverAttrs", {
   enumerable: true,
-  get: function () { return chunkXVT76R2Q_cjs.hoverAttrs; }
+  get: function () { return chunkK52F3SPM_cjs.hoverAttrs; }
 });
 Object.defineProperty(exports, "icons", {
   enumerable: true,
-  get: function () { return chunkXVT76R2Q_cjs.icons; }
+  get: function () { return chunkK52F3SPM_cjs.icons; }
 });
 Object.defineProperty(exports, "isPointer", {
   enumerable: true,
-  get: function () { return chunkXVT76R2Q_cjs.isPointer; }
+  get: function () { return chunkK52F3SPM_cjs.isPointer; }
 });
 Object.defineProperty(exports, "packetScaleKeys", {
   enumerable: true,
-  get: function () { return chunkXVT76R2Q_cjs.packetScaleKeys; }
+  get: function () { return chunkK52F3SPM_cjs.packetScaleKeys; }
 });
 Object.defineProperty(exports, "pathFromPoints", {
   enumerable: true,
-  get: function () { return chunkXVT76R2Q_cjs.pathFromPoints; }
+  get: function () { return chunkK52F3SPM_cjs.pathFromPoints; }
 });
 Object.defineProperty(exports, "pointAlong", {
   enumerable: true,
-  get: function () { return chunkXVT76R2Q_cjs.pointAlong; }
+  get: function () { return chunkK52F3SPM_cjs.pointAlong; }
 });
 Object.defineProperty(exports, "polylineLength", {
   enumerable: true,
-  get: function () { return chunkXVT76R2Q_cjs.polylineLength; }
+  get: function () { return chunkK52F3SPM_cjs.polylineLength; }
 });
 Object.defineProperty(exports, "route", {
   enumerable: true,
-  get: function () { return chunkXVT76R2Q_cjs.route; }
+  get: function () { return chunkK52F3SPM_cjs.route; }
 });
 Object.defineProperty(exports, "trim", {
   enumerable: true,
-  get: function () { return chunkXVT76R2Q_cjs.trim; }
+  get: function () { return chunkK52F3SPM_cjs.trim; }
 });
 Object.defineProperty(exports, "useFigureHover", {
   enumerable: true,
-  get: function () { return chunkXVT76R2Q_cjs.useFigureHover; }
+  get: function () { return chunkK52F3SPM_cjs.useFigureHover; }
 });
 Object.defineProperty(exports, "DEFAULT_RENDER_WIDTH", {
   enumerable: true,
-  get: function () { return chunkLF6OWAHL_cjs.DEFAULT_RENDER_WIDTH; }
+  get: function () { return chunkUAE3UZQU_cjs.DEFAULT_RENDER_WIDTH; }
 });
 Object.defineProperty(exports, "FigureScaleProvider", {
   enumerable: true,
-  get: function () { return chunkLF6OWAHL_cjs.FigureScaleProvider; }
+  get: function () { return chunkUAE3UZQU_cjs.FigureScaleProvider; }
 });
 Object.defineProperty(exports, "TOKEN_SHAPE", {
   enumerable: true,
-  get: function () { return chunkLF6OWAHL_cjs.TOKEN_SHAPE; }
+  get: function () { return chunkUAE3UZQU_cjs.TOKEN_SHAPE; }
 });
 Object.defineProperty(exports, "Token", {
   enumerable: true,
-  get: function () { return chunkLF6OWAHL_cjs.Token; }
+  get: function () { return chunkUAE3UZQU_cjs.Token; }
 });
 Object.defineProperty(exports, "fontFloor", {
   enumerable: true,
-  get: function () { return chunkLF6OWAHL_cjs.fontFloor; }
+  get: function () { return chunkUAE3UZQU_cjs.fontFloor; }
 });
 Object.defineProperty(exports, "tokenColor", {
   enumerable: true,
-  get: function () { return chunkLF6OWAHL_cjs.tokenColor; }
+  get: function () { return chunkUAE3UZQU_cjs.tokenColor; }
 });
 Object.defineProperty(exports, "useFontFloor", {
   enumerable: true,
-  get: function () { return chunkLF6OWAHL_cjs.useFontFloor; }
+  get: function () { return chunkUAE3UZQU_cjs.useFontFloor; }
 });
 Object.defineProperty(exports, "isUiStyle", {
   enumerable: true,

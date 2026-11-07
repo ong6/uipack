@@ -244,6 +244,12 @@ describe("tier-1 rules", () => {
     expect(checkFaces(page({ texts: [text()] }), uipack, drawn("Arial", 9), []).status).toBe("fail");
     expect(checkFaces(page({ texts: [text()] }), uipack, drawn("Arial", 1, "Next →"), []).status).toBe("warn");
     expect(checkFaces(page({ texts: [text()] }), uipack, drawn("Apple Symbols", 3), []).status).toBe("warn");
+    // Symbols past the 60 characters a finding shows still count: a code line whose arrows come late
+    // (the docs' headingOffset example) warns, and its finding shows the short text.
+    const late = "<DocsMarkdown source={readme} headingOffset={1} /> // # → h2, ## → h3, … clamped at h6";
+    const lateFaces = checkFaces(page({ texts: [text()] }), uipack, drawn("Courier New", 2, late), []);
+    expect(lateFaces.status).toBe("warn");
+    expect(lateFaces.findings[0].text).toBe(late.slice(0, 60));
   });
 
   it("heading-order and one-h1", () => {

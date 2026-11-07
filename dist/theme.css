@@ -409,8 +409,9 @@
   descent-override: 27.5%;
   line-gap-override: 0%;
 }
-/* uipack theme. Every colour is a custom property on the figure root, so a
-   host overrides by setting the variable on any ancestor (or on .uipack). */
+/* uipack theme. Every colour is a custom property on the figure root that reads a --ui-* role,
+   so a host sets the role on any ancestor, or the --uipack-* alias on .uipack itself (an alias on
+   an ancestor is overridden here). */
 .uipack {
   /* Private names, kept for hosts that override them; each reads a role (src/styles). */
   --uipack-fg: var(--ui-ink);

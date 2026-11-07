@@ -488,6 +488,8 @@ declare function Wordmark({ size }: {
  */
 interface FigureScale {
     floor: number;
+    /** User units per CSS pixel at the width the drawing is shown at (0 or absent: not measured). */
+    unitsPerPx?: number;
 }
 /** Width a figure is assumed to render at before it is measured (the prose breakout on junxiong.dev). */
 declare const DEFAULT_RENDER_WIDTH = 1088;

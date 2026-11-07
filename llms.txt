@@ -85,6 +85,7 @@ Agents: read docs/agents/README.md first, then the skill for your job in skills/
 - [Icons & marks](docs/icons-and-marks.md): Searchable icons, marks, canvas backgrounds and motion tokens, each with a preview and a copy button.
 - [Contributing](docs/contributing.md): Step-by-step recipes, with the exact files to touch, for a new style, page, deck, slide part, chart or figure.
 - [Testing](docs/testing.md): What the unit and browser suites check, how CI runs them and the known engine quirks.
+- [Releases](docs/releases.md): How a version is cut: semver for this repo, the changelog, the tag on main, and how each site moves its pin.
 - [Component-first](docs/component-first.md): Build, register and verify a significant visual in the library before a consumer uses it.
 - [Design direction](docs/design-direction.md): The playground's visual direction, catalog taxonomy, interaction polish and presentation composition.
 - [Canvas and selection](docs/interaction.md): Mobile reading, item selection, expanded inspection and their limits.

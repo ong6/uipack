@@ -546,9 +546,11 @@
   align-self: start;
   max-height: calc(100vh - 112px);
   overflow: auto;
-  /* Room for a link's focus ring (2px + 3px offset) inside the scroll box, without moving the column. */
+  /* Room for a link's focus ring (2px + 3px offset) inside the scroll box, without moving the column.
+     The scroll padding keeps that room when Tab scrolls a link at the box's edge into view. */
   padding: 5px;
   margin: -5px;
+  scroll-padding-block: 8px;
   position: sticky;
   top: 96px;
 }
@@ -653,6 +655,17 @@
 .uipack-docs__source-links a:hover {
   color: var(--docs-ink);
   text-decoration-color: currentColor;
+}
+
+/* The breadcrumb and source links are 32px rows for a mouse; on touch each link grows to the 44px
+   tap target (docs/system/layout, core rule 4) and the row grows with it. */
+@media (pointer: coarse) {
+  .uipack-docs__identity,
+  .uipack-docs__identity a,
+  .uipack-docs__page-bar,
+  .uipack-docs__source-links a {
+    min-height: 44px;
+  }
 }
 
 /* Prose cut around host blocks (DocsMarkdown `blocks`): each block is its own box between runs. */

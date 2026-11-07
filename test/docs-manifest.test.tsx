@@ -8,7 +8,16 @@ import { extractDocsHeadings } from "../src/docs";
 import { docsFiles, docsManifest, docsPages, pageForFile } from "../playground/docs-manifest";
 import { demoIdsIn, demos, withDemos } from "../playground/demos";
 import { repoPath, resolveDocsUrl, servedFiles } from "../playground/docs-links";
-import { blockNames, docsMarkdownFiles, generators, llmsTxt, syncSource, syncTargets } from "../scripts/docs-sync";
+import {
+  blockNames,
+  docsMarkdownFiles,
+  generators,
+  llmsTxt,
+  pinStatus,
+  registryTable,
+  syncSource,
+  syncTargets,
+} from "../scripts/docs-sync";
 
 const root = resolve(__dirname, "..");
 const read = (f: string) => readFileSync(resolve(root, f), "utf8");
@@ -68,6 +77,16 @@ describe("generated blocks and llms.txt (npm run docs:sync)", () => {
     expect(synced).toContain(generators["slot-budgets"]("docs/system/writing/general.md"));
     expect(synced.startsWith("Before\n") && synced.endsWith("\nAfter")).toBe(true);
     expect(() => syncSource("x.md", "<!-- generated:nope -->\n<!-- /generated -->")).toThrow(/no generator "nope"/);
+  });
+
+  it("the site registry shows each pin against the latest release (package.json's version)", () => {
+    expect(pinStatus("current", "0.2.0")).toBe("the release source");
+    expect(pinStatus("e6b6ed7", "0.2.0")).toBe("commit pin: move to `v0.2.0`");
+    expect(pinStatus("v0.2.0", "0.2.0")).toBe("up to date");
+    expect(pinStatus("v0.1.3", "0.2.0")).toBe("behind: move to `v0.2.0`");
+    expect(pinStatus("v0.10.0", "0.2.0")).toMatch(/^ahead/);
+    const version = JSON.parse(readFileSync(resolve(__dirname, "../package.json"), "utf8")).version;
+    expect(registryTable("docs/specs/registry.md").split("\n")[0]).toContain(`Against \`v${version}\``);
   });
 
   it("llms.txt lists each docs file once, by group, with links that resolve", () => {
