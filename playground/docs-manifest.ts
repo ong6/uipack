@@ -783,20 +783,20 @@ export const siteRegistry: readonly SiteEntry[] = [
     site: "junxiong.dev",
     repo: "ong6/junxiong-homepage",
     spec: "junxiong-homepage:STYLE.md",
-    specStatus: "todo",
+    specStatus: "written",
     components: ["diagrams: blueprint"],
     pins: "e6b6ed7",
     notes:
-      "TODO: spec not written (on hold). Figures may go ahead (diagrams use the fixed Blueprint look); page layout, copy and colours wait for the spec. A Chakra theme maps the --uipack-* variables",
+      "STYLE.md drafted 2026-11-07 on branch site-ui-1 (passes check-spec; not on the site's main until the owner merges). A Chakra theme maps the --uipack-* variables. Open owner decision: diagrams identical on every site or in the site's palette (globals.css overrides figure colours today)",
   },
   {
     site: "notes.junxiong.dev",
     repo: "ong6/junxiong-notes",
     spec: "junxiong-notes:STYLE.md",
-    specStatus: "todo",
+    specStatus: "written",
     components: ["diagrams: blueprint"],
     pins: "3886f0d",
     notes:
-      "TODO: spec not written (on hold). Figures may go ahead (diagrams use the fixed Blueprint look); page layout, copy and colours wait for the spec. Its live look (warm paper, rust accent, serif and sans) is a description, not values to build with",
+      "STYLE.md drafted 2026-11-07 on branch site-ui-1 (passes check-spec; not on the site's main until the owner merges). Open owner decisions: diagrams identical on every site or in the site's palette (app/globals.css overrides figure colours today); self-hosting its serif",
   },
 ];

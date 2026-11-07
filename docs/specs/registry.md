@@ -10,8 +10,8 @@ that reuses another's look names that spec. The table is generated from `siteReg
 | Site | Repo | Spec | Component looks | Pins uipack | Against `v0.2.0` | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
 | uipack (docs site and package defaults) | ong6/uipack | [docs/specs/technical.md](technical.md) | diagrams: blueprint, 3d: all six, mechanism: isometric | `current` | the release source | Technical, the implemented style (src/styles/technical.css) |
-| junxiong.dev | ong6/junxiong-homepage | `junxiong-homepage:STYLE.md` (TODO) | diagrams: blueprint | `e6b6ed7` | commit pin: move to `v0.2.0` | TODO: spec not written (on hold). Figures may go ahead (diagrams use the fixed Blueprint look); page layout, copy and colours wait for the spec. A Chakra theme maps the --uipack-* variables |
-| notes.junxiong.dev | ong6/junxiong-notes | `junxiong-notes:STYLE.md` (TODO) | diagrams: blueprint | `3886f0d` | commit pin: move to `v0.2.0` | TODO: spec not written (on hold). Figures may go ahead (diagrams use the fixed Blueprint look); page layout, copy and colours wait for the spec. Its live look (warm paper, rust accent, serif and sans) is a description, not values to build with |
+| junxiong.dev | ong6/junxiong-homepage | `junxiong-homepage:STYLE.md` (written) | diagrams: blueprint | `e6b6ed7` | commit pin: move to `v0.2.0` | STYLE.md drafted 2026-11-07 on branch site-ui-1 (passes check-spec; not on the site's main until the owner merges). A Chakra theme maps the --uipack-* variables. Open owner decision: diagrams identical on every site or in the site's palette (globals.css overrides figure colours today) |
+| notes.junxiong.dev | ong6/junxiong-notes | `junxiong-notes:STYLE.md` (written) | diagrams: blueprint | `3886f0d` | commit pin: move to `v0.2.0` | STYLE.md drafted 2026-11-07 on branch site-ui-1 (passes check-spec; not on the site's main until the owner merges). Open owner decisions: diagrams identical on every site or in the site's palette (app/globals.css overrides figure colours today); self-hosting its serif |
 <!-- /generated -->
 
 A spec that lives in a site's own repo is that repo's `STYLE.md`, written from the
