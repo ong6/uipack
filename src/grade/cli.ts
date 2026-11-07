@@ -117,7 +117,8 @@ export async function main(argv: string[]): Promise<number> {
         rest.map((p) => readJson<JudgeVerdict>(p)),
       );
       console.log(formatTally(t));
-      return t.needsThirdJudge ? 1 : 0;
+      // A dropped verdict, or none matched, is not a result: exit 1 like a disagreement.
+      return !t.valid || t.needsThirdJudge ? 1 : 0;
     }
     if (command === "ledger") {
       if (!rest[0]) return (console.error(USAGE), 2);

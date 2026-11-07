@@ -7,6 +7,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import {
   measureFocus,
+  measureGround,
   measureMotion,
   measurePage,
   type Box,
@@ -103,7 +104,7 @@ async function platformFonts(context: PwContext, page: PwPage): Promise<Platform
     >(`[...document.querySelectorAll("[data-uipack-grade-font]")].map((el) => {
       const r = el.getBoundingClientRect();
       const name = el.tagName.toLowerCase() + [...el.classList].slice(0, 3).map((c) => "." + c).join("");
-      return { i: Number(el.getAttribute("data-uipack-grade-font")), selector: name, text: (el.textContent || "").replace(/\\s+/g, " ").trim().slice(0, 60),
+      return { i: Number(el.getAttribute("data-uipack-grade-font")), selector: name, text: (el.textContent || "").replace(/\\s+/g, " ").trim(),
         box: { x: Math.round(r.left + scrollX), y: Math.round(r.top + scrollY), w: Math.round(r.width), h: Math.round(r.height) } };
     })`);
     const out: PlatformFontUse[] = [];
@@ -342,9 +343,8 @@ export async function gradeUrl(url: string, spec: SiteSpec, opts: GradeOptions =
             maxFontSamples: 400,
           });
           title = title || m.title;
-          const colour = await page.evaluate<string>(
-            "getComputedStyle(document.documentElement).backgroundColor + ' ' + getComputedStyle(document.body).backgroundColor",
-          );
+          // The effective ground (a wrapper's background when body is transparent) and the declared theme.
+          const colour = await inPage<string>(page, measureGround);
           view.bodyBackground = m.bodyBackground;
           if (theme === "light") lightColour.set(viewport.name, colour);
           else view.themeApplied = lightColour.get(viewport.name) !== colour;

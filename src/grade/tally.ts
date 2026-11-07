@@ -43,6 +43,10 @@ export interface Tally {
   /** Two judges' overall deltas differ by 2 or more, or their preferences point opposite ways. */
   disagreement: boolean;
   needsThirdJudge: boolean;
+  /** Verdicts whose packet the key does not name; they are dropped from every number above. */
+  unmatched: string[];
+  /** False when any verdict was unmatched or none matched: the numbers are not a result. */
+  valid: boolean;
   problems: string[];
 }
 
@@ -51,10 +55,12 @@ const round = (x: number) => Math.round(x * 100) / 100;
 
 export function tallyJudges(key: PacketKey, verdicts: JudgeVerdict[]): Tally {
   const problems: string[] = [];
+  const unmatched: string[] = [];
   const rows = verdicts.flatMap((v) => {
     const map = key.packets[v.packet];
     if (!map) {
       problems.push(`verdict for unknown packet "${v.packet}"`);
+      unmatched.push(String(v.packet));
       return [];
     }
     if (String(v.rubricVersion) !== String(key.rubric.version))
@@ -89,7 +95,8 @@ export function tallyJudges(key: PacketKey, verdicts: JudgeVerdict[]): Tally {
     b: round(mean(rows.map((r) => r.b))),
     anchor: anchors.length ? round(mean(anchors)) : null,
   };
-  if (rows.length < 2) problems.push("fewer than two judges: run the second judge in the opposite order");
+  if (!rows.length) problems.push("no verdict matched a packet in the key: nothing was tallied");
+  else if (rows.length < 2) problems.push("fewer than two judges: run the second judge in the opposite order");
   return {
     judges: rows.length,
     winRateB: rows.length ? round(prefersB / rows.length) : 0,
@@ -103,12 +110,19 @@ export function tallyJudges(key: PacketKey, verdicts: JudgeVerdict[]): Tally {
     preferredFirstShown: rows.filter((r) => r.firstShownWon).length,
     disagreement,
     needsThirdJudge: disagreement && rows.length < 3,
+    unmatched,
+    valid: rows.length > 0 && unmatched.length === 0,
     problems,
   };
 }
 
 export function formatTally(t: Tally): string {
   const lines = [
+    ...(t.valid
+      ? []
+      : [
+          `NOT A RESULT: ${t.unmatched.length} of ${t.judges + t.unmatched.length} verdict(s) matched no packet in the key${t.unmatched.length ? ` (${t.unmatched.join(", ")})` : ""}; check the key and the verdicts' "packet" field`,
+        ]),
     `Judges: ${t.judges}${t.needsThirdJudge ? " (disagree by 2+ or opposite preferences: run a third judge)" : t.disagreement ? " (disagreement resolved by a third judge)" : ""}`,
     `Win rate of B over A: ${(t.winRateB * 100).toFixed(0)}%`,
     `Paired overall delta (B − A): mean ${t.meanOverallDelta >= 0 ? "+" : ""}${t.meanOverallDelta} (per judge: ${t.overallDeltas.join(", ")})`,

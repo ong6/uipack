@@ -60,6 +60,7 @@
   display: inline-flex;
   align-items: center;
   min-height: 44px;
+  min-width: 44px;
 }
 /* The catalog's second heading (StyleCatalog, the /styles demo) opens a new part of the catalog. */
 .style-catalog > h2.style-specs__heading {

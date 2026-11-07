@@ -2,7 +2,7 @@ import { FocusRing, useItemSelection } from "./selection";
 import type { ReactNode } from "react";
 import { useFigureHover, hoverAttrs, isPointer, flowList, type Flow } from "./hover";
 import { icons, type IconName } from "./icons";
-import { useFontFloor } from "./scale";
+import { useFontFloor, useTouchTarget } from "./scale";
 
 export interface NodeProps {
   x: number;
@@ -57,6 +57,7 @@ export function Node({
   const hover = useFigureHover();
   const size = useFontFloor(size0);
   const subSize = useFontFloor(subSize0);
+  const hit = useTouchTarget(w, h);
   const stroke = accent ? "var(--uipack-accent)" : "currentColor";
   const glyph = typeof icon === "string" ? icons[icon as IconName] : icon;
   const pad = 14;
@@ -91,9 +92,10 @@ export function Node({
       />
       {selection.role ? <FocusRing x={x} y={y} w={w} h={h} rx={6} /> : null}
       {inlay}
+      {/* The hit area on touch: at least 44 CSS px at the drawn scale, centred on the box; invisible, so the drawing and its 8px grid do not change. */}
       <path
         className="uipack__touch-target"
-        d={`M ${x} ${y - Math.max(0, 54 - h) / 2} h ${w} v ${Math.max(h, 54)} h ${-w} Z`}
+        d={`M ${x - (hit.w - w) / 2} ${y - (hit.h - h) / 2} h ${hit.w} v ${hit.h} h ${-hit.w} Z`}
         fill="transparent"
         stroke="none"
         aria-hidden="true"

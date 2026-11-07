@@ -42,7 +42,18 @@ const FIGURES = [
   "static",
 ];
 // The shell draws every page's header, context line and nav, so the pages whose specs read those run too.
-const SHELL = ["nav", "page-audit", "showcase", "gallery", "assets-gallery", "web", "showcase-content", "foundations", "docs"];
+const SHELL = [
+  "nav",
+  "page-audit",
+  "showcase",
+  "gallery",
+  "assets-gallery",
+  "web",
+  "showcase-content",
+  "foundations",
+  "docs",
+  "tier1",
+];
 
 /** First matching rule wins. A path no rule matches runs no browser test. */
 const AREAS = [
@@ -54,8 +65,11 @@ const AREAS = [
   [/^src\/deck\//, ["deck"]],
   [/^src\/presentations\//, ["deck", "showcase"]],
   [/^src\/mechanism\//, ["mechanism"]],
-  [/^src\/web\//, ["web"]],
-  [/^playground\/(WebShowcase|web-showcase|web-seo|webTidyFlow|DeckShowcase|deck-showcase)/, ["web", "deck", "showcase-content"]],
+  [/^src\/web\//, ["web", "tier1"]],
+  [
+    /^playground\/(WebShowcase|web-showcase|web-seo|webTidyFlow|DeckShowcase|deck-showcase)/,
+    ["web", "deck", "showcase-content", "tier1"],
+  ],
   // The sample product's facts and section order: the content guard.
   [/^playground\/tidyFacts/, ["showcase-content", "web"]],
   [/^src\/objects\//, ["objects", "art-directions", "contact-directions"]],
@@ -64,8 +78,9 @@ const AREAS = [
   [/^src\/drill\//, ["drill", "geometry"]],
   [/^src\/static\//, ["static"]],
   // The grader: its browser spec runs the checks on a page with planted defects.
-  [/^src\/grade\/|^scripts\/grade/, ["grade"]],
-  [/^src\/docs\/|^playground\/Docs/, ["docs", "foundations", "nav"]],
+  // tier1 runs it on a few docs-site pages.
+  [/^src\/grade\/|^scripts\/grade/, ["grade", "tier1"]],
+  [/^src\/docs\/|^playground\/Docs/, ["docs", "foundations", "nav", "tier1"]],
   // The docs site: its manifest, the Markdown page, demos, links and generated blocks.
   [
     /^playground\/(docs-manifest|docs-links|demos|MarkdownShowcase)|^scripts\/(docs-sync|check-spec|style-contract|site-model|check-agent-docs)|^docs\/(?!system\/)|^README\.md$|^llms\.txt$/,
@@ -73,7 +88,7 @@ const AREAS = [
   ],
   [/^src\/(CanvasView|canvas)/, ["canvas", "canvas-gestures"]],
   // Root parts, theme, presets and the figures page: every figure-level spec.
-  [/^src\/[^/]+\.(tsx?|css)$|^src\/presets\/|^playground\/figures\//, FIGURES],
+  [/^src\/[^/]+\.(tsx?|css)$|^src\/presets\/|^playground\/figures\//, [...FIGURES, "tier1"]],
   // The Rules pages and their demos: outline, overflow and the nav rows.
   [
     /^playground\/(rulesDemos|foundations)|^docs\/(system|recipes|examples)\//,

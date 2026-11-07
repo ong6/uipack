@@ -69,7 +69,9 @@ npm run grade -- tally --key <run>/key/key.json judge-1.json judge-2.json [judge
 ```
 
 It maps labels back through the key and prints the win rate, paired deltas, scores relative to the
-anchor, and how many judges preferred the side they saw first. Exit code 1 asks for a third judge.
+anchor, and how many judges preferred the side they saw first. Exit code 1 asks for a third judge,
+or, when the output starts "NOT A RESULT", says a verdict matched no packet in the key (every
+dropped verdict is listed) and nothing it printed is a result.
 
 ## Defects are input, not rules
 

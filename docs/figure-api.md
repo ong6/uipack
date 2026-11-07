@@ -66,8 +66,11 @@ Light and dark: dark follows `prefers-color-scheme` and can be forced with `data
 on `<html>` or on the figure. Strokes are `currentColor`, so one accent per figure does the
 highlighting.
 
-A host that is not a registered style may set the `--uipack-*` aliases on an ancestor
-(junxiong.dev's Chakra theme does, see the [site registry](specs/registry.md)). That is a bridge
+A host that is not a registered style may set the `--uipack-*` aliases on `.uipack` itself, in a
+rule that loads after uipack's CSS or is more specific (junxiong.dev's Chakra theme does, see the
+[site registry](specs/registry.md)); on an ancestor they have no effect, because `.uipack` declares
+them. What they no longer reach (the title face, the canvas grid) is in the
+[changelog](../CHANGELOG.md#upgrading-from-a-commit-pin). That is a bridge
 for an existing site, not the way to restyle: a new look is a spec and a value set in `src/styles`
 ([how](specs/README.md)), never hex literals in consumer CSS.
 

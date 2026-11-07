@@ -504,7 +504,8 @@ function measurePage(opt) {
     }
     const display = cs(el).display;
     const block = el.parentElement;
-    const inline = display === "inline" && !!block && [...block.childNodes].some((n) => n !== el && n.nodeType === Node.TEXT_NODE && /\w/.test(n.textContent ?? ""));
+    const words = (n) => n.nodeType === Node.TEXT_NODE ? /\w/.test(n.textContent ?? "") : n instanceof Element && !n.matches(interactive) && !n.querySelector(interactive) && cs(n).display === "inline" && /\w/.test(n.textContent ?? "");
+    const inline = display === "inline" && !!block && [...block.childNodes].some((n) => n !== el && words(n));
     targets.push({ ...spot(el, r), inline });
   }
   const images = [];
@@ -540,6 +541,33 @@ function measurePage(opt) {
     fontSamples,
     bodyBackground: cs(doc.body).backgroundColor
   };
+}
+function measureGround() {
+  const doc = document;
+  const solid = (el) => {
+    const c = getComputedStyle(el).backgroundColor;
+    const nums = /^rgba\(([^)]*)\)$/.exec(c)?.[1].split(",");
+    const a = c === "transparent" ? "0" : nums?.length === 4 ? nums[3] : /\/\s*([\d.]+)\)$/.exec(c)?.[1] ?? "1";
+    return Number(a) >= 0.5 ? c : null;
+  };
+  const points = [
+    [innerWidth / 2, 8],
+    [innerWidth / 2, innerHeight / 2]
+  ];
+  const parts = [];
+  for (const [x, y] of points) {
+    const stack = doc.elementsFromPoint(x, y);
+    const hit = [...stack, doc.body, doc.documentElement].find((el) => el && solid(el));
+    if (!hit) {
+      parts.push("none");
+      continue;
+    }
+    const scheme = getComputedStyle(hit).colorScheme;
+    parts.push(`${solid(hit)} ${hit.getAttribute("data-theme") ?? ""} ${scheme}`);
+  }
+  for (const el of [doc.documentElement, doc.body])
+    parts.push(`${el.getAttribute("data-theme") ?? ""} ${getComputedStyle(el).colorScheme}`);
+  return parts.join(" | ");
 }
 function measureFocus(ignore) {
   const el = document.activeElement;
@@ -857,7 +885,7 @@ function checkFaces(m, spec, platform, varFaces) {
       const symbols = spec.symbolFaces.some((s) => f.familyName.toLowerCase().startsWith(s.toLowerCase())) || f.glyphCount <= symbolCount(use.text);
       findings.push({
         selector: use.selector,
-        text: use.text,
+        text: use.text.slice(0, 60),
         box: use.box,
         detail: `${f.glyphCount} glyph(s) drawn in "${f.familyName}"${symbols ? " (symbols the site faces lack)" : ", a fallback: the site face did not load or lacks these letters"}`,
         severity: symbols ? "warn" : "fail"
@@ -1155,7 +1183,7 @@ async function platformFonts(context, page) {
     const meta = await page.evaluate(`[...document.querySelectorAll("[data-uipack-grade-font]")].map((el) => {
       const r = el.getBoundingClientRect();
       const name = el.tagName.toLowerCase() + [...el.classList].slice(0, 3).map((c) => "." + c).join("");
-      return { i: Number(el.getAttribute("data-uipack-grade-font")), selector: name, text: (el.textContent || "").replace(/\\s+/g, " ").trim().slice(0, 60),
+      return { i: Number(el.getAttribute("data-uipack-grade-font")), selector: name, text: (el.textContent || "").replace(/\\s+/g, " ").trim(),
         box: { x: Math.round(r.left + scrollX), y: Math.round(r.top + scrollY), w: Math.round(r.width), h: Math.round(r.height) } };
     })`);
     const out = [];
@@ -1357,9 +1385,7 @@ async function gradeUrl(url, spec, opts = {}) {
             maxFontSamples: 400
           });
           title = title || m.title;
-          const colour = await page.evaluate(
-            "getComputedStyle(document.documentElement).backgroundColor + ' ' + getComputedStyle(document.body).backgroundColor"
-          );
+          const colour = await inPage(page, measureGround);
           view.bodyBackground = m.bodyBackground;
           if (theme === "light") lightColour.set(viewport.name, colour);
           else view.themeApplied = lightColour.get(viewport.name) !== colour;
@@ -1625,10 +1651,12 @@ var mean = (xs) => xs.length ? xs.reduce((s, x) => s + x, 0) / xs.length : 0;
 var round = (x) => Math.round(x * 100) / 100;
 function tallyJudges(key, verdicts) {
   const problems = [];
+  const unmatched = [];
   const rows = verdicts.flatMap((v) => {
     const map2 = key.packets[v.packet];
     if (!map2) {
       problems.push(`verdict for unknown packet "${v.packet}"`);
+      unmatched.push(String(v.packet));
       return [];
     }
     if (String(v.rubricVersion) !== String(key.rubric.version))
@@ -1663,7 +1691,8 @@ function tallyJudges(key, verdicts) {
     b: round(mean(rows.map((r) => r.b))),
     anchor: anchors.length ? round(mean(anchors)) : null
   };
-  if (rows.length < 2) problems.push("fewer than two judges: run the second judge in the opposite order");
+  if (!rows.length) problems.push("no verdict matched a packet in the key: nothing was tallied");
+  else if (rows.length < 2) problems.push("fewer than two judges: run the second judge in the opposite order");
   return {
     judges: rows.length,
     winRateB: rows.length ? round(prefersB / rows.length) : 0,
@@ -1677,11 +1706,16 @@ function tallyJudges(key, verdicts) {
     preferredFirstShown: rows.filter((r) => r.firstShownWon).length,
     disagreement,
     needsThirdJudge: disagreement && rows.length < 3,
+    unmatched,
+    valid: rows.length > 0 && unmatched.length === 0,
     problems
   };
 }
 function formatTally(t) {
   const lines = [
+    ...t.valid ? [] : [
+      `NOT A RESULT: ${t.unmatched.length} of ${t.judges + t.unmatched.length} verdict(s) matched no packet in the key${t.unmatched.length ? ` (${t.unmatched.join(", ")})` : ""}; check the key and the verdicts' "packet" field`
+    ],
     `Judges: ${t.judges}${t.needsThirdJudge ? " (disagree by 2+ or opposite preferences: run a third judge)" : t.disagreement ? " (disagreement resolved by a third judge)" : ""}`,
     `Win rate of B over A: ${(t.winRateB * 100).toFixed(0)}%`,
     `Paired overall delta (B \u2212 A): mean ${t.meanOverallDelta >= 0 ? "+" : ""}${t.meanOverallDelta} (per judge: ${t.overallDeltas.join(", ")})`,
@@ -2295,7 +2329,7 @@ key (never show judges): ${res.keyFile}`);
         rest.map((p) => readJson(p))
       );
       console.log(formatTally(t));
-      return t.needsThirdJudge ? 1 : 0;
+      return !t.valid || t.needsThirdJudge ? 1 : 0;
     }
     if (command === "ledger") {
       if (!rest[0]) return console.error(USAGE), 2;

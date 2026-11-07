@@ -39,6 +39,8 @@ These tiers grade UI work that people see. uipack's own docs are read by agents,
    target, the round number or which side is new.
 4. `npm run grade -- tally --key <key> judge-1.json judge-2.json`. Exit code 1 means the judges
    disagree by 2 or more, or prefer opposite sides: run a third judge on `judge-3/` and tally all three.
+   It also means a verdict named no packet in the key (or none did): the output starts "NOT A
+   RESULT"; fix the key or the verdict's `packet` and tally again.
 5. Report the win rate, the paired delta and the scores relative to the anchor, with the judge count
    and order. Never report a raw 1-10 alone.
 6. Record each claimed fix in the [fix ledger](regression.md#fix-ledger) and have someone other

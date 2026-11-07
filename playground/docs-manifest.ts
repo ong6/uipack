@@ -539,6 +539,13 @@ export const docsManifest = [
         intro: "What the unit and browser suites check, how CI runs them and the known engine quirks.",
       },
       {
+        id: "releases",
+        label: "Releases",
+        path: "/reference/releases",
+        file: "docs/releases.md",
+        intro: "How a version is cut: semver for this repo, the changelog, the tag on main, and how each site moves its pin.",
+      },
+      {
         id: "component-first",
         label: "Component-first",
         path: "/reference/component-first",
@@ -757,7 +764,7 @@ export interface SiteEntry {
   readonly specStatus: "written" | "todo";
   /** The component looks it picks, as `component: look` (its spec's `components:`). */
   readonly components: readonly string[];
-  /** The uipack commit the site installs; "current" for uipack itself. */
+  /** What the site installs: a release tag (`v0.2.0`) or, before it moves to one, a commit; "current" for uipack itself. */
   readonly pins: string;
   readonly notes: string;
 }

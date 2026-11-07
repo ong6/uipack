@@ -209,7 +209,7 @@
       display: inline-block;
       width: 1.75rem;
       color: var(--web-ink-low);
-      font-size: 0.6875rem;
+      font-size: 0.75rem;
     }
     .uipack-web[data-ui-style="technical"] .uipack-web-table tr[data-highlight] :is(th, td):first-child {
       padding-inline-start: 10px;
@@ -248,7 +248,7 @@
     height: 22px;
     border-radius: 50%;
     box-shadow: inset 0 0 0 1px var(--web-ink);
-    font: 600 0.6875rem / 1 var(--web-font-mono);
+    font: 600 0.75rem / 1 var(--web-font-mono);
     color: var(--web-ink);
   }
   .uipack-web[data-ui-style="technical"] .uipack-web-worked__arrow {
@@ -288,7 +288,7 @@
   }
   .uipack-web[data-ui-style="technical"] .uipack-web-worked__note::before {
     content: "NOTE";
-    font: 600 0.6875rem / 1.6 var(--web-font-mono);
+    font: 600 0.75rem / 1.6 var(--web-font-mono);
     letter-spacing: var(--web-label-tracking);
     color: var(--web-accent-ink);
   }
@@ -335,7 +335,7 @@
   .uipack-web[data-ui-style="technical"] .uipack-web-proof__stats:not([data-count="1"]) dt {
     order: -1;
     max-width: none;
-    font: 500 0.6875rem / 1.4 var(--web-font-mono);
+    font: 500 0.75rem / 1.4 var(--web-font-mono);
     letter-spacing: var(--web-label-tracking);
     text-transform: uppercase;
     color: var(--web-ink-low);
@@ -367,7 +367,7 @@
     background: var(--web-surface);
   }
   .uipack-web[data-ui-style="technical"] .uipack-web-hero__facts dt {
-    font-size: 0.6875rem;
+    font-size: 0.75rem;
     letter-spacing: var(--web-label-tracking);
     text-transform: uppercase;
   }
@@ -403,7 +403,7 @@
   }
   .uipack-web[data-ui-style="technical"] .uipack-web-shot__pin::before {
     content: counter(uipack-shot);
-    font: 600 0.6875rem / 1 var(--web-font-mono);
+    font: 600 0.75rem / 1 var(--web-font-mono);
     color: var(--ui-media-ground);
   }
   .uipack-web[data-ui-style="technical"] .uipack-web-shot__leader {

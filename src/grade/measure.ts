@@ -431,12 +431,20 @@ export function measurePage(opt: MeasureOptions): Measurements {
       const lab = el.closest("label") ?? (el.id ? doc.querySelector(`label[for="${CSS.escape(el.id)}"]`) : null);
       if (lab) r = lab.getBoundingClientRect();
     }
+    // Inline when it sits in a line of words that are not themselves targets: a bare text node, or
+    // a sibling element's words ("<strong>Rules:</strong> <a>Overview</a>, <a>Layout</a>"). A row
+    // of links with only separators between them ("A · B") is not a sentence, so it is graded.
     const display = cs(el).display;
     const block = el.parentElement;
-    const inline =
-      display === "inline" &&
-      !!block &&
-      [...block.childNodes].some((n) => n !== el && n.nodeType === Node.TEXT_NODE && /\w/.test(n.textContent ?? ""));
+    const words = (n: ChildNode): boolean =>
+      n.nodeType === Node.TEXT_NODE
+        ? /\w/.test(n.textContent ?? "")
+        : n instanceof Element &&
+          !n.matches(interactive) &&
+          !n.querySelector(interactive) &&
+          cs(n).display === "inline" &&
+          /\w/.test(n.textContent ?? "");
+    const inline = display === "inline" && !!block && [...block.childNodes].some((n) => n !== el && words(n));
     targets.push({ ...spot(el, r), inline });
   }
 
@@ -477,6 +485,42 @@ export function measurePage(opt: MeasureOptions): Measurements {
     fontSamples,
     bodyBackground: cs(doc.body).backgroundColor,
   };
+}
+
+/**
+ * The page's effective ground, for telling whether a theme applied. A page may paint its ground on
+ * a wrapper (`.uipack-web`, an app root) and leave body transparent, so this reads, at the top
+ * centre and the centre of the viewport, the topmost element under the point with an opaque
+ * enough background (html and body last), plus the `data-theme` and `color-scheme` the root, body
+ * and that element declare. Runs in the browser.
+ */
+export function measureGround(): string {
+  const doc = document;
+  const solid = (el: Element) => {
+    const c = getComputedStyle(el).backgroundColor;
+    // Alpha: the fourth number of rgba(), or the one after "/" (color(), oklch()); else opaque.
+    const nums = /^rgba\(([^)]*)\)$/.exec(c)?.[1].split(",");
+    const a = c === "transparent" ? "0" : nums?.length === 4 ? nums[3] : (/\/\s*([\d.]+)\)$/.exec(c)?.[1] ?? "1");
+    return Number(a) >= 0.5 ? c : null;
+  };
+  const points: [number, number][] = [
+    [innerWidth / 2, 8],
+    [innerWidth / 2, innerHeight / 2],
+  ];
+  const parts: string[] = [];
+  for (const [x, y] of points) {
+    const stack = doc.elementsFromPoint(x, y);
+    const hit = [...stack, doc.body, doc.documentElement].find((el) => el && solid(el));
+    if (!hit) {
+      parts.push("none");
+      continue;
+    }
+    const scheme = getComputedStyle(hit).colorScheme;
+    parts.push(`${solid(hit)} ${hit.getAttribute("data-theme") ?? ""} ${scheme}`);
+  }
+  for (const el of [doc.documentElement, doc.body])
+    parts.push(`${el.getAttribute("data-theme") ?? ""} ${getComputedStyle(el).colorScheme}`);
+  return parts.join(" | ");
 }
 
 /** One step of the keyboard walk: the focused element, its focus styles, and whether a box clips its ring. Runs in the browser. */

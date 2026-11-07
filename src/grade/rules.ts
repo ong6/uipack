@@ -32,6 +32,7 @@ export interface CheckResult {
 /** A platform font Chromium used to draw an element's text (CDP CSS.getPlatformFontsForNode). */
 export interface PlatformFontUse {
   selector: string;
+  /** The element's whole text (whitespace collapsed): symbols are counted over all of it. */
   text: string;
   box: Box;
   fonts: { familyName: string; postScriptName?: string; glyphCount: number }[];
@@ -288,7 +289,7 @@ export function checkFaces(m: Measurements, spec: SiteSpec, platform: PlatformFo
         f.glyphCount <= symbolCount(use.text);
       findings.push({
         selector: use.selector,
-        text: use.text,
+        text: use.text.slice(0, 60),
         box: use.box,
         detail: `${f.glyphCount} glyph(s) drawn in "${f.familyName}"${symbols ? " (symbols the site faces lack)" : ", a fallback: the site face did not load or lacks these letters"}`,
         severity: symbols ? "warn" : "fail",

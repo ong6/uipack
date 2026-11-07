@@ -1,6 +1,6 @@
 'use strict';
 
-var chunkLF6OWAHL_cjs = require('./chunk-LF6OWAHL.cjs');
+var chunkUAE3UZQU_cjs = require('./chunk-UAE3UZQU.cjs');
 var chunkCLA7XLG7_cjs = require('./chunk-CLA7XLG7.cjs');
 var chunkPT2CSIXM_cjs = require('./chunk-PT2CSIXM.cjs');
 var react = require('react');
@@ -112,10 +112,10 @@ function renderStatic(input, opts = {}) {
   g.__UIPACK_PRERENDER__ = motion;
   let drawing;
   try {
-    const floor = chunkLF6OWAHL_cjs.fontFloor(vw, opts.width ?? chunkLF6OWAHL_cjs.DEFAULT_RENDER_WIDTH, opts.minFont ?? 11);
+    const floor = chunkUAE3UZQU_cjs.fontFloor(vw, opts.width ?? chunkUAE3UZQU_cjs.DEFAULT_RENDER_WIDTH, opts.minFont ?? 11);
     drawing = inlineVars(
       svgMarkup(
-        /* @__PURE__ */ jsxRuntime.jsx(chunkPT2CSIXM_cjs.FigureMotionContext.Provider, { value: ctx, children: /* @__PURE__ */ jsxRuntime.jsx(chunkLF6OWAHL_cjs.FigureScaleProvider, { floor, children: fig.children }) })
+        /* @__PURE__ */ jsxRuntime.jsx(chunkPT2CSIXM_cjs.FigureMotionContext.Provider, { value: ctx, children: /* @__PURE__ */ jsxRuntime.jsx(chunkUAE3UZQU_cjs.FigureScaleProvider, { floor, children: fig.children }) })
       ),
       p
     );
@@ -156,7 +156,7 @@ function renderStatic(input, opts = {}) {
       for (const it of fig.legend) {
         const kind = it.kind ?? "neutral";
         const tok = inlineVars(
-          svgMarkup(/* @__PURE__ */ jsxRuntime.jsx(chunkLF6OWAHL_cjs.Token, { kind, shape: it.shape ?? chunkLF6OWAHL_cjs.TOKEN_SHAPE[kind], r: 5.5, cx: lx + 6, cy: hy - 4 })),
+          svgMarkup(/* @__PURE__ */ jsxRuntime.jsx(chunkUAE3UZQU_cjs.Token, { kind, shape: it.shape ?? chunkUAE3UZQU_cjs.TOKEN_SHAPE[kind], r: 5.5, cx: lx + 6, cy: hy - 4 })),
           p
         );
         head.push(

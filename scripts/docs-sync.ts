@@ -215,17 +215,33 @@ export function diagramFamily() {
   return ["| Token | Reads today | Light | Dark |", "| --- | --- | --- | --- |", ...rows].join("\n");
 }
 
-/** docs/specs/registry.md's table, from `siteRegistry`. */
-export function registryTable(from: string) {
+/** The latest release: package.json's version, which a release tags as `v<version>` on main (docs/releases.md). */
+export const releaseVersion = (): string => JSON.parse(readFileSync(join(root, "package.json"), "utf8")).version;
+
+const semver = (v: string) => /^v?(\d+)\.(\d+)\.(\d+)$/.exec(v)?.slice(1).map(Number) ?? null;
+
+/** A site's pin against the latest release: "current" (uipack itself), a release tag, or a commit. */
+export function pinStatus(pin: string, version: string): string {
+  if (pin === "current") return "the release source";
+  const have = semver(pin);
+  const latest = semver(version);
+  if (!have || !latest) return `commit pin: move to \`v${version}\``;
+  const order = have.findIndex((n, i) => n !== latest[i]);
+  if (order < 0) return "up to date";
+  return have[order] < latest[order] ? `behind: move to \`v${version}\`` : `ahead of \`v${version}\` (unreleased tag)`;
+}
+
+/** docs/specs/registry.md's table, from `siteRegistry` and package.json's version. */
+export function registryTable(from: string, version = releaseVersion()) {
   const rows = siteRegistry.map((s) => {
     const spec = s.spec.includes(":")
       ? `\`${s.spec}\` (${s.specStatus === "todo" ? "TODO" : "written"})`
       : `[${s.spec}](${rel(from, s.spec)})`;
-    return `| ${s.site} | ${s.repo} | ${spec} | ${s.components.join(", ")} | \`${s.pins}\` | ${s.notes} |`;
+    return `| ${s.site} | ${s.repo} | ${spec} | ${s.components.join(", ")} | \`${s.pins}\` | ${pinStatus(s.pins, version)} | ${s.notes} |`;
   });
   return [
-    "| Site | Repo | Spec | Component looks | Pins uipack | Notes |",
-    "| --- | --- | --- | --- | --- | --- |",
+    `| Site | Repo | Spec | Component looks | Pins uipack | Against \`v${version}\` | Notes |`,
+    "| --- | --- | --- | --- | --- | --- | --- |",
     ...rows,
   ].join("\n");
 }

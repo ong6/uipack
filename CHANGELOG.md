@@ -1,0 +1,160 @@
+# Changelog
+
+Every uipack release and what changed in it, newest first, for the sites that pin uipack and the
+agents that build them. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
+version numbers follow the rules in [docs/releases.md](docs/releases.md), which also says how a
+release is cut and how a site moves to it.
+
+## [Unreleased]
+
+## [0.2.0] - 2026-11-07
+
+The first tagged release. It covers everything since commit `683d44b` (2026-11-06); the sites
+pinned before that (junxiong.dev at `e6b6ed7`, notes.junxiong.dev at `3886f0d`) should read
+[Upgrading from a commit pin](#upgrading-from-a-commit-pin) first.
+
+### Added
+
+- **Docs hub.** The playground is one docs site: a manifest (`playground/docs-manifest.ts`) maps
+  each sidebar group to its pages, routes and Markdown files, and every page renders its Markdown
+  with live `uipack-demo` blocks. Pages carry View as Markdown and Edit on GitHub links.
+  `npm run docs:sync` regenerates every number and sequence a page states from code, plus
+  `llms.txt`; CI runs it with `--check`.
+- **`uipack/docs`:** `DocsMarkdown` host blocks (`DocsMarkdownBlock`) and a `resolveUrl` hook;
+  `DocsLayout` gains `width="wide"`, a host header, mobile navigation, a navigation label, a main
+  landmark, source links and nested navigation items.
+- **Site model.** Each site has one spec (`docs/specs/`, or a site repo's `STYLE.md`, from
+  `docs/specs/TEMPLATE.md`) that owns its look, its layout per page type (layout archetypes in
+  `docs/system/layout/`), its writing style and the component looks it picks (`docs/components/`,
+  each `fixed` or `flex`). `scripts/check-spec.ts` validates a spec; every site is in the
+  [site registry](docs/specs/registry.md), which now shows each site's pin against the latest
+  release.
+- **Core rules** in `docs/system/`: the role contract, layout floors (reading order, a real narrow
+  layout, no overflow, tap targets, visible focus, the 8px unit), writing by kind
+  (`docs/system/writing/`) and layout by page type, plus four recipes (`docs/recipes/`).
+- **Grader** (`uipack/grade`, `npx uipack-grade`, `npm run grade`): tier 1 runs 13 deterministic
+  checks at 1440 and 390, light and dark, under reduced motion, and exits non-zero on a failure;
+  tier 2 builds blinded pairwise judge packets against frozen rubrics and tallies them; tier 3 is a
+  frozen set of 15 regression briefs and a fix ledger. Docs in `docs/grading/`.
+- **Agent skills and guide:** `skills/` (page, diagram, copy, site spec, review) and
+  `docs/agents/` (read order, multi-agent build, subagent brief, new website) ship in the package;
+  `AGENTS.md` and the README point agents there first.
+- **Figure check** (`node node_modules/uipack/bin/uipack-figure-check.mjs <url> [--views 1440,390]`):
+  a site's own check of every figure drawing on a page at 1440 and 390, failing a connector drawn
+  through a label or a label over a node, chip or label, and listing connectors with no label.
+  The diagram skill's check step runs it; `e2e/geometry.spec.ts` runs it on the diagrams page.
+- **Assets tab** (`/gallery`): a live grid of every registered asset, built from the same
+  registries the docs render, each card linked to its docs page. `FigureLayoutWidthContext` lets a
+  host that scales figures down keep their designed text size.
+- **Web parts:** `ProductShot` (with `ProductShotCallout` and `ProductShotReadout`) for
+  role-painted product pictures, `StarHero` media and facts, the proof-corner stamp, `Proof`
+  headline stats and caveat, an aside for `FAQ` and `Section`, `DataTable` priority `"key"`, and a
+  device recipe in `examples/web-starter`.
+- **Style boot:** `styleBootPlugin()` for Vite, `readStyle()` and the `StyleBootOptions` type;
+  `persist` (off by default) decides whether a remembered style is read.
+- `FIGURE_GRID` export (the figure grid values the docs generate from).
+- **3D round-3 craft** on the kept subjects: Studio product-film framing, lighting and per-subject
+  shots; Kinetic glazes and bases; Cartoon, Realistic and Abstract materials and frames; Paper
+  tabs and lantern light.
+- `CHANGELOG.md` and [docs/releases.md](docs/releases.md).
+
+### Changed
+
+- **One style.** Technical (Cyanotype) is the only implemented style; pages and Foundations show it
+  alone with no style switcher.
+- Technical's values live in its spec (`docs/specs/technical.md`, generated from
+  `src/styles/technical.css`); the product-imagery ramp uses Cyanotype values only.
+- Docs layout: the home page (`/`) is "What UiPack is"; the diagram catalogue moved to
+  `/components/diagrams` (old links redirect); diagram families became component looks
+  (`/families` redirects); reference split into `docs/figure-api.md`, `docs/web-api.md`,
+  `docs/testing.md` and topic files; screenshots moved to `docs/screenshots/`.
+- Writing rules: a missing fact is left out rather than announced, sources sit in one place per
+  piece, the before/after sentence appears once in the evidence notes, and title forms vary.
+- Guidance: label every connector that carries something, in the brief's words, and check a
+  caption's counts against the drawing; every docs task has a copyable example, with names the
+  brief lacks marked as placeholders; the deck recipe adds a what-each-slide-adds pass, a lintDeck
+  rerun after the last edit, a fill check per slide, an archetype per role and one tone per deck;
+  the page skill says when to skip the spec step.
+- Figures inside the docs shell draw at 1:1 at 1440 again.
+- Decks read their site's spec.
+
+### Removed
+
+- The Landing and Graphical styles: their value sets, `uiStyles` entries and treatment blocks, the
+  Landing-only `--ui-display-shadow` and `--ui-em-fill` hooks, and their written specs
+  (`docs/system/styles/landing.md`, `graphical.md`, `README.md`).
+- `docs/system/layout.md` and `docs/system/writing.md`, replaced by the `docs/system/layout/` and
+  `docs/system/writing/` folders.
+
+### Fixed
+
+- Tier-1 findings on the docs site: View as Markdown, Edit on GitHub and the docs breadcrumb are
+  44px tap targets on touch; a figure node's invisible touch target reaches 44 CSS px at the scale
+  it is drawn (the drawing and its 8px grid are unchanged); the docs sidebar keeps room for a
+  focus ring when Tab scrolls it; a linked web wordmark (`Brand` with `href`) and the nav brand link
+  are 44px targets;
+  the 3D look caption holds 4.5:1.
+- `uipack/web` parts draw no text below the 12px floor (they are HTML, so the 11px figure floor
+  does not apply): `ScheduleGrid` heads, names and cells (10px on a phone before), the hero stamp
+  label (10px), `ProductWindow` source tags, stacked `DataTable` labels and row marks,
+  `RecordCard` eyebrow and labels, `BeforeAfter` tags, `ProductShot` tags, notes, readouts and
+  pins, hero facts, worked-example notes and Technical proof-stat labels. A `ScheduleGrid` too wide
+  for a phone column now scrolls inside its frame instead of pushing past the section. The web
+  starter went from 102 text-size findings (and 6 tap-target findings) across four views to none.
+- Grader: symbols past a text's first 60 characters count as symbols (a code line's late arrows
+  were reported as a fallback font), and a link in a line with a label's words
+  ("**Rules:** Overview, Layout") counts as an inline text link.
+- `grade tally` exits 1 and starts its output with "NOT A RESULT" when any verdict names no
+  packet in the key, or none does (it used to print a result from what was left and exit 0).
+- Tier 1 reads the dark theme from the page's effective ground (the topmost painted element at
+  the top centre and centre of the viewport, plus the declared `data-theme` and `color-scheme`),
+  so a page painted on a wrapper (`.uipack-web`, an app root) is no longer reported as "dark not
+  applied".
+- `DataTable` text columns wrap while numbers stay on one line; proof stats on a phone keep their
+  values in one column; `WorkedExample` under 420px puts each result under its rule; `StarHero`
+  facts on a phone take one column each.
+- Realistic 3D renders without multisampling at phone width and uses a lighter server set;
+  Pause hides when the loop settles under reduced motion; the realistic tennis stays inside its
+  envelope; caption and controls are light over the dark tennis and server sets.
+- Assets gallery previews always mount (empty cards on CI and on deep links).
+- Label underlays cover whole-pixel glyph advances.
+- The docs' numbered-steps and nested-groups example diagrams no longer draw a connector through their ORDER
+  and JOB labels.
+
+### Upgrading from a commit pin
+
+1. Pin the release: `"uipack": "github:ong6/uipack#v0.2.0"` in `package.json`, then
+   `npm install`.
+2. **Landing and Graphical are gone.** `uiStyle` and `data-ui-style` accept only `"technical"`
+   (another value falls back to Technical), and `docs/system/styles/*.md` no longer exist. This
+   breaks only pins from 2026-11-04 to 2026-11-06, when those styles existed; `e6b6ed7` and
+   `3886f0d` predate the `uiStyle` prop. A site that wants its own look writes a spec from
+   `docs/specs/TEMPLATE.md` and asks for a value set ([how](docs/specs/README.md)).
+3. **Host colour variables.** The legacy `--uipack-fg`, `--uipack-bg`, `--uipack-accent`,
+   `--uipack-mono` and `--uipack-sans` (and `--uipack-muted`, `--uipack-surface`,
+   `--uipack-border`, `--uipack-grid`, `--uipack-token-*`) still exist: each is now an alias on
+   `.uipack` for a `--ui-*` role (`--uipack-fg: var(--ui-ink)`). A host rule on `.uipack` that
+   loads after uipack's CSS, or is more specific, still sets figure text, background, node fill,
+   border, accent and the body faces, in both themes (checked in Chromium on 2026-11-07).
+   junxiong.dev's rule (`.uipack, .uipack-object-frame, .uipack-canvas-dialog { --uipack-*: … }`)
+   is of that kind. Setting them only on an ancestor has no effect, as before, because `.uipack`
+   declares them itself; the `--ui-*` roles, by contrast, do inherit from an ancestor. Three
+   things no longer follow the aliases:
+   - The figure title uses `--ui-font-heading` (IBM Plex Sans), not `--uipack-sans`. To keep the
+     site's face, also set `--ui-font-heading: var(--uipack-sans)` on `.uipack`.
+   - The canvas ground is Technical's drafting grid (`--ui-canvas-pattern`, drawn from
+     `--ui-ink`), so `--uipack-grid` is ignored. To get the dot grid in `--uipack-grid` back, set
+     `--ui-canvas-pattern: initial` on `.uipack`.
+   - The old `prefers-color-scheme: dark` defaults on `.uipack` are gone; dark comes from the
+     roles' `light-dark()` values. A host that already sets its own dark values keeps them, and a
+     `:root[data-theme="dark"] .uipack` workaround for the old defaults is no longer needed.
+   These aliases are a bridge for an existing site; the supported way to restyle is a spec and a
+   value set, not host CSS.
+4. Docs paths moved (see Changed and Removed); a link into `node_modules/uipack/docs/` needs the
+   new path.
+5. Take before and after screenshots of every page that renders uipack (1440 and 390, light and
+   dark) and run tier 1 on them (`npx uipack-grade check <url>`), as
+   [docs/releases.md](docs/releases.md#moving-a-site-to-a-release) describes.
+
+[Unreleased]: https://github.com/ong6/uipack/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/ong6/uipack/compare/683d44b...v0.2.0

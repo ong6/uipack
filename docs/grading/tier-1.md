@@ -42,6 +42,12 @@ view table, then the top findings of each failing check), `<out>/shots/<view>.pn
 id, a selector, the text, a detail with the measured number and the threshold, the box in page
 coordinates and its crop.
 
+Each view also records `themeApplied`: whether the dark view's page ground differs from the light
+view's. The ground is read where a reader sees it, at the top centre and the centre of the
+viewport (the topmost element there with a background, so a page painted on a wrapper such as
+`.uipack-web` counts), with the `data-theme` and `color-scheme` the root, body and that element
+declare. When nothing differs, `summary.md` notes that the dark theme did not apply.
+
 ## Site values
 
 The faces come from the site's style spec, read with the same parser as `scripts/check-spec.ts`:

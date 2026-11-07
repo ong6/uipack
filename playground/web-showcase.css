@@ -625,7 +625,7 @@
 .web-fp-demo {
   display: grid;
   align-content: start;
-  gap: 6px;
+  gap: 4px;
   height: 100%;
   padding: 0 14px;
 }
@@ -654,13 +654,13 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  height: 10px;
+  height: 12px;
   animation-name: web-fp-tick;
   animation-delay: calc(var(--i) * 0.35s);
 }
 .web-fp-demo__row b {
   color: var(--web-accent);
-  font: 600 10px/1 var(--web-font-mono);
+  font: 600 12px/1 var(--web-font-mono);
 }
 .web-fp-demo__row i {
   flex: 0 0 calc(56% - var(--i) * 12%);

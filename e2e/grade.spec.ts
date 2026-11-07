@@ -33,6 +33,7 @@ const BAD = `<!doctype html><html><head><meta name="viewport" content="width=dev
   <div class="stack"><p>First words here</p><p>Second words here</p></div>
   <div class="grid"><div style="height: 120px">Short card</div><div style="height: 200px">Tall card</div></div>
   <button style="width: 20px; height: 20px; padding: 0">x</button>
+  <p><a href="#alpha">Alpha</a> · <a href="#beta">Beta</a></p>
   <p class="faint">Faint grey text that fails contrast</p>
   <p><span class="tiny">Nine pixel label</span></p>
   <p class="serif">A paragraph in another face</p>
@@ -58,9 +59,19 @@ const CLEAN = `<!doctype html><html><head><meta name="viewport" content="width=d
   <h2>Controls</h2>
   <p><button>Save</button> <a href="#top">Back to top</a></p>
   <p>An inline <a href="#x" style="min-height:0;min-width:0;display:inline">text link</a> is exempt.</p>
+  <ul><li><strong>Index:</strong> <a href="#y" style="min-height:0;min-width:0;display:inline">one page</a>, <a href="#z" style="min-height:0;min-width:0;display:inline">another page</a></li></ul>
   <img src="/plex.woff2" alt="" width="10" height="10">
   <p class="spin">Pulses only when motion is allowed</p>
 </main></body></html>`;
+
+// Body stays transparent; the app root paints the ground, dark only when the scheme asks for it
+// (as .uipack-web does). `fixed` never changes, so its dark view really is not themed.
+const wrapper = (
+  themed: boolean,
+) => `<!doctype html><html><head><meta name="viewport" content="width=device-width"><title>Wrapper</title><style>${face}
+  body { background: transparent; } .app { min-height: 100vh; padding: 24px; background: #fff; color: #111; }
+  ${themed ? "@media (prefers-color-scheme: dark) { .app { background: #111; color: #eee; } }" : ""}
+</style></head><body><div class="app"><h1>Painted on a wrapper</h1><p>The body has no background of its own.</p></div></body></html>`;
 
 let server: Server;
 let base = "";
@@ -70,7 +81,16 @@ test.beforeAll(async () => {
   server = createServer((req, res) => {
     if (req.url === "/plex.woff2") return void (res.setHeader("Content-Type", "font/woff2"), res.end(font));
     res.setHeader("Content-Type", "text/html; charset=utf-8");
-    res.end(req.url?.startsWith("/bad") ? BAD : CLEAN);
+    const url = req.url ?? "";
+    res.end(
+      url.startsWith("/bad")
+        ? BAD
+        : url.startsWith("/wrapper")
+          ? wrapper(true)
+          : url.startsWith("/fixed")
+            ? wrapper(false)
+            : CLEAN,
+    );
   });
   await new Promise<void>((r) => server.listen(0, "127.0.0.1", r));
   base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
@@ -114,8 +134,9 @@ test("tier 1 catches a planted defect for every check", async () => {
   expect(status(phone, "font-faces").findings[0].detail).toMatch(/asks for "Georgia"/);
   expect(status(phone, "focus-visible").findings.map((f) => f.text)).toContain("No focus ring");
   expect(status(phone, "reduced-motion").findings[0].detail).toMatch(/pulse/);
-  // The 20px button fails the 24px pointer minimum too; the 48px one does not.
-  expect(status(desk, "tap-targets").findings.map((f) => f.text)).toEqual(["x"]);
+  // The 20px button fails the 24px pointer minimum too; the 48px one does not. Links with only a
+  // separator between them are a row of targets, not a sentence, so they are graded.
+  expect(status(desk, "tap-targets").findings.map((f) => f.text)).toEqual(["x", "Alpha", "Beta"]);
   expect(status(desk, "overflow-x").status).toBe("fail");
 });
 
@@ -131,4 +152,12 @@ test("tier 1 passes a clean page in every view", async () => {
   expect(report.views.find((v) => v.view === "1440-dark")!.themeApplied).toBe(true);
   // The motion the page allows is off under reduced motion, and focus was walked.
   expect(report.views[0].checks.find((c) => c.id === "focus-visible")!.checked).toBeGreaterThanOrEqual(2);
+});
+
+test("the dark theme is read from the ground a wrapper paints, not only body", async () => {
+  test.setTimeout(120_000);
+  const themed = await gradeUrl(`${base}/wrapper`, spec, { views: ["1440"], screenshots: false });
+  expect(themed.views.find((v) => v.view === "1440-dark")!.themeApplied).toBe(true);
+  const fixed = await gradeUrl(`${base}/fixed`, spec, { views: ["1440"], screenshots: false });
+  expect(fixed.views.find((v) => v.view === "1440-dark")!.themeApplied).toBe(false);
 });
