@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, type ReactNode } from "react";
 import { useLatest } from "./env";
 import { useCanvasGestures, type CanvasZoom } from "./canvas-gestures";
 import { createPortal } from "react-dom";
+import { DIAGRAM_CARRIERS } from "./diagram-theme";
 
 const CANVAS_TOKENS = ["--uipack-bg", "--uipack-surface", "--uipack-fg", "--uipack-muted", "--uipack-border", "--uipack-accent"];
 
@@ -32,6 +33,8 @@ export function CanvasView({
   const content = useRef<HTMLDivElement>(null);
   const gestures = useCanvasGestures(content, open, zoom);
   const dialog = useRef<HTMLDialogElement>(null);
+  // Left where the figure was: the dialog reads the diagram theme scope there (data-diagram-theme).
+  const anchor = useRef<HTMLSpanElement>(null);
   const actionsRef = useLatest(gestures);
   useEffect(() => {
     if (!open) return;
@@ -88,6 +91,18 @@ export function CanvasView({
   useEffect(() => {
     const node = dialog.current;
     if (!open || !node) return;
+    // The theme scope's carriers first, so the figure inside the dialog resolves the same theme.
+    const scope = anchor.current ? getComputedStyle(anchor.current) : null;
+    for (const name of DIAGRAM_CARRIERS) {
+      const value = scope?.getPropertyValue(name).trim();
+      if (value) node.style.setProperty(name, value);
+      else node.style.removeProperty(name);
+    }
+    const mode = anchor.current?.closest<HTMLElement>("[data-diagram-mode]")?.dataset.diagramMode;
+    if (mode) {
+      node.dataset.diagramMode = mode;
+      if (!theme) node.dataset.theme = mode;
+    } else delete node.dataset.diagramMode;
     const source = node.querySelector<HTMLElement>(".uipack");
     if (!source) return;
     const style = getComputedStyle(source);
@@ -98,62 +113,67 @@ export function CanvasView({
     }
   }, [open, theme]);
   if (!open || typeof document === "undefined") return <>{children}</>;
-  return createPortal(
-    <dialog
-      ref={dialog}
-      className="uipack-canvas-dialog"
-      data-theme={theme ?? document.documentElement.dataset.theme}
-      data-ui-style={uiStyle}
-      aria-label={title}
-      onCancel={(e) => {
-        e.preventDefault();
-        closeRef.current();
-      }}
-    >
-      <div className="uipack-canvas-toolbar">
-        <strong>{title}</strong>
-        <div>
-          <button
-            type="button"
-            aria-label="Zoom out"
-            title="Zoom out (−)"
-            disabled={zoom.value <= zoom.min}
-            onClick={() => gestures.step(0.8)}
-          >
-            −
-          </button>
-          <span
-            role="meter"
-            aria-label="Zoom level"
-            aria-valuemin={zoom.min * 100}
-            aria-valuemax={zoom.max * 100}
-            aria-valuenow={Math.round(zoom.value * 100)}
-            aria-valuetext={`${Math.round(zoom.value * 100)}%`}
-          >
-            {Math.round(zoom.value * 100)}%
-          </span>
-          <button
-            type="button"
-            aria-label="Zoom in"
-            title="Zoom in (+)"
-            disabled={zoom.value >= zoom.max}
-            onClick={() => gestures.step(1.25)}
-          >
-            +
-          </button>
-          <button type="button" title="Reset view (0)" onClick={gestures.reset}>
-            Fit
-          </button>
-          <button type="button" onClick={onClose} autoFocus>
-            Close canvas
-          </button>
-        </div>
-      </div>
-      <p className="uipack-canvas-hint">Pinch to zoom · Two-finger scroll · + / − to zoom · 0 to reset</p>
-      <div ref={content} className={`uipack-canvas-content${layout ? ` uipack-canvas-content--${layout}` : ""}`}>
-        {children}
-      </div>
-    </dialog>,
-    document.body,
+  return (
+    <>
+      <span ref={anchor} hidden />
+      {createPortal(
+        <dialog
+          ref={dialog}
+          className="uipack-canvas-dialog"
+          data-theme={theme ?? document.documentElement.dataset.theme}
+          data-ui-style={uiStyle}
+          aria-label={title}
+          onCancel={(e) => {
+            e.preventDefault();
+            closeRef.current();
+          }}
+        >
+          <div className="uipack-canvas-toolbar">
+            <strong>{title}</strong>
+            <div>
+              <button
+                type="button"
+                aria-label="Zoom out"
+                title="Zoom out (−)"
+                disabled={zoom.value <= zoom.min}
+                onClick={() => gestures.step(0.8)}
+              >
+                −
+              </button>
+              <span
+                role="meter"
+                aria-label="Zoom level"
+                aria-valuemin={zoom.min * 100}
+                aria-valuemax={zoom.max * 100}
+                aria-valuenow={Math.round(zoom.value * 100)}
+                aria-valuetext={`${Math.round(zoom.value * 100)}%`}
+              >
+                {Math.round(zoom.value * 100)}%
+              </span>
+              <button
+                type="button"
+                aria-label="Zoom in"
+                title="Zoom in (+)"
+                disabled={zoom.value >= zoom.max}
+                onClick={() => gestures.step(1.25)}
+              >
+                +
+              </button>
+              <button type="button" title="Reset view (0)" onClick={gestures.reset}>
+                Fit
+              </button>
+              <button type="button" onClick={onClose} autoFocus>
+                Close canvas
+              </button>
+            </div>
+          </div>
+          <p className="uipack-canvas-hint">Pinch to zoom · Two-finger scroll · + / − to zoom · 0 to reset</p>
+          <div ref={content} className={`uipack-canvas-content${layout ? ` uipack-canvas-content--${layout}` : ""}`}>
+            {children}
+          </div>
+        </dialog>,
+        document.body,
+      )}
+    </>
   );
 }

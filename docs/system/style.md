@@ -173,9 +173,10 @@ mono caps of at least 11px. Technical's faces are in [its spec](../specs/technic
 
 ## Diagrams
 
-The diagram style card: the [Blueprint look](../components/diagrams.md), the same on every site that
-draws figures (only light and dark follow the host). Every figure, preset, chart and article part follows
-it. Values are in SVG
+The diagram style card: the [Blueprint look](../components/diagrams.md), whose grammar below is the
+same on every site; colours, faces and the canvas ground come from a
+[diagram theme](../components/diagrams.md#diagram-themes) (the site's default, optionally one per
+page). Every figure, preset, chart and article part follows it. Values are in SVG
 user units for a `viewBox` drawn at about its rendered width.
 
 | Element | Rule |

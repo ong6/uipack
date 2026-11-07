@@ -21,6 +21,7 @@ export const figureRows = [
   ["failure-rail", "Failure rail: every stage fails to one place", ["Vertical", "Errors", "Dead letter"]],
   ["queue-callouts", "Queue and callouts: where work piles up", ["Queue", "Callout", "Bottleneck"]],
   ["sequence", "Sequence: messages between actors, in order", ["Sequence", "Lifeline", "Protocol"]],
+  ["user-flow", "User flow: who acts, what they see, where it branches", ["Actor", "Screen", "Decision", "Outcome"]],
   ["nested-groups", "Nested groups: what runs inside what", ["Group", "Containment", "Replicas"]],
   ["numbered-steps", "Numbered steps: one path across column lanes", ["Badge", "Walkthrough", "Lanes"]],
   ["service-map", "Service map: clients, one platform, its stores", ["Reference", "Bus", "Hub", "Lanes"]],

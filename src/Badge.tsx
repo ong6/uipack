@@ -23,7 +23,7 @@ export function Badge({ cx, cy, text, accent, r = 9, size: size0 = 10 }: BadgePr
         fontSize={size}
         fontFamily="var(--uipack-mono)"
         fontWeight={600}
-        fill={stroke}
+        fill={accent ? "var(--uipack-accent-ink)" : "currentColor"}
       >
         {text}
       </text>

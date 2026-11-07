@@ -411,21 +411,21 @@
 }
 /* uipack/charts.css — SpanChart and LayerStack, Technical style. Every rule
    is scoped under .uipack-span or .uipack-stack. Colours come from the shared
-   --uipack-* properties: a host that sets them on any ancestor wins; unset
-   ones fall back to the Technical light or dark defaults, switched like
-   src/theme.css. */
+   --uipack-* properties: a host that sets them on any ancestor wins; then a
+   diagram theme scope's carriers (--uipack-diagram-*, src/diagram-theme.tsx);
+   unset ones fall back to the page's roles, switched like src/theme.css. */
 .uipack-span,
 .uipack-stack {
-  --sp-fg: var(--uipack-fg, var(--ui-ink));
-  --sp-muted: var(--uipack-muted, var(--ui-ink-2));
-  --sp-bg: var(--uipack-bg, var(--ui-surface));
-  --sp-surface: var(--uipack-surface, var(--ui-surface-raised));
-  --sp-raised: var(--uipack-surface-raised, var(--ui-surface-2));
-  --sp-border: var(--uipack-border, var(--ui-line));
-  --sp-accent: var(--uipack-accent, var(--ui-accent));
-  --sp-change: var(--uipack-token-change, var(--ui-flow-change));
-  --sp-mono: var(--uipack-mono, var(--ui-font-label));
-  --sp-sans: var(--uipack-sans, var(--ui-font-text));
+  --sp-fg: var(--uipack-fg, var(--uipack-diagram-ink, var(--ui-ink)));
+  --sp-muted: var(--uipack-muted, var(--uipack-diagram-ink-2, var(--ui-ink-2)));
+  --sp-bg: var(--uipack-bg, var(--uipack-diagram-surface, var(--ui-surface)));
+  --sp-surface: var(--uipack-surface, var(--uipack-diagram-surface-raised, var(--ui-surface-raised)));
+  --sp-raised: var(--uipack-surface-raised, var(--uipack-diagram-surface-2, var(--ui-surface-2)));
+  --sp-border: var(--uipack-border, var(--uipack-diagram-line, var(--ui-line)));
+  --sp-accent: var(--uipack-accent, var(--uipack-diagram-accent, var(--ui-accent)));
+  --sp-change: var(--uipack-token-change, var(--uipack-diagram-flow-change, var(--ui-flow-change)));
+  --sp-mono: var(--uipack-mono, var(--uipack-diagram-font-label, var(--ui-font-label)));
+  --sp-sans: var(--uipack-sans, var(--uipack-diagram-font-text, var(--ui-font-text)));
   --sp-sticky: var(--uipack-span-sticky-top, 0px);
   --sp-logo-bg: var(--uipack-span-logo-bg, var(--sp-surface));
   --sp-logo-filter: var(--uipack-span-logo-filter, none);

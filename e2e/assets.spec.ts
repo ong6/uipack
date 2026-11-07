@@ -4,16 +4,16 @@ test.describe("asset browser", () => {
   test("category filter, search and counts", async ({ page }) => {
     await page.goto("/assets");
     const status = page.getByRole("status");
-    await expect(status).toHaveText(/^44 assets$/);
-    await expect(page.locator(".uipack-browser__card")).toHaveCount(44);
+    await expect(status).toHaveText(/^51 assets$/);
+    await expect(page.locator(".uipack-browser__card")).toHaveCount(51);
     await page.getByRole("button", { name: /^Icons/ }).click();
-    await expect(status).toHaveText("25 assets in Icons");
-    await expect(page.locator(".uipack-browser__card")).toHaveCount(25);
+    await expect(status).toHaveText("32 assets in Icons");
+    await expect(page.locator(".uipack-browser__card")).toHaveCount(32);
     await page.getByRole("searchbox").fill("robot");
     await expect(status).toHaveText("1 asset in Icons");
     await page.getByRole("button", { name: /^All/ }).click();
     await page.getByRole("searchbox").fill("");
-    await expect(status).toHaveText(/^44 assets$/);
+    await expect(status).toHaveText(/^51 assets$/);
     // every preview loaded
     const broken = await page.evaluate(() =>
       [...document.querySelectorAll<HTMLImageElement>(".uipack-browser__tile img")]

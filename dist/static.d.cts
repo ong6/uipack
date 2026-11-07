@@ -1,5 +1,5 @@
 import { ReactNode, ReactElement } from 'react';
-import { a as FigureProps } from './Figure-DeuOJhsE.cjs';
+import { h as DiagramThemeInput, e as DiagramMode, k as FigureProps } from './diagram-theme-CkHU82_2.cjs';
 import { L as LegendItem } from './Legend-n6GikDm_.cjs';
 import './context-CfQZ0ans.cjs';
 import './style-oR-5TVuD.cjs';
@@ -15,9 +15,12 @@ interface Palette {
     grid: string;
     border: string;
     accent: string;
+    /** Accent as text (Node, Label, Badge, Outcome words). Default the accent. */
+    "accent-ink": string;
     "token-request": string;
     "token-response": string;
     "token-change": string;
+    "token-error": string;
     mono: string;
     sans: string;
 }
@@ -36,11 +39,18 @@ interface StaticFigure {
     alt?: string;
     background?: "dots" | "plain" | "ruled";
 }
+/** The older palette form: a named base and the literals to spread over it. */
+type LegacyPalette = Partial<Palette> & {
+    base?: StaticTheme;
+};
 interface StaticOptions {
-    /** A named palette, or one to spread over it. */
-    theme?: StaticTheme | (Partial<Palette> & {
-        base?: StaticTheme;
-    });
+    /**
+     * A diagram theme (`defineDiagramTheme`, `blueprint`) drawn in `mode`; or the older forms: a named
+     * palette ("light" | "dark"), or literals to spread over one.
+     */
+    theme?: StaticTheme | LegacyPalette | DiagramThemeInput;
+    /** Which half of a diagram theme to draw. Default "light". The older forms carry their own mode. */
+    mode?: DiagramMode;
     /** Keep the SMIL packets (they run inside <img>). False renders every packet once at its `at`. */
     motion?: boolean;
     /** Draw the header (eyebrow, title, caption, legend) and the border in SVG. False gives the bare drawing. */
@@ -52,7 +62,9 @@ interface StaticOptions {
     /** Paint the canvas background (and the dotted grid). False leaves it transparent so the page shows through. */
     background?: boolean;
 }
-declare function resolvePalette(theme: StaticOptions["theme"]): Palette;
+/** A diagram theme's half as a palette. Faces that are not literal stacks (a `var()`) fall back to Technical's. */
+declare function themePalette(theme: DiagramThemeInput, mode?: DiagramMode): Palette;
+declare function resolvePalette(theme: StaticOptions["theme"], mode?: DiagramMode): Palette;
 /** Replace every `var(--uipack-x)` with the palette literal. Unknown names fall back to currentColor. */
 declare function inlineVars(markup: string, p: Palette): string;
 /** Word-wrap for the SVG caption. `chars` is an average column count for the font size. */
@@ -64,4 +76,4 @@ declare function wrapText(text: string, chars: number): string[];
  */
 declare function renderStatic(input: ReactElement<FigureProps> | StaticFigure, opts?: StaticOptions): string;
 
-export { DARK, LIGHT, type Palette, type StaticFigure, type StaticOptions, type StaticTheme, inlineVars, renderStatic, resolvePalette, wrapText };
+export { DARK, LIGHT, type LegacyPalette, type Palette, type StaticFigure, type StaticOptions, type StaticTheme, inlineVars, renderStatic, resolvePalette, themePalette, wrapText };

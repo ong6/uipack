@@ -5,6 +5,7 @@ extends: core
 pages: [landing, documentation]
 layouts: { landing: product-landing, documentation: docs-shell }
 components: { diagrams: blueprint }
+diagram-themes: { default: blueprint }
 status: draft
 uipack: TODO the uipack commit the site pins
 values: TODO the style file once implemented (src/styles/<id>.css), or none
@@ -22,9 +23,12 @@ look this site reuses; `pages` lists the [page types](../system/layout/README.md
 the site has (a deck counts: it is a page of the site); `layouts` gives each one an
 [archetype](../system/layout/README.md#archetype-library) id or `custom`; `components` picks the
 [component looks](../components/README.md) the site uses (`3d: [studio, realistic]` for several);
-`status` is `draft` or `implemented`; `uipack` is the pinned commit; `values` is the style file
-when uipack renders this look. Replace the example `pages`, `layouts` and `components` with the
-site's own.
+`diagram-themes` says which [diagram theme](../components/diagrams.md#diagram-themes) colours the
+site's figures: `default` for the site, plus one key per page (or page group) that has its own,
+e.g. `{ default: site-paper, compoze: compoze, trading: trading }`; a theme uipack doesn't ship
+(only `blueprint` is built in) is described under `## Component looks`; `status` is `draft` or
+`implemented`; `uipack` is the pinned commit; `values` is the style file when uipack renders this
+look. Replace the example `pages`, `layouts`, `components` and `diagram-themes` with the site's own.
 
 ## Identity
 
@@ -198,6 +202,15 @@ never loosen them.
 TODO: for each component in `components:`, why that look fits the site; for 3D, the subjects the
 site shows and the look each one is pinned to ([which subjects offer each look](../components/3d.md#which-subjects-offer-each-look)).
 A `fixed` look's values are not this spec's to set.
+
+For diagrams, one row per theme in `diagram-themes` that uipack doesn't ship: its name in backticks,
+where it applies, and its ink, surface, accent and four flow colours in light and dark (or the file
+that defines it with `defineDiagramTheme`). The grammar (geometry, type sizes, strokes, what each
+flow means) is not the spec's to change.
+
+| Diagram theme | Applies to | Light: ink / surface / accent | Dark: ink / surface / accent | Flows, faces, canvas |
+| --- | --- | --- | --- | --- |
+| TODO: `site-paper` | TODO: default | TODO: | TODO: | TODO: |
 
 ## Reuse
 

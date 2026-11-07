@@ -36,6 +36,7 @@ describe("technicalValues mirrors src/styles/technical.css", () => {
     "flow-request",
     "flow-response",
     "flow-change",
+    "flow-error",
     "slide-line",
   ] as const;
   for (const role of solid) {

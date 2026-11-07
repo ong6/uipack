@@ -47,7 +47,7 @@ export function Label({ x, y, text, anchor = "start", accent, size: size0 = 11, 
         fontSize={size}
         fontFamily={font === "mono" ? "var(--uipack-mono)" : undefined}
         letterSpacing={font === "mono" ? ".06em" : undefined}
-        fill={accent ? "var(--uipack-accent)" : "currentColor"}
+        fill={accent ? "var(--uipack-accent-ink)" : "currentColor"}
         fillOpacity={accent ? 1 : 0.8}
       >
         {font === "mono" ? text.toUpperCase() : text}

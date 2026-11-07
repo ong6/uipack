@@ -1,11 +1,11 @@
-export { F as Figure, a as FigureProps } from './Figure-CwDwVhgH.js';
+export { D as DIAGRAM_CARRIERS, a as DIAGRAM_COLOR_ROLES, b as DiagramCanvas, c as DiagramColors, d as DiagramFonts, e as DiagramMode, f as DiagramTheme, g as DiagramThemeCssOptions, h as DiagramThemeInput, i as DiagramThemeScope, j as DiagramThemeScopeProps, F as Figure, k as FigureProps, l as blueprint, m as defineDiagramTheme, n as diagramColors, o as diagramThemeCss, p as diagramThemeVars, q as isDiagramTheme } from './diagram-theme-IOZeOO_c.js';
 export { S as StyleBootOptions, a as StyleBootPlugin, U as UiStyleId, b as UiStyleMeta, i as isUiStyle, r as readStyle, s as sectionOrder, c as sharedSectionOrder, d as styleBootPlugin, e as styleBootScript, u as uiStyles } from './style-oR-5TVuD.js';
 import { T as TokenKind, a as TokenShape, L as LegendItem } from './Legend-n6GikDm_.js';
 export { b as Legend, c as LegendProps, d as TOKEN_SHAPE, e as Token, f as TokenProps, t as tokenColor } from './Legend-n6GikDm_.js';
 import * as react from 'react';
 import { ReactNode } from 'react';
-import { I as IconName } from './index-BCiSvaJI.js';
-export { i as icons } from './index-BCiSvaJI.js';
+import { I as IconName } from './index-DYWIE6p3.js';
+export { i as icons } from './index-DYWIE6p3.js';
 export { F as FigureChrome, a as FigureChromeContext, b as FigureLayoutWidthContext, c as FigureMotion, d as FigureMotionContext, u as useFigureMotion } from './context-CfQZ0ans.js';
 export { Z as ZoomFrame, R as ZoomRect, a as ZoomSample, b as ZoomSampleOptions, i as innerClipStart, z as zoomFrame, c as zoomSamples } from './zoom-math-DJBPrdGD.js';
 export { e as easeInOutCubic, s as smoothstep } from './math-DL8QKXOl.js';
@@ -92,8 +92,18 @@ interface NodeProps {
     id?: string;
     /** Drawn inside the box, above its fill and under the icon and text (a drill-down preview). */
     inlay?: ReactNode;
+    /**
+     * A 16-unit header strip that says what kind of thing the box is: `window` (a UI, app or page),
+     * `terminal` (a CLI, job or worker), `file` (a document, config or spec), `store` (data at rest).
+     * Optional: use it only where the type adds meaning, one kind per type across a figure. The label
+     * and icon centre in the body below it.
+     */
+    strip?: NodeStrip;
 }
-declare function Node({ x, y, w, h, label, sub, icon, align, accent, dashed, flow, hint, href, size: size0, subSize: subSize0, id, inlay, }: NodeProps): react.JSX.Element;
+type NodeStrip = "window" | "terminal" | "file" | "store";
+/** The strip's height in user units. */
+declare const NODE_STRIP = 16;
+declare function Node({ x, y, w, h, label, sub, icon, align, accent, dashed, flow, hint, href, size: size0, subSize: subSize0, id, inlay, strip, }: NodeProps): react.JSX.Element;
 
 interface ChipProps {
     x: number;
@@ -458,6 +468,170 @@ interface LabelProps {
 /** Text with a page-coloured underlay so it can sit on a connector. */
 declare function Label({ x, y, text, anchor, accent, size: size0, font }: LabelProps): react.JSX.Element;
 
+interface ActorProps {
+    cx: number;
+    cy: number;
+    /** Circle radius. Default 28. */
+    r?: number;
+    /** Who: drawn in mono caps. */
+    role: string;
+    /** A second mono line: "per tenant", "staff". */
+    sub?: string;
+    /** Label under the circle (default) or to its right. */
+    labelSide?: "below" | "right";
+    flow?: Flow;
+}
+/** Who acts: a circle with a person glyph and a mono role label. */
+declare function Actor({ cx, cy, r, role, sub, labelSide, flow }: ActorProps): react.JSX.Element;
+interface ScreenProps {
+    x: number;
+    y: number;
+    w: number;
+    /** Default 128. */
+    h?: number;
+    title: string;
+    /** Mono lines under the title: what the screen shows. */
+    lines?: string[];
+    /** The one accent screen of the figure. */
+    accent?: boolean;
+    flow?: Flow;
+}
+/** What they see: a mini window with a title bar, a title, mono lines and a progress stub. */
+declare function Screen({ x, y, w, h, title, lines, accent, flow }: ScreenProps): react.JSX.Element;
+interface ActionProps {
+    x: number;
+    y: number;
+    w: number;
+    /** Default 44. */
+    h?: number;
+    label: string;
+    /** A mono note under the pill: "OAuth", "names what's missing". */
+    sub?: string;
+    flow?: Flow;
+}
+/** What they do: a pill with a verb phrase. */
+declare function Action({ x, y, w, h, label, sub, flow }: ActionProps): react.JSX.Element;
+interface DecisionProps {
+    cx: number;
+    cy: number;
+    /** Half the diagonal. Default 40. */
+    r?: number;
+    /** The question, short: "Failed?", "≥ 0.35?". */
+    label: string;
+    flow?: Flow;
+}
+/** Where it branches: a diamond with a short mono question. Label the branches with `Label`. */
+declare function Decision({ cx, cy, r, label, flow }: DecisionProps): react.JSX.Element;
+interface OutcomeProps {
+    x: number;
+    y: number;
+    w: number;
+    /** Default 56. */
+    h?: number;
+    label: string;
+    sub?: string;
+    flow?: Flow;
+}
+/** Where it lands: an accent stadium with a check. One per lane at most; it is the accent's job. */
+declare function Outcome({ x, y, w, h, label, sub, flow }: OutcomeProps): react.JSX.Element;
+interface LaneRuleProps {
+    x1: number;
+    x2: number;
+    y: number;
+}
+/** A faint dotted rule between two lanes (an admin lane above a user lane). */
+declare function LaneRule({ x1, x2, y }: LaneRuleProps): react.JSX.Element;
+
+interface LifelineProps {
+    /** The participant's centre line. */
+    x: number;
+    y1: number;
+    y2: number;
+}
+/** Time running down from a participant: a faint `3 5` dashed rule. */
+declare function Lifeline({ x, y1, y2 }: LifelineProps): react.JSX.Element;
+interface ActivationProps {
+    x: number;
+    y1: number;
+    y2: number;
+    accent?: boolean;
+    flow?: Flow;
+}
+/** While a participant does the work: a 12-wide bar on its lifeline. */
+declare function Activation({ x, y1, y2, accent, flow }: ActivationProps): react.JSX.Element;
+/** A packet riding a message: `true` for the defaults, or its timing. */
+type SequencePacket = boolean | {
+    dur?: number;
+    delay?: number;
+};
+interface MessageProps {
+    /** Marker prefix from `<Defs id>`. */
+    id: string;
+    /** Sender's and receiver's lifeline x. */
+    from: number;
+    to: number;
+    y: number;
+    /** Step number, drawn on the sender's lifeline so the numbers read straight down. */
+    n?: number | string;
+    label: string;
+    kind?: Exclude<ConnectorKind, "accent">;
+    /** Dashed: an async message or a return. */
+    dashed?: boolean;
+    /** The figure's one accent path. */
+    accent?: boolean;
+    labelSize?: number;
+    /** Move the label off a lifeline the message crosses. Default the midpoint. */
+    labelX?: number;
+    /** A packet of the message's kind riding it (claim flows only). */
+    packet?: SequencePacket;
+    flow?: Flow;
+}
+/** A numbered arrow between two lifelines, its label centred above. */
+declare function Message({ id, from, to, y, n, label, kind, dashed, accent, labelSize, labelX, packet, flow }: MessageProps): react.JSX.Element;
+interface LostProps {
+    id: string;
+    from: number;
+    to: number;
+    y: number;
+    n?: number | string;
+    label: string;
+    labelSize?: number;
+    labelX?: number;
+    flow?: Flow;
+}
+/** A message that never arrives: a dashed line that stops short of the receiver in a `Cross`. */
+declare function Lost({ id, from, to, y, n, label, labelSize, labelX, flow }: LostProps): react.JSX.Element;
+interface SelfLoopProps {
+    id: string;
+    /** The participant's lifeline. */
+    x: number;
+    /** Where the loop leaves the lifeline; it returns `h` lower. */
+    y: number;
+    /** Default 36. */
+    h?: number;
+    /** Default 44. */
+    w?: number;
+    side?: "left" | "right";
+    n?: number | string;
+    kind?: Exclude<ConnectorKind, "accent">;
+    packet?: SequencePacket;
+    flow?: Flow;
+}
+/** A participant calling itself (a retry, a poll): a dashed loop off its lifeline. */
+declare function SelfLoop({ id, x, y, h, side, w, n, kind, packet, flow }: SelfLoopProps): react.JSX.Element;
+interface NoteProps {
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+    /** Mono caps title: "Budget", "Idempotent". */
+    title: string;
+    lines?: string[];
+    accent?: boolean;
+}
+/** A dashed card pinned beside a lifeline: a constraint, a budget, an invariant. */
+declare function Note({ x, y, w, h, title, lines, accent }: NoteProps): react.JSX.Element;
+
 interface DefsProps {
     /** Prefix for marker ids; keep unique per SVG on the page. */
     id: string;
@@ -682,4 +856,4 @@ declare const drillMotion: {
     readonly reduced: 160;
 };
 
-export { Badge, type BadgeProps, type Box, Bus, type BusProps, type BusStub, Chip, type ChipProps, Connector, type ConnectorKind, type ConnectorProps, Cross, type CrossProps, type CurveMeasure, type CurveNote, CurvePlot, type CurvePlotProps, type CurvePoint, DEFAULT_RENDER_WIDTH, DRILL_GROW, Defs, type DefsProps, type DrillAction, DrillFigure, type DrillFigureProps, type DrillFocus, type DrillLevel, type DrillMove, DrillNode, type DrillNodeProps, type DrillPath, type DrillRenderContext, type DrillStaticFigure, FIGURE_GRID, type FigureHover, FigureHoverContext, type FigureScale, FigureScaleProvider, FileMark, type Flow, FolderMark, Group, type GroupProps, IconName, Label, type LabelProps, Lane, type LaneProps, LegendItem, type MarkName, Node, type NodeProps, PACKET_POP, PACKET_SINK, Packet, type PacketProps, type Point, Sheet, type SheetProps, type Side, TokenKind, TokenShape, type TreeMarkProps, TreeRail, type TreeRailProps, Wall, type WallProps, Wordmark, anchor, busStub, busStubs, connectorStroke, curveAt, curveSegments, drillAnnouncement, drillBox, drillFocusTarget, drillMotion, drillMove, drillReducer, drillStatic, flowList, fontFloor, grid, hoverAttrs, isPointer, marks, normalizePath as normalizeDrillPath, packetScaleKeys, pathFromPoints, pointAlong, polylineLength, route, trim, useFigureHover, useFontFloor, usePrefersReducedMotion, wallSegments };
+export { Action, type ActionProps, Activation, type ActivationProps, Actor, type ActorProps, Badge, type BadgeProps, type Box, Bus, type BusProps, type BusStub, Chip, type ChipProps, Connector, type ConnectorKind, type ConnectorProps, Cross, type CrossProps, type CurveMeasure, type CurveNote, CurvePlot, type CurvePlotProps, type CurvePoint, DEFAULT_RENDER_WIDTH, DRILL_GROW, Decision, type DecisionProps, Defs, type DefsProps, type DrillAction, DrillFigure, type DrillFigureProps, type DrillFocus, type DrillLevel, type DrillMove, DrillNode, type DrillNodeProps, type DrillPath, type DrillRenderContext, type DrillStaticFigure, FIGURE_GRID, type FigureHover, FigureHoverContext, type FigureScale, FigureScaleProvider, FileMark, type Flow, FolderMark, Group, type GroupProps, IconName, Label, type LabelProps, Lane, type LaneProps, LaneRule, type LaneRuleProps, LegendItem, Lifeline, type LifelineProps, Lost, type LostProps, type MarkName, Message, type MessageProps, NODE_STRIP, Node, type NodeProps, type NodeStrip, Note, type NoteProps, Outcome, type OutcomeProps, PACKET_POP, PACKET_SINK, Packet, type PacketProps, type Point, Screen, type ScreenProps, SelfLoop, type SelfLoopProps, type SequencePacket, Sheet, type SheetProps, type Side, TokenKind, TokenShape, type TreeMarkProps, TreeRail, type TreeRailProps, Wall, type WallProps, Wordmark, anchor, busStub, busStubs, connectorStroke, curveAt, curveSegments, drillAnnouncement, drillBox, drillFocusTarget, drillMotion, drillMove, drillReducer, drillStatic, flowList, fontFloor, grid, hoverAttrs, isPointer, marks, normalizePath as normalizeDrillPath, packetScaleKeys, pathFromPoints, pointAlong, polylineLength, route, trim, useFigureHover, useFontFloor, usePrefersReducedMotion, wallSegments };

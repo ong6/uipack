@@ -17,6 +17,7 @@ export interface TechnicalColors {
   "flow-request": string;
   "flow-response": string;
   "flow-change": string;
+  "flow-error": string;
   /** Slides: the starters' rule (optional role --tune-slide-line). */
   "slide-line": string;
 }
@@ -35,6 +36,7 @@ export const technicalValues: Record<"light" | "dark", TechnicalColors> = {
     "flow-request": "#0b77a3",
     "flow-response": "#2b7a4b",
     "flow-change": "#7048c0",
+    "flow-error": "#c2392b",
     "slide-line": "#b9c8d9",
   },
   dark: {
@@ -50,6 +52,7 @@ export const technicalValues: Record<"light" | "dark", TechnicalColors> = {
     "flow-request": "#8fd6ff",
     "flow-response": "#8be6ae",
     "flow-change": "#d2b4ff",
+    "flow-error": "#ff8c7a",
     "slide-line": "#2e5180",
   },
 };

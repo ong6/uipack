@@ -12,7 +12,7 @@ reads the same list.
 <!-- generated:component-looks -->
 | Component | Look | Mode | The same on every site | Takes from the site |
 | --- | --- | --- | --- | --- |
-| [Diagrams](diagrams.md) (`diagrams`, picks one) | `blueprint` Blueprint | `fixed` | Card surface, node shapes and 6px node radius, the four flow colours and packet shapes, label face, strokes, the 11px type floor | Light or dark only |
+| [Diagrams](diagrams.md) (`diagrams`, picks one) | `blueprint` Blueprint | `flex` | The grammar: geometry and the 8px grid, node shapes and 6px node radius, type sizes and the 11px floor, stroke widths, packet shapes, what each flow kind means, one accent path per figure | Colours, faces and canvas ground from a diagram theme: the site's default, optionally one per page (`diagram-themes:`); the built-in `blueprint` theme is Technical's |
 | [3D object scenes](3d.md) (`3d`, picks several) | `studio` Studio objects | `flex` | Product photography: one object on a seamless sweep, one lens family, shaped key, real shadow | Night room from the ink, rim from the accent; a `palette` prop overrides both |
 |  | `paper-theatre` Paper worlds | `fixed` | Cut-card toy theatres, viridian and persimmon frames on cream, one warm lantern | Light or dark only |
 |  | `kinetic` Kinetic sculptures | `fixed` | Brass armatures, glazed stoneware, slate bases, a gallery spot at night | Light or dark only |
@@ -26,11 +26,13 @@ reads the same list.
 
 | Mode | Means | A spec that picks it |
 | --- | --- | --- |
-| `fixed` | Identical on every site; only light and dark follow the host. A reader who met it on one site reads it on another (the blog and the main site share their diagrams) | May not set the values it fixes (its component doc lists them); the checker fails a spec that does |
-| `flex` | Keeps its drawing, lighting and motion, and takes the site's roles (palette, faces) as its row says | Sets nothing extra: the look reads the spec's roles |
+| `fixed` | Identical on every site; only light and dark follow the host. A reader who met it on one site reads it on another | May not set the values it fixes (its component doc lists them); the checker fails a spec that does |
+| `flex` | Keeps its drawing, lighting and motion, and takes the site's roles (palette, faces) as its row says | Sets nothing extra: the look reads the spec's roles. Diagrams take theirs from a diagram theme the spec declares (`diagram-themes:`) |
 
 A look is never recoloured or re-faced locally. A site that wants a fixed look in its own colours
-needs a new `flex` look, which is a uipack change for every site.
+needs a new `flex` look, which is a uipack change for every site. Diagrams are the exception by
+design: Blueprint is `flex` and a site colours it with a [diagram theme](diagrams.md#diagram-themes),
+one object in its own repo, never by overriding `--uipack-*` variables.
 
 ## How a spec picks
 

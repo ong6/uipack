@@ -203,16 +203,28 @@ export function contractRoles() {
   return ["| Role | Light | Dark |", "| --- | --- | --- |", ...rows].join("\n");
 }
 
-/** The Blueprint diagram look's tokens: what each figure token reads (src/theme.css) and Technical's value. */
+/**
+ * The diagram tokens: what each figure token reads (src/theme.css), first a diagram theme's role
+ * (its carrier, --uipack-diagram-<role>), then the page's role, and the built-in `blueprint`
+ * theme's value (Technical's, src/styles/technical.css).
+ */
 export function diagramFamily() {
   const theme = readFileSync(join(root, "src/theme.css"), "utf8");
   const block = theme.slice(theme.indexOf(".uipack {"), theme.indexOf("}", theme.indexOf(".uipack {")));
   const technical = parseValueSet(readFileSync(join(root, "src/styles/technical.css"), "utf8"));
-  const rows = [...block.matchAll(/(--uipack-[a-z0-9-]+):\s*var\(--ui-([a-z0-9-]+)[^;]*;/g)].map(([, token, role]) => {
-    const [light, dark] = lightDark(technical.get(role) ?? "");
-    return `| ${code(token)} | ${code(`--ui-${role}`)} | ${code(light)} | ${code(dark)} |`;
+  const rows = [
+    ...block.matchAll(
+      /(--uipack-[a-z0-9-]+):\s*var\((?:--uipack-diagram-([a-z0-9-]+),\s*var\()?--(ui|uipack)-([a-z0-9-]+)[^;]*;/g,
+    ),
+  ].map(([, token, themeRole, ns, role]) => {
+    const [light, dark] = ns === "ui" ? lightDark(technical.get(role) ?? "") : ["as the accent", "as the accent"];
+    return `| ${code(token)} | ${themeRole ? code(themeRole) : "not themed"} | ${code(`--${ns}-${role}`)} | ${code(light)} | ${code(dark)} |`;
   });
-  return ["| Token | Reads today | Light | Dark |", "| --- | --- | --- | --- |", ...rows].join("\n");
+  return [
+    "| Token | Theme role | Outside a theme, reads | Blueprint light | Blueprint dark |",
+    "| --- | --- | --- | --- | --- |",
+    ...rows,
+  ].join("\n");
 }
 
 /** The latest release: package.json's version, which a release tags as `v<version>` on main (docs/releases.md). */

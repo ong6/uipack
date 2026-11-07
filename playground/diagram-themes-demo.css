@@ -1,0 +1,6 @@
+/* The diagram theme demo: the same figure in each theme and mode, in a grid. */
+.diagram-themes-demo {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 520px), 1fr));
+  gap: 24px;
+}

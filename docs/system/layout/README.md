@@ -143,6 +143,7 @@ a `viewBox` much wider than its column shrinks every label below the type floor.
 | Every stage fails to one place | Failure rail |
 | Where work piles up | Queue and callouts |
 | Messages between actors, in order | Sequence |
+| Who acts, what they see, where it branches | User flow |
 | What runs inside what | Nested groups |
 | One path across column lanes | Numbered steps |
 | Clients, one platform, its stores | Service map |

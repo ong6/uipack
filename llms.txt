@@ -64,7 +64,7 @@ Agents: read docs/agents/README.md first, then the skill for your job in skills/
 ## Component looks
 
 - [Component looks](docs/components/README.md): Each component's named looks, fixed (the same on every site) or flex (taking the site's palette and faces), and how a spec picks them.
-- [Diagram look](docs/components/diagrams.md): The Blueprint look: figures, charts and drill-down look the same on every site; its fixed values, generated from code.
+- [Diagram look and themes](docs/components/diagrams.md): The Blueprint look and diagram themes: one grammar on every site, colours, faces and ground from a theme; the theme API, the user-flow and sequence parts, the node strip.
 - [3D looks](docs/components/3d.md): The six 3D looks, which subjects offer each, and which one takes the site's palette.
 - [Mechanism look](docs/components/mechanism.md): The isometric machine look: its fixed drawing and the roles it takes from the site.
 

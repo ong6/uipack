@@ -7,6 +7,77 @@ release is cut and how a site moves to it.
 
 ## [Unreleased]
 
+Planned as 0.3.0: diagrams follow a theme. The owner decided (2026-11-07) that figures take the
+site's diagram theme, with optional per-page themes, so the Blueprint look moves from `fixed` to
+`flex`: the grammar stays core, only colours, faces and the canvas ground vary.
+
+### Added
+
+- **Diagram themes** (`uipack`): `defineDiagramTheme({ name, light, dark, fonts?, canvas? })`, the
+  built-in `blueprint` theme (today's default rendering), `diagramThemeCss(theme, { scope,
+  darkSelector, lightSelector })`, `DiagramThemeScope` (`theme`, `mode?`), `diagramThemeVars`,
+  `diagramColors`. One object feeds live React (both modes, SSR, no flash), `uipack/static`
+  (`renderStatic(fig, { theme, mode })`) and the open-canvas dialog; a page scope nested inside the
+  site's wins. Colour keys are the `--ui-*` role names (`ink`, `ink-2`, `surface`,
+  `surface-raised`, `surface-2`, `line`, `line-soft`, `accent`, `accent-ink`, `flow-*`).
+  [Docs](docs/components/diagrams.md#diagram-themes).
+- **User-flow parts** promoted from junxiong.dev: `Actor`, `Screen`, `Action`, `Decision`,
+  `Outcome`, `LaneRule`. **Sequence parts:** `Lifeline`, `Activation`, `Message`, `Lost`,
+  `SelfLoop`, `Note` (participants are `Node`s). Typed, themed, hover by `flow`, static-safe. The
+  catalogue gains a **User flow** pattern, and its Sequence figure is now built from these parts.
+- **`Node strip`**: an optional 16-unit header strip (`window`, `terminal`, `file`, `store`) that
+  says what kind of box it is. Off unless asked.
+- `icons.check`; `--uipack-accent-ink` (accent as text; default the accent), read by `Node`,
+  `Label`, `Badge` and the new parts.
+- Specs declare `diagram-themes: { default: <theme>, <page>: <theme> }`; `scripts/check-spec.ts`
+  checks it. Docs demos: one figure in three themes and both modes; the flow parts.
+
+### Changed
+
+- The Blueprint look is `flex` (`scripts/site-model.ts`, `docs/components/diagrams.md`).
+- `uipack/static`: `Palette` gains `token-error` (error-kind lines were `currentColor` in static
+  files) and `accent-ink`; `StaticOptions` gains `mode`. The older `theme` forms render as before.
+- `src/theme.css` reads a theme carrier (`--uipack-diagram-*`) before each role. With no theme the
+  value is identical; the playground's diagram pages compare pixel for pixel.
+
+### Upgrading the sites
+
+**junxiong.dev.** Delete the `.uipack, .uipack-object-frame, .uipack-canvas-dialog` and
+`:root[data-theme="dark"] .uipack…` blocks in `styles/globals.css` that set `--uipack-*` (keep the
+`.uipack-browser` block, which is not a figure). Define the site theme once with the same values,
+literal so static exports match:
+
+```ts
+// components/diagrams/theme.js
+import { defineDiagramTheme } from "uipack";
+export const siteDiagrams = defineDiagramTheme({
+  name: "site",
+  light: { ink: "<page-text>", "ink-2": "<text-muted>", surface: "<page-bg>", "surface-raised": "<surface-raised>",
+    "surface-2": "<surface-quiet>", "line-soft": "rgba(26, 36, 32, 0.14)", line: "<border-subtle>", accent: "<brand-solid>",
+    "flow-request": "#3d63d9", "flow-response": "#2fa778", "flow-change": "#8a55d6", "flow-error": "<a red>" },
+  dark: { /* the dark halves; flows #8ea4ff, #5fd39b, #c39aff; line-soft rgba(230, 235, 232, 0.14) */ },
+  fonts: { text: "var(--font-sans)", label: "var(--font-mono)" },
+});
+```
+
+Inject `diagramThemeCss(siteDiagrams, { scope: ":root" })` in a `<style>` in `pages/_document`
+(or the app layout). The site already flips with `data-theme` on `<html>`, which uipack follows.
+For Compoze and Trading Engine, define `compoze` and `trading` themes the same way, add
+`diagramThemeCss(compoze)` to the same style tag, and wrap each page's figures in
+`<div data-diagram-theme="compoze">` (or `<DiagramThemeScope theme={compoze}>`). Then replace
+`components/diagrams/userflow.js` and `sequence.js` with imports from `uipack`: the names and props
+match (`Participant` becomes `Node`); `Message` gains `labelX` and `packet`. Declare
+`diagram-themes: { default: site, compoze: compoze, trading: trading }` in `STYLE.md` and describe
+each theme under `## Component looks`.
+
+**notes.junxiong.dev.** Replace `THEMES` in `content/figures/_shared.tsx` with one theme built from
+the same values (`fg` → `ink`, `muted` → `ink-2`, `bg` → `surface`, `surface` → `surface-raised`,
+`surface-raised` → `surface-2`, `grid` → `line-soft`, `border` → `line`, `token-*` → `flow-*`, `sans`
+and `mono` → `fonts.text` and `fonts.label`, plus a `flow-error`), with `canvas: "dots"` to keep
+today's ground, and render each file with `renderStatic(fig, { theme: notesDiagrams, mode })`. The
+old palette objects still work, so this can land after the pin moves. Declare
+`diagram-themes: { default: notes }` in `STYLE.md`.
+
 ## [0.2.0] - 2026-11-07
 
 The first tagged release. It covers everything since commit `683d44b` (2026-11-06); the sites

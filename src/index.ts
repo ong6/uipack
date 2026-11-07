@@ -15,7 +15,7 @@ export {
 export { Legend, type LegendItem, type LegendProps } from "./Legend";
 export { Lane, type LaneProps } from "./Lane";
 export { Group, type GroupProps } from "./Group";
-export { Node, type NodeProps } from "./Node";
+export { Node, NODE_STRIP, type NodeProps, type NodeStrip } from "./Node";
 export { Chip, type ChipProps } from "./Chip";
 export { Connector, connectorStroke, type ConnectorProps, type ConnectorKind } from "./Connector";
 export { Bus, busStub, busStubs, type BusProps, type BusStub } from "./Bus";
@@ -34,6 +34,54 @@ export {
   type CurveMeasure,
 } from "./CurvePlot";
 export { Label, type LabelProps } from "./Label";
+export {
+  Actor,
+  Screen,
+  Action,
+  Decision,
+  Outcome,
+  LaneRule,
+  type ActorProps,
+  type ScreenProps,
+  type ActionProps,
+  type DecisionProps,
+  type OutcomeProps,
+  type LaneRuleProps,
+} from "./UserFlow";
+export {
+  Lifeline,
+  Activation,
+  Message,
+  Lost,
+  SelfLoop,
+  Note,
+  type LifelineProps,
+  type ActivationProps,
+  type MessageProps,
+  type LostProps,
+  type SelfLoopProps,
+  type NoteProps,
+  type SequencePacket,
+} from "./Sequence";
+export {
+  defineDiagramTheme,
+  blueprint,
+  diagramThemeCss,
+  diagramThemeVars,
+  diagramColors,
+  isDiagramTheme,
+  DiagramThemeScope,
+  DIAGRAM_COLOR_ROLES,
+  DIAGRAM_CARRIERS,
+  type DiagramTheme,
+  type DiagramThemeInput,
+  type DiagramColors,
+  type DiagramFonts,
+  type DiagramCanvas,
+  type DiagramMode,
+  type DiagramThemeCssOptions,
+  type DiagramThemeScopeProps,
+} from "./diagram-theme";
 export { Defs, type DefsProps } from "./Defs";
 export { Token, tokenColor, TOKEN_SHAPE, type TokenKind, type TokenShape, type TokenProps } from "./tokens";
 export { icons, type IconName } from "./icons";

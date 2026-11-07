@@ -1927,20 +1927,22 @@ var LAYOUT_ARCHETYPES = [
 ];
 var CUSTOM_LAYOUT_ROWS = ["Grid", "Regions", "Section order", "Hero"];
 var WRITING_STYLE_ROWS = ["Tone and register", "Title form", "Copy density", "House words", "Budgets"];
+var DIAGRAM_THEMES_KEY = "diagram-themes";
+var BUILTIN_DIAGRAM_THEMES = ["blueprint"];
 var COMPONENTS = [
   {
     id: "diagrams",
     name: "Diagrams",
     doc: "docs/components/diagrams.md",
-    members: "`Figure`, the presets, `DrillFigure`, `SpanChart` and `LayerStack` (`uipack`, `uipack/presets`, `uipack/drill`, `uipack/charts`)",
+    members: "`Figure`, the parts (including the user-flow and sequence parts), the presets, `DrillFigure`, `SpanChart` and `LayerStack` (`uipack`, `uipack/presets`, `uipack/drill`, `uipack/charts`)",
     pick: "one",
     looks: [
       {
         id: "blueprint",
         name: "Blueprint",
-        mode: "fixed",
-        fixed: "Card surface, node shapes and 6px node radius, the four flow colours and packet shapes, label face, strokes, the 11px type floor",
-        takes: "Light or dark only"
+        mode: "flex",
+        fixed: "The grammar: geometry and the 8px grid, node shapes and 6px node radius, type sizes and the 11px floor, stroke widths, packet shapes, what each flow kind means, one accent path per figure",
+        takes: "Colours, faces and canvas ground from a diagram theme: the site's default, optionally one per page (`diagram-themes:`); the built-in `blueprint` theme is Technical's"
       }
     ]
   },
@@ -2195,6 +2197,31 @@ ${layoutText}`, type.name, 3);
       for (const token of fixedTokens(fs.readFileSync(doc, "utf8")))
         if (rows.has(token))
           problems.push(`${token} is fixed by the ${look.name} look (${component.id}): a spec that picks it may not set it`);
+    }
+  }
+  const themes = fm[DIAGRAM_THEMES_KEY];
+  if (themes !== void 0) {
+    const picked = pickedLooks(fm);
+    if (!picked.diagrams)
+      problems.push(`${DIAGRAM_THEMES_KEY}: the spec picks no diagrams look (components: { diagrams: blueprint })`);
+    const entries = Object.entries(map(themes));
+    if (!entries.length)
+      problems.push(`${DIAGRAM_THEMES_KEY}: a map, { default: <theme>, <page>: <theme> } (got "${String(themes)}")`);
+    else if (!entries.some(([where]) => where === "default"))
+      problems.push(`${DIAGRAM_THEMES_KEY}: no default (the site's theme; blueprint for Technical's)`);
+    const looksText = section(text, "Component looks");
+    for (const [where, value] of entries) {
+      const name = Array.isArray(value) ? value.join(",") : value;
+      if (!/^[a-z][a-z0-9-]*$/.test(where))
+        problems.push(`${DIAGRAM_THEMES_KEY}: "${where}" is not a kebab-case page or "default"`);
+      if (!/^[a-z][a-z0-9-]*$/.test(name)) {
+        problems.push(`${DIAGRAM_THEMES_KEY}: ${where} names "${name}", not a kebab-case theme name`);
+        continue;
+      }
+      if (!BUILTIN_DIAGRAM_THEMES.includes(name) && !looksText.includes(`\`${name}\``))
+        problems.push(
+          `${DIAGRAM_THEMES_KEY}: theme "${name}" is not built in; describe it (\`${name}\`: its ink, surface, accent and flow colours) under ## Component looks`
+        );
     }
   }
   if (fm.status === "implemented") {

@@ -3,7 +3,7 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { existsSync } from "node:fs";
-import { checkSpec, frontmatter, pickedLooks, roleRows } from "../scripts/check-spec";
+import { checkSpec, frontmatter, pickedLooks, fixedTokens, roleRows } from "../scripts/check-spec";
 import { COMPONENTS, LAYOUT_ARCHETYPES, PAGE_TYPES } from "../scripts/site-model";
 import { objectDirections } from "../src/objects/variants";
 import { CORE_ROLES, lightDark, parseValueSet } from "../scripts/style-contract";
@@ -109,8 +109,30 @@ describe("site specs", () => {
       "| `--ui-paper` |",
       "| `--uipack-token-request` | `#ff0000` | `#ff0000` |\n| `--ui-paper` |",
     );
-    expect(checkSpec(override, { root })).toContain(
-      "--uipack-token-request is fixed by the Blueprint look (diagrams): a spec that picks it may not set it",
+    // Blueprint is flex since 0.3.0: a theme colours it, so a row is no longer an override the
+    // checker rejects (fixedTokens still guards any fixed look whose doc lists tokens).
+    expect(checkSpec(override, { root }).filter((p) => p.includes("is fixed by"))).toEqual([]);
+    expect(fixedTokens("| `--uipack-fg` | x |\n| `--uipack-bg` | y |")).toEqual(["--uipack-fg", "--uipack-bg"]);
+  });
+
+  it("the checker reads diagram-themes: a default, kebab-case names, described themes", () => {
+    const technical = read("docs/specs/technical.md");
+    const themed = (v: string) => technical.replace("diagram-themes: { default: blueprint }", `diagram-themes: ${v}`);
+    expect(checkSpec(technical, { root })).toEqual([]);
+    expect(checkSpec(themed("{ compoze: blueprint }"), { root })).toContain(
+      "diagram-themes: no default (the site's theme; blueprint for Technical's)",
+    );
+    expect(checkSpec(themed("{ default: Warm Paper }"), { root }).join("\n")).toMatch(/not a kebab-case theme name/);
+    expect(checkSpec(themed("{ default: blueprint, compoze: compoze }"), { root }).join("\n")).toMatch(
+      /theme "compoze" is not built in; describe it/,
+    );
+    const described = themed("{ default: blueprint, compoze: compoze }").replace(
+      "| Mechanism | `isometric` |",
+      "| Diagram theme | `compoze` on the Compoze page | Warm paper, cobalt accent |\n| Mechanism | `isometric` |",
+    );
+    expect(checkSpec(described, { root })).toEqual([]);
+    expect(checkSpec(technical.replace(/^components: .*$/m, "components: { mechanism: isometric }"), { root })).toContain(
+      "diagram-themes: the spec picks no diagrams look (components: { diagrams: blueprint })",
     );
   });
 

@@ -1,5 +1,6 @@
 import { fontFloor, DEFAULT_RENDER_WIDTH, FigureScaleProvider, Token, TOKEN_SHAPE } from './chunk-OBRYIOBM.js';
-import { technicalValues, technicalFonts } from './chunk-ESGEH25T.js';
+import { diagramColors, isDiagramTheme } from './chunk-KF56LH5X.js';
+import { technicalValues, technicalFonts } from './chunk-UNBHBOF5.js';
 import { FigureMotionContext } from './chunk-63XCOWAV.js';
 import { isValidElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
@@ -14,21 +15,56 @@ var paletteOf = (c) => ({
   grid: c["line-soft"],
   border: c.line,
   accent: c.accent,
+  "accent-ink": c.accent,
   "token-request": c["flow-request"],
   "token-response": c["flow-response"],
   "token-change": c["flow-change"],
+  "token-error": c["flow-error"],
   mono: technicalFonts.mono,
   sans: technicalFonts.sans
 });
 var LIGHT = paletteOf(technicalValues.light);
 var DARK = paletteOf(technicalValues.dark);
-function resolvePalette(theme) {
-  const p = !theme || theme === "light" ? LIGHT : theme === "dark" ? DARK : { ...theme.base === "dark" ? DARK : LIGHT, ...stripBase(theme) };
+function themePalette(theme, mode = "light") {
+  const c = diagramColors(theme, mode);
+  const face = (v, fallback) => v && !v.includes("var(") ? v : fallback;
+  return {
+    fg: c.ink,
+    muted: c["ink-2"],
+    bg: c.surface,
+    surface: c["surface-raised"],
+    "surface-raised": c["surface-2"],
+    grid: c["line-soft"],
+    border: c.line,
+    accent: c.accent,
+    "accent-ink": c["accent-ink"],
+    "token-request": c["flow-request"],
+    "token-response": c["flow-response"],
+    "token-change": c["flow-change"],
+    "token-error": c["flow-error"],
+    mono: face(theme.fonts?.label, technicalFonts.mono),
+    sans: face(theme.fonts?.text, technicalFonts.sans)
+  };
+}
+function resolvePalette(theme, mode = "light") {
+  let p;
+  if (!theme || theme === "light") p = LIGHT;
+  else if (theme === "dark") p = DARK;
+  else if (isDiagramTheme(theme)) p = themePalette(theme, mode);
+  else {
+    const rest = stripBase(theme);
+    p = { ...theme.base === "dark" ? DARK : LIGHT, ...rest };
+    if (rest.accent && !rest["accent-ink"]) p["accent-ink"] = rest.accent;
+  }
   return { ...p, mono: p.mono.replace(/"/g, "'"), sans: p.sans.replace(/"/g, "'") };
 }
 function stripBase(t) {
   const { base: _base, ...rest } = t;
   return rest;
+}
+function draftingGrid(id, ink, y) {
+  const line = (size, opacity) => `<path d="M ${size} 0 V ${size} M 0 ${size} H ${size}" fill="none" stroke="${ink}" stroke-opacity="${opacity}" stroke-width="1"/>`;
+  return `<pattern id="${id}-minor" width="12" height="12" patternUnits="userSpaceOnUse">${line(12, 0.05)}</pattern><pattern id="${id}" width="60" height="60" patternUnits="userSpaceOnUse" y="${y}"><rect width="60" height="60" fill="url(#${id}-minor)"/>${line(60, 0.12)}</pattern>`;
 }
 function inlineVars(markup, p) {
   return markup.replace(
@@ -90,7 +126,8 @@ function svgMarkup(children) {
 }
 function renderStatic(input, opts = {}) {
   const fig = figureOf(input);
-  const p = resolvePalette(opts.theme);
+  const p = resolvePalette(opts.theme, opts.mode);
+  const ground = fig.background === "plain" || fig.background === "ruled" ? fig.background : isDiagramTheme(opts.theme) ? opts.theme.canvas ?? "grid" : "dots";
   const motion = opts.motion ?? true;
   const frame = opts.frame ?? true;
   const paint = opts.background ?? true;
@@ -168,7 +205,13 @@ function renderStatic(input, opts = {}) {
   }
   const H = hy + vh;
   const bgId = "uipack-static-dots";
-  const canvas = paint ? fig.background === "plain" ? `<rect x="0" y="${hy}" width="${vw}" height="${vh}" fill="${p.bg}"/>` : fig.background === "ruled" ? `<defs><pattern id="${bgId}" width="${vw}" height="24" patternUnits="userSpaceOnUse"><rect width="${vw}" height="1" fill="${p.grid}"/></pattern></defs><rect x="0" y="${hy}" width="${vw}" height="${vh}" fill="${p.bg}"/><rect x="0" y="${hy}" width="${vw}" height="${vh}" fill="url(#${bgId})"/>` : `<defs><pattern id="${bgId}" width="12" height="12" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="1" fill="${p.grid}"/></pattern></defs><rect x="0" y="${hy}" width="${vw}" height="${vh}" fill="${p.bg}"/><rect x="0" y="${hy}" width="${vw}" height="${vh}" fill="url(#${bgId})"/>` : "";
+  const fill = `<rect x="0" y="${hy}" width="${vw}" height="${vh}" fill="${p.bg}"/>`;
+  const patterned = (pattern) => `<defs>${pattern}</defs>${fill}<rect x="0" y="${hy}" width="${vw}" height="${vh}" fill="url(#${bgId})"/>`;
+  const canvas = !paint ? "" : ground === "plain" ? fill : ground === "ruled" ? patterned(
+    `<pattern id="${bgId}" width="${vw}" height="24" patternUnits="userSpaceOnUse"><rect width="${vw}" height="1" fill="${p.grid}"/></pattern>`
+  ) : ground === "grid" ? patterned(draftingGrid(bgId, p.fg, hy)) : patterned(
+    `<pattern id="${bgId}" width="12" height="12" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="1" fill="${p.grid}"/></pattern>`
+  );
   const border = frame ? `<rect x="0.5" y="0.5" width="${vw - 1}" height="${H - 1}" rx="4" fill="${paint ? p.bg : "none"}" stroke="${p.border}"/>` + (hy ? `<line x1="0" y1="${hy}" x2="${vw}" y2="${hy}" stroke="${p.border}"/>` : "") : "";
   const width = opts.width ?? vw;
   const height = Math.round(width / vw * H);
@@ -177,4 +220,4 @@ function renderStatic(input, opts = {}) {
 `;
 }
 
-export { DARK, LIGHT, inlineVars, renderStatic, resolvePalette, wrapText };
+export { DARK, LIGHT, inlineVars, renderStatic, resolvePalette, themePalette, wrapText };

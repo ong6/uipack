@@ -1,27 +1,27 @@
 'use strict';
 
 var chunk3OIHMAKF_cjs = require('./chunk-3OIHMAKF.cjs');
-var chunkCLA7XLG7_cjs = require('./chunk-CLA7XLG7.cjs');
+var chunkFZZROK2F_cjs = require('./chunk-FZZROK2F.cjs');
 var react = require('react');
 var jsxRuntime = require('react/jsx-runtime');
 
 // src/presentations/renderSlideSvg.ts
 var palettes = {
   light: {
-    paper: chunkCLA7XLG7_cjs.technicalValues.light.paper,
-    surface: chunkCLA7XLG7_cjs.technicalValues.light["surface-raised"],
-    ink: chunkCLA7XLG7_cjs.technicalValues.light.ink,
-    muted: chunkCLA7XLG7_cjs.technicalValues.light["ink-2"],
-    accent: chunkCLA7XLG7_cjs.technicalValues.light.accent,
-    rule: chunkCLA7XLG7_cjs.technicalValues.light["slide-line"]
+    paper: chunkFZZROK2F_cjs.technicalValues.light.paper,
+    surface: chunkFZZROK2F_cjs.technicalValues.light["surface-raised"],
+    ink: chunkFZZROK2F_cjs.technicalValues.light.ink,
+    muted: chunkFZZROK2F_cjs.technicalValues.light["ink-2"],
+    accent: chunkFZZROK2F_cjs.technicalValues.light.accent,
+    rule: chunkFZZROK2F_cjs.technicalValues.light["slide-line"]
   },
   dark: {
-    paper: chunkCLA7XLG7_cjs.technicalValues.dark.paper,
-    surface: chunkCLA7XLG7_cjs.technicalValues.dark["surface-raised"],
-    ink: chunkCLA7XLG7_cjs.technicalValues.dark.ink,
-    muted: chunkCLA7XLG7_cjs.technicalValues.dark["ink-2"],
-    accent: chunkCLA7XLG7_cjs.technicalValues.dark.accent,
-    rule: chunkCLA7XLG7_cjs.technicalValues.dark["slide-line"]
+    paper: chunkFZZROK2F_cjs.technicalValues.dark.paper,
+    surface: chunkFZZROK2F_cjs.technicalValues.dark["surface-raised"],
+    ink: chunkFZZROK2F_cjs.technicalValues.dark.ink,
+    muted: chunkFZZROK2F_cjs.technicalValues.dark["ink-2"],
+    accent: chunkFZZROK2F_cjs.technicalValues.dark.accent,
+    rule: chunkFZZROK2F_cjs.technicalValues.dark["slide-line"]
   }
 };
 var cssColors = {
@@ -32,7 +32,7 @@ var cssColors = {
   accent: "var(--ui-accent)",
   rule: "var(--tune-slide-line, var(--ui-line))"
 };
-var resolvedFaces = { sans: chunkCLA7XLG7_cjs.technicalFonts.sans, mono: chunkCLA7XLG7_cjs.technicalFonts.mono };
+var resolvedFaces = { sans: chunkFZZROK2F_cjs.technicalFonts.sans, mono: chunkFZZROK2F_cjs.technicalFonts.mono };
 var cssFaces = {
   sans: "var(--ui-slide-font-text, var(--ui-font-text))",
   mono: "var(--ui-slide-font-label, var(--ui-font-label))"

@@ -2,7 +2,9 @@
 
 var chunkHPYRAZ5N_cjs = require('./chunk-HPYRAZ5N.cjs');
 var chunkROALLHW7_cjs = require('./chunk-ROALLHW7.cjs');
-var chunkTLBFVTUY_cjs = require('./chunk-TLBFVTUY.cjs');
+var chunkOQP7VC3V_cjs = require('./chunk-OQP7VC3V.cjs');
+require('./chunk-7HPFTZIE.cjs');
+require('./chunk-FZZROK2F.cjs');
 var chunkR272FBXD_cjs = require('./chunk-R272FBXD.cjs');
 var react = require('react');
 var jsxRuntime = require('react/jsx-runtime');
@@ -522,7 +524,7 @@ function ObjectScene(props) {
       /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-object__sr", children: "Open canvas" })
     ] }),
     /* @__PURE__ */ jsxRuntime.jsx(
-      chunkTLBFVTUY_cjs.CanvasView,
+      chunkOQP7VC3V_cjs.CanvasView,
       {
         open,
         onClose: () => setOpen(false),

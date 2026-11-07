@@ -133,22 +133,32 @@ export interface Component {
   readonly looks: readonly ComponentLook[];
 }
 
+/**
+ * Diagram themes a spec declares (`diagram-themes: { default: <theme>, <page>: <theme> }`): where
+ * each theme applies (`default` is the site; any other key is a page or page group, kebab-case) and
+ * the theme's name. A theme uipack does not ship is described in the spec's `## Component looks`.
+ */
+export const DIAGRAM_THEMES_KEY = "diagram-themes";
+/** Themes uipack exports (`blueprint` from `uipack`); a spec may name them without describing them. */
+export const BUILTIN_DIAGRAM_THEMES = ["blueprint"] as const;
+
 export const COMPONENTS = [
   {
     id: "diagrams",
     name: "Diagrams",
     doc: "docs/components/diagrams.md",
     members:
-      "`Figure`, the presets, `DrillFigure`, `SpanChart` and `LayerStack` (`uipack`, `uipack/presets`, `uipack/drill`, `uipack/charts`)",
+      "`Figure`, the parts (including the user-flow and sequence parts), the presets, `DrillFigure`, `SpanChart` and `LayerStack` (`uipack`, `uipack/presets`, `uipack/drill`, `uipack/charts`)",
     pick: "one",
     looks: [
       {
         id: "blueprint",
         name: "Blueprint",
-        mode: "fixed",
+        mode: "flex",
         fixed:
-          "Card surface, node shapes and 6px node radius, the four flow colours and packet shapes, label face, strokes, the 11px type floor",
-        takes: "Light or dark only",
+          "The grammar: geometry and the 8px grid, node shapes and 6px node radius, type sizes and the 11px floor, stroke widths, packet shapes, what each flow kind means, one accent path per figure",
+        takes:
+          "Colours, faces and canvas ground from a diagram theme: the site's default, optionally one per page (`diagram-themes:`); the built-in `blueprint` theme is Technical's",
       },
     ],
   },

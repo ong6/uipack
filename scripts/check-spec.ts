@@ -8,13 +8,23 @@
 // a `TODO:`; an `extends` that names nothing; a page type in `pages:` with no layout picked or
 // defined; a Writing style table missing a row; a component or look that doesn't exist or that the
 // component doesn't offer; a spec that sets a value a fixed look it picks owns; and an implemented
-// spec without its style file. `uses: [diagrams]` (the older form) still reads as
+// spec without its style file; a `diagram-themes:` map without a `default`, with a name that is not
+// kebab-case, or naming a theme uipack does not ship that the spec's Component looks never
+// describes. `uses: [diagrams]` (the older form) still reads as
 // `components: { diagrams: blueprint }`. test/specs.test.tsx runs it on every spec in docs/specs.
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { CORE_ROLES } from "./style-contract";
-import { COMPONENTS, CUSTOM_LAYOUT_ROWS, LAYOUT_ARCHETYPES, PAGE_TYPES, WRITING_STYLE_ROWS } from "./site-model";
+import {
+  BUILTIN_DIAGRAM_THEMES,
+  COMPONENTS,
+  CUSTOM_LAYOUT_ROWS,
+  DIAGRAM_THEMES_KEY,
+  LAYOUT_ARCHETYPES,
+  PAGE_TYPES,
+  WRITING_STYLE_ROWS,
+} from "./site-model";
 
 /** The uipack checkout or install this script belongs to: component docs, specs and style files resolve here. */
 const UIPACK_ROOT = (() => {
@@ -241,6 +251,33 @@ export function checkSpec(text: string, { root = UIPACK_ROOT }: CheckOptions = {
       for (const token of fixedTokens(readFileSync(doc, "utf8")))
         if (rows.has(token))
           problems.push(`${token} is fixed by the ${look.name} look (${component.id}): a spec that picks it may not set it`);
+    }
+  }
+
+  // Diagram themes: where each applies and its name; a theme uipack does not ship is described here.
+  const themes = fm[DIAGRAM_THEMES_KEY];
+  if (themes !== undefined) {
+    const picked = pickedLooks(fm);
+    if (!picked.diagrams)
+      problems.push(`${DIAGRAM_THEMES_KEY}: the spec picks no diagrams look (components: { diagrams: blueprint })`);
+    const entries = Object.entries(map(themes));
+    if (!entries.length)
+      problems.push(`${DIAGRAM_THEMES_KEY}: a map, { default: <theme>, <page>: <theme> } (got "${String(themes)}")`);
+    else if (!entries.some(([where]) => where === "default"))
+      problems.push(`${DIAGRAM_THEMES_KEY}: no default (the site's theme; blueprint for Technical's)`);
+    const looksText = section(text, "Component looks");
+    for (const [where, value] of entries) {
+      const name = Array.isArray(value) ? value.join(",") : value;
+      if (!/^[a-z][a-z0-9-]*$/.test(where))
+        problems.push(`${DIAGRAM_THEMES_KEY}: "${where}" is not a kebab-case page or "default"`);
+      if (!/^[a-z][a-z0-9-]*$/.test(name)) {
+        problems.push(`${DIAGRAM_THEMES_KEY}: ${where} names "${name}", not a kebab-case theme name`);
+        continue;
+      }
+      if (!(BUILTIN_DIAGRAM_THEMES as readonly string[]).includes(name) && !looksText.includes(`\`${name}\``))
+        problems.push(
+          `${DIAGRAM_THEMES_KEY}: theme "${name}" is not built in; describe it (\`${name}\`: its ink, surface, accent and flow colours) under ## Component looks`,
+        );
     }
   }
 

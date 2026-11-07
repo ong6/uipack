@@ -57,6 +57,16 @@ export const demos: Record<string, DemoDef> = {
   ),
   // Components
   "diagram-catalogue": demo(figures, "DiagramCatalogue", "Every diagram pattern as a live figure, one section each."),
+  "diagram-themes": demo(
+    () => import("./DiagramThemesDemo"),
+    "DiagramThemes",
+    "One figure in three diagram themes (blueprint, warm paper with cobalt, terracotta), light and dark.",
+  ),
+  "flow-parts": demo(
+    () => import("./DiagramThemesDemo"),
+    "FlowParts",
+    "The user-flow parts and the sequence parts, once each, in the page's theme.",
+  ),
   "span-chart": demo(figures, "SpanChartFramed", "The span chart at a host's figure width, with its filters."),
   "layer-stack-chart": demo(figures, "LayerStackFramed", "The layer stack at a host's figure width."),
   "asset-browser": demo(figures, "AssetsDemo", "Search, preview and copy every icon, mark, background and token."),

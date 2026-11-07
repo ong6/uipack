@@ -1,22 +1,9 @@
-import {
-  Badge,
-  Connector,
-  Cross,
-  Defs,
-  Figure,
-  Label,
-  Lane,
-  Node,
-  Packet,
-  type ConnectorKind,
-  type Flow,
-  type Point,
-} from "../../src";
+import { Defs, Figure, Label, Lane, Lifeline, Lost, Message, Node, SelfLoop, type ConnectorKind, type Flow } from "../../src";
 
-// A sequence diagram from the parts: actors across the top, time runs down
-// their dashed lifelines, and each message is a numbered arrow with a packet.
-// A self-loop is a retry; a dashed message ending in ✕ never arrived; a dashed
-// note says why. Generic job submission; no real protocol is described.
+// A sequence diagram from the sequence parts (Lifeline, Message, Lost, SelfLoop): actors across the
+// top, time runs down their dashed lifelines, and each message is a numbered arrow with a packet.
+// A self-loop is a retry; a dashed message ending in ✕ never arrived; a dashed note says why.
+// Generic job submission; no real protocol is described.
 
 const SUBMIT = "submit";
 const WORK = "work";
@@ -28,100 +15,17 @@ interface Msg {
   y: number;
   n: number;
   label: string;
-  kind: ConnectorKind;
+  kind: Exclude<ConnectorKind, "accent">;
   flow: Flow;
 }
 
-/** A numbered message: the badge sits on the sender's lifeline so the numbers read straight down. */
-function Message({ id, m, delay }: { id: string; m: Msg; delay: number }) {
-  const dir = m.to > m.from ? 1 : -1;
-  const pts: Point[] = [
-    [m.from + dir * 14, m.y],
-    [m.to - dir * 8, m.y],
-  ];
-  return (
-    <g>
-      <Connector points={pts} defs={id} kind={m.kind} flow={m.flow} />
-      <Packet points={pts} kind={m.kind} dur={1.8} delay={delay} r={4} flow={m.flow} />
-      <Label x={(m.from + m.to) / 2} y={m.y - 10} text={m.label} anchor="middle" />
-      <Badge cx={m.from} cy={m.y} text={String(m.n)} r={10} />
-    </g>
-  );
-}
-
-/** A message that never arrives: dashed, no head, a Cross where it stops. `labelX` moves the label off a lifeline the message crosses. */
-function Lost({
-  from,
-  to,
-  y,
-  n,
-  label,
-  labelX,
-  flow,
-}: {
-  from: number;
-  to: number;
-  y: number;
-  n: number;
-  label: string;
-  labelX?: number;
-  flow: Flow;
-}) {
-  const dir = to > from ? 1 : -1;
-  const end = to - dir * 16;
-  return (
-    <g>
-      <Connector
-        points={[
-          [from + dir * 14, y],
-          [end, y],
-        ]}
-        arrow={false}
-        dashed
-        flow={flow}
-      />
-      <Cross x={end} y={y} />
-      <Label x={labelX ?? (from + to) / 2} y={y - 10} text={label} anchor="middle" />
-      <Badge cx={from} cy={y} text={String(n)} r={10} />
-    </g>
-  );
-}
-
-/** A participant calling itself: out to the right, down, back. */
-function SelfLoop({ id, x, y, h, n, flow }: { id: string; x: number; y: number; h: number; n: number; flow: Flow }) {
-  const pts: Point[] = [
-    [x + 8, y],
-    [x + 48, y],
-    [x + 48, y + h],
-    [x + 8, y + h],
-  ];
-  return (
-    <g>
-      <Connector points={pts} defs={id} kind="change" dashed flow={flow} />
-      <Packet points={pts} kind="change" dur={2} delay={-0.6} r={4} flow={flow} />
-      <Badge cx={x} cy={y} text={String(n)} r={10} />
-    </g>
-  );
-}
-
-function Lifelines({ xs, top, bottom }: { xs: number[]; top: number; bottom: number }) {
-  return (
-    <>
-      {xs.map((x) => (
-        <Connector
-          key={x}
-          points={[
-            [x, top],
-            [x, bottom],
-          ]}
-          arrow={false}
-          dashed
-          inset={0}
-        />
-      ))}
-    </>
-  );
-}
+const Lifelines = ({ xs, top, bottom }: { xs: number[]; top: number; bottom: number }) => (
+  <>
+    {xs.map((x) => (
+      <Lifeline key={x} x={x} y1={top} y2={bottom} />
+    ))}
+  </>
+);
 
 // ── Wide ────────────────────────────────────────────────────────────────
 const CLIENT = 176;
@@ -175,11 +79,21 @@ function Wide() {
       />
       <Lifelines xs={[CLIENT, API, WORKER]} top={88} bottom={512} />
       {msgs.map((m, i) => (
-        <Message key={m.n} id={id} m={m} delay={-i * 0.4} />
+        <Message key={m.n} id={id} {...m} labelSize={11} packet={{ delay: -i * 0.4 }} />
       ))}
-      <SelfLoop id={id} x={WORKER} y={288} h={40} n={4} flow={WORK} />
+      <SelfLoop id={id} x={WORKER} y={288} h={40} w={48} side="right" n={4} kind="change" packet={{ delay: -0.6 }} flow={WORK} />
       <Label x={WORKER + 60} y={312} text="retry on timeout" />
-      <Lost from={WORKER} to={CLIENT} y={384} n={5} label="progress update" labelX={(API + WORKER) / 2} flow={WORK} />
+      <Lost
+        id={id}
+        from={WORKER}
+        to={CLIENT}
+        y={384}
+        n={5}
+        label="progress update"
+        labelSize={11}
+        labelX={(API + WORKER) / 2}
+        flow={WORK}
+      />
       <Node
         x={16}
         y={360}
@@ -220,12 +134,12 @@ function Narrow() {
       <Node x={NWK - 52} y={40} w={104} h={40} label="Worker" align="center" flow={WORK} />
       <Lifelines xs={[NC, NA, NWK]} top={80} bottom={488} />
       {msgs.map((m, i) => (
-        <Message key={m.n} id={id} m={m} delay={-i * 0.4} />
+        <Message key={m.n} id={id} {...m} labelSize={11} packet={{ delay: -i * 0.4 }} />
       ))}
-      <SelfLoop id={id} x={NWK} y={264} h={40} n={4} flow={WORK} />
+      <SelfLoop id={id} x={NWK} y={264} h={40} w={48} side="right" n={4} kind="change" packet={{ delay: -0.6 }} flow={WORK} />
       <Label x={288} y={280} text="retry on" anchor="end" />
       <Label x={288} y={298} text="timeout" anchor="end" />
-      <Lost from={NWK} to={NC} y={352} n={5} label="progress" labelX={(NA + NWK) / 2} flow={WORK} />
+      <Lost id={id} from={NWK} to={NC} y={352} n={5} label="progress" labelSize={11} labelX={(NA + NWK) / 2} flow={WORK} />
       <Label x={76} y={374} text="tab closed" />
     </>
   );

@@ -30,6 +30,42 @@ export interface NodeProps {
   id?: string;
   /** Drawn inside the box, above its fill and under the icon and text (a drill-down preview). */
   inlay?: ReactNode;
+  /**
+   * A 16-unit header strip that says what kind of thing the box is: `window` (a UI, app or page),
+   * `terminal` (a CLI, job or worker), `file` (a document, config or spec), `store` (data at rest).
+   * Optional: use it only where the type adds meaning, one kind per type across a figure. The label
+   * and icon centre in the body below it.
+   */
+  strip?: NodeStrip;
+}
+
+export type NodeStrip = "window" | "terminal" | "file" | "store";
+
+/** The strip's height in user units. */
+export const NODE_STRIP = 16;
+
+/** The strip's mark, drawn in a 16-unit band from (x, y): muted ink, no text. */
+function StripMark({ kind, x, y }: { kind: Exclude<NodeStrip, "store">; x: number; y: number }) {
+  const cy = y + NODE_STRIP / 2;
+  if (kind === "window")
+    return (
+      <g fill="currentColor" fillOpacity={0.4}>
+        {[0, 1, 2].map((i) => (
+          <circle key={i} cx={x + i * 7} cy={cy} r={2} />
+        ))}
+      </g>
+    );
+  const line = {
+    fill: "none",
+    stroke: "currentColor",
+    strokeOpacity: 0.5,
+    strokeWidth: 1.25,
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+  } as const;
+  if (kind === "terminal") return <path {...line} d={`M ${x - 1} ${cy - 3} l 3 3 l -3 3 M ${x + 5} ${cy + 3} h 6`} />;
+  // file: a page with a folded corner.
+  return <path {...line} d={`M ${x - 1} ${cy - 4.5} h 5 l 3 3 v 6 h -8 Z M ${x + 4} ${cy - 4.5} v 3 h 3`} />;
 }
 
 /** A node's accessible name: its visible label, then its subtitle. Shared by Node and DrillNode. */
@@ -53,6 +89,7 @@ export function Node({
   subSize: subSize0 = 11,
   id,
   inlay,
+  strip,
 }: NodeProps) {
   const hover = useFigureHover();
   const size = useFontFloor(size0);
@@ -63,7 +100,10 @@ export function Node({
   const pad = 14;
   const tx = align === "center" ? x + w / 2 : x + pad + (glyph ? 26 : 0);
   const anchor = align === "center" ? "middle" : "start";
-  const ty = sub ? y + h / 2 - 3 : y + h / 2 + size * 0.35;
+  // A strip takes the top 16 units; the icon and words centre in the body below it.
+  const top = strip ? NODE_STRIP : 0;
+  const mid = y + top + (h - top) / 2;
+  const ty = sub ? mid - 3 : mid + size * 0.35;
   const flows = flowList(flow);
   const handlers = flows.length
     ? {
@@ -90,6 +130,33 @@ export function Node({
         strokeWidth={1.25}
         strokeDasharray={dashed ? "4 4" : undefined}
       />
+      {strip ? (
+        <g data-uipack="node-strip" data-strip={strip} aria-hidden="true">
+          {strip === "store" ? (
+            // A store's strip is the lip of a cylinder: the divider bows, and needs no mark.
+            <path
+              d={`M ${x} ${y + NODE_STRIP - 4} Q ${x + w / 2} ${y + NODE_STRIP + 4} ${x + w} ${y + NODE_STRIP - 4}`}
+              fill="none"
+              stroke={stroke}
+              strokeOpacity={0.3}
+              strokeWidth={1}
+            />
+          ) : (
+            <>
+              <line
+                x1={x}
+                y1={y + NODE_STRIP}
+                x2={x + w}
+                y2={y + NODE_STRIP}
+                stroke={stroke}
+                strokeOpacity={0.3}
+                strokeWidth={1}
+              />
+              <StripMark kind={strip} x={x + 10} y={y} />
+            </>
+          )}
+        </g>
+      ) : null}
       {selection.role ? <FocusRing x={x} y={y} w={w} h={h} rx={6} /> : null}
       {inlay}
       {/* The hit area on touch: at least 44 CSS px at the drawn scale, centred on the box; invisible, so the drawing and its 8px grid do not change. */}
@@ -102,7 +169,7 @@ export function Node({
       />
       {glyph ? (
         <g
-          transform={`translate(${x + pad}, ${y + h / 2 - 8})`}
+          transform={`translate(${x + pad}, ${mid - 8})`}
           fill="none"
           stroke="currentColor"
           strokeWidth={1.5}
@@ -118,7 +185,7 @@ export function Node({
         textAnchor={anchor}
         fontSize={size}
         fontWeight={600}
-        fill={accent ? "var(--uipack-accent)" : "currentColor"}
+        fill={accent ? "var(--uipack-accent-ink)" : "currentColor"}
       >
         {label}
       </text>
@@ -127,7 +194,7 @@ export function Node({
       {sub ? (
         <text
           x={tx}
-          y={y + h / 2 + subSize + 2}
+          y={mid + subSize + 2}
           textAnchor={anchor}
           fontSize={subSize}
           fontFamily="var(--uipack-mono)"

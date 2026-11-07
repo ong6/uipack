@@ -43,7 +43,7 @@ export function PartsFigure({ number }: { number: string }) {
         { label: "Neutral", kind: "neutral" },
       ]}
       viewBox="0 0 1120 448"
-      alt="A sampler of every uipack component."
+      alt="A sampler of every uipack component, including nodes with a header strip for an app, a worker, a spec and a store."
     >
       <Defs id="parts" />
       <Lane x={16} w={240} y={24} title="Nodes" />
@@ -62,6 +62,11 @@ export function PartsFigure({ number }: { number: string }) {
       />
       <Node x={16} y={168} w={240} h={40} label="Accent" accent flow="alpha" />
       <Node x={16} y={224} w={240} h={40} label="Link" dashed href="#link" hint="A node with href is a link" />
+      {/* Header strips: what kind of box it is (window, terminal, file, store). */}
+      <Node x={16} y={288} w={112} h={40} label="App" strip="window" size={12} />
+      <Node x={144} y={288} w={112} h={40} label="Worker" strip="terminal" size={12} />
+      <Node x={16} y={336} w={112} h={40} label="Spec" strip="file" size={12} />
+      <Node x={144} y={336} w={112} h={40} label="Store" strip="store" size={12} />
       <Badge cx={256} cy={40} text="1" />
       <Badge cx={256} cy={168} text="A" accent />
 

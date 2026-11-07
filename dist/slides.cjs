@@ -2,7 +2,9 @@
 
 var chunkPRNHRSTA_cjs = require('./chunk-PRNHRSTA.cjs');
 require('./chunk-ROALLHW7.cjs');
-var chunkTLBFVTUY_cjs = require('./chunk-TLBFVTUY.cjs');
+var chunkOQP7VC3V_cjs = require('./chunk-OQP7VC3V.cjs');
+require('./chunk-7HPFTZIE.cjs');
+require('./chunk-FZZROK2F.cjs');
 var chunkR272FBXD_cjs = require('./chunk-R272FBXD.cjs');
 var react = require('react');
 var jsxRuntime = require('react/jsx-runtime');
@@ -189,7 +191,7 @@ function SlideScene(props) {
       errors.join(" ")
     ] });
   return /* @__PURE__ */ jsxRuntime.jsx(
-    chunkTLBFVTUY_cjs.CanvasView,
+    chunkOQP7VC3V_cjs.CanvasView,
     {
       restoreFocus: () => opener.current?.focus(),
       open: canvas,
@@ -261,7 +263,7 @@ function Player({
     };
   }, [present]);
   return /* @__PURE__ */ jsxRuntime.jsx(
-    chunkTLBFVTUY_cjs.CanvasView,
+    chunkOQP7VC3V_cjs.CanvasView,
     {
       restoreFocus: () => opener.current?.focus(),
       open: canvas,

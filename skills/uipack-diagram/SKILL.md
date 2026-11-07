@@ -14,15 +14,17 @@ Paths are relative to the uipack root: `node_modules/uipack/` in a site, or a ui
 
 ## The rule that differs from pages
 
-Diagrams have one look, **Blueprint**, and it is `fixed`: a figure looks the same on every site
-(the blog and the main site share their figures). Read
-[docs/components/diagrams.md](../../docs/components/diagrams.md) first: it fixes the card surface,
-shapes, flow colours, label face, strokes and radii; only light and dark follow the host. The site's
-spec picks it (`components: { diagrams: blueprint }`) but never changes it, and its layout and
-writing style stop at the figure's frame: the labels and lengths below hold on every site. That is the intent; today figures still read the host's palette ([where the code stands](../../docs/components/diagrams.md#where-the-code-stands)), so check the render on the site before promising an identical look.
-A site spec never recolours a figure, and neither do you: no brand accent on a connector, no
-site face in a label, no hex anywhere. A slide or page gives the figure a region; it never
-restyles it.
+Diagrams have one look, **Blueprint**, and it is `flex`: the grammar (geometry, 8px grid, type
+sizes and the 11px floor, strokes, what each flow kind means, one accent path) is the same on every
+site, and a **diagram theme** supplies colours, faces and canvas ground: the site's default, and
+optionally one per large page. Read [docs/components/diagrams.md](../../docs/components/diagrams.md)
+first. The site's spec picks the look (`components: { diagrams: blueprint }`) and names its themes
+(`diagram-themes: { default: …, <page>: … }`); its layout and writing style stop at the figure's
+frame, so the labels and lengths below hold on every site.
+You never recolour a figure locally: no brand accent on one connector, no `--uipack-*` override, no
+hex in a figure. A new colour scheme is a theme object (`defineDiagramTheme`) applied to the whole
+site or page; a figure on a page inside a theme scope picks it up by itself. A slide or page gives
+the figure a region; it never restyles it.
 
 ## Steps
 
@@ -32,7 +34,11 @@ restyles it.
    (agent loop, pipeline, RAG, service map, before/after, sync loop, skill lifecycle) before a
    hand-built `Figure`; `DrillFigure` (from `uipack`) when a node must open into its own figure
    ([drill-down](../../docs/drill.md)); `SpanChart` or `LayerStack` for layers
-   ([charts](../../docs/charts.md)). The playground's diagrams page lists every pattern.
+   ([charts](../../docs/charts.md)); the user-flow parts (`Actor`, `Screen`, `Action`,
+   `Decision`, `Outcome`, `LaneRule`) when people and screens are the point, the sequence parts
+   (`Lifeline`, `Message`, `Lost`, `SelfLoop`, `Note`) when message order is. Never redraw these
+   locally: import them from `uipack`, so a change lands on every figure at once. The playground's
+   diagrams page lists every pattern.
 3. **Words.** At most six nodes of 2–3 words that draw the system; a label on every connector
    that carries something, saying what moves, taken from the brief's words (the step's given
    output restates a fact; a state the brief never names is invented); results in a sub-label or
@@ -41,10 +47,11 @@ restyles it.
 4. **Layout.** 8px grid, lanes and groups, flow left to right or layers top to bottom
    ([layout, diagrams](../../docs/system/layout/README.md#figures)). Author the narrow (390px) drawing or
    keep a readable width that scrolls inside the frame; never shrink labels below the 11px floor.
-5. **Build with real exports.** `Figure`, `Node`, `Connector`, `Packet`, `route`, `Defs` from
+5. **Build with real exports.** `Figure`, `Node` (a `strip` only where the box's type adds
+   meaning, one per type across the figure), `Connector`, `Packet`, `route`, `Defs` from
    `uipack` (props in [docs/figure-api.md](../../docs/figure-api.md)); check `dist/*.d.ts` before a prop. Give
    `alt`, a caption, and a legend only when there is more than one flow kind.
-6. **Check.** Render at 1440 and 390 in both themes and look at both drawings: labels inside
+6. **Check.** Render at 1440 and 390 in both modes, inside the site's (or page's) theme, and look at both drawings: labels inside
    their boxes, no page overflow, packets that arrive and leave. Then:
    - **Geometry.** `node node_modules/uipack/bin/uipack-figure-check.mjs <url>` (in a uipack
      clone, `node bin/uipack-figure-check.mjs <url>`) must report no `fail` at either width: no

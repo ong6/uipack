@@ -131,6 +131,12 @@ export const icons = {
       <path d="M2.5 14.5c0-3 2.5-5 5.5-5s5.5 2 5.5 5" />
     </>
   ),
+  check: (
+    <>
+      <circle cx="8" cy="8" r="6.5" />
+      <path d="M5.25 8l2 2 3.5-3.5" />
+    </>
+  ),
   robot: (
     <>
       <rect x="3" y="5" width="10" height="8" rx="2" />

@@ -432,11 +432,11 @@ export const docsManifest = [
       },
       {
         id: "component-diagrams",
-        label: "Diagram look",
+        label: "Diagram look and themes",
         path: "/looks/diagrams",
         file: "docs/components/diagrams.md",
         intro:
-          "The Blueprint look: figures, charts and drill-down look the same on every site; its fixed values, generated from code.",
+          "The Blueprint look and diagram themes: one grammar on every site, colours, faces and ground from a theme; the theme API, the user-flow and sequence parts, the node strip.",
       },
       {
         id: "component-3d",
@@ -775,7 +775,7 @@ export const siteRegistry: readonly SiteEntry[] = [
     repo: "ong6/uipack",
     spec: "docs/specs/technical.md",
     specStatus: "written",
-    components: ["diagrams: blueprint", "3d: all six", "mechanism: isometric"],
+    components: ["diagrams: blueprint (theme: blueprint)", "3d: all six", "mechanism: isometric"],
     pins: "current",
     notes: "Technical, the implemented style (src/styles/technical.css)",
   },
@@ -784,19 +784,19 @@ export const siteRegistry: readonly SiteEntry[] = [
     repo: "ong6/junxiong-homepage",
     spec: "junxiong-homepage:STYLE.md",
     specStatus: "written",
-    components: ["diagrams: blueprint"],
+    components: ["diagrams: blueprint (themes: site default; compoze and trading pages may have their own)"],
     pins: "e6b6ed7",
     notes:
-      "STYLE.md drafted 2026-11-07 on branch site-ui-1 (passes check-spec; not on the site's main until the owner merges). A Chakra theme maps the --uipack-* variables. Open owner decision: diagrams identical on every site or in the site's palette (globals.css overrides figure colours today)",
+      "STYLE.md drafted 2026-11-07 on branch site-ui-1 (passes check-spec; not on the site's main until the owner merges). Decided 2026-11-07: diagrams follow a theme, the site's default plus optional per-page themes (Compoze, Trading Engine). Move: replace the --uipack-* overrides in globals.css with one diagramThemeCss and the site-local userflow.js / sequence.js with uipack's parts (CHANGELOG 0.3.0); declare diagram-themes in STYLE.md",
   },
   {
     site: "notes.junxiong.dev",
     repo: "ong6/junxiong-notes",
     spec: "junxiong-notes:STYLE.md",
     specStatus: "written",
-    components: ["diagrams: blueprint"],
+    components: ["diagrams: blueprint (theme: the blog's own, one for every post)"],
     pins: "3886f0d",
     notes:
-      "STYLE.md drafted 2026-11-07 on branch site-ui-1 (passes check-spec; not on the site's main until the owner merges). Open owner decisions: diagrams identical on every site or in the site's palette (app/globals.css overrides figure colours today); self-hosting its serif",
+      "STYLE.md drafted 2026-11-07 on branch site-ui-1 (passes check-spec; not on the site's main until the owner merges). Decided 2026-11-07: diagrams follow the blog's one theme, so UI diagrams in posts match. Move: replace the THEMES palette in content/figures/_shared.tsx with one defineDiagramTheme passed to renderStatic with mode (CHANGELOG 0.3.0); declare diagram-themes in STYLE.md. Open owner decision: self-hosting its serif",
   },
 ];

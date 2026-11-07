@@ -1,10 +1,12 @@
 import { useLayerFlight, zoomSamples, zoomFrame } from './chunk-H33EHDSS.js';
 export { innerClipStart, zoomFrame, zoomSamples } from './chunk-H33EHDSS.js';
-import { useFigureHover, hoverAttrs, connectorStroke, flowList, useItemSelection, FocusRing, Node, nodeName, SelectionContext, isPointer, useRovingFocus, FigureHoverContext, Legend, ReplayGlyph, PauseGlyph, PlayGlyph, placeNote } from './chunk-2LRCXHQS.js';
-export { Bus, Chip, Connector, Defs, FIGURE_GRID, Figure, FigureHoverContext, Group, Label, Lane, Legend, Node, PACKET_POP, PACKET_SINK, Packet, anchor, busStub, busStubs, connectorStroke, flowList, grid, hoverAttrs, icons, isPointer, packetScaleKeys, pathFromPoints, pointAlong, polylineLength, route, trim, useFigureHover } from './chunk-2LRCXHQS.js';
+import { useFigureHover, hoverAttrs, connectorStroke, flowList, useItemSelection, FocusRing, icons, Connector, Label, Node, nodeName, SelectionContext, isPointer, Packet, useRovingFocus, FigureHoverContext, Legend, ReplayGlyph, PauseGlyph, PlayGlyph, placeNote } from './chunk-T2IGB72E.js';
+export { Bus, Chip, Connector, Defs, FIGURE_GRID, Figure, FigureHoverContext, Group, Label, Lane, Legend, NODE_STRIP, Node, PACKET_POP, PACKET_SINK, Packet, anchor, busStub, busStubs, connectorStroke, flowList, grid, hoverAttrs, icons, isPointer, packetScaleKeys, pathFromPoints, pointAlong, polylineLength, route, trim, useFigureHover } from './chunk-T2IGB72E.js';
 import { useFontFloor, FigureScaleContext } from './chunk-OBRYIOBM.js';
 export { DEFAULT_RENDER_WIDTH, FigureScaleProvider, TOKEN_SHAPE, Token, fontFloor, tokenColor, useFontFloor } from './chunk-OBRYIOBM.js';
-import { CanvasView } from './chunk-MKST5NJE.js';
+import { CanvasView } from './chunk-4NP354UM.js';
+export { DIAGRAM_CARRIERS, DIAGRAM_COLOR_ROLES, DiagramThemeScope, blueprint, defineDiagramTheme, diagramColors, diagramThemeCss, diagramThemeVars, isDiagramTheme } from './chunk-KF56LH5X.js';
+import './chunk-UNBHBOF5.js';
 export { isUiStyle, readStyle, sectionOrder, sharedSectionOrder, styleBootPlugin, styleBootScript, uiStyles } from './chunk-D5NPU7EV.js';
 import { smoothstep } from './chunk-V4CVL4FJ.js';
 export { easeInOutCubic, smoothstep } from './chunk-V4CVL4FJ.js';
@@ -29,7 +31,7 @@ function Badge({ cx, cy, text, accent, r = 9, size: size0 = 10 }) {
         fontSize: size,
         fontFamily: "var(--uipack-mono)",
         fontWeight: 600,
-        fill: stroke,
+        fill: accent ? "var(--uipack-accent-ink)" : "currentColor",
         children: text
       }
     )
@@ -364,6 +366,373 @@ function CurvePlot({ x, y, w, h, points, xTitle, yTitle, xEnds, notes = [], meas
         n.accent ? /* @__PURE__ */ jsx("circle", { cx, cy, r: 5, fill: "var(--uipack-bg)", stroke: "var(--uipack-accent)", strokeWidth: 3 }) : null
       ] }, n.label);
     })
+  ] });
+}
+var EDGE = { stroke: "currentColor", strokeOpacity: 0.7, strokeWidth: 1.25 };
+function useFlowHover(flow) {
+  const hover = useFigureHover();
+  const flows = flowList(flow);
+  const handlers = flows.length ? {
+    onPointerEnter: (e) => isPointer(e) && hover.setFlow(flows[0]),
+    onPointerLeave: (e) => isPointer(e) && hover.setFlow(null)
+  } : {};
+  return { ...hoverAttrs(flow, void 0, hover), ...handlers };
+}
+function Actor({ cx, cy, r = 28, role, sub, labelSide = "below", flow }) {
+  const size = useFontFloor(11);
+  const subSize = useFontFloor(11);
+  const s = r * 1.25 / 16;
+  const below = labelSide === "below";
+  const tx = below ? cx : cx + r + 14;
+  const ty = below ? cy + r + 22 : cy - 2;
+  return /* @__PURE__ */ jsxs("g", { "data-uipack": "actor", ...useFlowHover(flow), children: [
+    /* @__PURE__ */ jsx("circle", { cx, cy, r, fill: "var(--uipack-surface-raised, var(--uipack-surface))", ...EDGE }),
+    /* @__PURE__ */ jsx(
+      "g",
+      {
+        transform: `translate(${cx - 8 * s}, ${cy - 8 * s}) scale(${s})`,
+        fill: "none",
+        stroke: "currentColor",
+        strokeWidth: 1.5 / s,
+        strokeLinecap: "round",
+        strokeLinejoin: "round",
+        "aria-hidden": "true",
+        children: icons.user
+      }
+    ),
+    /* @__PURE__ */ jsx(
+      "text",
+      {
+        x: tx,
+        y: ty,
+        textAnchor: below ? "middle" : "start",
+        fontFamily: "var(--uipack-mono)",
+        fontSize: size,
+        fontWeight: 700,
+        letterSpacing: ".08em",
+        fill: "currentColor",
+        children: role.toUpperCase()
+      }
+    ),
+    sub ? /* @__PURE__ */ jsx(
+      "text",
+      {
+        x: tx,
+        y: ty + subSize + 6,
+        textAnchor: below ? "middle" : "start",
+        fontFamily: "var(--uipack-mono)",
+        fontSize: subSize,
+        fill: "currentColor",
+        fillOpacity: 0.7,
+        children: sub
+      }
+    ) : null
+  ] });
+}
+function Screen({ x, y, w, h = 128, title, lines = [], accent, flow }) {
+  const titleSize = useFontFloor(13);
+  const lineSize = useFontFloor(11);
+  const bar = 22;
+  const stroke = accent ? "var(--uipack-accent)" : "currentColor";
+  return /* @__PURE__ */ jsxs("g", { "data-uipack": "screen", ...useFlowHover(flow), children: [
+    /* @__PURE__ */ jsx(
+      "rect",
+      {
+        x,
+        y,
+        width: w,
+        height: h,
+        rx: 6,
+        fill: "var(--uipack-surface)",
+        stroke,
+        strokeOpacity: accent ? 1 : 0.7,
+        strokeWidth: 1.25
+      }
+    ),
+    /* @__PURE__ */ jsx("line", { x1: x, y1: y + bar, x2: x + w, y2: y + bar, stroke, strokeOpacity: 0.35, strokeWidth: 1 }),
+    [0, 1, 2].map((i) => /* @__PURE__ */ jsx("circle", { cx: x + 12 + i * 9, cy: y + bar / 2, r: 2.5, fill: "currentColor", fillOpacity: 0.35 }, i)),
+    /* @__PURE__ */ jsx(
+      "text",
+      {
+        x: x + 14,
+        y: y + bar + 24,
+        fontSize: titleSize,
+        fontWeight: 600,
+        fill: accent ? "var(--uipack-accent-ink)" : "currentColor",
+        children: title
+      }
+    ),
+    lines.map((t, i) => /* @__PURE__ */ jsx(
+      "text",
+      {
+        x: x + 14,
+        y: y + bar + 46 + i * (lineSize + 7),
+        fontFamily: "var(--uipack-mono)",
+        fontSize: lineSize,
+        fill: "currentColor",
+        fillOpacity: 0.75,
+        children: t
+      },
+      `${i}-${t}`
+    )),
+    /* @__PURE__ */ jsx("rect", { x: x + 14, y: y + h - 16, width: (w - 28) * 0.55, height: 5, rx: 2.5, fill: "currentColor", fillOpacity: 0.12 })
+  ] });
+}
+function Action({ x, y, w, h = 44, label, sub, flow }) {
+  const size = useFontFloor(13);
+  const subSize = useFontFloor(11);
+  return /* @__PURE__ */ jsxs("g", { "data-uipack": "action", ...useFlowHover(flow), children: [
+    /* @__PURE__ */ jsx("rect", { x, y, width: w, height: h, rx: h / 2, fill: "var(--uipack-surface-raised, var(--uipack-surface))", ...EDGE }),
+    /* @__PURE__ */ jsx("text", { x: x + w / 2, y: y + h / 2 + size * 0.35, textAnchor: "middle", fontSize: size, fontWeight: 600, fill: "currentColor", children: label }),
+    sub ? /* @__PURE__ */ jsx(
+      "text",
+      {
+        x: x + w / 2,
+        y: y + h + subSize + 6,
+        textAnchor: "middle",
+        fontFamily: "var(--uipack-mono)",
+        fontSize: subSize,
+        fill: "currentColor",
+        fillOpacity: 0.7,
+        children: sub
+      }
+    ) : null
+  ] });
+}
+function Decision({ cx, cy, r = 40, label, flow }) {
+  const size = useFontFloor(11);
+  return /* @__PURE__ */ jsxs("g", { "data-uipack": "decision", ...useFlowHover(flow), children: [
+    /* @__PURE__ */ jsx(
+      "path",
+      {
+        d: `M ${cx} ${cy - r} L ${cx + r} ${cy} L ${cx} ${cy + r} L ${cx - r} ${cy} Z`,
+        fill: "var(--uipack-surface)",
+        ...EDGE,
+        strokeLinejoin: "round"
+      }
+    ),
+    /* @__PURE__ */ jsx(
+      "text",
+      {
+        x: cx,
+        y: cy + size * 0.35,
+        textAnchor: "middle",
+        fontFamily: "var(--uipack-mono)",
+        fontSize: size,
+        fontWeight: 700,
+        fill: "currentColor",
+        children: label
+      }
+    )
+  ] });
+}
+function Outcome({ x, y, w, h = 56, label, sub, flow }) {
+  const size = useFontFloor(13);
+  const subSize = useFontFloor(11);
+  const cx = x + 22;
+  const cy = y + h / 2;
+  return /* @__PURE__ */ jsxs("g", { "data-uipack": "outcome", ...useFlowHover(flow), children: [
+    /* @__PURE__ */ jsx(
+      "rect",
+      {
+        x,
+        y,
+        width: w,
+        height: h,
+        rx: h / 2,
+        fill: "var(--uipack-surface)",
+        stroke: "var(--uipack-accent)",
+        strokeWidth: 1.5
+      }
+    ),
+    /* @__PURE__ */ jsx("circle", { cx, cy, r: 10, fill: "none", stroke: "var(--uipack-accent)", strokeWidth: 1.5 }),
+    /* @__PURE__ */ jsx(
+      "path",
+      {
+        d: `M ${cx - 4.5} ${cy} l 3 3 l 6 -6`,
+        fill: "none",
+        stroke: "var(--uipack-accent)",
+        strokeWidth: 1.75,
+        strokeLinecap: "round",
+        strokeLinejoin: "round"
+      }
+    ),
+    /* @__PURE__ */ jsx("text", { x: x + 42, y: sub ? cy - 3 : cy + size * 0.35, fontSize: size, fontWeight: 600, fill: "var(--uipack-accent-ink)", children: label }),
+    sub ? /* @__PURE__ */ jsx(
+      "text",
+      {
+        x: x + 42,
+        y: cy + subSize + 2,
+        fontFamily: "var(--uipack-mono)",
+        fontSize: subSize,
+        fill: "currentColor",
+        fillOpacity: 0.75,
+        children: sub
+      }
+    ) : null
+  ] });
+}
+function LaneRule({ x1, x2, y }) {
+  return /* @__PURE__ */ jsx(
+    "line",
+    {
+      "data-uipack": "lane-rule",
+      x1,
+      y1: y,
+      x2,
+      y2: y,
+      stroke: "currentColor",
+      strokeOpacity: 0.18,
+      strokeWidth: 1,
+      strokeDasharray: "2 6"
+    }
+  );
+}
+function Lifeline({ x, y1, y2 }) {
+  return /* @__PURE__ */ jsx(
+    "line",
+    {
+      "data-uipack": "lifeline",
+      x1: x,
+      y1,
+      x2: x,
+      y2,
+      stroke: "currentColor",
+      strokeOpacity: 0.3,
+      strokeWidth: 1,
+      strokeDasharray: "3 5"
+    }
+  );
+}
+function Activation({ x, y1, y2, accent, flow }) {
+  const hover = useFigureHover();
+  const tone = accent ? "var(--uipack-accent)" : "currentColor";
+  return /* @__PURE__ */ jsx(
+    "rect",
+    {
+      "data-uipack": "activation",
+      ...hoverAttrs(flow, void 0, hover),
+      x: x - 6,
+      y: y1,
+      width: 12,
+      height: y2 - y1,
+      rx: 2,
+      fill: tone,
+      fillOpacity: 0.14,
+      stroke: tone,
+      strokeOpacity: 0.6,
+      strokeWidth: 1
+    }
+  );
+}
+function Ride({
+  points,
+  kind,
+  packet,
+  flow,
+  dur
+}) {
+  if (!packet) return null;
+  const t = packet === true ? {} : packet;
+  return /* @__PURE__ */ jsx(Packet, { points, kind, dur: t.dur ?? dur, delay: t.delay ?? 0, r: 4, flow });
+}
+function Message({ id, from, to, y, n, label, kind, dashed, accent, labelSize = 12, labelX, packet, flow }) {
+  const dir = to > from ? 1 : -1;
+  const points = [
+    [from + dir * 14, y],
+    [to - dir * 8, y]
+  ];
+  const tone = kind ?? (accent ? "accent" : void 0);
+  return /* @__PURE__ */ jsxs("g", { "data-uipack": "message", children: [
+    /* @__PURE__ */ jsx(Connector, { points, defs: id, kind: tone, dashed, flow }),
+    tone ? /* @__PURE__ */ jsx(Ride, { points, kind: tone, packet, flow, dur: 1.8 }) : null,
+    /* @__PURE__ */ jsx(Label, { x: labelX ?? (from + to) / 2, y: y - 10, text: label, anchor: "middle", size: labelSize, accent: !!accent }),
+    n != null ? /* @__PURE__ */ jsx(Badge, { cx: from, cy: y, text: String(n), r: 10, size: 11, accent: !!accent }) : null
+  ] });
+}
+function Lost({ id, from, to, y, n, label, labelSize = 12, labelX, flow }) {
+  const dir = to > from ? 1 : -1;
+  const end = to - dir * 16;
+  return /* @__PURE__ */ jsxs("g", { "data-uipack": "lost", children: [
+    /* @__PURE__ */ jsx(
+      Connector,
+      {
+        points: [
+          [from + dir * 14, y],
+          [end, y]
+        ],
+        defs: id,
+        arrow: false,
+        dashed: true,
+        flow
+      }
+    ),
+    /* @__PURE__ */ jsx(Cross, { x: end, y }),
+    /* @__PURE__ */ jsx(Label, { x: labelX ?? (from + to) / 2, y: y - 10, text: label, anchor: "middle", size: labelSize }),
+    n != null ? /* @__PURE__ */ jsx(Badge, { cx: from, cy: y, text: String(n), r: 10, size: 11 }) : null
+  ] });
+}
+function SelfLoop({ id, x, y, h = 36, side = "left", w = 44, n, kind, packet, flow }) {
+  const dx = side === "left" ? -w : w;
+  const off = side === "left" ? -8 : 8;
+  const points = [
+    [x + off, y],
+    [x + dx, y],
+    [x + dx, y + h],
+    [x + off, y + h]
+  ];
+  return /* @__PURE__ */ jsxs("g", { "data-uipack": "self-loop", children: [
+    /* @__PURE__ */ jsx(Connector, { points, defs: id, kind, dashed: true, flow }),
+    kind ? /* @__PURE__ */ jsx(Ride, { points, kind, packet, flow, dur: 2 }) : null,
+    n != null ? /* @__PURE__ */ jsx(Badge, { cx: x, cy: y, text: String(n), r: 10, size: 11 }) : null
+  ] });
+}
+function Note({ x, y, w, h, title, lines = [], accent }) {
+  const titleSize = useFontFloor(12);
+  const lineSize = useFontFloor(11);
+  const stroke = accent ? "var(--uipack-accent)" : "currentColor";
+  return /* @__PURE__ */ jsxs("g", { "data-uipack": "note", children: [
+    /* @__PURE__ */ jsx(
+      "rect",
+      {
+        x,
+        y,
+        width: w,
+        height: h,
+        rx: 4,
+        fill: "var(--uipack-surface)",
+        stroke,
+        strokeOpacity: accent ? 0.9 : 0.6,
+        strokeWidth: 1.25,
+        strokeDasharray: "4 4"
+      }
+    ),
+    /* @__PURE__ */ jsx(
+      "text",
+      {
+        x: x + 12,
+        y: y + 20,
+        fontFamily: "var(--uipack-mono)",
+        fontSize: titleSize,
+        fontWeight: 700,
+        letterSpacing: ".06em",
+        fill: accent ? "var(--uipack-accent-ink)" : "currentColor",
+        children: title.toUpperCase()
+      }
+    ),
+    lines.map((t, i) => /* @__PURE__ */ jsx(
+      "text",
+      {
+        x: x + 12,
+        y: y + 38 + i * (lineSize + 6),
+        fontFamily: "var(--uipack-mono)",
+        fontSize: lineSize,
+        fill: "currentColor",
+        fillOpacity: 0.8,
+        children: t
+      },
+      `${i}-${t}`
+    ))
   ] });
 }
 var marks = {
@@ -1302,4 +1671,4 @@ function DrillNode({ drill, label, grow = DRILL_GROW, preview = true, ...node })
   );
 }
 
-export { Badge, Cross, CurvePlot, DRILL_GROW, DrillFigure, DrillNode, FileMark, FolderMark, Sheet, TreeRail, Wall, Wordmark, curveAt, curveSegments, drillAnnouncement, drillBox, drillFocusTarget, drillMotion, drillMove, drillReducer, drillStatic, marks, normalizePath as normalizeDrillPath, wallSegments };
+export { Action, Activation, Actor, Badge, Cross, CurvePlot, DRILL_GROW, Decision, DrillFigure, DrillNode, FileMark, FolderMark, LaneRule, Lifeline, Lost, Message, Note, Outcome, Screen, SelfLoop, Sheet, TreeRail, Wall, Wordmark, curveAt, curveSegments, drillAnnouncement, drillBox, drillFocusTarget, drillMotion, drillMove, drillReducer, drillStatic, marks, normalizePath as normalizeDrillPath, wallSegments };

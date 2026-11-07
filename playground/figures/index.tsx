@@ -10,6 +10,7 @@ import { FanOutFanInFigure } from "./fanOutFanIn";
 import { FailureRailFigure } from "./failureRail";
 import { QueueCalloutsFigure } from "./queueCallouts";
 import { SequenceFigure } from "./sequence";
+import { UserFlowFigure } from "./userFlow";
 import { NestedGroupsFigure } from "./nestedGroups";
 import { NumberedStepsFigure } from "./numberedSteps";
 import { LayeredChecksFigure } from "./layeredChecks";
@@ -56,7 +57,7 @@ const figureDetails: Record<FigureId, Omit<FigureSection, "id">> = {
   },
   parts: {
     intro:
-      "The vocabulary every pattern below is built from, one of each on the 8px grid: Node, Badge, Lane, Connector, Packet, Label, Group, Chip, Bus, Wall, Cross, icons and marks.",
+      "The vocabulary every pattern below is built from, one of each on the 8px grid: Node (and its optional header strip: window, terminal, file, store), Badge, Lane, Connector, Packet, Label, Group, Chip, Bus, Wall, Cross, icons and marks.",
     render: (n) => <PartsFigure number={n} />,
   },
   pipeline: {
@@ -148,8 +149,13 @@ const figureDetails: Record<FigureId, Omit<FigureSection, "id">> = {
   },
   sequence: {
     intro:
-      "Use when the order of messages between actors matters more than the topology. Built from a Lane and header Node per actor, dashed lifelines (Connector with arrow={false}), a numbered Badge and Packet per message, a dashed self-loop for a retry and a dashed line ending in a Cross for a lost message.",
+      "Use when the order of messages between actors matters more than the topology. Built from the sequence parts: a Lane and header Node per actor, a Lifeline under each, a numbered Message with its Packet, a SelfLoop for a retry and a Lost message ending in a Cross.",
     render: (n) => <SequenceFigure number={n} />,
+  },
+  "user-flow": {
+    intro:
+      "Use when the people and what they see are the point, not the services behind them. Built from the user-flow parts: an Actor per lane, Screens with window chrome, Action pills, Decision diamonds with yes and no Labels, an Outcome where each lane lands, a LaneRule between lanes, and one dashed accent Connector for the dependency between them.",
+    render: (n) => <UserFlowFigure number={n} />,
   },
   "nested-groups": {
     intro:

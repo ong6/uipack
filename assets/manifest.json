@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-10-22",
+  "generated": "2026-11-07",
   "base": "",
   "assets": [
     {
@@ -277,6 +277,19 @@
       "previewDark": "docs/assets/dark/icon-user.svg"
     },
     {
+      "id": "icon-check",
+      "name": "check",
+      "category": "Icons",
+      "kind": "icon",
+      "source": "<Node … icon=\"check\" />  // or: icons.check",
+      "tags": [
+        "icon",
+        "check"
+      ],
+      "preview": "docs/assets/icon-check.svg",
+      "previewDark": "docs/assets/dark/icon-check.svg"
+    },
+    {
       "id": "icon-robot",
       "name": "robot",
       "category": "Icons",
@@ -314,6 +327,84 @@
       ],
       "preview": "docs/assets/icon-warning.svg",
       "previewDark": "docs/assets/dark/icon-warning.svg"
+    },
+    {
+      "id": "icon-person",
+      "name": "person",
+      "category": "Icons",
+      "kind": "icon",
+      "source": "<Node … icon=\"person\" />  // or: icons.person",
+      "tags": [
+        "icon",
+        "person"
+      ],
+      "preview": "docs/assets/icon-person.svg",
+      "previewDark": "docs/assets/dark/icon-person.svg"
+    },
+    {
+      "id": "icon-calendar",
+      "name": "calendar",
+      "category": "Icons",
+      "kind": "icon",
+      "source": "<Node … icon=\"calendar\" />  // or: icons.calendar",
+      "tags": [
+        "icon",
+        "calendar"
+      ],
+      "preview": "docs/assets/icon-calendar.svg",
+      "previewDark": "docs/assets/dark/icon-calendar.svg"
+    },
+    {
+      "id": "icon-file",
+      "name": "file",
+      "category": "Icons",
+      "kind": "icon",
+      "source": "<Node … icon=\"file\" />  // or: icons.file",
+      "tags": [
+        "icon",
+        "file"
+      ],
+      "preview": "docs/assets/icon-file.svg",
+      "previewDark": "docs/assets/dark/icon-file.svg"
+    },
+    {
+      "id": "icon-table",
+      "name": "table",
+      "category": "Icons",
+      "kind": "icon",
+      "source": "<Node … icon=\"table\" />  // or: icons.table",
+      "tags": [
+        "icon",
+        "table"
+      ],
+      "preview": "docs/assets/icon-table.svg",
+      "previewDark": "docs/assets/dark/icon-table.svg"
+    },
+    {
+      "id": "icon-receipt",
+      "name": "receipt",
+      "category": "Icons",
+      "kind": "icon",
+      "source": "<Node … icon=\"receipt\" />  // or: icons.receipt",
+      "tags": [
+        "icon",
+        "receipt"
+      ],
+      "preview": "docs/assets/icon-receipt.svg",
+      "previewDark": "docs/assets/dark/icon-receipt.svg"
+    },
+    {
+      "id": "icon-phone",
+      "name": "phone",
+      "category": "Icons",
+      "kind": "icon",
+      "source": "<Node … icon=\"phone\" />  // or: icons.phone",
+      "tags": [
+        "icon",
+        "phone"
+      ],
+      "preview": "docs/assets/icon-phone.svg",
+      "previewDark": "docs/assets/dark/icon-phone.svg"
     },
     {
       "id": "icon-more",

@@ -836,7 +836,7 @@ describe("charts.css", () => {
     expect(css).toContain(':root:not([data-theme="light"]) .uipack-span');
     expect(css).toContain('[data-theme="dark"] .uipack-span');
     // Unset host variables fall back to the roles, whose light or dark half follows color-scheme.
-    expect(css).toContain("--sp-accent: var(--uipack-accent, var(--ui-accent))");
+    expect(css).toContain("--sp-accent: var(--uipack-accent, var(--uipack-diagram-accent, var(--ui-accent)))");
     expect(css).toMatch(/\[data-theme="dark"\] \{\n  color-scheme: dark;/);
     expect(css).toContain("var(--uipack-span-column-highlight,");
     // Dark logo tiles are the ink itself: near-white, like app icons, never a mid-grey.

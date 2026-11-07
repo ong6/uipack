@@ -2,7 +2,7 @@ import * as react from 'react';
 import { ReactNode } from 'react';
 import { L as LegendItem, T as TokenKind } from './Legend-n6GikDm_.cjs';
 import { F as FigureChrome } from './context-CfQZ0ans.cjs';
-import { I as IconName } from './index-BCiSvaJI.cjs';
+import { I as IconName } from './index-DYWIE6p3.cjs';
 
 /** One box in a preset spec. */
 interface Item {

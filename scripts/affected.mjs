@@ -31,6 +31,7 @@ const changed = [
 
 const FIGURES = [
   "geometry",
+  "diagram-themes",
   "hover",
   "packet",
   "figure-keyboard",
@@ -86,7 +87,12 @@ const AREAS = [
     /^playground\/(docs-manifest|docs-links|demos|MarkdownShowcase)|^scripts\/(docs-sync|check-spec|style-contract|site-model|check-agent-docs)|^docs\/(?!system\/)|^README\.md$|^llms\.txt$/,
     ["foundations", "nav", "page-audit"],
   ],
-  [/^src\/(CanvasView|canvas)/, ["canvas", "canvas-gestures"]],
+  [/^src\/(CanvasView|canvas)/, ["canvas", "canvas-gestures", "diagram-themes"]],
+  // Diagram themes and the parts they colour, with their docs demos.
+  [
+    /^src\/(diagram-theme|UserFlow|Sequence)|^playground\/(DiagramThemesDemo|diagramThemes|diagram-themes-demo)/,
+    [...FIGURES, "diagram-themes", "tier1"],
+  ],
   // Root parts, theme, presets and the figures page: every figure-level spec.
   [/^src\/[^/]+\.(tsx?|css)$|^src\/presets\/|^playground\/figures\//, [...FIGURES, "tier1"]],
   // The Rules pages and their demos: outline, overflow and the nav rows.

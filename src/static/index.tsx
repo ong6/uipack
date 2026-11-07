@@ -12,6 +12,7 @@ import type { LegendItem } from "../Legend";
 import type { FigureMeta, PresetFigureProps } from "../presets/shared";
 import { Token, TOKEN_SHAPE } from "../tokens";
 import { technicalFonts, technicalValues, type TechnicalColors } from "../styles/technical-values";
+import { diagramColors, isDiagramTheme, type DiagramCanvas, type DiagramMode, type DiagramThemeInput } from "../diagram-theme";
 
 export type StaticTheme = "light" | "dark";
 
@@ -25,9 +26,12 @@ export interface Palette {
   grid: string;
   border: string;
   accent: string;
+  /** Accent as text (Node, Label, Badge, Outcome words). Default the accent. */
+  "accent-ink": string;
   "token-request": string;
   "token-response": string;
   "token-change": string;
+  "token-error": string;
   mono: string;
   sans: string;
 }
@@ -41,9 +45,11 @@ const paletteOf = (c: TechnicalColors): Palette => ({
   grid: c["line-soft"],
   border: c.line,
   accent: c.accent,
+  "accent-ink": c.accent,
   "token-request": c["flow-request"],
   "token-response": c["flow-response"],
   "token-change": c["flow-change"],
+  "token-error": c["flow-error"],
   mono: technicalFonts.mono,
   sans: technicalFonts.sans,
 });
@@ -66,9 +72,17 @@ export interface StaticFigure {
   background?: "dots" | "plain" | "ruled";
 }
 
+/** The older palette form: a named base and the literals to spread over it. */
+export type LegacyPalette = Partial<Palette> & { base?: StaticTheme };
+
 export interface StaticOptions {
-  /** A named palette, or one to spread over it. */
-  theme?: StaticTheme | (Partial<Palette> & { base?: StaticTheme });
+  /**
+   * A diagram theme (`defineDiagramTheme`, `blueprint`) drawn in `mode`; or the older forms: a named
+   * palette ("light" | "dark"), or literals to spread over one.
+   */
+  theme?: StaticTheme | LegacyPalette | DiagramThemeInput;
+  /** Which half of a diagram theme to draw. Default "light". The older forms carry their own mode. */
+  mode?: DiagramMode;
   /** Keep the SMIL packets (they run inside <img>). False renders every packet once at its `at`. */
   motion?: boolean;
   /** Draw the header (eyebrow, title, caption, legend) and the border in SVG. False gives the bare drawing. */
@@ -81,20 +95,60 @@ export interface StaticOptions {
   background?: boolean;
 }
 
-export function resolvePalette(theme: StaticOptions["theme"]): Palette {
-  const p =
-    !theme || theme === "light"
-      ? LIGHT
-      : theme === "dark"
-        ? DARK
-        : { ...(theme.base === "dark" ? DARK : LIGHT), ...stripBase(theme) };
+/** A diagram theme's half as a palette. Faces that are not literal stacks (a `var()`) fall back to Technical's. */
+export function themePalette(theme: DiagramThemeInput, mode: DiagramMode = "light"): Palette {
+  const c = diagramColors(theme, mode);
+  const face = (v: string | undefined, fallback: string) => (v && !v.includes("var(") ? v : fallback);
+  return {
+    fg: c.ink,
+    muted: c["ink-2"],
+    bg: c.surface,
+    surface: c["surface-raised"],
+    "surface-raised": c["surface-2"],
+    grid: c["line-soft"],
+    border: c.line,
+    accent: c.accent,
+    "accent-ink": c["accent-ink"],
+    "token-request": c["flow-request"],
+    "token-response": c["flow-response"],
+    "token-change": c["flow-change"],
+    "token-error": c["flow-error"],
+    mono: face(theme.fonts?.label, technicalFonts.mono),
+    sans: face(theme.fonts?.text, technicalFonts.sans),
+  };
+}
+
+export function resolvePalette(theme: StaticOptions["theme"], mode: DiagramMode = "light"): Palette {
+  let p: Palette;
+  if (!theme || theme === "light") p = LIGHT;
+  else if (theme === "dark") p = DARK;
+  else if (isDiagramTheme(theme)) p = themePalette(theme, mode);
+  else {
+    const rest = stripBase(theme);
+    // An older palette that sets its accent and not the accent ink means both.
+    p = { ...(theme.base === "dark" ? DARK : LIGHT), ...rest };
+    if (rest.accent && !rest["accent-ink"]) p["accent-ink"] = rest.accent;
+  }
   // Font stacks land inside attribute values; a double quote there breaks the XML.
   return { ...p, mono: p.mono.replace(/"/g, "'"), sans: p.sans.replace(/"/g, "'") };
 }
 
-function stripBase(t: Partial<Palette> & { base?: StaticTheme }): Partial<Palette> {
+function stripBase(t: LegacyPalette): Partial<Palette> {
   const { base: _base, ...rest } = t;
   return rest;
+}
+
+/**
+ * The drafting-film grid as an SVG pattern: 12px minor hairlines at 5% ink, 60px major at 12%, the
+ * same ground src/theme.css paints behind a live figure. Anchored to the canvas's top-left corner.
+ */
+function draftingGrid(id: string, ink: string, y: number) {
+  const line = (size: number, opacity: number) =>
+    `<path d="M ${size} 0 V ${size} M 0 ${size} H ${size}" fill="none" stroke="${ink}" stroke-opacity="${opacity}" stroke-width="1"/>`;
+  return (
+    `<pattern id="${id}-minor" width="12" height="12" patternUnits="userSpaceOnUse">${line(12, 0.05)}</pattern>` +
+    `<pattern id="${id}" width="60" height="60" patternUnits="userSpaceOnUse" y="${y}"><rect width="60" height="60" fill="url(#${id}-minor)"/>${line(60, 0.12)}</pattern>`
+  );
 }
 
 /** Replace every `var(--uipack-x)` with the palette literal. Unknown names fall back to currentColor. */
@@ -175,7 +229,14 @@ function svgMarkup(children: ReactNode): string {
  */
 export function renderStatic(input: ReactElement<FigureProps> | StaticFigure, opts: StaticOptions = {}): string {
   const fig = figureOf(input);
-  const p = resolvePalette(opts.theme);
+  const p = resolvePalette(opts.theme, opts.mode);
+  // A diagram theme brings its canvas ground; the older forms keep the dotted grid.
+  const ground: DiagramCanvas | "ruled" =
+    fig.background === "plain" || fig.background === "ruled"
+      ? fig.background
+      : isDiagramTheme(opts.theme)
+        ? (opts.theme.canvas ?? "grid")
+        : "dots";
   const motion = opts.motion ?? true;
   const frame = opts.frame ?? true;
   const paint = opts.background ?? true;
@@ -258,13 +319,22 @@ export function renderStatic(input: ReactElement<FigureProps> | StaticFigure, op
 
   const H = hy + vh;
   const bgId = "uipack-static-dots";
-  const canvas = paint
-    ? fig.background === "plain"
-      ? `<rect x="0" y="${hy}" width="${vw}" height="${vh}" fill="${p.bg}"/>`
-      : fig.background === "ruled"
-        ? `<defs><pattern id="${bgId}" width="${vw}" height="24" patternUnits="userSpaceOnUse"><rect width="${vw}" height="1" fill="${p.grid}"/></pattern></defs><rect x="0" y="${hy}" width="${vw}" height="${vh}" fill="${p.bg}"/><rect x="0" y="${hy}" width="${vw}" height="${vh}" fill="url(#${bgId})"/>`
-        : `<defs><pattern id="${bgId}" width="12" height="12" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="1" fill="${p.grid}"/></pattern></defs><rect x="0" y="${hy}" width="${vw}" height="${vh}" fill="${p.bg}"/><rect x="0" y="${hy}" width="${vw}" height="${vh}" fill="url(#${bgId})"/>`
-    : "";
+  const fill = `<rect x="0" y="${hy}" width="${vw}" height="${vh}" fill="${p.bg}"/>`;
+  const patterned = (pattern: string) =>
+    `<defs>${pattern}</defs>${fill}<rect x="0" y="${hy}" width="${vw}" height="${vh}" fill="url(#${bgId})"/>`;
+  const canvas = !paint
+    ? ""
+    : ground === "plain"
+      ? fill
+      : ground === "ruled"
+        ? patterned(
+            `<pattern id="${bgId}" width="${vw}" height="24" patternUnits="userSpaceOnUse"><rect width="${vw}" height="1" fill="${p.grid}"/></pattern>`,
+          )
+        : ground === "grid"
+          ? patterned(draftingGrid(bgId, p.fg, hy))
+          : patterned(
+              `<pattern id="${bgId}" width="12" height="12" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="1" fill="${p.grid}"/></pattern>`,
+            );
   const border = frame
     ? `<rect x="0.5" y="0.5" width="${vw - 1}" height="${H - 1}" rx="4" fill="${paint ? p.bg : "none"}" stroke="${p.border}"/>` +
       (hy ? `<line x1="0" y1="${hy}" x2="${vw}" y2="${hy}" stroke="${p.border}"/>` : "")

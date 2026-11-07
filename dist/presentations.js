@@ -1,5 +1,5 @@
 import { WORDS_PER_MINUTE } from './chunk-K7T4NUBP.js';
-import { technicalValues, technicalFonts } from './chunk-ESGEH25T.js';
+import { technicalValues, technicalFonts } from './chunk-UNBHBOF5.js';
 import { useId, useState } from 'react';
 import { jsxs, jsx } from 'react/jsx-runtime';
 

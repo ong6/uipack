@@ -23,6 +23,7 @@ Generated from the catalogue's own list (`playground/figure-rows.ts`), in page o
 | [Failure rail](#failure-rail) | every stage fails to one place | Vertical, Errors, Dead letter |
 | [Queue and callouts](#queue-callouts) | where work piles up | Queue, Callout, Bottleneck |
 | [Sequence](#sequence) | messages between actors, in order | Sequence, Lifeline, Protocol |
+| [User flow](#user-flow) | who acts, what they see, where it branches | Actor, Screen, Decision, Outcome |
 | [Nested groups](#nested-groups) | what runs inside what | Group, Containment, Replicas |
 | [Numbered steps](#numbered-steps) | one path across column lanes | Badge, Walkthrough, Lanes |
 | [Service map](#service-map) | clients, one platform, its stores | Reference, Bus, Hub, Lanes |
@@ -38,8 +39,9 @@ Generated from the catalogue's own list (`playground/figure-rows.ts`), in page o
 1. Write the claim and the caption first ([figure labels and captions](system/writing/figures.md)).
 2. Pick the pattern whose shape matches the claim ([layout, figures](system/layout/README.md#figures)).
 3. Start from a preset (`uipack/presets`) when one fits; otherwise compose `Figure` from the parts.
-4. Check the narrow drawing at 390 and both themes; the look is the
-   [Blueprint look](components/diagrams.md), the same on every site.
+4. Check the narrow drawing at 390 and both modes; the look is the
+   [Blueprint look](components/diagrams.md): one grammar everywhere, coloured by the site's or the
+   page's [diagram theme](components/diagrams.md#diagram-themes).
 
 A published figure that needs a pattern not listed here adds it to `figureEntries` and
 `playground/figures/` the first time it is used ([contributing](contributing.md)).

@@ -1,7 +1,9 @@
 import { chooseObjectVariant, normalizeObjectVariant, objectVariants, objectEditions, hasObjectLook, objectDirections, directionSymbols, objectLooks, objectDirectionIndex, transferObjectVariant } from './chunk-NARSUG2R.js';
 export { chooseObjectVariant, directionSymbols, hasObjectLook, normalizeObjectVariant, objectDirectionIndex, objectDirections, objectEditions, objectLooks, objectVariants, parseObjectVariant, transferObjectVariant } from './chunk-NARSUG2R.js';
 import { studioObjectPalettes } from './chunk-VNW5HB27.js';
-import { CanvasView } from './chunk-MKST5NJE.js';
+import { CanvasView } from './chunk-4NP354UM.js';
+import './chunk-KF56LH5X.js';
+import './chunk-UNBHBOF5.js';
 import { keepFocusedInView, usePrefersReducedMotion, REDUCED_MOTION_QUERY } from './chunk-LWCZ6GEJ.js';
 import { useState, useRef, useEffect, useReducer } from 'react';
 import { jsxs, jsx, Fragment } from 'react/jsx-runtime';
