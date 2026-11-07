@@ -133,7 +133,7 @@ function Wide() {
       <Packet points={p1} kind="request" dur={1.4} flow={ORDER} r={4} />
       <Connector points={p2} defs={id} kind="request" flow={ORDER} />
       <Packet points={p2} kind="request" dur={1.4} delay={-0.4} flow={ORDER} r={4} />
-      <Label x={(checkout.x + checkout.w + 320) / 2} y={cy(checkout) - 10} text="order" anchor="middle" />
+      <Label x={(checkout.x + checkout.w + validate.x) / 2} y={cy(checkout) - 10} text="order" anchor="middle" />
       <Label x={480} y={cy(validate) - 10} text="queue" anchor="middle" />
       <Connector points={hold} defs={id} flow={ORDER} />
       <Label x={756} y={cy(reserve) - 10} text="hold" anchor="middle" />

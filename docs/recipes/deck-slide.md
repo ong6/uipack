@@ -70,11 +70,28 @@ Each storyline orders the slide roles; pick the one that matches the job (`STORY
 ## Steps
 
 1. Write slide one's outcome and the ask first.
-2. Pick a storyline, then a role per slide and an archetype per role.
+2. Pick a storyline, then a role per slide and an archetype per role from the
+   [archetype table](../system/layout/deck-slide.md#archetypes): an `option` slide is an options
+   table (`HarveyTable`), a `plan` slide milestones with dates, one number a `factSlide`. Points
+   is the default only where the role has no better body.
 3. Write titles to the mode ([title forms](../system/writing/README.md#title-forms) and the site spec's writing style), points
    that carry the numbers, and cues that add what the slide can't hold.
 4. Read the titles alone, in order (`storylineOf`): they should outline the argument.
-5. Run the checks below and fix every warning or say why it stays.
+5. **What each slide adds.** Beside each title write the one thing it adds that no earlier slide
+   said (a number, a baseline, a cost, a date, the trade-off). A slide with nothing new merges into
+   its neighbour; a template's beat count is a ceiling, not a target. The usual repeat in a decision
+   request: an options slide whose title already names the pick, then a recommendation slide that
+   argues it again, then a plan that restates the same conditions. The options slide compares on
+   the same criteria and picks nothing; the recommendation picks and names what it gives up; the
+   plan adds dates and cost.
+6. Run `lintDeck` (below) on the final slides, after the last edit, and fix every `error` and
+   `warn` or say why it stays. Its checks read words, so they can't see steps 5, 7 and 8.
+7. **Fill.** Render every slide and look at the body region: content that leaves half of it empty
+   (three short points under a title, a lone line) means the archetype is wrong for the content.
+   Change it (a fact, a statement, an options table) or merge the slide; never pad the words.
+8. **One tone.** Every slide uses the deck's ground. `invert` or another `tone` marks a section
+   break (every `sectionSlide` of the deck alike), never a single content slide for variety
+   ([invert](../system/layout/deck-slide.md#archetypes)).
 
 ## Checks before you present
 

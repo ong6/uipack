@@ -13,7 +13,10 @@ uipack clone.
 2. **The site's spec.** The site repo's `STYLE.md`, or its row in the
    [registry](../specs/registry.md): its look, the layout for your page type (`layouts:` and
    `## Layout`), its writing style and the component looks it picks. A deck reads its site's spec.
-   No spec yet: write one first ([starting a new website](new-website.md)).
+   No spec yet: a new site writes one first ([starting a new website](new-website.md)); a page
+   inside an existing uipack site uses that site's spec; a one-off with no site behind it (and the
+   uipack playground) uses [Technical](../specs/technical.md) (the
+   [page skill](../../skills/uipack-page/SKILL.md), step 1).
 3. **The core rules for your medium.** [docs/system/README.md](../system/README.md), then only your
    medium's section in [style](../system/style.md), [writing](../system/writing/README.md) and
    [layout](../system/layout/README.md) (the floors, and the archetype the spec picked). Jump by heading.
@@ -46,7 +49,9 @@ site setting: say so instead of overriding it locally.
   `font-family` literal in site code.
 - Only real exports and props; a missing part is a uipack change
   ([contributing](../contributing.md)), never an invented prop.
-- Only the facts you were given; a gap is left out, never filled.
+- Only the facts you were given; a gap is left out, never filled. A code example still ships:
+  a name it needs that the input lacks is a marked placeholder (`<cursor>`, `YOUR_API_KEY`), never
+  a real-looking invention ([documentation pages](../system/writing/documents.md#documentation-pages)).
 - Layout and writing style are the site's: read them from its spec, never from Technical's; a
   style never moves a section.
 - Render at 1440 and 390, light and dark, in a browser you launched, before saying it looks right;

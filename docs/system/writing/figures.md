@@ -22,6 +22,13 @@ caption confirms it. The source line is the figure's one place for sources: ever
 shares the caption's population and window, and a number with a different source names its own
 there.
 
+The caption describes the drawing it sits under, so check it against the finished render, not the
+plan: every count it states ("four steps", "two inputs") matches the boxes drawn, a group it names
+("the automatic steps") holds exactly the nodes inside that group's frame, and every step it names
+is a node. A step the caption counts as automatic but the drawing puts outside the group (or the
+reverse) is a mismatch either way: move the node or change the words. A caption without a count
+avoids the miscount altogether ("Every step runs on its own except the review").
+
 ## Nodes and labels
 
 - Draw the system or the flow: at most six nodes. Past that, use two figures with two claims, or a
@@ -33,8 +40,18 @@ there.
 
 ## Arrows and statistics
 
-- Arrows follow the flow and say what moves or the rule that gates it (`decoded image`,
-  `~1000 chars`, `1536-dim`), never a statistic or a noun that names no change (`user sessions`).
+- Label every connector that carries something: each arrow between two steps says what the first
+  hands to the second, or the rule that gates it (`decoded image`, `~1000 chars`, `1536-dim`),
+  never a statistic or a noun that names no change (`user sessions`). An unlabelled arrow makes
+  the reader guess what moves. Only a fan of identical stubs into one bus, or an arrow from an
+  input chip whose own label already names what moves, may stay bare.
+- The label comes from the input: the output the brief gives the step (Chunk → Embed
+  carries `chunks`, Embed → pgvector carries `1536-dim vectors`) or the brief's word for the thing that moves. That
+  restates a given fact, so it is not invention. A state the brief never names (`approved`,
+  `validated`) is; when the brief gives nothing that moves between two steps, label the arrow with
+  the source step's output in the brief's words, never a coined one.
+- A label sits on its own connector, clear of every other line, node and label, at 390 as well as
+  1440: an authored narrow drawing re-places its labels, it doesn't inherit the wide positions.
 - A statistic lives once, in the sub-label of the node it measures, with its baseline:
   `p95 198ms · was 410ms`. On an arrow it reads as if it covered only that path.
 - Results live in a sub-label or the caption, never as their own node; a time window

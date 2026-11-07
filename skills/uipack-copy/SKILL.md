@@ -35,7 +35,9 @@ site's writing style for talks. Figure labels follow the Blueprint look's length
 ## Non-negotiables
 
 - Only the facts you were given. A missing fact is left out, never filled in or announced; finished
-  copy never shows `TODO`.
+  copy never shows `TODO`. A docs code example is the exception that keeps its shape: a missing
+  name becomes a marked placeholder (`<cursor>`, `YOUR_API_KEY`), and the page says so once
+  ([documentation pages](../../docs/system/writing/documents.md#documentation-pages)).
 - A before/after says "after", "since" or "went from… to", never a cause.
 - Copy qualifiers exactly ("up to 15 minutes", "about").
 - The reader's words: no internal metrics or tool names on public pages.

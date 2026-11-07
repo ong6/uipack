@@ -19,7 +19,8 @@ A documentation page, top to bottom:
 1. `#` title: the page's plain name.
 2. One line that says what the page is for.
 3. The values or options table.
-4. One `##` per topic a reader might jump to, with code that runs as written.
+4. One `##` per task a reader might jump to, each with a copyable example (the request and what
+   comes back) that runs as written once its marked placeholders are filled in.
 5. Related pages.
 
 A long article's section, in the order `LayerSection` renders it (generated from
@@ -50,12 +51,18 @@ A long article's section, in the order `LayerSection` renders it (generated from
 
 1. Write the page's first line: what it is for.
 2. Put the values table near the top; the reader who only needs a value stops there.
-3. Give each topic its own `##`, with a plain name.
+3. Give each task its own `##`, with a plain name and its example. Where the input lacks a name
+   the example needs, write a marked placeholder (`<cursor>`, `YOUR_API_KEY`) and say once that
+   values in angle brackets are placeholders ([documentation pages](../system/writing/documents.md#documentation-pages));
+   never drop the example and never invent a real-looking name.
 4. Embed demos as `uipack-demo` blocks, each naming what it shows.
 5. Keep the file under about 300 lines; split a second topic into its own file.
 
 ## Before you ship
 
 - One topic per file; the first line says what it is for.
-- Every link resolves, and every example runs as written.
+- Every task section has a copyable example; every link resolves.
+- Every example runs as written once its placeholders are filled; every placeholder is marked
+  (angle brackets or capitals) and the page says so once; no example shows a name, header or field
+  the input didn't give as if it were real.
 - At 390, tables scroll inside their box and figures use their narrow drawing.
