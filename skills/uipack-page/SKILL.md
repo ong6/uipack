@@ -18,9 +18,19 @@ Paths are relative to the uipack root: `node_modules/uipack/` in a site, or a ui
 1. **The site's spec.** Read the repo's `STYLE.md` (or the site's row in
    [docs/specs/registry.md](../../docs/specs/registry.md)). It sets the palette, faces and density,
    the page types the site has with a layout for each (`layouts:` and `## Layout`), its writing
-   style and the component looks it picks. A deck is a page of the site and reads the same spec. No spec, or a site not in the registry: stop and run
-   `uipack-spec` first. A spec whose values are `TODO:` keeps those values out of your code; say
-   which ones blocked you.
+   style and the component looks it picks. A deck is a page of the site and reads the same spec.
+   With no spec of its own, decide which case you are in and say which you took:
+   - **A new site** (its own repo or domain, pages to come, a look of its own): stop and run
+     `uipack-spec` first.
+   - **A page inside an existing site that uses uipack** (a one-off page, a deck, a docs page added
+     to it): that site's spec, from its repo's `STYLE.md` or its registry row. Never write a second
+     spec for one page.
+   - **A one-off with no site behind it** (a demo, a prototype, a brief that says "house style",
+     the uipack playground itself): Technical, [docs/specs/technical.md](../../docs/specs/technical.md),
+     and no new spec. Grade it with `--spec node_modules/uipack/docs/specs/technical.md` (inside
+     uipack: `--spec uipack`).
+
+   A spec whose values are `TODO:` keeps those values out of your code; say which ones blocked you.
 2. **Fixed vs per site.** Core rules ([docs/system/](../../docs/system/README.md): the role
    contract, the [layout floors](../../docs/system/layout/README.md#floors-what-holds-on-every-site),
    the core writing rules) hold on every site; a `fixed` [component look](../../docs/components/README.md)
@@ -65,5 +75,15 @@ starts from.
 ## Check
 
 Render at 1440 and 390, light and dark, reduced motion, with a headless browser you launch
-yourself (never a tab the user has open), then grade tier 1 with `npx uipack-grade check <url> --spec STYLE.md` (inside uipack: `npm run grade -- check <url> --spec uipack`) and finish with `uipack-review`. If you can't render, say so;
+yourself (never a tab the user has open), then grade tier 1 with `npx uipack-grade check <url> --spec STYLE.md` (the spec you used in step 1; inside uipack: `npm run grade -- check <url> --spec uipack`) and finish with `uipack-review`. If you can't render, say so;
 never report a look you didn't see.
+
+Per page type, before the grader:
+
+- **Deck.** The [deck recipe](../../docs/recipes/deck-slide.md#steps), steps 5–8, on the finished
+  slides: what each slide adds (a slide that repeats an earlier point merges), `lintDeck` rerun
+  after the last edit with every `error` and `warn` fixed or explained, every rendered slide's body
+  filled by its archetype, and one tone through the deck.
+- **Documentation.** Every task section has a copyable example; missing names are marked
+  placeholders ([recipe](../../docs/recipes/documentation.md#before-you-ship)).
+- **A figure on the page.** The [diagram skill](../uipack-diagram/SKILL.md)'s check (step 6).

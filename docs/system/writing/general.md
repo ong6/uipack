@@ -14,7 +14,9 @@ writing style add to these; they never override them. Start at [Writing](README.
    missing fact out: don't fill it, don't print `TODO`, and don't announce it ("still to confirm",
    "not yet known"). Mention a gap only when the decision turns on it, once, in a plain sentence
    ("iOS isn't in these numbers"). A recommendation is said as one ("we recommend"), never as a
-   measured fact.
+   measured fact. A code example is the one place a gap gets a visible stand-in: a value the reader supplies
+   or a name the input doesn't give becomes a marked placeholder (`YOUR_API_KEY`, `<cursor>`),
+   never a plausible real name ([documentation pages](documents.md#documentation-pages)).
 3. **Each caveat has one home.**
    - *Sources:* one source line per piece, giving each number its own source. A number the input
      left bare is listed there once as "source not given". Never borrow a neighbour's source.

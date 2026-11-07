@@ -92,6 +92,8 @@ const AREAS = [
   [/^playground\/FiguresShowcase/, [...FIGURES, "charts", "assets", "gallery"]],
   [/^playground\/(MechanismShowcase|mechanism-showcase)/, ["mechanism"]],
   [/^playground\/(SlideShowcase|slides-showcase)/, ["slides", "objects"]],
+  // The figure geometry check a site runs; geometry.spec runs it on every figure of the diagrams page.
+  [/^bin\/uipack-figure-check/, ["geometry"]],
   [/^dist\//, ["dist-smoke"]],
 ];
 

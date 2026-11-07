@@ -78,7 +78,14 @@ Each one is a layout over the regions above, with the role it usually serves:
 
 **Invert.** Any slide can set `invert` (sugar for `tone="ink"`): the same layout on the style's
 invert roles, a dark ground in a light deck. It is a variant inside the style, not another style,
-and it never changes a region.
+and it never changes a region. A deck keeps one tone treatment: a tone change tells the room a new part
+starts, so use it for section breaks (every section divider alike) or not at all. One inverted
+content slide among paper ones reads as a slide from another deck.
+
+**Fill.** The body region is the slide's evidence and should look used: a points slide's two to
+four fragments carry numbers and fill the body at the deck's type size; when they leave half of it
+empty, the content wants another archetype (a fact, a statement, an options table) or a merge with
+its neighbour, not longer points.
 
 Keep a slide to a handful of top-level blocks. That's what `advance` staggers. Embedded figures
 keep their own diagram layout. The slide gives them the body region and nothing else.

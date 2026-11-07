@@ -123,7 +123,7 @@ const latency = factSlide({
 });
 ```
 
-`invert: true` paints one slide in the style's inverse roles (a dark ground in a light deck, a light one in a dark deck): sugar for `tone: "ink"`, which wins if both are set. It is a variant within the style, never another style. The tech talk's plan slide and the bento review's plan slide use it; the bento review also shows a fact, a section and an end slide, and the tech talk a quote.
+`invert: true` paints one slide in the style's inverse roles (a dark ground in a light deck, a light one in a dark deck): sugar for `tone: "ink"`, which wins if both are set. It is a variant within the style, never another style. Use it to mark a section break, the same way on every break, or not at all; a single inverted content slide reads as a mistake ([invert](system/layout/deck-slide.md#archetypes)). The tech talk's and the bento review's plan slides use it to show the variant, not as a pattern to copy; the bento review also shows a fact, a section and an end slide, and the tech talk a quote.
 
 Slide type comes from classes on the canvas scale, so every deck sets text the same way: `uipack-deck-eyebrow`, `-label`, `-title` (120px), `-heading` (76px), `-points` (a list of 56px fragments), `-lede`, `-body` (32px) and `-number` (a 360px figure). Slide colours come from the tone (`paper`, `ink`, `accent`) and the deck tokens (`--deck-fg`, `--deck-muted`, `--deck-accent`, `--deck-rule`, `--deck-radius`). A new part or chart follows [contributing](contributing.md#a-new-slide-part-or-chart).
 

@@ -129,7 +129,8 @@ function Wide() {
       <Connector points={read} defs={id} kind="request" flow="query" />
       <Label x={(clients.x + clients.w + lb.x) / 2} y={CY - 10} text="https" anchor="middle" />
       <Label x={(lb.x + lb.w + api.x) / 2} y={CY - 10} text="route" anchor="middle" />
-      <Label x={(api.x + api.w + worker.x) / 2 + 4} y={CY - 14} text="job" anchor="middle" />
+      {/* Centred in the gap between the last replica outline (8 + 8 past the box) and the worker. */}
+      <Label x={(api.x + api.w + 16 + worker.x) / 2} y={CY - 14} text="job" anchor="middle" />
       <Label x={814} y={CY - 10} text="query" anchor="middle" />
       <Label x={policy.x + policy.w / 2 + 8} y={(policy.y + policy.h + tables.y) / 2 + 4} text="rows" />
     </>

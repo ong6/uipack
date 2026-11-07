@@ -33,14 +33,24 @@ restyles it.
    hand-built `Figure`; `DrillFigure` (from `uipack`) when a node must open into its own figure
    ([drill-down](../../docs/drill.md)); `SpanChart` or `LayerStack` for layers
    ([charts](../../docs/charts.md)). The playground's diagrams page lists every pattern.
-3. **Words.** At most six nodes of 2–3 words that draw the system, arrows along the flow saying
-   what moves, results in a sub-label or the caption; every path ends at an outcome. A statistic
-   appears once, in the sub-label of the node it measures.
+3. **Words.** At most six nodes of 2–3 words that draw the system; a label on every connector
+   that carries something, saying what moves, taken from the brief's words (the step's given
+   output restates a fact; a state the brief never names is invented); results in a sub-label or
+   the caption; every path ends at an outcome. A statistic appears once, in the sub-label of the
+   node it measures ([arrows](../../docs/system/writing/figures.md#arrows-and-statistics)).
 4. **Layout.** 8px grid, lanes and groups, flow left to right or layers top to bottom
    ([layout, diagrams](../../docs/system/layout/README.md#figures)). Author the narrow (390px) drawing or
    keep a readable width that scrolls inside the frame; never shrink labels below the 11px floor.
 5. **Build with real exports.** `Figure`, `Node`, `Connector`, `Packet`, `route`, `Defs` from
    `uipack` (props in [docs/figure-api.md](../../docs/figure-api.md)); check `dist/*.d.ts` before a prop. Give
    `alt`, a caption, and a legend only when there is more than one flow kind.
-6. **Check.** Render at 1440 and 390 in both themes; labels inside their boxes, no page overflow,
-   packets that arrive and leave. Then `uipack-review`.
+6. **Check.** Render at 1440 and 390 in both themes and look at both drawings: labels inside
+   their boxes, no page overflow, packets that arrive and leave. Then:
+   - **Geometry.** `node node_modules/uipack/bin/uipack-figure-check.mjs <url>` (in a uipack
+     clone, `node bin/uipack-figure-check.mjs <url>`) must report no `fail` at either width: no
+     line drawn through a label, no label over a node. Read its `check` list of unlabelled
+     connectors and give each one that carries something a label (step 3).
+   - **Caption against the drawing.** Count the nodes in each group on the render and reread the
+     caption: every count, group and step it names matches what is drawn
+     ([the caption](../../docs/system/writing/figures.md#the-caption)). Fix the drawing or the words.
+   - Then `uipack-review`.

@@ -53,7 +53,19 @@ A deck that goes out without you keeps the slide shape but writes it out:
 - The values or options table near the top, then the detail.
 - Headings a reader can jump to: plain names ("Install", "Props", "Keyboard"), never "Overview of
   the various options".
-- Code and names in `code` style; every example runs as written.
+- Code and names in `code` style.
+- Every task the page covers has a copyable example: the request (or call) and what comes back.
+  A reader copies the example before reading the prose, so a section that explains a task without
+  one is unfinished, even when the input is thin.
+- Examples use only the given names. A name or value the input doesn't give (a parameter, a
+  response field, an ID, a key) is a placeholder in angle brackets or capitals (`<cursor>`,
+  `<next-page field>`, `YOUR_API_KEY`), and the text says so once near the first one ("Values in
+  angle brackets are placeholders: the API reference names them"). A placeholder keeps the
+  example's shape honest; an invented name that looks real (`next_cursor`, `st_8f2`) presents a
+  guess as an API fact. Never add a header, field or format the input doesn't give to make an
+  example look complete.
+- Apart from its placeholders, an example runs as written: a reader who fills them in gets the
+  response shown.
 
 ## Articles and blog posts
 

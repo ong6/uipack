@@ -24,6 +24,10 @@ npx uipack-grade check <url> --spec STYLE.md --out <run dir>     # in a site (ne
 npm run grade -- check <url> --spec uipack --out <run dir>        # in a uipack checkout
 ```
 
+A page with a figure also runs the figure check, `node node_modules/uipack/bin/uipack-figure-check.mjs <url>`
+(lines through labels, labels over nodes, unlabelled connectors; the
+[diagram skill](../uipack-diagram/SKILL.md), step 6), which the grader does not cover.
+
 Exit code 0 is a pass. On a failure open `summary.md` and each finding's crop, fix the page (or
 the check, with a test), and rerun. Tier 1 is a floor, not a quality score: it must pass before a
 hand-off or a tier-2 review, and passing it says nothing about taste. If the grader cannot run (no

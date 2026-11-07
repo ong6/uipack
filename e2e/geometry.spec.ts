@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "./fixtures";
+import { collectFigures, figureFindings, type FigureDrawing } from "../bin/uipack-figure-check.mjs";
 
 // Arrowheads must end short of node borders, packets short of arrowheads,
 // and bus junctions on the 8px grid. Checked in user units on every figure of
@@ -30,6 +31,13 @@ function labelPlateShort() {
       );
   }
   return out;
+}
+
+// The check a site runs on its own figures (bin/uipack-figure-check.mjs): no connector crosses an
+// arrow label it doesn't run along or through the middle of, and no label covers a node, chip or label.
+async function labelProblems(page: Page) {
+  const figures = (await page.evaluate(`(${collectFigures.toString()})()`)) as FigureDrawing[];
+  return figures.flatMap((f) => figureFindings(f).problems.map((p) => `${f.name} (${f.drawing}): ${p}`));
 }
 
 function nodeTextOverflow() {
@@ -156,6 +164,10 @@ test.describe("geometry", () => {
       expect(await page.evaluate(labelPlateShort)).toEqual([]);
     });
 
+    await test.step("no connector crosses a label, and no label covers a node, on every wide drawing", async () => {
+      expect(await labelProblems(page)).toEqual([]);
+    });
+
     await test.step("a figure with nothing moving offers no Pause or Replay", async () => {
       const wrong = await page.evaluate(() =>
         [...document.querySelectorAll<HTMLElement>("[data-section] figure.uipack")]
@@ -166,8 +178,9 @@ test.describe("geometry", () => {
     });
   });
 
-  test("at 390: node text stays inside its box, clear of the border, on every narrow drawing", async ({ page }) => {
+  test("at 390: node text stays inside its box and no line crosses a label, on every narrow drawing", async ({ page }) => {
     await open(page, 390);
     expect(await page.evaluate(nodeTextOverflow)).toEqual([]);
+    expect(await labelProblems(page)).toEqual([]);
   });
 });
