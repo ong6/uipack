@@ -30,8 +30,9 @@ When in doubt, take the larger bump and say why in the changelog.
 4. Run `npm run docs:sync`: the [registry](specs/registry.md) compares each site's pin with the new
    version. Then the checks in [AGENTS.md](../AGENTS.md#engineering-and-verification), and
    `npm run build` with `dist/` committed (a GitHub install uses the committed build).
-5. Merge to main. The owner tags it: `git tag -a vX.Y.Z -m "uipack X.Y.Z"` on the merge commit,
-   then `git push origin vX.Y.Z`. An agent never creates or pushes a tag.
+5. Merge to main and wait for CI to pass on it. Then tag it (the owner lets agents tag, 2026-11-08):
+   `git tag -a vX.Y.Z -m "uipack X.Y.Z"` on that commit, `git push origin vX.Y.Z`, and create the
+   GitHub release from the version's CHANGELOG entry.
 
 ## Moving a site to a release
 

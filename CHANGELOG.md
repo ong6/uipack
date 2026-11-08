@@ -7,7 +7,9 @@ release is cut and how a site moves to it.
 
 ## [Unreleased]
 
-Planned as 0.3.0: diagrams follow a theme. The owner decided (2026-11-07) that figures take the
+## [0.3.0] - 2026-11-08
+
+Diagrams follow a theme. The owner decided (2026-11-07) that figures take the
 site's diagram theme, with optional per-page themes, so the Blueprint look moves from `fixed` to
 `flex`: the grammar stays core, only colours, faces and the canvas ground vary.
 
@@ -227,5 +229,6 @@ pinned before that (junxiong.dev at `e6b6ed7`, notes.junxiong.dev at `3886f0d`) 
    dark) and run tier 1 on them (`npx uipack-grade check <url>`), as
    [docs/releases.md](docs/releases.md#moving-a-site-to-a-release) describes.
 
-[Unreleased]: https://github.com/ong6/uipack/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/ong6/uipack/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/ong6/uipack/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/ong6/uipack/compare/683d44b...v0.2.0
