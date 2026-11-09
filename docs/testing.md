@@ -12,6 +12,10 @@ To grade a page the same way every time (13 mechanical checks at 1440 and 390, l
 
 `npm test` runs the Vitest suite in jsdom; it fails on any `console.error` a test did not expect (`test/setup.ts`), and server renders go through `test/on-server.ts` so they take the real server path. `npm run coverage` writes a coverage report to `coverage/` (no threshold). `npm run test:e2e` runs Playwright with one worker: every test in Chromium, and in WebKit the smoke subset tagged `@cross-browser` (keyboard focus and Tab, gestures, smooth scroll, SMIL, WebGL setup, fonts, the built package, each object's default look, three pages of the page audit; tag a test when the engines could differ on it). It serves on port 5179; set `E2E_PORT` when a second checkout, such as a git worktree, runs its own server, or Playwright reuses the other checkout's. What they pin down:
 
+## Screenshots
+
+With Vite running, use `npm run shoot -- --base http://localhost:5173 --out /tmp/uipack-shots --paths /,/web --widths 1440,390`. It saves full-page PNGs in both themes; `--themes light` selects one. Each capture logs `ok|fail <path> <width> <theme>`. Navigation waits for `load` with a 20-second timeout, then fonts become ready; it never waits for `networkidle`. The browser closes at the overall deadline (five minutes by default, set with `--deadline-s`), and a failed page or deadline exits non-zero.
+
 ## What the browser suites check
 
 ### Figures and the asset browser
