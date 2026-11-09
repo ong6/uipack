@@ -64,7 +64,9 @@ test("changing the pose moves the token and reaches the verdict", async ({ page 
   await page.getByRole("button", { name: "Pass", exact: true }).click();
   await expect(page.locator(readout)).toHaveText("reads 4.2 ≤ 6.0 · passed", { timeout: 15_000 });
   await page.getByRole("button", { name: "Apart", exact: true }).click();
-  await expect(page.locator(readout)).toHaveText("apart · 6 assemblies", { timeout: 4000 });
+  // "taking apart" shows while the assemblies lift; two workers per CI runner (since 541cb8d) slow
+  // that past 4s, so allow 15 like the verdicts above.
+  await expect(page.locator(readout)).toHaveText("apart · 6 assemblies", { timeout: 15_000 });
   // The readout changes before the assemblies finish lifting on a slow runner; wait for the move.
   await expect(page.locator(`${machine} [data-assembly="hopper"]`).first()).toHaveAttribute("transform", /translate/);
 });
