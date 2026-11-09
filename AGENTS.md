@@ -38,6 +38,10 @@ The owner's own design system, for his sites (every one is in `docs/specs/regist
 
 Inspect Git status first. Preserve unrelated changes; do not deploy the homepage from this repo. Keep existing `uipack/slides` imports and `/slides` links working while presenting the feature as 3D animations.
 
+A question, review or evaluation the owner asks for changes nothing: no build, tests, CI waits or scoring subagents unless the owner asks for them.
+Screenshots go through `npm run shoot`. Any other browser script needs a page timeout and an overall deadline, and never waits for `networkidle`.
+Wait for CI in the background (`gh run watch` in a background task), never as a foreground block before replying; merge to `main` only from a branch whose CI is green.
+
 Run `npm run format`, `npm run typecheck`, `npm run lint`, `npm run build` (then commit `dist/`) and `npm run test:affected`: only the unit tests that import what changed and the browser specs mapped to the changed areas, Chromium only (owner, 2026-11-04). `-- --dry` prints the plan. CI runs the full suites on every push; run them locally only when asked or when the script reports an unmapped path. When you add a spec or a source area, add its row to `AREAS` in `scripts/affected.mjs`. Use a bounded worker count on this machine. Do not build or mutate source while browser tests are running. Verify the built package too; `dist/` is intentionally committed.
 
 Inspect real browser screenshots at desktop and 390px, with both themes when colour changes. Automated tests do not prove visual polish. Report failures, skips, and unsupported behaviour honestly. Test the meaning of an interaction, not just matching implementation details.
