@@ -12,6 +12,7 @@
 // A changed spec always runs. Locally the browser run is Chromium only.
 import { execFileSync, spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
+import { chromiumGroups, GL } from "./check-e2e-shards.mjs";
 
 const args = process.argv.slice(2);
 const flag = (f) => args.includes(f);
@@ -54,6 +55,9 @@ const SHELL = [
   "foundations",
   "docs",
   "tier1",
+  "charts",
+  "geometry",
+  "canvas",
 ];
 
 /** First matching rule wins. A path no rule matches runs no browser test. */
@@ -81,7 +85,7 @@ const AREAS = [
   // The grader: its browser spec runs the checks on a page with planted defects.
   // tier1 runs it on a few docs-site pages.
   [/^src\/grade\/|^scripts\/grade/, ["grade", "tier1"]],
-  [/^src\/docs\/|^playground\/Docs/, ["docs", "foundations", "nav", "tier1"]],
+  [/^src\/docs\/|^playground\/Docs/, ["docs", "foundations", "nav", "tier1", "charts", "geometry", "canvas"]],
   // The docs site: its manifest, the Markdown page, demos, links and generated blocks.
   [
     /^playground\/(docs-manifest|docs-links|demos|MarkdownShowcase)|^scripts\/(docs-sync|check-spec|style-contract|site-model|check-agent-docs)|^docs\/(?!system\/)|^README\.md$|^llms\.txt$/,
@@ -120,7 +124,15 @@ const AREAS = [
 
 const specs = new Set();
 const unmapped = [];
+const shared = changed.filter((f) =>
+  /^(e2e\/(helpers|fixtures|global-setup|page-audit)\.ts|playwright\.config\.ts|vite\.config\.ts|package\.json)$/.test(f),
+);
+if (shared.length) {
+  const { gl, rest } = chromiumGroups();
+  [...gl, ...rest].forEach((file) => specs.add(file.slice(4, -8)));
+}
 for (const f of changed) {
+  if (shared.includes(f)) continue;
   const m = f.match(/^e2e\/(.+)\.spec\.ts$/);
   if (m) {
     specs.add(m[1]);
@@ -150,6 +162,8 @@ if (
 console.log(`Changed since ${base}: ${changed.length} file(s)`);
 console.log(`Unit: vitest related ${sources.length} source file(s) + ${tests.length} changed test file(s)`);
 console.log(`Browser (chromium): ${e2e.length ? e2e.join(" ") : "none"}`);
+if (shared.length)
+  console.log(`Full Chromium suite: shared configuration changed (${shared.join(", ")}); GL workers=1, non-GL workers=4`);
 if (unmapped.length) console.log(`No browser spec mapped for:\n  ${unmapped.join("\n  ")}`);
 if (dry) process.exit(0);
 
@@ -162,7 +176,6 @@ if (!onlyE2e && (sources.length || tests.length))
   run("npx", ["vitest", "related", "--run", "--passWithNoTests", ...sources, ...tests]);
 // Software WebGL starves under parallel workers (paint budgets and lost contexts), so the 3D specs
 // run on one worker, everything else on four.
-const GL = /\/(art-directions|contact-directions|objects)\.spec\.ts$/;
 const gl = e2e.filter((p) => GL.test(p));
 const rest = e2e.filter((p) => !GL.test(p));
 if (!onlyUnit && rest.length) run("npx", ["playwright", "test", ...rest, "--project=chromium", "--workers=4"]);
