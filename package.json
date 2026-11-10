@@ -237,7 +237,7 @@
     "@types/three": "^0.186.0",
     "@vitejs/plugin-react": "^4.3.4",
     "@vitest/coverage-v8": "^5.1.0",
-    "esbuild": "^0.27.7",
+    "esbuild": "^0.28.2",
     "eslint": "^10.13.0",
     "eslint-plugin-react-hooks": "^7.1.1",
     "gsap": "^3.15.0",
@@ -282,6 +282,11 @@
     },
     "remark-gfm": {
       "optional": true
+    }
+  },
+  "overrides": {
+    "tsup": {
+      "esbuild": "$esbuild"
     }
   }
 }
