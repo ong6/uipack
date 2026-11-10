@@ -1,4 +1,4 @@
-// The package's JavaScript entries: name -> source. tsup builds dist/<name>.{js,cjs,d.ts} from each,
+// The package's JavaScript entries: name -> source. tsup builds dist/<name>.{js,d.ts} from each,
 // and package.json exports "./<name>" ("." for index). test/package.test.tsx checks the two agree.
 export const entries: Record<string, string> = {
   index: "src/index.ts",

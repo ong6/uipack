@@ -130,12 +130,12 @@ The diagrams page shows each pattern once, simplest first. Add one the first tim
 ## A new package entry
 
 1. `src/<entry>/index.ts`, exporting every name explicitly. Add its main component to `entries` in `test/ssr.test.tsx`, which fails until every entry renders on the server.
-2. `scripts/entries.ts`: `<entry>: "src/<entry>/index.ts"`. tsup builds `dist/<entry>.{js,cjs,d.ts,d.cts}` from it.
-3. `package.json` `exports`: `"./<entry>": { "import": { "types": "./dist/<entry>.d.ts", "default": "./dist/<entry>.js" }, "require": { "types": "./dist/<entry>.d.cts", "default": "./dist/<entry>.cjs" } }`. The conditions nest so that `require` users get the CommonJS declarations: in a `"type": "module"` package a `.d.ts` describes an ES module.
+2. `scripts/entries.ts`: `<entry>: "src/<entry>/index.ts"`. tsup builds `dist/<entry>.{js,d.ts}` from it (ES modules only since 0.4.0).
+3. `package.json` `exports`: `"./<entry>": { "types": "./dist/<entry>.d.ts", "default": "./dist/<entry>.js" }`, `types` first (TypeScript takes the first condition that matches). There is no `require` condition: the package is ES modules only.
 4. If it has styles: a line in `scripts/css-bundles.ts` (`{ out: "<entry>.css", from: [...] }`), `"./<entry>.css": "./dist/<entry>.css"` in `exports`, and the same `"./<entry>.css"` in `excludeEntrypoints` in `.attw.json` (a stylesheet has no type declarations for attw to find). `test/package.test.tsx` fails until entries, bundles, exports and `.attw.json` agree. (`exports` stays hand-written: npm reads `package.json` as it is, and the test names the line you missed.)
 5. Keep heavy dependencies out of the default entry: Three.js and GSAP only behind an optional, lazy entry. A heavy dependency an entry needs goes in `peerDependencies` in `package.json` and in `peerDependenciesMeta` with `{ "optional": true }` (so consumers who skip the entry never install it). Nothing in `tsup.config.ts`: tsup leaves every dependency and peer dependency, and their subpaths (`react-dom/server`), out of `dist/`.
 6. Docs: `docs/<entry>.md` (shipped by the `docs/*.md` glob in `files`), a page in `playground/docs-manifest.ts` (then `npm run docs:sync`), a row in the root README's Entries table and a line in `src/README.md`.
-7. `npm run build`, commit `dist/`, load every built entry in both module systems with `node scripts/load-entries.mjs`, and check the types each module system sees with `npm run attw` (CI runs both, and fails if `dist/` differs from a fresh build). `.attw.json` uses the `node16` profile: TypeScript's legacy `node10` resolution ignores `exports`, so no subpath entry can resolve under it.
+7. `npm run build`, commit `dist/`, import every built entry and resolve every file export with `node scripts/load-entries.mjs`, and check the types resolve with `npm run attw` (CI runs both, and fails if `dist/` differs from a fresh build). `.attw.json` uses the `esm-only` profile: it checks `node16` (from ESM) and `bundler` resolution, and skips CommonJS, which the package does not ship.
 
 ## Formatting
 

@@ -28,9 +28,9 @@ jobs:
         run: |
           git diff --exit-code --stat dist
           test -z "$(git status --porcelain dist)" || { git status --porcelain dist; echo "Rebuild and commit dist/"; exit 1; }
-      - name: Load every built entry with import and require
+      - name: Import every built entry and resolve every file export
         run: node scripts/load-entries.mjs
-      - name: Types resolve for import and require (attw)
+      - name: Types resolve under node16 and bundler (attw, esm-only profile)
         run: npm run attw
   e2e:
     runs-on: ubuntu-latest
