@@ -155,7 +155,9 @@ describe("VerificationGate", () => {
   it("renders a still thumbnail without loops or observers", () => {
     const raf = vi.spyOn(window, "requestAnimationFrame");
     const observe = vi.fn();
-    const Observer = vi.fn(() => ({ observe, disconnect: vi.fn(), unobserve: vi.fn(), takeRecords: vi.fn() }));
+    const Observer = vi.fn(function () {
+      return { observe, disconnect: vi.fn(), unobserve: vi.fn(), takeRecords: vi.fn() };
+    });
     vi.stubGlobal("IntersectionObserver", Observer);
     const { container, unmount } = render(
       <>
@@ -211,7 +213,9 @@ describe("VerificationGate", () => {
   it("is focusable and operable from the keyboard when interactive", () => {
     vi.stubGlobal(
       "IntersectionObserver",
-      vi.fn(() => ({ observe: vi.fn(), disconnect: vi.fn(), unobserve: vi.fn(), takeRecords: vi.fn() })),
+      vi.fn(function () {
+        return { observe: vi.fn(), disconnect: vi.fn(), unobserve: vi.fn(), takeRecords: vi.fn() };
+      }),
     );
     const { container, unmount } = render(<VerificationGate pose="idle" />);
     const machine = container.querySelector(".um-machine") as HTMLElement;

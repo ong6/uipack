@@ -6,3 +6,4 @@ playwright-report
 *.log
 playground/e2e-static
 coverage
+.vitest
