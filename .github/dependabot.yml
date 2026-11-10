@@ -1,0 +1,25 @@
+# Monthly version updates, one grouped pull request per ecosystem for minor and patch bumps.
+# Major bumps are ignored for version updates (take them by hand, with their migration); an
+# `update-types` ignore does not apply to security updates, so those still open as they arrive.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      npm-minor-patch:
+        update-types: [minor, patch]
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      actions-minor-patch:
+        update-types: [minor, patch]
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
