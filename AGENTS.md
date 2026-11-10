@@ -44,6 +44,8 @@ Wait for CI in the background (`gh run watch` in a background task), never as a 
 
 Run `npm run verify` (format check, typecheck, lint and the affected unit tests; `npm run format` fixes formatting), `npm run build` (then commit `dist/`) and `npm run test:affected -- --e2e`. Affected means only the unit tests that import what changed and the browser specs mapped to the changed areas, Chromium only (owner, 2026-11-04). `-- --dry` prints the plan. CI runs the full suites on every push; run them locally only when asked or when the script reports an unmapped path. When you add a spec or a source area, add its row to `AREAS` in `scripts/affected.mjs`. Use a bounded worker count on this machine. Do not build or mutate source while browser tests are running. Verify the built package too; `dist/` is intentionally committed.
 
+`.claude/settings.json` denies agents reads of generated files (`dist/`, `docs/screenshots/`, `package-lock.json`, `test-results/`); check them through the build, tests or `git diff --stat`.
+
 Inspect real browser screenshots at desktop and 390px, with both themes when colour changes. Automated tests do not prove visual polish. Report failures, skips, and unsupported behaviour honestly. Test the meaning of an interaction, not just matching implementation details.
 
 Never assume the preview is running. Check it before handing over a localhost link. Update the API doc for the entry (the root README's Entries table names it) with the change; a docs change passes `npx tsx scripts/check-agent-docs.ts`. Keep work scoped; do not add unrelated dependencies or publish without authorization.
