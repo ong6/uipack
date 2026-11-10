@@ -168,7 +168,7 @@ A pipeline preset that swaps to its authored stacked drawing below 720px instead
 its own connector (along a horizontal run, or centred on a vertical one), in a gap at least as wide
 as the label plus 8, clear of every other line, node, replica outline and label. The narrow drawing
 places its labels again; a label copied from the wide coordinates lands on the spine. The site's
-check for both drawings is `node node_modules/uipack/bin/uipack-figure-check.mjs <url>` (needs
+check for both drawings is `npx uipack-figure-check <url>` (needs
 Playwright): it fails a line drawn through a label or a label over a node, and lists the
 connectors with no label beside them for you to check one by one.
 

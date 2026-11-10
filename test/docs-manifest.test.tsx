@@ -2,6 +2,7 @@
 // keep that true: every page has its file, every docs file has a page, every number a generated
 // block states matches the code (npm run docs:sync), llms.txt is current, demos resolve, and a
 // relative link in a docs file lands on a real file.
+import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { extractDocsHeadings } from "../src/docs";
@@ -157,5 +158,15 @@ describe("demos and links in the docs", () => {
     const served = servedFiles(read);
     for (const f of docsFiles) expect(served).toContain(f);
     expect(served).toContain("docs/presets/agentLoop-light.png");
+  });
+
+  // `npm run screenshots` writes more shots than the docs show, and .gitignore keeps the extra ones
+  // out of git; a doc that links one of those would pass on this machine and 404 on a fresh checkout.
+  it("every image the site serves is tracked in git", () => {
+    const images = servedFiles(read).filter((f) => !f.endsWith(".md"));
+    const tracked = new Set(
+      execFileSync("git", ["ls-files", "-z", "--", ...images], { cwd: root, encoding: "utf8" }).split("\0"),
+    );
+    expect(images.filter((f) => !tracked.has(f))).toEqual([]);
   });
 });

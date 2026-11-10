@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import { servedFiles } from "../playground/docs-links";
+import { docsPages } from "../playground/docs-manifest";
 import { expect, test } from "./fixtures";
 
 test("docs gallery renders desktop navigation and table of contents", { tag: "@cross-browser" }, async ({ page }) => {
@@ -84,3 +87,28 @@ test(
     await expect(skip).toBeInViewport();
   },
 );
+
+// Every image a docs page shows is served, from the URL the rendered page asks for: a deleted or
+// git-ignored screenshot fails here instead of 404ing on the site.
+test("every image a docs page shows loads", async ({ page }) => {
+  test.setTimeout(60_000);
+  const read = (f: string) => readFileSync(f, "utf8");
+  const images = new Set(servedFiles(read).filter((f) => !f.endsWith(".md")));
+  const pages = docsPages.filter((p) => /!\[[^\]]*\]\((?![a-z]+:)/i.test(read(p.file)));
+  expect(pages.length).toBeGreaterThan(0);
+  const shown = new Set<string>();
+  for (const p of pages) {
+    const query = new URLSearchParams(p.query).toString();
+    await page.goto(`${p.path}${query ? `?${query}` : ""}`);
+    const img = page.locator("main img[src^='/docs/'], main img[src^='/README']");
+    await expect(img.first(), p.file).toBeAttached();
+    for (const src of await img.evaluateAll((els) => els.map((el) => el.getAttribute("src")!))) shown.add(src);
+  }
+  for (const src of shown) {
+    const res = await page.request.get(src);
+    expect(res.status(), src).toBe(200);
+    expect(res.headers()["content-type"], src).toMatch(/^image\//);
+  }
+  // Each image the site serves is one a page shows, and none is left out.
+  expect([...shown].map((s) => s.slice(1)).sort()).toEqual([...images].sort());
+});
