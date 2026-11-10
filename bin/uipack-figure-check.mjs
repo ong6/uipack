@@ -1,6 +1,8 @@
 // The figure geometry check a site can run on its own page (the uipack-diagram skill, step 6):
 //
-//   node node_modules/uipack/bin/uipack-figure-check.mjs <url> [--views 1440,390]
+//   npx uipack-figure-check <url> [--views 1440,390]
+//
+// (the bin is figure-check-cli.mjs, which calls main(); `node` on this file works too).
 //
 // For every figure drawing the page shows at each width, it reports an arrow label that a
 // connector crosses without the label sitting on it, a label drawn over a node, chip or another

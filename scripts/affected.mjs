@@ -118,7 +118,7 @@ const AREAS = [
   [/^playground\/(MechanismShowcase|mechanism-showcase)/, ["mechanism"]],
   [/^playground\/(SlideShowcase|slides-showcase)/, ["slides", "objects"]],
   // The figure geometry check a site runs; geometry.spec runs it on every figure of the diagrams page.
-  [/^bin\/uipack-figure-check/, ["geometry"]],
+  [/^bin\/(uipack-figure-check|figure-check-cli)/, ["geometry"]],
   // dist/ is built, not committed: what changes the build (and the page that loads it) runs the smoke
   // test, which needs a fresh `npm run build`.
   [/^(tsup\.config\.ts|scripts\/(entries|css-bundles|build-css)\.ts|playground\/dist-smoke\/)/, ["dist-smoke"]],

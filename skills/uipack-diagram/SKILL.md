@@ -53,7 +53,7 @@ the figure a region; it never restyles it.
    `alt`, a caption, and a legend only when there is more than one flow kind.
 6. **Check.** Render at 1440 and 390 in both modes, inside the site's (or page's) theme, and look at both drawings: labels inside
    their boxes, no page overflow, packets that arrive and leave. Then:
-   - **Geometry.** `node node_modules/uipack/bin/uipack-figure-check.mjs <url>` (in a uipack
+   - **Geometry.** `npx uipack-figure-check <url>` (in a uipack
      clone, `node bin/uipack-figure-check.mjs <url>`) must report no `fail` at either width: no
      line drawn through a label, no label over a node. Read its `check` list of unlabelled
      connectors and give each one that carries something a label (step 3).

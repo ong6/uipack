@@ -7,6 +7,11 @@ release is cut and how a site moves to it.
 
 ## [Unreleased]
 
+### Added
+
+- The figure check is a package bin: `npx uipack-figure-check <url> [--views 1440,390]`, the
+  same script as `node node_modules/uipack/bin/uipack-figure-check.mjs`, which still works.
+
 ## [0.4.0] - 2026-11-10
 
 How uipack ships changes; its components, props and styles do not. The package is ES modules

@@ -108,7 +108,8 @@
     "src/mechanism/kit/LICENSE"
   ],
   "bin": {
-    "uipack-grade": "./bin/uipack-grade.mjs"
+    "uipack-grade": "./bin/uipack-grade.mjs",
+    "uipack-figure-check": "./bin/figure-check-cli.mjs"
   },
   "sideEffects": [
     "*.css"

@@ -24,7 +24,7 @@ npx uipack-grade check <url> --spec STYLE.md --out <run dir>     # in a site (ne
 npm run grade -- check <url> --spec uipack --out <run dir>        # in a uipack checkout
 ```
 
-A page with a figure also runs the figure check, `node node_modules/uipack/bin/uipack-figure-check.mjs <url>`
+A page with a figure also runs the figure check, `npx uipack-figure-check <url>`
 (lines through labels, labels over nodes, unlabelled connectors; the
 [diagram skill](../uipack-diagram/SKILL.md), step 6), which the grader does not cover.
 
