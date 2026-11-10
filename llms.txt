@@ -75,7 +75,7 @@ Install (ES modules only; not on npm): `npm install https://github.com/ong6/uipa
 - [How to write a spec](docs/specs/README.md): One spec per website: its look, layout, writing style and component looks on top of the core rules; how to write and check one, and how it becomes a live style.
 - [Spec template](docs/specs/TEMPLATE.md): The file a new site spec starts from: the frontmatter (pages, layouts, component looks) and the sections the checker requires.
 - [Technical](docs/specs/technical.md): The uipack site's spec: Cyanotype, Prussian ink and one amber mark, IBM Plex, with its role values generated from the style file.
-- [Registry](docs/specs/registry.md): Every site uipack designs for: where its spec lives, the component looks it picks and the uipack commit it pins.
+- [Registry](docs/specs/registry.md): Every site uipack designs for: where its spec lives, the component looks it picks and the uipack release it pins.
 
 ## Examples
 

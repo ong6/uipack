@@ -488,7 +488,8 @@ export const docsManifest = [
         label: "Registry",
         path: "/specs/registry",
         file: "docs/specs/registry.md",
-        intro: "Every site uipack designs for: where its spec lives, the component looks it picks and the uipack commit it pins.",
+        intro:
+          "Every site uipack designs for: where its spec lives, the component looks it picks and the uipack release it pins.",
       },
     ],
   },
@@ -752,7 +753,7 @@ export const blobUrl = (file: string) => `${REPO_URL}/blob/main/${file}`;
 
 /**
  * Every site uipack designs for (docs/specs/registry.md is generated from this): where its spec
- * lives, the component looks it picks and the uipack commit it pins. One spec per site; a site
+ * lives, the component looks it picks and the uipack release it pins. One spec per site; a site
  * reusing another's look names that spec in its own spec's `extends`.
  */
 export interface SiteEntry {
@@ -787,7 +788,7 @@ export const siteRegistry: readonly SiteEntry[] = [
     components: ["diagrams: blueprint (themes: site default; compoze and trading pages may have their own)"],
     pins: "v0.4.0",
     notes:
-      "STYLE.md drafted 2026-11-07 on branch site-ui-1 (passes check-spec; not on the site's main until the owner merges). Decided 2026-11-07: diagrams follow a theme, the site's default plus optional per-page themes (Compoze, Trading Engine). Move: replace the --uipack-* overrides in globals.css with one diagramThemeCss and the site-local userflow.js / sequence.js with uipack's parts (CHANGELOG 0.3.0); declare diagram-themes in STYLE.md",
+      "STYLE.md on the site's main (passes check-spec). Decided 2026-11-07: diagrams follow a theme, the site's default plus optional per-page themes (Compoze, Trading Engine). Still to do: replace the --uipack-* overrides in globals.css with one diagramThemeCss and the site-local userflow.js / sequence.js with uipack's parts (CHANGELOG 0.3.0); declare diagram-themes in STYLE.md",
   },
   {
     site: "notes.junxiong.dev",
@@ -795,8 +796,8 @@ export const siteRegistry: readonly SiteEntry[] = [
     spec: "junxiong-notes:STYLE.md",
     specStatus: "written",
     components: ["diagrams: blueprint (theme: the blog's own, one for every post)"],
-    pins: "3886f0d",
+    pins: "v0.4.0",
     notes:
-      "STYLE.md drafted 2026-11-07 on branch site-ui-1 (passes check-spec; not on the site's main until the owner merges). Decided 2026-11-07: diagrams follow the blog's one theme, so UI diagrams in posts match. Move: replace the THEMES palette in content/figures/_shared.tsx with one defineDiagramTheme passed to renderStatic with mode (CHANGELOG 0.3.0); declare diagram-themes in STYLE.md. Open owner decision: self-hosting its serif",
+      "STYLE.md on the site's main (passes check-spec). Decided 2026-11-07: diagrams follow the blog's one theme, so UI diagrams in posts match. Still to do (the site-ui-2 attempt was deleted unmerged): replace the THEMES palette in content/figures/_shared.tsx with one defineDiagramTheme passed to renderStatic with mode (CHANGELOG 0.3.0); declare diagram-themes in STYLE.md. Open owner decision: self-hosting its serif",
   },
 ];
