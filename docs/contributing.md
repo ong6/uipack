@@ -105,8 +105,7 @@ visual follows [component-first](component-first.md) first.
    `e2e/showcase-content.spec.ts` and `e2e/web.spec.ts` green.
 6. Document its props in [docs/web-api.md](web-api.md) and, if it changes a rule, in
    [web principles](web-principles.md).
-7. `npm run format`, `npm run typecheck`, `npm run lint`, `npm run build` (commit `dist/`) and
-   `npm run test:affected`.
+7. `npm run verify`, `npm run build` (commit `dist/`) and `npm run test:affected -- --e2e`.
 
 ## A new figure pattern on `/`
 

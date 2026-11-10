@@ -97,8 +97,9 @@ site, its spec and the uipack commit it pins.
 
 ```sh
 npm run dev            # the docs site: every page renders a Markdown file from docs/
-npm run format && npm run typecheck && npm run lint && npm run build   # then commit dist/
-npm run test:affected  # unit + browser tests for what changed; CI runs everything
+npm run verify         # format check, typecheck, lint, unit tests for what changed
+npm run build          # then commit dist/
+npm run test:affected -- --e2e  # browser tests for what changed; CI runs everything
 ```
 
 The full pre-commit list is in [AGENTS.md](AGENTS.md#engineering-and-verification). What each suite covers: [testing](docs/testing.md). How to add a part, page, style or entry:

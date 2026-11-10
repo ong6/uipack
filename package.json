@@ -204,6 +204,7 @@
     "dev": "vite",
     "test": "vitest run",
     "test:affected": "node scripts/affected.mjs",
+    "verify": "npm run format:check && npm run typecheck && npm run lint && node scripts/affected.mjs --unit",
     "coverage": "vitest run --coverage",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
