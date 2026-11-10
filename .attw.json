@@ -1,5 +1,5 @@
 {
-  "profile": "node16",
+  "profile": "esm-only",
   "excludeEntrypoints": [
     "./styles.css",
     "./browser.css",

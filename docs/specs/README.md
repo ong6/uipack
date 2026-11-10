@@ -82,4 +82,4 @@ or figures in its look):
      eye. Compare them with the spec before calling it done.
 6. **Document it.** Set the spec's `status: implemented` and `values:` to the style file, so its
    role table is generated from code, and update the [registry](registry.md). Then `npm run build`
-   and commit `dist/`.
+   and run the tests on it.

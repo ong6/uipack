@@ -37,7 +37,7 @@ export interface ObjectSceneProps {
   /**
    * Where Studio tennis fetches its model. Default: the package's
    * `assets/objects/tennis-return.glb`, which the bundler copies and rewrites. Set it when
-   * you serve the file yourself (a CDN, a bundler without `new URL(…, import.meta.url)`, CommonJS).
+   * you serve the file yourself (a CDN, a bundler without `new URL(…, import.meta.url)`).
    */
   modelUrl?: string;
 }

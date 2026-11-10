@@ -1,4 +1,4 @@
-// The committed build, loaded the way a bundler-using consumer loads it: the ESM entries and their
+// The build (`npm run build`), loaded the way a bundler-using consumer loads it: the ESM entries and their
 // CSS from dist/, nothing from src/. e2e/dist-smoke.spec.ts checks the page renders and stays quiet.
 import { createElement as h } from "react";
 import { createRoot } from "react-dom/client";

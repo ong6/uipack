@@ -4,7 +4,7 @@ Recipes for the common additions, with every file each one touches. Read [AGENTS
 
 ## Built files
 
-`dist/` is committed and CI fails when it differs from a fresh build. `.gitattributes` marks it generated, without text diffs (`-diff`: a drift still fails `git diff --exit-code`, shown as a binary change), and with `merge=ours`, so two branches that both rebuilt it don't conflict over hashed chunks. Git applies `merge=ours` only once the driver is defined in your clone: `git config merge.ours.driver true`. After merging, run `npm run build` and commit the result.
+`dist/` is built, never committed (gitignored since 0.4.0). Run `npm run build` before the unit tests, the typecheck and the e2e smoke, which read it; CI builds it first in every job that needs it. A release's built copy is the tarball the release workflow attaches to the tag ([releases](releases.md)).
 
 ## The shape of an entry
 
@@ -48,7 +48,7 @@ test, is in [Building a style from a spec](specs/README.md#building-a-style-from
    fit with the new faces (`e2e/geometry.spec.ts`, `e2e/charts.spec.ts`), and screenshots at 1440
    and 390 in both themes, inspected by eye.
 5. Mark the spec implemented, add the style to `docs/system/style.md`, then `npm run build` and
-   commit `dist/` with the change.
+   check it with the tests.
 
 ## A new playground page
 
@@ -83,7 +83,7 @@ Three entries draw slides. New slide work goes in `uipack/deck`; the other two a
 3. Styles in `src/deck/deck.css` or `src/deck/consulting/consulting.css`, under `.uipack-deck`, using the deck tokens (`--deck-fg`, `--deck-accent`, `--deck-radius`, `--deck-settle`…). Text on a slide is at least `MIN_TEXT_PX` on the canvas.
 4. Export it by name from `src/deck/consulting/index.ts` and again in the consulting block of `src/deck/index.ts`. `test/exports.test.tsx` fails if the second is missing or another entry already uses the name (`Callout` is article's; deck's is `Annotation`).
 5. Document it in the parts table of `docs/deck-consulting.md` (or `docs/deck.md`), and use it on a slide of an example deck.
-6. `npm run build` and commit `dist/` with the change.
+6. `npm run build` and run the affected tests on the build.
 
 ## A new web part
 
@@ -105,7 +105,7 @@ visual follows [component-first](component-first.md) first.
    `e2e/showcase-content.spec.ts` and `e2e/web.spec.ts` green.
 6. Document its props in [docs/web-api.md](web-api.md) and, if it changes a rule, in
    [web principles](web-principles.md).
-7. `npm run verify`, `npm run build` (commit `dist/`) and `npm run test:affected -- --e2e`.
+7. `npm run build`, `npm run verify` and `npm run test:affected -- --e2e`.
 
 ## A new figure pattern on `/`
 
@@ -114,7 +114,7 @@ The diagrams page shows each pattern once, simplest first. Add one the first tim
 1. The figure: `playground/figures/<pattern>.tsx`, a `Figure` built from library parts, with a wide drawing and an authored `narrow` drawing below 720px, neutral content (no real systems), and `controls={false}` if nothing moves.
 2. A `figureEntries` row in `playground/catalog.ts`: `[id, "Pattern: what it teaches", tags]`, placed by complexity.
 3. A `figureDetails` entry in `playground/figures/index.tsx` under the same id, with an `intro` that starts "Use when…" and names the parts it is built from, and `render(number)`. The page's `figureSections` are derived from `figureEntries`, so the order is the catalog's; the typecheck fails until every id has its entry.
-4. If the figure needs a mark that published figures share (as `Wall` and `Cross` were), promote it to `src/` with a test and a line in [docs/figure-api.md](figure-api.md#parts) instead of drawing it locally, then `npm run build` and commit `dist/`. Candidates still drawn locally are listed at the end of this page.
+4. If the figure needs a mark that published figures share (as `Wall` and `Cross` were), promote it to `src/` with a test and a line in [docs/figure-api.md](figure-api.md#parts) instead of drawing it locally, then `npm run build` and run its tests. Candidates still drawn locally are listed at the end of this page.
 5. `e2e/geometry.spec.ts` checks every figure on the page: arrowheads clear of nodes, packets clear of heads, text inside node boxes at 1440 and 390, the 11px text floor, no motion controls on a still figure.
 
 ## A new Mechanism machine
@@ -125,17 +125,17 @@ The diagrams page shows each pattern once, simplest first. Add one the first tim
 4. Register it in `mechanismEntries` in `playground/catalog.ts` and give it a section on `playground/MechanismShowcase.tsx`.
 5. Tests: the model and the scripts' continuity in `test/mechanism.test.tsx` (the no-Three.js check covers the new folder), interaction and both themes in `e2e/mechanism.spec.ts`.
 6. Document it in `docs/mechanism.md` (what moves and what it means, its parts, its API), following the craft rules there.
-7. `npm run build` and commit `dist/` with the change.
+7. `npm run build` and run the affected tests on the build.
 
 ## A new package entry
 
 1. `src/<entry>/index.ts`, exporting every name explicitly. Add its main component to `entries` in `test/ssr.test.tsx`, which fails until every entry renders on the server.
-2. `scripts/entries.ts`: `<entry>: "src/<entry>/index.ts"`. tsup builds `dist/<entry>.{js,cjs,d.ts,d.cts}` from it.
-3. `package.json` `exports`: `"./<entry>": { "import": { "types": "./dist/<entry>.d.ts", "default": "./dist/<entry>.js" }, "require": { "types": "./dist/<entry>.d.cts", "default": "./dist/<entry>.cjs" } }`. The conditions nest so that `require` users get the CommonJS declarations: in a `"type": "module"` package a `.d.ts` describes an ES module.
+2. `scripts/entries.ts`: `<entry>: "src/<entry>/index.ts"`. tsup builds `dist/<entry>.{js,d.ts}` from it (ES modules only since 0.4.0).
+3. `package.json` `exports`: `"./<entry>": { "types": "./dist/<entry>.d.ts", "default": "./dist/<entry>.js" }`, `types` first (TypeScript takes the first condition that matches). There is no `require` condition: the package is ES modules only.
 4. If it has styles: a line in `scripts/css-bundles.ts` (`{ out: "<entry>.css", from: [...] }`), `"./<entry>.css": "./dist/<entry>.css"` in `exports`, and the same `"./<entry>.css"` in `excludeEntrypoints` in `.attw.json` (a stylesheet has no type declarations for attw to find). `test/package.test.tsx` fails until entries, bundles, exports and `.attw.json` agree. (`exports` stays hand-written: npm reads `package.json` as it is, and the test names the line you missed.)
 5. Keep heavy dependencies out of the default entry: Three.js and GSAP only behind an optional, lazy entry. A heavy dependency an entry needs goes in `peerDependencies` in `package.json` and in `peerDependenciesMeta` with `{ "optional": true }` (so consumers who skip the entry never install it). Nothing in `tsup.config.ts`: tsup leaves every dependency and peer dependency, and their subpaths (`react-dom/server`), out of `dist/`.
 6. Docs: `docs/<entry>.md` (shipped by the `docs/*.md` glob in `files`), a page in `playground/docs-manifest.ts` (then `npm run docs:sync`), a row in the root README's Entries table and a line in `src/README.md`.
-7. `npm run build`, commit `dist/`, load every built entry in both module systems with `node scripts/load-entries.mjs`, and check the types each module system sees with `npm run attw` (CI runs both, and fails if `dist/` differs from a fresh build). `.attw.json` uses the `node16` profile: TypeScript's legacy `node10` resolution ignores `exports`, so no subpath entry can resolve under it.
+7. `npm run build`, import every built entry and resolve every file export with `node scripts/load-entries.mjs`, and check the types resolve with `npm run attw` (CI runs both on a fresh build). `.attw.json` uses the `esm-only` profile: it checks `node16` (from ESM) and `bundler` resolution, and skips CommonJS, which the package does not ship.
 
 ## Formatting
 

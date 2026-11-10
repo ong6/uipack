@@ -12,10 +12,10 @@ The scene library (search and filter by technique) beside a live preview with it
 
 ## Install
 
-UIPACK is installed from GitHub. These changes must be available in the commit or branch you install before the `slides` entry exists:
+Install uipack's release tarball ([install](../README.md#install)), then the two optional peers this entry needs:
 
 ```sh
-npm install github:ong6/uipack three@^0.186.0 gsap@^3.15.0
+npm install three@^0.186.0 gsap@^3.15.0
 ```
 
 Three.js and GSAP are optional peers: existing figure consumers do not need them. React 18+ and React DOM remain the package's shared peers. No Blender installation, external fonts, model download, or asset server is required for these examples.

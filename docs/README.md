@@ -49,11 +49,15 @@ component looks to pick from. A deck is a page of a site, so it reads the same s
 
 ## Install
 
-UiPack installs from GitHub; `dist/` is committed, so there is no build step on your side.
+UiPack installs from the tarball attached to each GitHub release (ES modules only, no build step on your side). The latest:
 
+<!-- generated:install -->
 ```sh
-npm install github:ong6/uipack
+npm install https://github.com/ong6/uipack/releases/download/v0.4.0/uipack-0.4.0.tgz
 ```
+<!-- /generated -->
+
+Git pins up to `v0.3.0` keep working; [releases](releases.md) says how a site moves to a new one.
 
 Each entry loads only what it draws: `uipack` for figure parts, `uipack/presets` for ready figures,
 `uipack/deck` for decks, `uipack/web` for web pages, `uipack/docs` for documentation, and more.

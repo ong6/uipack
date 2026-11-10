@@ -1,0 +1,22 @@
+{
+  "id": "agent-docs-4",
+  "version": 2,
+  "frozen": "2026-11-10",
+  "pageType": "agent-docs",
+  "rubric": "agent-docs-v1",
+  "product": "The documentation set at the package root",
+  "audience": "A fresh agent with no prior context, starting from README.md and AGENTS.md",
+  "task": "You are asked to add a new web part to the library itself (a small stat strip). Without writing code, say which recipe you follow, which files a new part touches, the rule about colour literals and the test that enforces it, and the commands you run before committing.",
+  "facts": [
+    "The change is to the library, not to a site",
+    "The part is a horizontal strip of three numbers with labels",
+    "It must appear on the web showcase page"
+  ],
+  "mustInclude": [
+    "The contributing recipe for a new part (and component-first for a significant visual)",
+    "No hex literal in component CSS or TSX, enforced by a no-hex test",
+    "build (dist/ is not committed), typecheck, lint, and test:affected",
+    "Showcase copy comes from the showcase facts file, and the part ships the interaction polish"
+  ],
+  "outOfScope": ["Publishing to npm"]
+}

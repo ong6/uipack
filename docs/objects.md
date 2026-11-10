@@ -124,7 +124,7 @@ The existing SVG remains visible until model loading succeeds, including on an a
 ### Loading the tennis model
 
 Studio tennis fetches the GLB as a file, not as JavaScript: it was a 955 KB base64 chunk (and
-1.08 MB inlined into `objects.cjs`), then 716 KB of binary, now 279 KB that the browser caches like an image.
+1.08 MB inlined into the CommonJS build uipack shipped until 0.4.0), then 716 KB of binary, now 279 KB that the browser caches like an image.
 The URL comes from `new URL("../assets/objects/tennis-return.glb", import.meta.url)` in
 `src/package-assets.ts`, which Vite, Rollup (with an import-meta-assets plugin), webpack 5 and
 Next recognise: they copy the file into the build and rewrite the URL. Checked from the packed
@@ -139,7 +139,6 @@ Serve the file yourself and pass `modelUrl` when the default cannot resolve:
 <ObjectGallery kind="tennis" modelUrl="/models/tennis-return.glb" onChange={choose} />
 ```
 
-- **CommonJS** (`require("uipack/objects")`) has no `import.meta`, so it always needs `modelUrl`.
 - **esbuild** leaves `new URL(…)` untouched and copies nothing: copy the file and pass `modelUrl`.
 - **Vite dev** pre-bundles dependencies into `node_modules/.vite`, which breaks the relative URL
   for an installed package; add `optimizeDeps: { exclude: ["uipack"] }` or pass `modelUrl`.

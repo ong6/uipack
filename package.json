@@ -1,51 +1,25 @@
 {
   "name": "uipack",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "React and SVG figure components for engineering write-ups: framed figures, lanes, nodes, connectors, animated packets.",
   "type": "module",
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "import": {
-        "types": "./dist/index.d.ts",
-        "default": "./dist/index.js"
-      },
-      "require": {
-        "types": "./dist/index.d.cts",
-        "default": "./dist/index.cjs"
-      }
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     },
     "./presets": {
-      "import": {
-        "types": "./dist/presets.d.ts",
-        "default": "./dist/presets.js"
-      },
-      "require": {
-        "types": "./dist/presets.d.cts",
-        "default": "./dist/presets.cjs"
-      }
+      "types": "./dist/presets.d.ts",
+      "default": "./dist/presets.js"
     },
     "./browser": {
-      "import": {
-        "types": "./dist/browser.d.ts",
-        "default": "./dist/browser.js"
-      },
-      "require": {
-        "types": "./dist/browser.d.cts",
-        "default": "./dist/browser.cjs"
-      }
+      "types": "./dist/browser.d.ts",
+      "default": "./dist/browser.js"
     },
     "./static": {
-      "import": {
-        "types": "./dist/static.d.ts",
-        "default": "./dist/static.js"
-      },
-      "require": {
-        "types": "./dist/static.d.cts",
-        "default": "./dist/static.cjs"
-      }
+      "types": "./dist/static.d.ts",
+      "default": "./dist/static.js"
     },
     "./browser.css": "./dist/browser.css",
     "./styles.css": "./dist/styles.css",
@@ -54,100 +28,46 @@
     "./assets/objects/*": "./assets/objects/*",
     "./package.json": "./package.json",
     "./slides": {
-      "import": {
-        "types": "./dist/slides.d.ts",
-        "default": "./dist/slides.js"
-      },
-      "require": {
-        "types": "./dist/slides.d.cts",
-        "default": "./dist/slides.cjs"
-      }
+      "types": "./dist/slides.d.ts",
+      "default": "./dist/slides.js"
     },
     "./slides.css": "./dist/slides.css",
     "./presentations": {
-      "import": {
-        "types": "./dist/presentations.d.ts",
-        "default": "./dist/presentations.js"
-      },
-      "require": {
-        "types": "./dist/presentations.d.cts",
-        "default": "./dist/presentations.cjs"
-      }
+      "types": "./dist/presentations.d.ts",
+      "default": "./dist/presentations.js"
     },
     "./presentations.css": "./dist/presentations.css",
     "./deck": {
-      "import": {
-        "types": "./dist/deck.d.ts",
-        "default": "./dist/deck.js"
-      },
-      "require": {
-        "types": "./dist/deck.d.cts",
-        "default": "./dist/deck.cjs"
-      }
+      "types": "./dist/deck.d.ts",
+      "default": "./dist/deck.js"
     },
     "./deck.css": "./dist/deck.css",
     "./objects": {
-      "import": {
-        "types": "./dist/objects.d.ts",
-        "default": "./dist/objects.js"
-      },
-      "require": {
-        "types": "./dist/objects.d.cts",
-        "default": "./dist/objects.cjs"
-      }
+      "types": "./dist/objects.d.ts",
+      "default": "./dist/objects.js"
     },
     "./objects.css": "./dist/objects.css",
     "./web": {
-      "import": {
-        "types": "./dist/web.d.ts",
-        "default": "./dist/web.js"
-      },
-      "require": {
-        "types": "./dist/web.d.cts",
-        "default": "./dist/web.cjs"
-      }
+      "types": "./dist/web.d.ts",
+      "default": "./dist/web.js"
     },
     "./docs": {
-      "import": {
-        "types": "./dist/docs.d.ts",
-        "default": "./dist/docs.js"
-      },
-      "require": {
-        "types": "./dist/docs.d.cts",
-        "default": "./dist/docs.cjs"
-      }
+      "types": "./dist/docs.d.ts",
+      "default": "./dist/docs.js"
     },
     "./charts": {
-      "import": {
-        "types": "./dist/charts.d.ts",
-        "default": "./dist/charts.js"
-      },
-      "require": {
-        "types": "./dist/charts.d.cts",
-        "default": "./dist/charts.cjs"
-      }
+      "types": "./dist/charts.d.ts",
+      "default": "./dist/charts.js"
     },
     "./charts.css": "./dist/charts.css",
     "./article": {
-      "import": {
-        "types": "./dist/article.d.ts",
-        "default": "./dist/article.js"
-      },
-      "require": {
-        "types": "./dist/article.d.cts",
-        "default": "./dist/article.cjs"
-      }
+      "types": "./dist/article.d.ts",
+      "default": "./dist/article.js"
     },
     "./article.css": "./dist/article.css",
     "./mechanism": {
-      "import": {
-        "types": "./dist/mechanism.d.ts",
-        "default": "./dist/mechanism.js"
-      },
-      "require": {
-        "types": "./dist/mechanism.d.cts",
-        "default": "./dist/mechanism.cjs"
-      }
+      "types": "./dist/mechanism.d.ts",
+      "default": "./dist/mechanism.js"
     },
     "./mechanism.css": "./dist/mechanism.css",
     "./web.css": "./dist/web.css",
@@ -155,14 +75,8 @@
     "./fonts/*": "./dist/fonts/*",
     "./docs.css": "./dist/docs.css",
     "./grade": {
-      "import": {
-        "types": "./dist/grade.d.ts",
-        "default": "./dist/grade.js"
-      },
-      "require": {
-        "types": "./dist/grade.d.cts",
-        "default": "./dist/grade.cjs"
-      }
+      "types": "./dist/grade.d.ts",
+      "default": "./dist/grade.js"
     }
   },
   "files": [

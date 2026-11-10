@@ -95,12 +95,12 @@ describe("renderStatic across bundles", () => {
     renderStatic(fig, { motion: true });
     expect(g.__UIPACK_PRERENDER__).toBeUndefined();
   });
-  it("the built CJS static entry keeps SMIL when Packet comes from the built main entry", async () => {
-    const { createRequire } = await import("node:module");
-    const req = createRequire(import.meta.url);
-    const main = req("../dist/index.cjs") as typeof import("../src");
-    const stat = req("../dist/static.cjs") as typeof import("../src/static");
-    const { createElement } = req("react") as typeof import("react");
+  it("the built static entry keeps SMIL when Packet comes from the built main entry", async () => {
+    // A computed path: typecheck runs before the build, so tsc must not look for dist's declarations.
+    const dist = "../dist";
+    const main = (await import(/* @vite-ignore */ `${dist}/index.js`)) as typeof import("../src");
+    const stat = (await import(/* @vite-ignore */ `${dist}/static.js`)) as typeof import("../src/static");
+    const { createElement } = await import("react");
     const pts: [number, number][] = [
       [0, 10],
       [100, 10],

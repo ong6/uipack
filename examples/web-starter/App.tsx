@@ -1,6 +1,7 @@
 // A complete landing page with every uipack/web block wired, for a sample product (Tallyroom, which
 // matches a small business's bank CSV against its invoices). Copy this folder into a Vite + React
-// app (`npm i uipack react react-dom`), then replace the words and rows with your product's own.
+// app (`npm i react react-dom` and uipack's release tarball: README.md, "Install"; `npm i uipack`
+// would fetch an unrelated npm package), then replace the words and rows with your product's own.
 //
 // The rule it follows: show the product's real output. The hero demo settles on the product's own
 // screens (a file, the matches, a record), the mechanism is one worked calculation with real

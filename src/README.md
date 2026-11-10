@@ -21,6 +21,6 @@
 - `article/`: article parts (`uipack/article`, `uipack/article.css`): `NoteCard` and `NoteCluster` (`NoteCard.tsx`), `LayerHead`, `TermList`, `Callout`, `ChangeNote` and `LinkList` (`parts.tsx`), and pure helpers in `format.ts`. No hooks; the markup is a documented class contract. See [article parts](../docs/article.md).
 - `mechanism/`: the Mechanism style (`uipack/mechanism`, `uipack/mechanism.css`): one folder per machine (`gate/`), the shared card (`MechanismFrame.tsx`), `solid3.ts`, and the vendored Anatomy kit in `kit/` (MIT, not edited). See [Mechanism](../docs/mechanism.md).
 
-Follow [agent guidance](../AGENTS.md) and [design direction](../docs/design-direction.md). Never pull Three.js into the default SVG entry. Preserve SSR and static export behaviour. Rebuild `dist/` before committing library changes.
+Follow [agent guidance](../AGENTS.md) and [design direction](../docs/design-direction.md). Never pull Three.js into the default SVG entry. Preserve SSR and static export behaviour. Rebuild `dist/` (`npm run build`, not committed) before testing library changes.
 
 Adding a part, entry, page or machine: the file lists are in [contributing](../docs/contributing.md).

@@ -7,7 +7,7 @@ reviewed point to pin instead of a bare commit.
 
 ## Version numbers
 
-uipack is installed from GitHub (`"uipack": "github:ong6/uipack#v0.2.0"`), never from npm. The
+uipack is installed from the tarball attached to its GitHub release (below), never from npm. The
 version in `package.json` is the latest release; a tag `vX.Y.Z` on main marks the commit it names.
 Before 1.0 the numbers mean:
 
@@ -28,17 +28,42 @@ When in doubt, take the larger bump and say why in the changelog.
    (the first release used `683d44b..HEAD`): Added, Changed, Removed, Fixed, one line per change a
    site or agent would notice, and an Upgrading section for anything that breaks.
 4. Run `npm run docs:sync`: the [registry](specs/registry.md) compares each site's pin with the new
-   version. Then the checks in [AGENTS.md](../AGENTS.md#engineering-and-verification), and
-   `npm run build` with `dist/` committed (a GitHub install uses the committed build).
+   version. Then `npm run build` and the checks in
+   [AGENTS.md](../AGENTS.md#engineering-and-verification).
 5. Merge to main and wait for CI to pass on it. Then tag it (the owner lets agents tag, 2026-11-08):
-   `git tag -a vX.Y.Z -m "uipack X.Y.Z"` on that commit, `git push origin vX.Y.Z`, and create the
-   GitHub release from the version's CHANGELOG entry.
+   `git tag -a vX.Y.Z -m "uipack X.Y.Z"` on that commit and `git push origin vX.Y.Z`.
+6. The tag starts the release workflow (`.github/workflows/release.yml`): it fails unless the tag
+   is `v` + `package.json`'s version, then builds, runs the unit tests, packs, and creates the
+   GitHub release with `uipack-X.Y.Z.tgz` attached and the version's CHANGELOG section as its
+   notes. Watch it (`gh run watch`, in the background), then check the asset installs:
+   `npm pack --dry-run https://github.com/ong6/uipack/releases/download/vX.Y.Z/uipack-X.Y.Z.tgz`
+   names `uipack@X.Y.Z` and lists `dist/` (`npm view` does not read tarball URLs).
+7. To rebuild a release's tarball (a broken asset, a changed note), run the workflow by hand on
+   the existing tag: `gh workflow run release -f tag=vX.Y.Z`. It replaces the asset (`--clobber`).
+   A site's lockfile records the tarball's integrity hash, so if the new file differs, every site
+   pinned to that version fails `npm ci` until it reinstalls; prefer a patch release.
+
+`dist/` is not committed: the tarball is a release's only built copy, so never delete a release
+asset a site may still install.
+
+## Installing in a site
+
+```sh
+npm install https://github.com/ong6/uipack/releases/download/vX.Y.Z/uipack-X.Y.Z.tgz
+```
+
+That writes `"uipack": "https://github.com/ong6/uipack/releases/download/vX.Y.Z/uipack-X.Y.Z.tgz"`
+to `package.json`; the lockfile records the tarball's integrity hash. The package is ES modules
+only (since 0.4.0): import it from the site's bundler or from a Node ESM script (`.mjs`, or a
+`.ts` run with tsx). Pins from before 0.4.0 (`github:ong6/uipack#v0.3.0`, `#v0.2.0` or a commit)
+keep installing, because those commits carry the built `dist/`; a git pin to a later commit gets no
+`dist/` and does not work.
 
 ## Moving a site to a release
 
 In the site's repo, one site at a time:
 
-1. Set `"uipack": "github:ong6/uipack#vX.Y.Z"` in `package.json` and run `npm install`.
+1. Install the release's tarball ([installing in a site](#installing-in-a-site)).
 2. Read the version's entry in `node_modules/uipack/CHANGELOG.md`, Upgrading first, and make the
    changes it lists.
 3. Take before and after screenshots of every page that renders uipack, at 1440 and 390, light and
