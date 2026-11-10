@@ -13,7 +13,7 @@
     "esModuleInterop": true,
     "declaration": true,
     "noEmit": true,
-    "types": ["vitest/globals", "@testing-library/jest-dom"]
+    "types": ["node", "vitest/globals", "@testing-library/jest-dom"]
   },
   "include": ["src", "examples", "playground", "test", "scripts", "e2e"]
 }
