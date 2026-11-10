@@ -8,3 +8,25 @@ playground/e2e-static
 coverage
 .vitest
 /dist/
+
+# `npm run screenshots` (e2e/screenshots.spec.ts) also writes review shots no doc links: ignore its
+# outputs, then re-include the ones a docs page shows. test/docs-manifest.test.tsx fails when a doc
+# links an image that is not tracked, so a new doc screenshot needs a line here (or `git add -f`).
+/docs/screenshots/playground-*.png
+/docs/screenshots/assets-*.png
+/docs/screenshots/web-*.png
+/docs/screenshots/habitat-*.png
+/docs/screenshots/parts-*.png
+/docs/screenshots/span-chart-*.png
+/docs/screenshots/layer-stack-*.png
+/docs/screenshots/article-*.png
+/docs/presets/*-dark.png
+!/docs/screenshots/assets-1440-light.png
+!/docs/screenshots/web-1440-light.png
+!/docs/screenshots/web-motion-1440-dark.png
+!/docs/screenshots/web-backgrounds-1440-light.png
+!/docs/screenshots/span-chart-896-light.png
+!/docs/screenshots/layer-stack-896-light.png
+!/docs/screenshots/article-section-640-light.png
+!/docs/screenshots/article-section-390-*.png
+!/docs/screenshots/article-cluster-896-*.png

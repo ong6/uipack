@@ -2,6 +2,8 @@ import { test } from "./fixtures";
 
 // Not a test: writes the README and docs screenshots. Run with `npm run screenshots`. Its fixed waits
 // are deliberate: they let reveals, tickers and the demo reach the frame worth capturing.
+// It also writes review shots no doc shows (other widths and themes); .gitignore keeps those out of
+// git, so only the images a docs page links are tracked (test/docs-manifest.test.tsx).
 // The presets the diagrams page shows; the other presets keep their committed shots.
 const PRESETS = ["pipeline", "beforeAfter", "syncLoop", "agentLoop"];
 
@@ -56,7 +58,7 @@ for (const theme of ["light", "dark"] as const) {
       .screenshot({ path: `docs/screenshots/habitat-${theme}.png` });
     await page.locator('section[data-section="parts"] figure').screenshot({ path: `docs/screenshots/parts-${theme}.png` });
     for (const name of PRESETS) {
-      await page.locator(`[data-preset="${name}"] figure`).screenshot({ path: `docs/screenshots/presets/${name}-${theme}.png` });
+      await page.locator(`[data-preset="${name}"] figure`).screenshot({ path: `docs/presets/${name}-${theme}.png` });
     }
   });
 }
