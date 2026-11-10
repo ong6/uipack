@@ -204,6 +204,7 @@
     "dev": "vite",
     "test": "vitest run",
     "test:affected": "node scripts/affected.mjs",
+    "verify": "npm run format:check && npm run typecheck && npm run lint && node scripts/affected.mjs --unit",
     "coverage": "vitest run --coverage",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
@@ -227,8 +228,6 @@
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.5",
-    "@fontsource/ibm-plex-mono": "^5.3.0",
-    "@fontsource/ibm-plex-sans": "^5.3.0",
     "@playwright/test": "^1.61.1",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",

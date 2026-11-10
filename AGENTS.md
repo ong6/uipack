@@ -6,7 +6,7 @@
 | Add or change a part, page, style or entry in uipack | Its recipe in [`docs/contributing.md`](docs/contributing.md), then "Design contract" and "Engineering and verification" below |
 | Change the docs | "Design contract" below (docs bullet), then [grading these docs for agents](docs/grading/agent-docs.md) |
 
-Before any commit to uipack: `npm run format`, `npm run typecheck`, `npm run lint`, `npm run build` (commit `dist/`), `npm run test:affected`.
+Before any commit to uipack: `npm run verify` (format check, typecheck, lint, affected unit tests; `npm run format` fixes formatting), `npm run build` (commit `dist/`), `npm run test:affected -- --e2e`.
 
 **Using UiPack on a site** (building a page, a diagram, copy, a site spec, a review): start at [`docs/agents/README.md`](docs/agents/README.md), then the job's skill in [`skills/`](skills/README.md). Both ship in the package (`node_modules/uipack/`). The rest of this file is for changing uipack itself.
 
@@ -42,7 +42,9 @@ A question, review or evaluation the owner asks for changes nothing: no build, t
 Screenshots go through `npm run shoot`. Any other browser script needs a page timeout and an overall deadline, and never waits for `networkidle`.
 Wait for CI in the background (`gh run watch` in a background task), never as a foreground block before replying; merge to `main` only from a branch whose CI is green.
 
-Run `npm run format`, `npm run typecheck`, `npm run lint`, `npm run build` (then commit `dist/`) and `npm run test:affected`: only the unit tests that import what changed and the browser specs mapped to the changed areas, Chromium only (owner, 2026-11-04). `-- --dry` prints the plan. CI runs the full suites on every push; run them locally only when asked or when the script reports an unmapped path. When you add a spec or a source area, add its row to `AREAS` in `scripts/affected.mjs`. Use a bounded worker count on this machine. Do not build or mutate source while browser tests are running. Verify the built package too; `dist/` is intentionally committed.
+Run `npm run verify` (format check, typecheck, lint and the affected unit tests; `npm run format` fixes formatting), `npm run build` (then commit `dist/`) and `npm run test:affected -- --e2e`. Affected means only the unit tests that import what changed and the browser specs mapped to the changed areas, Chromium only (owner, 2026-11-04). `-- --dry` prints the plan. CI runs the full suites on every push; run them locally only when asked or when the script reports an unmapped path. When you add a spec or a source area, add its row to `AREAS` in `scripts/affected.mjs`. Use a bounded worker count on this machine. Do not build or mutate source while browser tests are running. Verify the built package too; `dist/` is intentionally committed.
+
+`.claude/settings.json` denies agents reads of generated files (`dist/`, `docs/screenshots/`, `package-lock.json`, `test-results/`); check them through the build, tests or `git diff --stat`.
 
 Inspect real browser screenshots at desktop and 390px, with both themes when colour changes. Automated tests do not prove visual polish. Report failures, skips, and unsupported behaviour honestly. Test the meaning of an interaction, not just matching implementation details.
 

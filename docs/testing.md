@@ -2,7 +2,7 @@
 
 What the unit and browser suites check, how CI runs them and the known engine quirks. For changing
 uipack only: the commands to run before a commit are in [AGENTS.md](../AGENTS.md#engineering-and-verification)
-(`npm run test:affected`); grading a page you built is [Grading UI work](grading/README.md).
+(`npm run verify`, then `npm run test:affected -- --e2e`); grading a page you built is [Grading UI work](grading/README.md).
 
 ## Grading a page
 
