@@ -785,7 +785,7 @@ export const siteRegistry: readonly SiteEntry[] = [
     spec: "junxiong-homepage:STYLE.md",
     specStatus: "written",
     components: ["diagrams: blueprint (themes: site default; compoze and trading pages may have their own)"],
-    pins: "v0.2.0",
+    pins: "v0.4.0",
     notes:
       "STYLE.md drafted 2026-11-07 on branch site-ui-1 (passes check-spec; not on the site's main until the owner merges). Decided 2026-11-07: diagrams follow a theme, the site's default plus optional per-page themes (Compoze, Trading Engine). Move: replace the --uipack-* overrides in globals.css with one diagramThemeCss and the site-local userflow.js / sequence.js with uipack's parts (CHANGELOG 0.3.0); declare diagram-themes in STYLE.md",
   },
