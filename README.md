@@ -27,11 +27,15 @@ Inside a site, read the same files from `node_modules/uipack/`. They match the i
 
 ## Install
 
-The package isn't on npm. Install it from GitHub; `dist/` is committed, so consumers don't need a build step.
+The package isn't on npm. Each release attaches its built package to the GitHub release as `uipack-<version>.tgz`; a site installs that file, so there is no build step on its side. The line for the latest release:
 
+<!-- generated:install -->
 ```sh
-npm install github:ong6/uipack
+npm install https://github.com/ong6/uipack/releases/download/v0.4.0/uipack-0.4.0.tgz
 ```
+<!-- /generated -->
+
+uipack is ES modules only (since 0.4.0): `import` it from a bundler (Next.js, Vite) or a Node ESM script; there is no CommonJS build. Git pins up to `v0.3.0` (`github:ong6/uipack#v0.3.0`, or a commit before it) keep working, because those commits carry the built `dist/`; later commits do not, so pin a release tarball. How a release is cut and how a site moves to one: [releases](docs/releases.md).
 
 ```tsx
 import "uipack/theme.css";

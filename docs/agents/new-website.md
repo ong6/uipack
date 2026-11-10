@@ -17,7 +17,7 @@ template, check it, register it, then build.
 4. **Register it.** Add the site to `siteRegistry` in uipack's `playground/docs-manifest.ts` and run
    `npm run docs:sync` in uipack; the [registry](../specs/registry.md) regenerates. If you are not
    working in uipack, hand that row to whoever is.
-5. **Build.** Install uipack at the pinned commit, build the shared shell, then the pages, each from
+5. **Build.** Install uipack's release tarball ([install](../../README.md#install)), build the shared shell, then the pages, each from
    its recipe (the `uipack-page` skill). A multi-page build follows
    [multi-agent website build](multi-agent-build.md).
 

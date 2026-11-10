@@ -7,6 +7,37 @@ release is cut and how a site moves to it.
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-11-10
+
+How uipack ships changes; its components, props and styles do not. The package is ES modules
+only, and a release is a tarball attached to its GitHub release instead of a commit carrying a
+built `dist/`.
+
+### Changed
+
+- **Breaking: ES modules only.** The CommonJS build (`dist/*.cjs`, `dist/*.d.cts`), the `require`
+  export conditions and `main` are gone. Each entry exports `{ types, default }`; every subpath,
+  stylesheet, font and asset export is unchanged. `require("uipack/…")` from CommonJS now gets the
+  ES module (Node 22.12+ loads it; older Node throws `ERR_REQUIRE_ESM`).
+- **Breaking: install from the release tarball.** `dist/` is no longer committed; the release
+  workflow builds and packs each `v*` tag and attaches `uipack-<version>.tgz` to its GitHub release
+  ([releases](docs/releases.md)). A git pin to a commit after 0.3.0 installs without `dist/`.
+- `uipack/objects`: the tennis model URL no longer has a CommonJS fallback; pass `modelUrl` only when
+  your bundler does not copy `new URL(…, import.meta.url)` assets.
+- Build and tooling (no effect on a site): esbuild 0.28, vitest 5, minimatch 11 overrides,
+  `npm run verify`, `npm run shoot`, SHA-pinned CI actions with a read-only token, split GL and
+  non-GL e2e shards; unused `@fontsource` packages dropped.
+
+### Upgrading
+
+- Replace the git pin with the tarball:
+  `npm install https://github.com/ong6/uipack/releases/download/v0.4.0/uipack-0.4.0.tgz`.
+  Pins up to `v0.3.0` keep working if you cannot move yet.
+- Import uipack, don't `require` it: Next.js, Vite and Node `.mjs` scripts already do. A
+  `require()` of uipack (or a `.ts` script tsx compiles as CommonJS in a package without
+  `"type": "module"`) needs Node 22.12 or later.
+- If you upgrade from a pin before 0.3.0, read 0.3.0's Upgrading first.
+
 ## [0.3.0] - 2026-11-08
 
 Diagrams follow a theme. The owner decided (2026-11-07) that figures take the
@@ -229,6 +260,7 @@ pinned before that (junxiong.dev at `e6b6ed7`, notes.junxiong.dev at `3886f0d`) 
    dark) and run tier 1 on them (`npx uipack-grade check <url>`), as
    [docs/releases.md](docs/releases.md#moving-a-site-to-a-release) describes.
 
-[Unreleased]: https://github.com/ong6/uipack/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/ong6/uipack/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/ong6/uipack/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/ong6/uipack/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/ong6/uipack/compare/683d44b...v0.2.0

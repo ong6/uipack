@@ -4,6 +4,8 @@
 
 Agents: read docs/agents/README.md first, then the skill for your job in skills/ (README.md indexes them); the design system itself starts at docs/system/README.md. Agent instructions are in AGENTS.md. Generated from playground/docs-manifest.ts by `npm run docs:sync`; do not edit by hand.
 
+Install (ES modules only; not on npm): `npm install https://github.com/ong6/uipack/releases/download/v0.4.0/uipack-0.4.0.tgz`.
+
 ## Start here
 
 - [What UiPack is](docs/README.md): What UiPack is, who it is for (people and agents), how its layers fit, where to start and how to install it, then every page of the docs.

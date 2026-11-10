@@ -140,6 +140,8 @@ export function llmsTxt() {
     "",
     "Agents: read docs/agents/README.md first, then the skill for your job in skills/ (README.md indexes them); the design system itself starts at docs/system/README.md. Agent instructions are in AGENTS.md. Generated from playground/docs-manifest.ts by `npm run docs:sync`; do not edit by hand.",
     "",
+    `Install (ES modules only; not on npm): \`npm install ${tarballUrl()}\`.`,
+    "",
     ...sections.filter(Boolean).flatMap((s) => [s, ""]),
     skillsSection(),
     "",
@@ -229,6 +231,13 @@ export function diagramFamily() {
 
 /** The latest release: package.json's version, which a release tags as `v<version>` on main (docs/releases.md). */
 export const releaseVersion = (): string => JSON.parse(readFileSync(join(root, "package.json"), "utf8")).version;
+
+/** The release tarball the release workflow attaches to tag `v<version>` (.github/workflows/release.yml). */
+export const tarballUrl = (version = releaseVersion()) =>
+  `https://github.com/ong6/uipack/releases/download/v${version}/uipack-${version}.tgz`;
+
+/** The install line a site runs for the latest release. */
+export const installCommand = (version = releaseVersion()) => ["```sh", `npm install ${tarballUrl(version)}`, "```"].join("\n");
 
 const semver = (v: string) => /^v?(\d+)\.(\d+)\.(\d+)$/.exec(v)?.slice(1).map(Number) ?? null;
 
@@ -510,6 +519,7 @@ export const generators: Record<string, (file: string) => string> = {
   "contract-roles": () => contractRoles(),
   "diagram-family": () => diagramFamily(),
   "site-registry": (file) => registryTable(file),
+  install: () => installCommand(),
   "page-types": () => pageTypes(),
   "layout-archetypes": (file) => layoutArchetypes(file),
   "layout-archetype": (file) => layoutArchetype(file),
