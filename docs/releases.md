@@ -28,8 +28,8 @@ When in doubt, take the larger bump and say why in the changelog.
    (the first release used `683d44b..HEAD`): Added, Changed, Removed, Fixed, one line per change a
    site or agent would notice, and an Upgrading section for anything that breaks.
 4. Run `npm run docs:sync`: the [registry](specs/registry.md) compares each site's pin with the new
-   version. Then the checks in [AGENTS.md](../AGENTS.md#engineering-and-verification), and
-   `npm run build` with `dist/` committed (a GitHub install uses the committed build).
+   version. Then `npm run build` and the checks in
+   [AGENTS.md](../AGENTS.md#engineering-and-verification).
 5. Merge to main and wait for CI to pass on it. Then tag it (the owner lets agents tag, 2026-11-08):
    `git tag -a vX.Y.Z -m "uipack X.Y.Z"` on that commit, `git push origin vX.Y.Z`, and create the
    GitHub release from the version's CHANGELOG entry.

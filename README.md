@@ -97,8 +97,8 @@ site, its spec and the uipack commit it pins.
 
 ```sh
 npm run dev            # the docs site: every page renders a Markdown file from docs/
+npm run build          # writes dist/ (gitignored); tests and the typecheck read it
 npm run verify         # format check, typecheck, lint, unit tests for what changed
-npm run build          # then commit dist/
 npm run test:affected -- --e2e  # browser tests for what changed; CI runs everything
 ```
 

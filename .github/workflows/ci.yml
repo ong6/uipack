@@ -17,17 +17,16 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with: { node-version: 22, cache: npm }
       - run: npm ci
+      # dist/ is not committed: build it before anything that reads it (the typecheck of
+      # playground/dist-smoke, the unit tests, the entry loader, attw).
+      - name: Build dist/
+        run: npm run build
       - run: npm run typecheck
       - run: npm run lint
       - run: npm run format:check
       - run: npm test
       - name: Docs generated blocks and llms.txt are current (npm run docs:sync)
         run: npm run docs:sync -- --check
-      - run: npm run build
-      - name: dist is committed as built
-        run: |
-          git diff --exit-code --stat dist
-          test -z "$(git status --porcelain dist)" || { git status --porcelain dist; echo "Rebuild and commit dist/"; exit 1; }
       - name: Import every built entry and resolve every file export
         run: node scripts/load-entries.mjs
       - name: Types resolve under node16 and bundler (attw, esm-only profile)
@@ -51,6 +50,9 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with: { node-version: 22, cache: npm }
       - run: npm ci
+      # e2e/dist-smoke.spec.ts serves playground/dist-smoke, which imports the built dist/.
+      - name: Build dist/
+        run: npm run build
       - name: Read installed Playwright version
         id: playwright
         run: node -p "'version=' + require('./node_modules/@playwright/test/package.json').version" >> "$GITHUB_OUTPUT"
