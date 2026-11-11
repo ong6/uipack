@@ -7,6 +7,10 @@ jobs:
   diag:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        spec: [diag-hover, hover, hover, hover, hover]
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
@@ -21,8 +25,8 @@ jobs:
       - name: Cold-start loop
         env: { CI: "1", DEBUG: "pw:webserver" }
         run: |
-          for i in 1 2 3 4 5 6; do
+          for i in 1 2 3; do
             echo "=================== ROUND $i"
             rm -rf node_modules/.vite
-            xvfb-run --auto-servernum npx playwright test e2e/diag-hover.spec.ts e2e/mechanism.spec.ts --project=chromium --workers=2 --retries=0 --reporter=line 2>&1 | grep -vE "pw:webserver (HTTP|Error|Waiting|connect)|ECONNREFUSED" || true
+            xvfb-run --auto-servernum npx playwright test e2e/${{ matrix.spec }}.spec.ts e2e/mechanism.spec.ts --project=chromium --workers=2 --retries=0 --reporter=line 2>&1 | grep -vE "pw:webserver (HTTP|Error|Waiting|connect)|ECONNREFUSED" || true
           done
