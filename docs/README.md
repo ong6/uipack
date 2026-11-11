@@ -10,10 +10,11 @@ start, then lists every page of these docs.
 - **Agents first.** An agent building a page, deck, figure or copy for one of the owner's sites
   reads these files as Markdown, from `node_modules/uipack/docs/` in a site or a clone. Start at
   [For agents](agents/README.md); [`llms.txt`](../llms.txt) lists every file with one line on what
-  it is for. Each file opens with what it is for and who should read it, so you can stop after the
+  it is for. Without a checkout, fetch them from the docs site, which serves each file at its repo
+  path (`https://ui.junxiong.dev/llms.txt`, `https://ui.junxiong.dev/docs/agents/README.md`). Each file opens with what it is for and who should read it, so you can stop after the
   first paragraph, and it is headed so you can jump to your part (`scripts/check-agent-docs.ts`
   checks both).
-- **The owner** reviews the same pages on the docs site, where each one shows its live demos.
+- **The owner** reviews the same pages on the [docs site](https://ui.junxiong.dev), where each one shows its live demos.
 - **Not a public product.** The only consumers are the sites in the registry, so there is no
   compatibility promise beyond them.
 

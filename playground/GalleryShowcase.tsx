@@ -19,7 +19,8 @@ import { figureEntries, pageDefs, pageHref } from "./catalog";
 import { deckExamples } from "./deckExamples";
 import { presentationStarters } from "./presentationExamples";
 import { demos } from "./demos";
-import { galleryCategories, type GalleryCategory } from "./gallery-index";
+import { GALLERY_INTRO, galleryCategories, type GalleryCategory } from "./gallery-index";
+import { ASSET_PREVIEW_BASE } from "./docs-links";
 import { useShowcaseTheme } from "./ShowcaseShell";
 import "../src/theme.css";
 import "../src/canvas.css";
@@ -31,8 +32,6 @@ import "../src/objects/objects.css";
 import "../src/slides/slides.css";
 import "../src/mechanism/mechanism.css";
 import "./gallery-showcase.css";
-
-declare const __UIPACK_ROOT__: string;
 
 type Theme = "light" | "dark";
 
@@ -226,7 +225,7 @@ function galleryItems(): GalleryItem[] {
         ratio: "1 / 1",
         render: (theme) => (
           <img
-            src={`/@fs${__UIPACK_ROOT__}/${theme === "dark" && asset.previewDark ? asset.previewDark : asset.preview}`}
+            src={`${ASSET_PREVIEW_BASE}${theme === "dark" && asset.previewDark ? asset.previewDark : asset.preview}`}
             alt=""
             loading="lazy"
           />
@@ -428,10 +427,7 @@ export default function GalleryShowcase() {
     <div className="gallery" data-route="gallery">
       <div className="gallery-head">
         <h1>Assets</h1>
-        <p>
-          Every diagram, slide, demo, 3D scene, component and icon UiPack draws, rendered live from the library. Open a card for
-          its docs.
-        </p>
+        <p>{GALLERY_INTRO}</p>
       </div>
       <div className="gallery-filters" role="group" aria-label="Show">
         <button type="button" aria-pressed={shown === ALL} onClick={() => choose(ALL)}>

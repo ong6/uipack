@@ -117,6 +117,8 @@
   "scripts": {
     "build": "tsup && tsx scripts/build-css.ts",
     "dev": "vite",
+    "build:site": "vite build",
+    "check:site": "tsx scripts/check-site.ts",
     "test": "vitest run",
     "test:affected": "node scripts/affected.mjs",
     "verify": "npm run format:check && npm run typecheck && npm run lint && node scripts/affected.mjs --unit",
@@ -174,7 +176,7 @@
     "type": "git",
     "url": "https://github.com/ong6/uipack.git"
   },
-  "homepage": "https://junxiong.dev/uipack",
+  "homepage": "https://ui.junxiong.dev",
   "keywords": [
     "react",
     "svg",

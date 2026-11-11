@@ -89,8 +89,11 @@ control, and user-triggered agents may not follow it.
 - The playground is a client-rendered SPA, so its raw HTML has none of this; the e2e tests read the
   rendered DOM. A real page must be server-rendered or pre-rendered for checks 1, 4 and 5
   to reach crawlers that do not run JavaScript.
-- The playground's `index.html` carries `<meta name="robots" content="noindex">`: it is an
-  illustrative demo, so a deployed copy never gets indexed. A real page sets `robots` through
+- The playground's `index.html` carries `<meta name="robots" content="noindex">`. The deployed
+  docs site (`npm run build:site`, `playground/site.ts`) writes one file per route: docs pages drop
+  it and get a canonical, while the Tidy page (`/web`, an illustrative product) and 404.html keep
+  it, so the demo never gets indexed. The site's root robots.txt, sitemap.xml and llms.txt describe
+  the docs; this page shows Tidy's own under "View generated". A real page sets `robots` through
   `pageMeta` only for previews.
 - The demo page has no `og:image`. Social previews fall back to a summary card.
 - The FAQ JSON-LD no longer earns a Google rich result; it is kept for other consumers.

@@ -30,3 +30,4 @@ coverage
 !/docs/screenshots/article-section-640-light.png
 !/docs/screenshots/article-section-390-*.png
 !/docs/screenshots/article-cluster-896-*.png
+.vercel

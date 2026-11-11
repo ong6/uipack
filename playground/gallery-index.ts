@@ -4,6 +4,10 @@
 /** The Assets tab: every asset uipack draws, as a gallery, outside the docs manifest. */
 export const GALLERY_PATH = "/gallery";
 
+/** The gallery's lead line, under its h1 and in its page's meta description. */
+export const GALLERY_INTRO =
+  "Every diagram, slide, demo, 3D scene, component and icon UiPack draws, rendered live from the library. Open a card for its docs.";
+
 /**
  * The gallery's categories, in order. `pages` are the docs pages whose assets a category shows:
  * each card links to one of them, and each of those pages links back to its category.

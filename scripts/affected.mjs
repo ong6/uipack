@@ -110,6 +110,9 @@ const AREAS = [
     /^playground\/(GalleryShowcase|gallery-showcase|gallery-index|deckExamples|presentationExamples|figures\/)/,
     ["assets-gallery"],
   ],
+  // The deployed site's route files and crawl files: CI's site job crawls the build (npm run check:site);
+  // nav covers the routes on the dev server.
+  [/^playground\/site\.ts$|^scripts\/(check-site|serve-site)|^vercel\.json$/, ["nav"]],
   // The /styles and /presentations pages (CatalogShowcase): slide starters and the style catalog demo.
   [/^playground\/(CatalogShowcase|StylePreviews|presentations\.css)/, ["web", "page-audit", "showcase"]],
   // Component demos embedded in their docs pages.

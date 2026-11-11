@@ -1,12 +1,13 @@
 import react from "@vitejs/plugin-react";
 import type { IncomingMessage, ServerResponse } from "node:http";
-import { readFileSync, realpathSync } from "node:fs";
-import { extname, resolve } from "node:path";
+import { createHash } from "node:crypto";
+import { mkdirSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
+import { dirname, extname, join, resolve } from "node:path";
 import { defineConfig, type Plugin } from "vite";
 import type { OutputBundle, OutputChunk } from "rollup";
 import { pageModules, routes } from "./playground/routes";
-import { tidySeo } from "./playground/web-seo";
-import { servedFiles } from "./playground/docs-links";
+import { siteFiles } from "./playground/docs-links";
+import { routeHtml, siteCrawlFiles, siteRoutes, SITE_ORIGIN } from "./playground/site";
 
 const CRAWL_TYPES: Record<string, string> = {
   "robots.txt": "text/plain; charset=utf-8",
@@ -14,13 +15,15 @@ const CRAWL_TYPES: Record<string, string> = {
   "llms.txt": "text/plain; charset=utf-8",
 };
 
+/** The origin a build writes canonicals, sitemap.xml and llms.txt for (playground/site.ts). */
+const siteOrigin = (process.env.UIPACK_SITE_ORIGIN ?? SITE_ORIGIN).replace(/\/$/, "");
+const readRepoFile = (file: string) => readFileSync(resolve(process.cwd(), file), "utf8");
+
 /**
- * Serves the /web demo's robots.txt, sitemap.xml and llms.txt at the root (`publicDir` is off,
- * so without this they fall back to index.html). Dev and preview build them for the requesting
- * origin, matching the page's own "View generated" panel; a build also emits them, for
- * `UIPACK_PLAYGROUND_ORIGIN` (default https://tidy.example). The playground pages stay
- * `noindex`; these files only describe the demo, as a real site would serve them.
- * Paths under /.well-known/ get a 404 instead of the SPA fallback.
+ * Serves the docs site's robots.txt, sitemap.xml and llms.txt at the root (`publicDir` is off, so
+ * without this they fall back to index.html): dev and preview build them for the requesting
+ * origin, a build emits them for `siteOrigin`. Paths under /.well-known/ get a 404 instead of the
+ * SPA fallback.
  */
 function crawlFiles(): Plugin {
   const serve = (req: IncomingMessage, res: ServerResponse, next: () => void) => {
@@ -30,14 +33,14 @@ function crawlFiles(): Plugin {
     if (!(name in CRAWL_TYPES)) return next();
     const origin = `http://${req.headers.host ?? "localhost"}`;
     res.setHeader("Content-Type", CRAWL_TYPES[name]);
-    res.end(tidySeo(origin).files[name as keyof ReturnType<typeof tidySeo>["files"]]);
+    res.end(siteCrawlFiles(origin, readRepoFile("llms.txt"))[name as keyof ReturnType<typeof siteCrawlFiles>]);
   };
   return {
     name: "uipack-playground-crawl-files",
     configureServer: (server) => void server.middlewares.use(serve),
     configurePreviewServer: (server) => void server.middlewares.use(serve),
     generateBundle() {
-      const { files } = tidySeo(process.env.UIPACK_PLAYGROUND_ORIGIN ?? "https://tidy.example");
+      const files = siteCrawlFiles(siteOrigin, readRepoFile("llms.txt"));
       for (const [fileName, source] of Object.entries(files)) this.emitFile({ type: "asset", fileName, source });
     },
   };
@@ -54,14 +57,14 @@ const RAW_TYPES: Record<string, string> = {
 
 /**
  * Serves each docs page's Markdown file as plain text at its repo path ("View as Markdown":
- * /docs/system/README.md, /README.md), plus the images those files show, so the rendered page and
- * the file an agent reads are one source. Only the files the docs manifest names (and their
- * images) are served, in dev and preview; a build emits the same files.
+ * /docs/system/README.md, /README.md), plus the images those files show, the asset manifest's
+ * previews and the files llms.txt links, so the rendered page and the file an agent reads are one
+ * source. Only those files (`siteFiles`) are served, in dev and preview; a build emits the same files.
  */
 function docsRawFiles(): Plugin {
   const root = process.cwd();
   const read = (file: string) => readFileSync(resolve(root, file), "utf8");
-  const files = () => new Set(servedFiles(read));
+  const files = () => new Set(siteFiles(read));
   const serve = (req: IncomingMessage, res: ServerResponse, next: () => void) => {
     let name = (req.url ?? "").split(/[?#]/)[0].replace(/^\//, "");
     try {
@@ -122,8 +125,11 @@ function routePreloads(): Plugin {
           modules[name] = [...own.map((c) => c.fileName), ...css].map(index);
         }
         const paths = Object.fromEntries([...routes].map(([path, id]) => [path, pageModules[id]]));
+        // The data is a JSON block, not script, so the script itself never changes and the site's
+        // Content-Security-Policy allows it by its hash (vercel.json; checked by siteHtml below).
+        const data = JSON.stringify({ a: files.map((f) => base + f), m: modules, r: paths }).replace(/</g, "\\u003c");
         const script =
-          `{const a=${JSON.stringify(files.map((f) => base + f))},m=${JSON.stringify(modules)},r=${JSON.stringify(paths)};` +
+          `{const{a,m,r}=JSON.parse(document.getElementById("uipack-preloads").textContent);` +
           `for(const i of m[r[location.pathname.replace(/(.)\\/$/,"$1")]]||[]){const l=document.createElement("link");` +
           `l.href=a[i];l.crossOrigin="";if(a[i].endsWith(".css"))l.rel="preload",l.as="style";else l.rel="modulepreload";document.head.append(l)}}`;
         // Straight after <meta charset> (which must stay in the first 1024 bytes), before any
@@ -131,19 +137,57 @@ function routePreloads(): Plugin {
         const at = html.search(/<meta charset[^>]*>/);
         if (at < 0) throw new Error("route preloads: index.html has no <meta charset>");
         const end = html.indexOf(">", at) + 1;
-        return `${html.slice(0, end)}\n    <script>${script}</script>${html.slice(end)}`;
+        return `${html.slice(0, end)}\n    <script type="application/json" id="uipack-preloads">${data}</script>\n    <script>${script}</script>${html.slice(end)}`;
       },
     },
   };
 }
 
+/** The inline scripts in a built page, as CSP hash sources ('sha256-…'). JSON and JSON-LD blocks never run, so they need none. */
+function inlineScriptHashes(html: string) {
+  return [...html.matchAll(/<script(\s[^>]*)?>([\s\S]*?)<\/script>/g)]
+    .filter(([, attrs = ""]) => !/\ssrc=|type="application\/(ld\+)?json"/.test(attrs))
+    .map(([, , body]) => `'sha256-${createHash("sha256").update(body).digest("base64")}'`);
+}
+
+/**
+ * Turns the build into the static docs site vercel.json deploys: one HTML file per route
+ * (`<path>.html`, served at `<path>` by cleanUrls) with that page's title, description, canonical
+ * and Open Graph tags, so a direct load or a refresh of any route is a real file, plus 404.html
+ * for every other address (the shell renders its Page not found list). It fails the build when
+ * vercel.json's Content-Security-Policy does not allow every inline script by its hash.
+ */
+function siteHtml(): Plugin {
+  return {
+    name: "uipack-playground-site-html",
+    apply: "build",
+    writeBundle({ dir }) {
+      if (!dir) return;
+      const html = readFileSync(join(dir, "index.html"), "utf8");
+      for (const route of siteRoutes()) {
+        const file = join(dir, route.path === "/" ? "index.html" : `${route.path.slice(1)}.html`);
+        mkdirSync(dirname(file), { recursive: true });
+        writeFileSync(file, routeHtml(html, siteOrigin, route));
+      }
+      writeFileSync(join(dir, "404.html"), routeHtml(html, siteOrigin));
+      const vercel = JSON.parse(readRepoFile("vercel.json")) as { headers: { headers: { key: string; value: string }[] }[] };
+      const csp = vercel.headers.flatMap((h) => h.headers).find((h) => h.key === "Content-Security-Policy")?.value ?? "";
+      const missing = inlineScriptHashes(html).filter((hash) => !csp.includes(hash));
+      if (missing.length)
+        throw new Error(
+          `vercel.json: the Content-Security-Policy's script-src does not allow these inline scripts of index.html: ${missing.join(" ")}. ` +
+            `Replace the old hashes with them.`,
+        );
+    },
+  };
+}
+
 export default defineConfig({
-  plugins: [react(), crawlFiles(), docsRawFiles(), routePreloads()],
+  plugins: [react(), crawlFiles(), docsRawFiles(), routePreloads(), siteHtml()],
   root: "playground",
   publicDir: false,
   appType: "spa",
   // The repo, plus node_modules where it really lives: a git worktree may symlink it from
   // another checkout, and files outside the allow list 404.
   server: { fs: { allow: ["..", realpathSync("node_modules")] } },
-  define: { __UIPACK_ROOT__: JSON.stringify(process.cwd()) },
 });

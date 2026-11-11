@@ -45,3 +45,21 @@ export function servedFiles(read: (file: string) => string) {
   }
   return [...files];
 }
+
+/** Where a preview path from `assets/manifest.json` ("docs/assets/icon-db.svg") loads, in dev and in a build. */
+export const ASSET_PREVIEW_BASE = "/";
+
+/**
+ * Every raw file the site serves at its repo path: `servedFiles`, the previews in the asset
+ * manifest (the Assets gallery and the Icons & marks page load them from ASSET_PREVIEW_BASE), and
+ * every repo file llms.txt links, so each of its links resolves on the site.
+ */
+export function siteFiles(read: (file: string) => string) {
+  const files = new Set(servedFiles(read));
+  const manifest = JSON.parse(read("assets/manifest.json")) as { assets: Record<string, unknown>[] };
+  for (const asset of manifest.assets)
+    for (const key of ["preview", "previewDark", "previewStatic", "previewStaticDark"])
+      if (typeof asset[key] === "string") files.add(asset[key]);
+  for (const m of read("llms.txt").matchAll(/\]\(([^)\s#]+)/g)) if (!/^[a-z][a-z0-9+.-]*:/i.test(m[1])) files.add(m[1]);
+  return [...files];
+}

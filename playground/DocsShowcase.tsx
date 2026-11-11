@@ -64,27 +64,29 @@ Each miss prints the rule, the file and line, and the sentence that broke it, so
 A run exits with \`0\` when every \`error\` rule passes and \`1\` otherwise, so CI needs no extra parsing. Warnings print but never fail the run.
 `;
 
+// The sample product's other pages do not exist: their links are fragments, so they stay on this
+// page instead of opening an address the site does not serve.
 const sections: DocsSection[] = [
   {
     title: "Start here",
     items: [
       { title: "Overview", href: "/docs" },
-      { title: "Getting started", href: "/docs/getting-started" },
+      { title: "Getting started", href: "#getting-started" },
     ],
   },
   {
     title: "How it works",
     items: [
-      { title: "System overview", href: "/docs/system-overview" },
-      { title: "Rules and severities", href: "/docs/rules" },
-      { title: "Operations", href: "/docs/operations" },
+      { title: "System overview", href: "#system-overview" },
+      { title: "Rules and severities", href: "#rules" },
+      { title: "Operations", href: "#operations" },
     ],
   },
   {
     title: "Reference",
     items: [
-      { title: "Configuration", href: "/docs/configuration" },
-      { title: "CLI", href: "/docs/cli" },
+      { title: "Configuration", href: "#configuration" },
+      { title: "CLI", href: "#cli" },
     ],
   },
 ];
@@ -111,7 +113,7 @@ export function DocsLayoutDemo() {
             sections={sections}
             activeHref="/docs"
             onThisPage={onThisPage}
-            next={{ title: "Getting started", href: "/docs/getting-started" }}
+            next={{ title: "Getting started", href: "#getting-started" }}
             theme={theme}
             palette="technical"
           >
