@@ -1,4 +1,4 @@
-import { expect as baseExpect, test as base, type Browser, type BrowserContext, type Page } from "@playwright/test";
+import { expect as baseExpect, test as base, type Browser, type BrowserContext, type Locator, type Page } from "@playwright/test";
 
 export { expect, type Browser, type Page, type Locator, type BrowserContext } from "@playwright/test";
 
@@ -90,6 +90,30 @@ export async function waitForStable<T>(read: () => Promise<T>, { every = 100, ti
       { intervals: [every], timeout },
     )
     .toBe(true);
+}
+
+/**
+ * Waits until every finite CSS transition and animation on `target` has played to its end (none
+ * is forced to finish), then returns, so the computed style read next is the settled value.
+ * A transition's clock only starts once the compositor draws its first frame: on the first
+ * Chromium launch of a fresh CI runner, with the software GL stack cold, that took about 2.8s
+ * for a 160ms opacity change, so a fixed-window poll read the start value. Infinite animations
+ * are ignored; a transition replaced mid-flight is waited out by its successor.
+ */
+export async function transitionsDone(target: Locator, { timeout = 10_000 } = {}) {
+  const settled = await target.evaluate(async (el, deadline) => {
+    const end = performance.now() + deadline;
+    for (;;) {
+      const live = el
+        .getAnimations()
+        .filter((a) => a.playState !== "finished" && a.effect?.getComputedTiming().endTime !== Infinity);
+      if (!live.length) return true;
+      if (performance.now() > end) return false;
+      const left = end - performance.now();
+      await Promise.race([Promise.allSettled(live.map((a) => a.finished)), new Promise((r) => setTimeout(r, left))]);
+    }
+  }, timeout);
+  baseExpect(settled, `transitions on ${target} still running after ${timeout}ms`).toBe(true);
 }
 
 /**
