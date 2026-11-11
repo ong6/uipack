@@ -1,7 +1,7 @@
 # uipack
 
 Jun Xiong's own design system: the diagrams, decks, web pages, motion and 3D he uses on his sites
-(the uipack docs site, [junxiong.dev](https://junxiong.dev), [notes.junxiong.dev](https://notes.junxiong.dev))
+(the [uipack docs site](https://ui.junxiong.dev), [junxiong.dev](https://junxiong.dev), [notes.junxiong.dev](https://notes.junxiong.dev))
 and in work presentations, so they look consistent and explain things the way he likes. It is
 built for agents to read and build from, not as a public product: React and SVG components plus
 the rules for writing and laying them out, all in Markdown that ships with the package.
@@ -22,8 +22,9 @@ the rules for writing and laying them out, all in Markdown that ships with the p
 | Look up a component's props | The entry's doc in the table below |
 | Change uipack itself | [AGENTS.md](AGENTS.md) |
 | See every doc with a one-line summary | [llms.txt](llms.txt) (generated) or [docs/README.md](docs/README.md) |
+| Browse the docs with their live demos | [ui.junxiong.dev](https://ui.junxiong.dev) (Docs), [ui.junxiong.dev/gallery](https://ui.junxiong.dev/gallery) (Assets) |
 
-Inside a site, read the same files from `node_modules/uipack/`. They match the installed code.
+Inside a site, read the same files from `node_modules/uipack/`. They match the installed code. The [docs site](https://ui.junxiong.dev) renders `main` and serves each file as Markdown at its repo path ([`/llms.txt`](https://ui.junxiong.dev/llms.txt), [`/docs/agents/README.md`](https://ui.junxiong.dev/docs/agents/README.md)), for an agent without a checkout.
 
 ## Install
 
@@ -101,6 +102,8 @@ site, its spec and the uipack commit it pins.
 
 ```sh
 npm run dev            # the docs site: every page renders a Markdown file from docs/
+npm run build:site     # the static docs site Vercel deploys to ui.junxiong.dev (playground/dist)
+npm run check:site     # crawl that build with vercel.json's headers: every route, link and request
 npm run build          # writes dist/ (gitignored); tests and the typecheck read it
 npm run verify         # format check, typecheck, lint, unit tests for what changed
 npm run test:affected -- --e2e  # browser tests for what changed; CI runs everything

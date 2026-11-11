@@ -11,9 +11,8 @@ import { LayerStack, SpanChart, enhanceLayerStack, enhanceSpanChart } from "../s
 import { aiStack, aiStackDiagram } from "../examples/aiStack";
 import { chartEntries, figureEntries } from "./catalog";
 import { figureSections } from "./figures";
+import { ASSET_PREVIEW_BASE } from "./docs-links";
 import "../src/charts/charts.css";
-
-declare const __UIPACK_ROOT__: string;
 
 // Client-rendered here; the same markup works as static HTML. The playground
 // opts into the optional enhancement (repeat activation and Escape clear).
@@ -98,7 +97,7 @@ function ChartFrame({ children }: { children: React.ReactNode }) {
 export function AssetsDemo() {
   return (
     <section data-route="assets">
-      <AssetBrowser manifest={manifest as never} base={`/@fs${__UIPACK_ROOT__}/`} />
+      <AssetBrowser manifest={manifest as never} base={ASSET_PREVIEW_BASE} />
     </section>
   );
 }

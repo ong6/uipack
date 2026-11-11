@@ -11,6 +11,15 @@ release is cut and how a site moves to it.
 
 - The figure check is a package bin: `npx uipack-figure-check <url> [--views 1440,390]`, the
   same script as `node node_modules/uipack/bin/uipack-figure-check.mjs`, which still works.
+- The docs site is live at [ui.junxiong.dev](https://ui.junxiong.dev), deployed from `main`
+  (`vercel.json`, `npm run build:site`). It serves every docs file as Markdown at its repo path
+  and an `llms.txt` with absolute links, so an agent without a checkout can read the docs.
+  `package.json` `homepage` points there.
+
+### Fixed
+
+- The Assets gallery's and the Icons & marks page's previews load in a built site (they loaded
+  only from the dev server's `/@fs` path).
 
 ## [0.4.0] - 2026-11-10
 

@@ -31,6 +31,41 @@ jobs:
         run: node scripts/load-entries.mjs
       - name: Types resolve under node16 and bundler (attw, esm-only profile)
         run: npm run attw
+  site:
+    # The static docs site Vercel deploys from main (vercel.json): build it and crawl it with the
+    # same headers, so a broken deploy, a CSP violation or a dead link fails the pull request.
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        theme: [light, dark]
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - name: Build the docs site
+        run: npm run build:site
+      - name: Read installed Playwright version
+        id: playwright
+        run: node -p "'version=' + require('./node_modules/@playwright/test/package.json').version" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        id: browsers
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-chromium-${{ steps.playwright.outputs.version }}
+      - name: Install browser and system dependencies
+        if: steps.browsers.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps chromium
+      - name: Install system dependencies for cached browser
+        if: steps.browsers.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium
+      - name: Install Mesa for Chromium
+        run: sudo apt-get install -y xvfb libgl1-mesa-dri libegl-mesa0
+      - name: Crawl every route with vercel.json's headers
+        run: xvfb-run --auto-servernum npm run check:site -- --theme ${{ matrix.theme }}
+        env: { CI: "1" }
   e2e:
     runs-on: ubuntu-latest
     timeout-minutes: 15
