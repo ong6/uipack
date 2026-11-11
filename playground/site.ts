@@ -4,6 +4,7 @@
 import { buildCrawlFiles } from "../src/web/crawl";
 import { documentTitle, pageDefs } from "./catalog";
 import { GALLERY_INTRO, GALLERY_PATH } from "./gallery-index";
+import { LANDING_DESCRIPTION, LANDING_PATH, LANDING_TITLE } from "./landing-index";
 import { routes } from "./routes";
 
 /** Where the docs site is deployed. A build writes canonicals, sitemap.xml and llms.txt for it (`UIPACK_SITE_ORIGIN` overrides). */
@@ -22,9 +23,16 @@ export interface SiteRoute {
   readonly noindex: boolean;
 }
 
-/** Every route the site answers, once: each page's path, the Assets gallery, then every alias. */
+/** Every route the site answers, once: the landing page, each page's path, the Assets gallery, then every alias. */
 export function siteRoutes(): SiteRoute[] {
   const out = new Map<string, SiteRoute>();
+  out.set(LANDING_PATH, {
+    path: LANDING_PATH,
+    title: LANDING_TITLE,
+    description: LANDING_DESCRIPTION,
+    canonical: LANDING_PATH,
+    noindex: false,
+  });
   for (const p of pageDefs) {
     if (out.has(p.path)) continue;
     // Pages sharing a path (the decks) differ by query: the path's file carries the default one.

@@ -25,6 +25,7 @@ import { tidyChrome, tidySections } from "../playground/tidyFacts";
 import { figureRows } from "../playground/figure-rows";
 import { LAYER_SECTION_PARTS } from "../examples/articleSectionParts";
 import { docsManifest, docsPages, docsSections, siteRegistry, type DocsPageEntry } from "../playground/docs-manifest";
+import { installLine, tarballUrl as releaseTarball } from "../playground/release";
 import { objectDirections, objectLooks, objectVariants } from "../src/objects/variants";
 import { frontmatter } from "./check-spec";
 import { COMPONENTS, LAYOUT_ARCHETYPES, PAGE_TYPES } from "./site-model";
@@ -272,12 +273,11 @@ export function diagramFamily() {
 /** The latest release: package.json's version, which a release tags as `v<version>` on main (docs/releases.md). */
 export const releaseVersion = (): string => JSON.parse(readFileSync(join(root, "package.json"), "utf8")).version;
 
-/** The release tarball the release workflow attaches to tag `v<version>` (.github/workflows/release.yml). */
-export const tarballUrl = (version = releaseVersion()) =>
-  `https://github.com/ong6/uipack/releases/download/v${version}/uipack-${version}.tgz`;
+/** The release tarball for a version (playground/release.ts, which the landing page reads too). */
+export const tarballUrl = (version = releaseVersion()) => releaseTarball(version);
 
 /** The install line a site runs for the latest release. */
-export const installCommand = (version = releaseVersion()) => ["```sh", `npm install ${tarballUrl(version)}`, "```"].join("\n");
+export const installCommand = (version = releaseVersion()) => ["```sh", installLine(version), "```"].join("\n");
 
 const semver = (v: string) => /^v?(\d+)\.(\d+)\.(\d+)$/.exec(v)?.slice(1).map(Number) ?? null;
 

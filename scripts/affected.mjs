@@ -105,9 +105,13 @@ const AREAS = [
     /^playground\/(rulesDemos|foundations)|^docs\/(system|recipes|examples)\//,
     ["foundations", "nav", "page-audit", "showcase-content"],
   ],
+  // The landing page (/): its module, words, figures and previews, and the release line it shows.
+  [/^playground\/(LandingShowcase|landing|release)/, ["landing", "tier1"]],
+  // The live-preview stage the landing page and the Assets tab share.
+  [/^playground\/preview-stage/, ["landing", "assets-gallery"]],
   [
     /^playground\/(ShowcaseShell|showcase\.css|catalog|figure-rows|routes|nav|main|index\.html|site-palette|site-settings|search-index)/,
-    SHELL,
+    [...SHELL, "landing"],
   ],
   // The Assets tab: its page, its data and the registries it draws from.
   [

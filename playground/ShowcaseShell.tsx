@@ -30,11 +30,13 @@ import {
   type DocsSection,
   type DocsTocItem,
 } from "../src/docs";
+import { DocsSearchButton, DocsSearchDialog } from "../src/docs/DocsSearch";
 import "../src/docs/docs.css";
 import { editUrl } from "./docs-manifest";
 import { galleryCategoryForPage, galleryHref } from "./gallery-index";
 import { SEARCH_INDEX_PATH } from "./search-index-path";
 import { markerSetting, NAV_MEMORY_KEY, SectionIcon, sectionHue } from "./site-settings";
+import { LANDING_TITLE } from "./landing-index";
 
 type ShowcaseTheme = {
   theme: "light" | "dark";
@@ -184,12 +186,21 @@ function useSiteSearch(theme: string): DocsSearchOptions {
  * as Markdown" (the page's file, served raw) and "Edit on GitHub". A page still rendered by its showcase module gets the h1 and intro from the manifest;
  * a Markdown page's own `#` is its h1. `active="not-found"` is the page for an unknown address.
  */
-export function ShowcaseShell({ active, children }: { active: LibraryPage | "not-found" | "gallery"; children: ReactNode }) {
+export function ShowcaseShell({
+  active,
+  children,
+}: {
+  active: LibraryPage | "not-found" | "gallery" | "landing";
+  children: ReactNode;
+}) {
   const { theme, flip, note, toc } = useShowcaseTheme();
-  // The Assets tab (/gallery) is a mode of this shell: the same header, no docs sidebar.
+  // The Assets tab (/gallery) and the landing page (/) are modes of this shell: the same header, no docs sidebar.
   const gallery = active === "gallery";
+  const landing = active === "landing";
+  // The Docs tab opens the manifest's first page.
+  const docsHref = pageHref(pageDefs[0], theme);
   // A page with sub-views (a deck, say) resolves to the entry its query names.
-  const notFound = active === "not-found" || gallery;
+  const notFound = active === "not-found" || gallery || landing;
   const page = notFound ? notFoundPage : resolvePage(active, location.search);
   const markdown = !notFound;
   // The visual style the page's content uses, named in the context line.
@@ -197,12 +208,28 @@ export function ShowcaseShell({ active, children }: { active: LibraryPage | "not
   const missing = notFound ? null : unknownSubView(page, location.search);
   const [menuOpen, setMenuOpen] = useState(false);
   const search = useSiteSearch(theme);
+  // The landing page's own search dialog (a docs page's is DocsLayout's): open from its header or ⌘K.
+  const [searching, setSearching] = useState(false);
+  useEffect(() => {
+    if (!landing) return;
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && !e.altKey && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setSearching(true);
+      }
+    };
+    addEventListener("keydown", onKey);
+    return () => removeEventListener("keydown", onKey);
+  }, [landing]);
   // The marker's shape for this load: the site's, or ?marker= (kept for the visit).
   const [marker] = useState(() => markerSetting());
   // Every page names itself in the tab, /web too: the sample page it hosts publishes the rest of its
   // head (description, canonical, Open Graph, JSON-LD), but the tab says which playground page it is.
   const hostsPage = "hostsPage" in page && page.hostsPage;
-  useEffect(() => setDocumentTitle(gallery ? "Assets · uipack" : documentTitle(page)), [page, gallery]);
+  useEffect(
+    () => setDocumentTitle(gallery ? "Assets · uipack" : landing ? LANDING_TITLE : documentTitle(page)),
+    [page, gallery, landing],
+  );
   // Compact navigation (the header's menu button opens the sidebar as a drawer) below 900px. A page
   // hosting a whole sample site (/web) keeps it below 1440px too, so the sample gets a desktop width
   // (its own layout switches at a 1024px container) on a laptop.
@@ -215,7 +242,7 @@ export function ShowcaseShell({ active, children }: { active: LibraryPage | "not
   const header = (
     <header className="showcase-header">
       <div className="showcase-header__bar">
-        {!gallery && (
+        {!gallery && !landing && (
           <button
             className="showcase-menu-button"
             type="button"
@@ -234,7 +261,7 @@ export function ShowcaseShell({ active, children }: { active: LibraryPage | "not
         </a>
         {/* The two top-level views: the docs (text first, with samples in the pages) and the Assets gallery. */}
         <nav className="showcase-tabs" aria-label="Views">
-          <a href={`/?theme=${theme}`} aria-current={gallery ? undefined : "true"}>
+          <a href={docsHref} aria-current={gallery || landing ? undefined : "true"}>
             Docs
           </a>
           <a href={galleryHref(theme)} aria-current={gallery ? "true" : undefined}>
@@ -242,6 +269,8 @@ export function ShowcaseShell({ active, children }: { active: LibraryPage | "not
           </a>
         </nav>
         <div className="showcase-header__actions">
+          {/* Off the docs pages (no sidebar), search sits in the header; ⌘K opens it on every page. */}
+          {landing && <DocsSearchButton placeholder="Search docs" onOpen={() => setSearching(true)} />}
           <button className="theme" type="button" aria-label={`${theme === "dark" ? "light" : "dark"} mode`} onClick={flip}>
             <svg className="theme__icon" viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" focusable="false">
               {theme === "dark" ? (
@@ -276,6 +305,25 @@ export function ShowcaseShell({ active, children }: { active: LibraryPage | "not
       )}
     </>
   );
+
+  // The landing page brings its own <main> and footer (LandingShowcase.tsx), full-bleed, and keeps
+  // the docs' search: the header's box and ⌘K open the same dialog over the same index.
+  if (landing)
+    return (
+      <div className="showcase-frame" data-theme={theme} data-style="technical" data-ui-style="technical" data-mode="landing">
+        <a className="showcase-skip" href="#showcase-main">
+          Skip to content
+        </a>
+        {header}
+        {children}
+        <DocsSearchDialog
+          open={searching}
+          onClose={() => setSearching(false)}
+          options={search}
+          sections={sidebarSections(theme).map((s) => ({ id: s.id ?? s.title, title: s.title, icon: s.icon, hue: s.hue }))}
+        />
+      </div>
+    );
 
   if (gallery)
     return (

@@ -14,8 +14,9 @@ export const pageModules = Object.fromEntries(pageDefs.map((p) => [p.id, "Markdo
 
 /**
  * Older or shorthand paths that open a page: /slides (3D animations), /diagrams and /drill (the
- * diagram catalogue, which used to be "/"), /start (the home page), the Foundations guides folded
- * into other pages, /index.html.
+ * diagram catalogue, which used to be "/"), /start ("What UiPack is", which was "/" until the
+ * landing page took it), the Foundations guides folded into other pages. "/" and /index.html are
+ * the landing page, outside the manifest (main.tsx).
  */
 const aliases: Record<string, LibraryPage> = {
   "/slides": "animations",
@@ -24,7 +25,6 @@ const aliases: Record<string, LibraryPage> = {
   "/start": "start",
   "/foundations/mix": "foundations",
   "/foundations/recipes": "recipes",
-  "/index.html": "start",
 };
 
 /** Path to page id. Pages that share a path (the decks) map to the first; the shell resolves the query. */

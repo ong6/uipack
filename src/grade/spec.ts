@@ -172,8 +172,9 @@ export const UIPACK_SPEC: Partial<SiteSpec> = {
   // Every page's h1 is in main: a Markdown docs page's own, a module page's title block, the Assets gallery's head.
   ready: { selector: "main h1", gone: ".showcase-loading", settleMs: 400 },
   // 3D scenes paint to a canvas; the ?host=notes stand-in copies another site's faces on purpose;
-  // the Assets gallery's previews are inert, scaled-down pictures of parts graded on their own pages.
-  ignore: ["canvas", "[data-host='notes']", ".gallery-preview"],
+  // the Assets gallery's previews and the landing page's scaled part previews are inert, scaled-down
+  // pictures of parts graded on their own pages.
+  ignore: ["canvas", "[data-host='notes']", ".gallery-preview", ".landing-preview"],
 };
 
 type Plain = Record<string, unknown>;

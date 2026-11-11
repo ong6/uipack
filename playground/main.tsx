@@ -16,6 +16,7 @@ import { pageModules, routePath, routes } from "./routes";
 import { figureRows } from "./figure-rows";
 import { ShowcaseShell, ShowcaseThemeProvider, useShowcaseTheme } from "./ShowcaseShell";
 import { GALLERY_PATH } from "./gallery-index";
+import { LANDING_MODULE, LANDING_PATH, LANDING_SECTIONS } from "./landing-index";
 
 // Every page module is its own chunk, with its own CSS. The shell (header, h1, intro) is in this
 // entry and renders at once; the page fills in below it when its chunk arrives. In a build,
@@ -109,27 +110,43 @@ function OpenHashTarget() {
   return null;
 }
 
-// The diagram catalogue used to be "/": an old link to one of its sections moves to the catalogue's page.
-if (routePath(location.pathname) === "/" && figureRows.some(([id]) => `#${id}` === location.hash))
-  history.replaceState(null, "", `/components/diagrams${location.search}${location.hash}`);
+// "/" was the diagram catalogue, then the "What UiPack is" page, before the landing page: an old
+// link to one of their sections moves to that page.
+if (routePath(location.pathname) === LANDING_PATH && location.hash.length > 1) {
+  const id = location.hash.slice(1);
+  if (figureRows.some(([row]) => row === id))
+    history.replaceState(null, "", `/components/diagrams${location.search}${location.hash}`);
+  else if (!(LANDING_SECTIONS as readonly string[]).includes(id))
+    history.replaceState(null, "", `${pageDefs.find((p) => p.id === "start")!.path}${location.search}${location.hash}`);
+}
 
 const path = routePath(location.pathname);
 const active = routes.get(path);
+// The landing page is a mode of the shell outside the docs manifest, like the Assets tab.
+const landing = !active && (path === LANDING_PATH || path === "/index.html");
 // The deck's printable page and its speaker window are documents of their own, without the shell:
 // DeckShowcase renders them; every other /deck address is the deck's docs page.
 const standalone = path === "/deck" && (params.get("view") === "print" || params.get("presenter") === "1");
 // The Assets tab is a mode of the shell outside the docs manifest: GalleryShowcase renders it.
 const gallery = path === GALLERY_PATH;
-const module = standalone ? "DeckShowcase" : gallery ? "GalleryShowcase" : active && pageModules[active];
+const module = standalone
+  ? "DeckShowcase"
+  : gallery
+    ? "GalleryShowcase"
+    : landing
+      ? LANDING_MODULE
+      : active && pageModules[active];
 const load = module && pageLoaders[`./${module}.tsx`];
-if ((active || gallery) && !load) throw new Error(`No playground/${module}.tsx for page "${active}"`);
+if ((active || gallery || landing) && !load) throw new Error(`No playground/${module}.tsx for page "${active}"`);
 const Page = load ? lazy(load) : NotFound;
 // While the page's chunk loads, the shell stays and a status line under the intro says so.
 const loading = gallery
   ? "Loading the assets"
-  : active
-    ? `Loading ${pageHeading(resolvePage(active, location.search))}`
-    : "Loading";
+  : landing
+    ? "Loading UiPack"
+    : active
+      ? `Loading ${pageHeading(resolvePage(active, location.search))}`
+      : "Loading";
 const page = (
   <Suspense
     fallback={
@@ -146,7 +163,11 @@ const page = (
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ShowcaseThemeProvider>
-      {standalone ? page : <ShowcaseShell active={gallery ? "gallery" : (active ?? "not-found")}>{page}</ShowcaseShell>}
+      {standalone ? (
+        page
+      ) : (
+        <ShowcaseShell active={gallery ? "gallery" : landing ? "landing" : (active ?? "not-found")}>{page}</ShowcaseShell>
+      )}
     </ShowcaseThemeProvider>
   </StrictMode>,
 );

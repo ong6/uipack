@@ -11,7 +11,7 @@ test("every page is reachable from the sidebar with the right current marker", a
   test.setTimeout(180_000); // visits every page, including the 3D and web ones, in dev mode
   // 1440: /web, which hosts a whole sample site, keeps the sidebar only from there (narrower, the menu).
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto("/?theme=dark");
+  await page.goto("/what-uipack-is?theme=dark");
   // The sidebar is the manifest: its five sections in order, each page under its section.
   await expect(sidebar(page).locator(".uipack-docs__nav-label")).toHaveText(SECTIONS.map((s) => s.label));
   for (const { section, label, path } of ALL) {
@@ -46,7 +46,7 @@ test("previous and next follow the sidebar's order", async ({ page }) => {
     "/foundations/writing/general?theme=light",
   );
   // The first page has no previous link.
-  await page.goto("/");
+  await page.goto("/what-uipack-is");
   await expect(
     page.getByRole("navigation", { name: "Previous and next documentation pages" }).locator('[rel="prev"]'),
   ).toHaveCount(0);
@@ -95,12 +95,16 @@ test("aliases /diagrams, /drill and /slides open their pages", async ({ page }) 
   await page.goto("/slides");
   await expectPageTitle(page, "3D animations", "/animations");
   await expect(currentLink(page)).toHaveText("3D animations");
-  // "/" is the home page now; an old link into the catalogue's sections moves to its page.
+  // "/" is the landing page now; an old link into the catalogue's sections moves to its page, and
+  // one into the "What UiPack is" page (which was "/" before the landing page) moves to that page.
   await page.goto("/#pipeline");
   await expect(page).toHaveURL(/\/components\/diagrams#pipeline$/);
   await expect(page.locator('section[data-section="pipeline"]')).toBeVisible();
+  await page.goto("/#install");
+  await expect(page).toHaveURL(/\/what-uipack-is#install$/);
+  await expectPageTitle(page, "What UiPack is", "/what-uipack-is");
   await page.goto("/start");
-  await expectPageTitle(page, "What UiPack is", "/");
+  await expectPageTitle(page, "What UiPack is", "/what-uipack-is");
 });
 
 test("diagrams page has its named sections and charts moved out", async ({ page }) => {

@@ -92,7 +92,7 @@ export const docsManifest = [
       {
         id: "start",
         label: "What UiPack is",
-        path: "/",
+        path: "/what-uipack-is",
         file: "docs/README.md",
         intro:
           "What UiPack is, who it is for (people and agents), how its layers fit, where to start and how to install it, then every page of the docs.",

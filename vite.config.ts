@@ -9,6 +9,7 @@ import { pageModules, routes } from "./playground/routes";
 import { siteFiles } from "./playground/docs-links";
 import { routeHtml, siteCrawlFiles, siteRoutes, SITE_ORIGIN } from "./playground/site";
 import { SEARCH_INDEX_PATH, siteSearchIndex } from "./playground/search-index";
+import { LANDING_MODULE, LANDING_PATH } from "./playground/landing-index";
 
 const CRAWL_TYPES: Record<string, string> = {
   "robots.txt": "text/plain; charset=utf-8",
@@ -116,7 +117,7 @@ function searchIndex(): Plugin {
  * build this adds an inline script to index.html that, for the path being opened, adds
  * `modulepreload` links for the page's chunk and its imports and `preload` links for its CSS
  * (not stylesheets: the lazy import still applies them, after they load, so nothing shows
- * unstyled). The route table is playground/routes.ts.
+ * unstyled). The route table is playground/routes.ts, plus the landing page at "/".
  */
 function routePreloads(): Plugin {
   let base = "/";
@@ -141,14 +142,21 @@ function routePreloads(): Plugin {
         const files: string[] = [];
         const modules: Record<string, number[]> = {};
         const index = (f: string) => (files.includes(f) ? files : files.push(f) && files).indexOf(f);
-        for (const name of new Set(Object.values(pageModules))) {
-          const chunk = chunks.find((c) => c.isDynamicEntry && c.facadeModuleId?.endsWith(`/playground/${name}.tsx`));
+        for (const name of new Set([...Object.values(pageModules), LANDING_MODULE])) {
+          // A chunk that also carries modules other chunks import has no facade id; find it by its modules.
+          const file = `/playground/${name}.tsx`;
+          const chunk = chunks.find(
+            (c) => c.isDynamicEntry && (c.facadeModuleId?.endsWith(file) ?? c.moduleIds.some((id) => id.endsWith(file))),
+          );
           if (!chunk) throw new Error(`route preloads: no chunk for playground/${name}.tsx`);
           const own = [...closure(chunk)].filter((f) => !entry.has(f)).map((f) => bundle[f] as OutputChunk);
           const css = new Set(own.flatMap((c) => [...(c.viteMetadata?.importedCss ?? [])]));
           modules[name] = [...own.map((c) => c.fileName), ...css].map(index);
         }
-        const paths = Object.fromEntries([...routes].map(([path, id]) => [path, pageModules[id]]));
+        const paths = {
+          ...Object.fromEntries([...routes].map(([path, id]) => [path, pageModules[id]])),
+          [LANDING_PATH]: LANDING_MODULE,
+        };
         // The data is a JSON block, not script, so the script itself never changes and the site's
         // Content-Security-Policy allows it by its hash (vercel.json; checked by siteHtml below).
         const data = JSON.stringify({ a: files.map((f) => base + f), m: modules, r: paths }).replace(/</g, "\\u003c");

@@ -2,7 +2,7 @@ import { expect, test } from "./fixtures";
 
 test("library pages share navigation and preserve theme across routes and reloads", async ({ page }) => {
   test.setTimeout(90_000);
-  await page.goto("/?theme=dark");
+  await page.goto("/what-uipack-is?theme=dark");
   const header = page.locator(".showcase-header");
   const width = await header.evaluate((el) => el.getBoundingClientRect().width);
   const sidebar = page.getByRole("navigation", { name: "Library", exact: true });
