@@ -1,4 +1,4 @@
-import { expect, test } from "./fixtures";
+import { expect, test, transitionsDone } from "./fixtures";
 
 // Hover highlighting is CSS on data-state; check the computed opacity, not the attribute alone.
 test.describe("hover", () => {
@@ -15,9 +15,12 @@ test.describe("hover", () => {
     await expect(page.locator("figure", { hasText: "Every part" })).toHaveAttribute("data-hover-flow", "alpha");
     await expect(beta).toHaveAttribute("data-state", "dim");
     await expect(conn).toHaveAttribute("data-state", "hit");
-    // 160ms transition; poll rather than sleep, CI WebKit is slow to settle
-    await expect.poll(() => beta.evaluate((el) => Number(getComputedStyle(el).opacity)), { timeout: 2000 }).toBeCloseTo(0.35, 1);
-    await expect.poll(() => conn.evaluate((el) => Number(getComputedStyle(el).opacity)), { timeout: 2000 }).toBe(1);
+    // Read the 160ms transitions once they have played out, not inside a fixed window: on a cold
+    // CI runner the first one waited ~2.8s for its first composited frame (transitionsDone).
+    await transitionsDone(beta);
+    await transitionsDone(conn);
+    expect(Number(await beta.evaluate((el) => getComputedStyle(el).opacity))).toBeCloseTo(0.35, 1);
+    expect(Number(await conn.evaluate((el) => getComputedStyle(el).opacity))).toBe(1);
     const accent = await page
       .locator("figure.uipack")
       .first()
@@ -30,11 +33,12 @@ test.describe("hover", () => {
       d.remove();
       return v;
     }, accent);
-    // Stroke has its own transition; opacity settling does not mean colour has settled.
-    await expect.poll(() => conn.evaluate((el) => getComputedStyle(el).stroke), { timeout: 2000 }).toBe(expectedStroke);
+    // The stroke transition settled with the opacity one above (transitionsDone waits for all).
+    expect(await conn.evaluate((el) => getComputedStyle(el).stroke)).toBe(expectedStroke);
     await page.mouse.move(0, 0);
     await expect(beta).not.toHaveAttribute("data-state", /.+/);
-    await expect.poll(() => beta.evaluate((el) => Number(getComputedStyle(el).opacity)), { timeout: 2000 }).toBe(1);
+    await transitionsDone(beta);
+    expect(Number(await beta.evaluate((el) => getComputedStyle(el).opacity))).toBe(1);
   });
 
   test("hovering a legend item filters by kind", async ({ page }) => {
@@ -45,9 +49,8 @@ test.describe("hover", () => {
     await expect(page.locator("#e2e-conn")).toHaveAttribute("data-state", "dim");
     await expect(page.locator("#e2e-packet-change")).toHaveAttribute("data-state", "hit");
     // The dim eases in; wait for it to land.
-    await expect
-      .poll(async () => Number(await page.locator("#e2e-conn").evaluate((el) => getComputedStyle(el).opacity)))
-      .toBeCloseTo(0.35, 1);
+    await transitionsDone(page.locator("#e2e-conn"));
+    expect(Number(await page.locator("#e2e-conn").evaluate((el) => getComputedStyle(el).opacity))).toBeCloseTo(0.35, 1);
     expect(Number(await page.locator("#e2e-node-alpha").evaluate((el) => getComputedStyle(el).opacity))).toBe(1); // nodes have no kind
   });
 
