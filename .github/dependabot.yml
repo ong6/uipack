@@ -7,18 +7,16 @@ updates:
     directory: /
     schedule:
       interval: monthly
+    # Leave a range alone while the new version satisfies it and raise it only when it does not, so
+    # a peer range (three's `^0.187.0`) is never narrowed to the version just installed. A three
+    # minor still changes what every site installs: review its migration notes and the 3D e2e.
+    versioning-strategy: increase-if-necessary
     groups:
       npm-minor-patch:
         update-types: [minor, patch]
     ignore:
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
-      # three is a peer dependency (`^0.186.0`); a 0.x minor is breaking under caret, so a bump
-      # changes what every site must install. Take it by hand with the peer range and 3D e2e.
-      - dependency-name: "three"
-        update-types: ["version-update:semver-minor"]
-      - dependency-name: "@types/three"
-        update-types: ["version-update:semver-minor"]
   - package-ecosystem: github-actions
     directory: /
     schedule:
