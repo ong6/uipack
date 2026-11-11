@@ -7,19 +7,22 @@ release is cut and how a site moves to it.
 
 ## [Unreleased]
 
-## [0.4.1] - 2026-11-11
+## [0.5.0] - 2026-11-11
 
-three.js 0.187 for the 3D entries (`uipack/objects`, `uipack/slides`); no component, prop or style
-changed.
+three.js 0.187 for the 3D entries (`uipack/objects`, `uipack/slides`). No component, prop or style
+changed, but some 3D scenes look slightly different, so this is a minor release
+([version numbers](docs/releases.md#version-numbers)).
 
 ### Changed
 
-- **three `^0.187.0`.** The optional peer range moves from `^0.186.0` to `^0.187.0` (dev copies
-  three and `@types/three` 0.187.0). Of the r187 migration notes, the one uipack's scenes touch is
-  the PMREM rewrite (cube render targets instead of the CubeUV atlas), which `uipack/objects`
-  uses for its studio environment: metal and glossy reflections in the Studio, Realistic and
-  Kinetic looks render slightly differently (largest on the Inference study rack and Hot swap tray
-  in light theme); toon looks and `uipack/slides` are pixel-identical.
+- **Breaking: three `^0.187.0`.** The optional peer range moves from `^0.186.0` to `^0.187.0` (dev
+  copies three and `@types/three` 0.187.0). A site must move its own three in the same change.
+- **3D reflections look slightly different.** Of the r187 migration notes, the one uipack's scenes
+  touch is the PMREM rewrite (cube render targets instead of the CubeUV atlas, three #34585), which
+  `uipack/objects` uses for its studio environment: metal and glossy reflections in the Studio,
+  Realistic and Kinetic looks render slightly differently (largest on the Inference study rack and
+  the Hot swap tray in light theme). Toon looks and `uipack/slides` are pixel-identical. Accepted
+  by the owner, 2026-11-11.
 - Dependabot keeps peer ranges (`versioning-strategy: increase-if-necessary`) and no longer skips
   three minors.
 
@@ -40,8 +43,10 @@ changed.
 ### Upgrading
 
 - Move the site's `three` to the same minor in the same change:
-  `npm install https://github.com/ong6/uipack/releases/download/v0.4.1/uipack-0.4.1.tgz three@^0.187.0`.
+  `npm install https://github.com/ong6/uipack/releases/download/v0.5.0/uipack-0.5.0.tgz three@^0.187.0`.
   A site still on three 0.186 gets a peer-range warning from npm.
+- Compare the site's 3D scenes before and after: expect the reflection shift above on metal and
+  glossy faces and nothing else.
 
 ## [0.4.0] - 2026-11-10
 
