@@ -1,6 +1,6 @@
 {
   "name": "uipack",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "React and SVG figure components for engineering write-ups: framed figures, lanes, nodes, connectors, animated packets.",
   "type": "module",
   "types": "./dist/index.d.ts",
@@ -141,7 +141,7 @@
     "react-dom": ">=18",
     "react-markdown": "^10.1.0",
     "remark-gfm": "^4.0.1",
-    "three": "^0.186.0"
+    "three": "^0.187.0"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.5",
@@ -151,7 +151,7 @@
     "@types/node": "^22.20.5",
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
-    "@types/three": "^0.186.0",
+    "@types/three": "^0.187.0",
     "@vitejs/plugin-react": "^4.3.4",
     "@vitest/coverage-v8": "^5.1.0",
     "esbuild": "^0.28.2",
@@ -164,7 +164,7 @@
     "react-dom": "^18.3.1",
     "react-markdown": "^10.1.0",
     "remark-gfm": "^4.0.1",
-    "three": "^0.186.1",
+    "three": "^0.187.0",
     "tsup": "^8.4.0",
     "tsx": "^4.23.15",
     "typescript": "^5.7.3",
