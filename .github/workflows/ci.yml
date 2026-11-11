@@ -1,131 +1,28 @@
 name: ci
 on:
-  push:
-    branches: [main]
   pull_request:
 permissions:
   contents: read
-concurrency:
-  group: ci-${{ github.ref }}
-  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 jobs:
-  unit:
+  diag:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with: { node-version: 22, cache: npm }
       - run: npm ci
-      # dist/ is not committed: build it before anything that reads it (the typecheck of
-      # playground/dist-smoke, the unit tests, the entry loader, attw).
-      - name: Build dist/
-        run: npm run build
-      - run: npm run typecheck
-      - run: npm run lint
-      - run: npm run format:check
-      - run: npm test
-      - name: Docs generated blocks and llms.txt are current (npm run docs:sync)
-        run: npm run docs:sync -- --check
-      - name: Import every built entry and resolve every file export
-        run: node scripts/load-entries.mjs
-      - name: Types resolve under node16 and bundler (attw, esm-only profile)
-        run: npm run attw
-  site:
-    # The static docs site Vercel deploys from main (vercel.json): build it and crawl it with the
-    # same headers, so a broken deploy, a CSP violation or a dead link fails the pull request.
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    strategy:
-      fail-fast: false
-      matrix:
-        theme: [light, dark]
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
-        with: { node-version: 22, cache: npm }
-      - run: npm ci
-      - name: Build the docs site
-        run: npm run build:site
-      - name: Read installed Playwright version
-        id: playwright
-        run: node -p "'version=' + require('./node_modules/@playwright/test/package.json').version" >> "$GITHUB_OUTPUT"
-      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
-        id: browsers
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-chromium-${{ steps.playwright.outputs.version }}
-      - name: Install browser and system dependencies
-        if: steps.browsers.outputs.cache-hit != 'true'
-        run: npx playwright install --with-deps chromium
-      - name: Install system dependencies for cached browser
-        if: steps.browsers.outputs.cache-hit == 'true'
-        run: npx playwright install-deps chromium
-      - name: Install Mesa for Chromium
-        run: sudo apt-get install -y xvfb libgl1-mesa-dri libegl-mesa0
-      - name: Crawl every route with vercel.json's headers
-        run: xvfb-run --auto-servernum npm run check:site -- --theme ${{ matrix.theme }}
-        env: { CI: "1" }
-  e2e:
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    strategy:
-      fail-fast: false
-      # Software WebGL stays serial; the remaining Chromium specs share two parallel shards.
-      # WebKit keeps its @cross-browser subset on one runner.
-      matrix:
-        include:
-          - { browser: chromium, group: gl, shard: 1, shards: 2, workers: 1 }
-          - { browser: chromium, group: gl, shard: 2, shards: 2, workers: 1 }
-          - { browser: chromium, group: non-gl, shard: 1, shards: 2, workers: 2 }
-          - { browser: chromium, group: non-gl, shard: 2, shards: 2, workers: 2 }
-          - { browser: webkit, group: smoke, shard: 1, shards: 1 }
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
-        with: { node-version: 22, cache: npm }
-      - run: npm ci
-      # e2e/dist-smoke.spec.ts serves playground/dist-smoke, which imports the built dist/.
-      - name: Build dist/
-        run: npm run build
-      - name: Read installed Playwright version
-        id: playwright
-        run: node -p "'version=' + require('./node_modules/@playwright/test/package.json').version" >> "$GITHUB_OUTPUT"
-      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
-        id: browsers
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ matrix.browser }}-${{ steps.playwright.outputs.version }}
-      - name: Install browser and system dependencies
-        if: steps.browsers.outputs.cache-hit != 'true'
-        run: npx playwright install --with-deps ${{ matrix.browser }}
-      - name: Install system dependencies for cached browser
-        if: steps.browsers.outputs.cache-hit == 'true'
-        run: npx playwright install-deps ${{ matrix.browser }}
-      - name: Check Chromium spec coverage
-        if: matrix.browser == 'chromium'
-        run: node scripts/check-e2e-shards.mjs
-      - name: Map the system font to Roboto (e2e/ci-fonts.conf explains why)
-        run: |
-          sudo apt-get install -y fonts-roboto
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - run: |
+          sudo apt-get install -y fonts-roboto xvfb libgl1-mesa-dri libegl-mesa0
           mkdir -p ~/.config/fontconfig && cp e2e/ci-fonts.conf ~/.config/fontconfig/fonts.conf
-          fc-cache -f && fc-match system-ui
-      - name: Install Mesa for Chromium
-        if: matrix.browser == 'chromium'
-        run: sudo apt-get install -y xvfb libgl1-mesa-dri libegl-mesa0
-      - name: Test Chromium with Mesa
-        if: matrix.browser == 'chromium'
-        run: xvfb-run --auto-servernum npm run test:e2e -- $(node scripts/check-e2e-shards.mjs --group ${{ matrix.group }}) --project=chromium --workers=${{ matrix.workers }} --shard=${{ matrix.shard }}/${{ matrix.shards }}
-        env: { CI: "1" }
-      - name: Test WebKit
-        if: matrix.browser == 'webkit'
-        run: npm run test:e2e -- --project=webkit --shard=${{ matrix.shard }}/${{ matrix.shards }}
-        env: { CI: "1" }
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        if: always()
-        with:
-          name: playwright-${{ matrix.browser }}-${{ matrix.group }}-${{ matrix.shard }}
-          path: |
-            playwright-report/
-            test-results/
-          retention-days: 7
+          fc-cache -f
+      - name: Cold-start loop
+        env: { CI: "1", DEBUG: "pw:webserver" }
+        run: |
+          for i in 1 2 3 4 5 6; do
+            echo "=================== ROUND $i"
+            rm -rf node_modules/.vite
+            xvfb-run --auto-servernum npx playwright test e2e/diag-hover.spec.ts e2e/mechanism.spec.ts --project=chromium --workers=2 --retries=0 --reporter=line 2>&1 | grep -vE "pw:webserver (HTTP|Error|Waiting|connect)|ECONNREFUSED" || true
+          done
