@@ -1,5 +1,5 @@
 import { figureEntries } from "../playground/catalog";
-import { expect, test, waitForPage, waitForStable } from "./fixtures";
+import { expect, test, waitForPage, waitForStable, type Locator, type Page } from "./fixtures";
 import { ALL, SECTIONS, currentLink, expectPageTitle, outline, sidebar, tabOf, title } from "./page-audit";
 
 // Every page's own outline, tab title, phone header and overflow are checked in page-audit.spec.ts.
@@ -513,4 +513,130 @@ test("while a page's chunk loads, the shell stays and a status line says what is
   await expect(page.getByRole("banner")).toBeVisible();
   // The page fills in below the context row; nothing above it moves.
   expect(await page.locator(".showcase-context").boundingBox()).toEqual(context);
+});
+
+// Every page is a full load whose content mounts after the browser has tried to restore the scroll
+// position, so the site keeps and restores it itself (playground/scroll-memory.ts).
+test.describe("Back returns the reader to where they were", () => {
+  const pageY = (page: Page) => page.evaluate(() => Math.round(window.scrollY));
+  const topOf = (link: Locator) => link.evaluate((a) => Math.round(a.getBoundingClientRect().top));
+  /** Scrolls as a reader does, a wheel turn at a time, until `link` is in the upper part of the window. */
+  async function wheelTo(page: Page, link: Locator) {
+    for (let turn = 0; turn < 60 && (await link.evaluate((a) => a.getBoundingClientRect().top > innerHeight * 0.6)); turn++) {
+      const before = await pageY(page);
+      await page.mouse.wheel(0, 400);
+      await expect.poll(() => pageY(page)).not.toBe(before);
+    }
+    await waitForStable(() => pageY(page));
+  }
+  /** Follows `link` with a click of its own, and returns the scroll position and the link's place as the page was left. */
+  const follow = (link: Locator) =>
+    link.evaluate((a) => {
+      const left = { y: Math.round(scrollY), top: Math.round(a.getBoundingClientRect().top) };
+      (a as HTMLElement).click();
+      return left;
+    });
+  /** Back, then the page is where it was left: the scroll position within 8px, `link` in the same place. */
+  async function backTo(page: Page, link: Locator, left: { y: number; top: number }) {
+    await page.goBack();
+    await expect.poll(() => pageY(page), { timeout: 10_000 }).toBeGreaterThan(left.y - 8);
+    await waitForStable(() => pageY(page));
+    expect(Math.abs((await pageY(page)) - left.y)).toBeLessThanOrEqual(8);
+    // The same place, once what is above it has mounted (a docs page's demos arrive after its text).
+    await expect.poll(async () => Math.abs((await topOf(link)) - left.top)).toBeLessThanOrEqual(8);
+    expect(Math.abs((await pageY(page)) - left.y)).toBeLessThanOrEqual(8);
+  }
+
+  for (const [width, height] of [
+    [1440, 900],
+    [390, 844],
+  ] as const) {
+    test(`${width}px: from a docs page to the landing page, scrolled deep past its lazy parts`, async ({ page }) => {
+      await page.setViewportSize({ width, height });
+      await page.goto("/?theme=light");
+      await expect(page.locator(".landing-hero")).toBeVisible();
+      // The Check card ("Grade and verify work") in "Rules and checks", after The parts.
+      const link = page.locator('a.landing-job[data-section="check"]').first();
+      await wheelTo(page, link);
+      const left = await follow(link);
+      expect(left.y).toBeGreaterThan(2000);
+      await expect(page).toHaveURL(/\/grading\?theme=light$/);
+      await waitForPage(page);
+      // A page opened by a link starts at its top.
+      expect(await pageY(page)).toBe(0);
+      await backTo(page, link, left);
+    });
+  }
+
+  test("to the Assets tab: the filter and the place in it", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/gallery?type=slides&theme=light");
+    await expect(page.locator(".gallery-card").first()).toBeVisible();
+    // A card in the grid's third row or lower.
+    const link = page.locator(".gallery-card__link").nth(8);
+    await wheelTo(page, link);
+    const left = await follow(link);
+    expect(left.y).toBeGreaterThan(400);
+    await expect(page).not.toHaveURL(/\/gallery/);
+    await waitForPage(page);
+    await backTo(page, link, left);
+    await expect(page).toHaveURL(/\/gallery\?type=slides/);
+    await expect(page.getByRole("group", { name: "Show" }).getByRole("button", { name: /^Slides/ })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    await expect(page.locator(".gallery-section")).toHaveCount(1);
+  });
+
+  test("to a docs page, whose Markdown and demos mount after the load; the reader's place wins over the address's #fragment", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/foundations/style?theme=light#motion");
+    await expect(page.locator("#motion")).toBeInViewport();
+    // The page as the reader leaves it: every demo in.
+    await waitForPage(page);
+    const next = page.getByRole("navigation", { name: "Previous and next documentation pages" }).getByRole("link").last();
+    // The reader takes over from the #fragment (a wheel turn), then goes to the foot of the page.
+    await page.mouse.wheel(0, 200);
+    await next.evaluate((a) => a.scrollIntoView({ block: "center", behavior: "instant" }));
+    await waitForStable(() => pageY(page));
+    const left = await follow(next);
+    expect(left.y).toBeGreaterThan(3000);
+    await expect(page).not.toHaveURL(/\/foundations\/style\?/);
+    await waitForPage(page);
+    expect(await pageY(page)).toBe(0);
+    await backTo(page, next, left);
+    await expect(page).toHaveURL(/\/foundations\/style\?theme=light#motion$/);
+  });
+
+  test("a page opened afresh is untouched: a link starts at the top, a #fragment lands on its heading", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/?theme=light");
+    await expect(page.locator(".landing-hero")).toBeVisible();
+    const link = page.locator('a.landing-job[data-section="check"]').first();
+    await wheelTo(page, link);
+    expect((await follow(link)).y).toBeGreaterThan(2000);
+    await expect(page).toHaveURL(/\/grading\?theme=light$/);
+    await waitForPage(page);
+    // The landing page again, by its link this time, not Back: its top, though a place in it is kept.
+    await page.locator(".showcase-brand").click();
+    await expect(page.locator(".landing-hero")).toBeVisible();
+    await expect(link).toBeAttached();
+    await waitForStable(() => pageY(page));
+    expect(await pageY(page)).toBe(0);
+    // A fresh load with a #fragment lands on its heading, and "On this page" marks it.
+    await page.goto("/foundations/style?theme=light#motion");
+    const heading = page.locator("#motion");
+    await expect(heading).toBeInViewport();
+    await waitForPage(page);
+    await waitForStable(() => heading.evaluate((h) => Math.round(h.getBoundingClientRect().top)));
+    const top = await heading.evaluate((h) => h.getBoundingClientRect().top);
+    expect(top).toBeGreaterThan(-1);
+    expect(top).toBeLessThan(200);
+    await expect(page.getByRole("complementary", { name: "On this page" }).locator('[aria-current="location"]')).toHaveAttribute(
+      "href",
+      "#motion",
+    );
+  });
 });

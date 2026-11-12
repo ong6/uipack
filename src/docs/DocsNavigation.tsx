@@ -7,11 +7,13 @@ import {
   markerTransform,
   NAV_DOCK_X,
   NAV_SUB_DOCK_X,
+  NAV_TRIP_INSET,
   navRoute,
   navTripChange,
   navTripDuration,
   prefersReducedMotion,
   readNavMemory,
+  visibleRoute,
   writeNavMemory,
   type DocsMarkerCell,
   type DocsMarkerMorph,
@@ -237,17 +239,34 @@ export function SectionNavigation({
     // Bring the destination into view, so the reader sees it land: now, and again once its section
     // has opened (a shut section is too short to scroll to).
     const scroller = nav.closest<HTMLElement>(".uipack-docs__sidebar");
-    const reveal = () => {
-      if (!scroller || !target) return;
+    /** Where the sidebar scrolls to so the destination shows, or null when it already does. */
+    const revealTop = () => {
+      if (!scroller || !target) return null;
       const sr = scroller.getBoundingClientRect();
       const tr = target.getBoundingClientRect();
-      if (tr.top < sr.top + 24 || tr.bottom > sr.bottom - 24)
-        scroller.scrollTo({
-          top: scroller.scrollTop + tr.top - sr.top - sr.height / 2,
-          behavior: prefersReducedMotion() ? "auto" : "smooth",
-        });
+      if (tr.top >= sr.top + 24 && tr.bottom <= sr.bottom - 24) return null;
+      const most = scroller.scrollHeight - scroller.clientHeight;
+      return Math.max(0, Math.min(most, scroller.scrollTop + tr.top - sr.top - sr.height / 2));
     };
-    reveal();
+    const reveal = (behavior: ScrollBehavior = "smooth") => {
+      const top = revealTop();
+      if (top !== null) scroller?.scrollTo({ top, behavior });
+    };
+    // The trip is drawn where the reader will see it: in the part of the sidebar on show once the
+    // destination has scrolled into view. A route that starts outside it (the old page's link is
+    // scrolled away) is cut to start just inside its edge. The sidebar scrolls there smoothly when
+    // that start is on show already; when it is not, the sidebar is there at once, so the marker
+    // is seen from its first frame.
+    const whole = navRoute(from, to);
+    let route = whole;
+    if (scroller) {
+      const sr = scroller.getBoundingClientRect();
+      const top = sr.top - nav.getBoundingClientRect().top;
+      const shift = (revealTop() ?? scroller.scrollTop) - scroller.scrollTop;
+      route = visibleRoute(whole, top + shift + NAV_TRIP_INSET, top + shift + sr.height - NAV_TRIP_INSET);
+      const start = route[0].y;
+      reveal(start >= top && start <= top + sr.height ? "smooth" : "instant");
+    }
     let revealTimer = 0;
     const arriving = activeKey && !openRef.current.has(activeKey) ? activeKey : null;
     const heading = arriving
@@ -265,7 +284,6 @@ export function SectionNavigation({
     flying.current = true;
     svg.current.removeAttribute("data-hidden");
     svg.current.setAttribute("data-flying", "");
-    const route = navRoute(from, to);
     // The mark stops to change only when this page's mark differs from the one it set off as.
     const changes = marker === "mark" && (trip.live !== live || trip.dot !== dot) ? morph : "none";
     onTrip?.(navTripDuration(route, marker, changes), changes === "none" ? undefined : navTripChange(route));

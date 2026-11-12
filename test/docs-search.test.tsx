@@ -8,7 +8,18 @@ import {
   unpackDocsSearchIndex,
   type DocsSection,
 } from "../src/docs";
-import { hopCount, hopDuration, hopPlan, hopPose, markerTransform, morphPose, navRoute } from "../src/docs/DocsMarkers";
+import {
+  hopCount,
+  hopDuration,
+  hopPlan,
+  hopPose,
+  markerTransform,
+  morphPose,
+  navRoute,
+  navTripChange,
+  navTripDuration,
+  visibleRoute,
+} from "../src/docs/DocsMarkers";
 
 const page = `---
 spec: x
@@ -263,6 +274,30 @@ describe("DocsLayout sections, markers, drawer and search", () => {
       { x: 16, y: 117 },
       { x: 46, y: 134 },
     ]);
+  });
+
+  it("cuts a trip that starts out of the sidebar's view to the part seen, from the edge it comes in by", () => {
+    // The old page's link is 1,500px above the visible box (600 to 1400): the trip starts at the box's top.
+    const down = visibleRoute(navRoute({ x: 16, y: 100 }, { x: 16, y: 1000 }), 600, 1400);
+    expect(down).toEqual([
+      { x: 16, y: 600 },
+      { x: 16, y: 1000 },
+    ]);
+    // From below, by the bottom edge, and still out to a sub-page's tree line.
+    const up = visibleRoute(navRoute({ x: 46, y: 3000 }, { x: 46, y: 800 }), 600, 1400);
+    expect(up[0]).toEqual({ x: 16, y: 1400 });
+    expect(up.at(-1)).toEqual({ x: 46, y: 800 });
+    // So the trip takes the time of the distance seen, and the mark changes sooner in it.
+    const whole = navRoute({ x: 16, y: 100 }, { x: 16, y: 708 });
+    const seen = visibleRoute(whole, 600, 1400);
+    expect(navTripDuration(whole, "mark")).toBe(1400);
+    expect(navTripDuration(seen, "mark")).toBe(300 + 108 * 3);
+    expect(navTripChange(seen)).toBeLessThan(navTripChange(whole));
+    // A trip that starts in view, or never comes into view, is left alone.
+    const inView = navRoute({ x: 16, y: 700 }, { x: 46, y: 900 });
+    expect(visibleRoute(inView, 600, 1400)).toBe(inView);
+    const away = navRoute({ x: 16, y: 100 }, { x: 16, y: 300 });
+    expect(visibleRoute(away, 600, 1400)).toBe(away);
   });
 
   it("keeps the plain list and bar by default", () => {

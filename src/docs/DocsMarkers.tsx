@@ -449,6 +449,31 @@ export function navRoute(from: Point, to: Point): Point[] {
   return pts;
 }
 
+/** How far inside its scroll box's edge a clipped trip starts, in px: the whole marker shows, with a little air. */
+export const NAV_TRIP_INSET = 16;
+
+/**
+ * The part of `route` a reader can see: when the route starts above `top` or below `bottom` (the
+ * sidebar's visible box, in the route's own coordinates) it is cut where it enters the box, so the
+ * marker arrives from the box's edge on its first frame and the trip's length is the distance
+ * seen. A route that starts in the box, or never enters it, is returned as it is.
+ */
+export function visibleRoute(route: Point[], top: number, bottom: number): Point[] {
+  const first = route[0];
+  if (route.length < 2 || !(top < bottom)) return route;
+  const edge = first.y < top ? top : first.y > bottom ? bottom : null;
+  if (edge === null) return route;
+  for (let i = 1; i < route.length; i++) {
+    const a = route[i - 1];
+    const b = route[i];
+    if (a.y === b.y || (a.y - edge) * (b.y - edge) > 0) continue;
+    const t = (edge - a.y) / (b.y - a.y);
+    const rest = route.slice(t >= 1 ? i + 1 : i);
+    return rest.length ? [{ x: a.x + (b.x - a.x) * t, y: edge }, ...rest] : route;
+  }
+  return route;
+}
+
 /** How long a sidebar trip along `route` takes, in ms: the plane's flight, or the mark's hops and its change between sections. */
 export const navTripDuration = (route: Point[], shape: DocsMarkerShape = "plane", morph: DocsMarkerMorph = "none") =>
   shape === "mark"
@@ -543,6 +568,9 @@ export function flyNavMarker(
     if (t < 1) frame = requestAnimationFrame(step);
     else onDone();
   };
+  // Drawn where it sets off before its first frame, so the marker is never shown anywhere else.
+  const p0 = line.at(0);
+  draw(p0.x, p0.y, shape === "mark" ? 0 : (p0.angle * 180) / Math.PI, "");
   frame = requestAnimationFrame(step);
   return () => cancelAnimationFrame(frame);
 }

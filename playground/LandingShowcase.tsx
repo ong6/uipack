@@ -253,9 +253,13 @@ function Around({ theme }: { theme: Theme }) {
 
 /* ------------------------------------------------------------------ how it is built */
 
-/** Mounts its children once the box nears the viewport; the box keeps a minimum height meanwhile. */
+/**
+ * Mounts its children once the box nears the viewport; the box keeps a minimum height meanwhile.
+ * Back to the page mounts at once what had mounted when the reader left (`restored`, by the box's
+ * class): it is taller mounted, and the reader's place is only the same place at the same heights.
+ */
 function WhenNear({ className, children }: { className: string; children: ReactNode }) {
-  const { ref, near } = useNearViewport<HTMLDivElement>({ inert: false, idle: false, margin: NEAR_MARGIN });
+  const { ref, near } = useNearViewport<HTMLDivElement>({ inert: false, idle: false, margin: NEAR_MARGIN, restored: className });
   return (
     <div ref={ref} className={className}>
       {near && <Suspense fallback={null}>{children}</Suspense>}
