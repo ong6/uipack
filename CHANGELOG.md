@@ -29,6 +29,8 @@ One default changes what a page draws (below), so this is a minor release
 - **`DocsLayout` drawer:** `mobileNavigation="drawer"` with `navigationOpen` and
   `onNavigationOpenChange`: below 900px the sidebar is a modal drawer from the left, opened by the
   host's header button.
+- **`DocsLayout` page bar:** `pageMeta`, items in the row with "View as Markdown" and "Edit on
+  GitHub" (facts about the page, such as its style), so `eyebrow` can say only where the page sits.
 - **`DocsLayout` search:** `search={{ load, resolveHref }}` puts a box at the top of the sidebar and
   opens a ⌘K / Ctrl-K dialog with results grouped by section. Hand-rolled, no library or WebAssembly:
   `docsSearchEntries`, `packDocsSearchIndex`, `unpackDocsSearchIndex`, `searchDocs`,

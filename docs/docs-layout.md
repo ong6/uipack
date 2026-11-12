@@ -81,7 +81,7 @@ A site that already has a banner uses these, all optional and off by default:
 | `mobileNavigation={false}` | Drops the below-900px disclosure when the header's menu lists the pages |
 | `navigationLabel` | The sidebar's accessible name (default "Documentation"), so a docs layout shown inside the page keeps its own |
 | `landmark="main"`, `contentId`, `contentLabel`, `contentClassName` | The article as the page's `<main>`, the skip link's target, its name and the host's classes |
-| `markdownHref`, `editHref`, `eyebrow` | A row above the page: a context line, "View as Markdown" and "Edit on GitHub" |
+| `markdownHref`, `editHref`, `eyebrow`, `pageMeta` | A row above the page: where the page sits (`eyebrow`: its section, its parent page), then facts about it (`pageMeta`: its style, say), "View as Markdown" and "Edit on GitHub" |
 
 A nav item takes `items` for one level of sub-pages (a page's views), listed indented under it, and `group` for a caption shown above it when it differs from the previous item's (groups inside a section).
 

@@ -294,6 +294,7 @@ location marker and the section hues are navigation, not ornaments: they are set
 | Setting | This site |
 | --- | --- |
 | Banner | Sticky, 64px, full width |
+| Page bar | Where the page sits, and nothing else: its section's chip, then its parent page (a sub-page's page, a deck view's Deck player). To the right, "Style: Technical", See it in Assets (where the gallery has the page's assets), View as Markdown and Edit on GitHub; a phone keeps the location and the style |
 | Sidebar | Docked to the left edge under the banner, 232–288px (15vw), scrolling on its own |
 | Page column | At most 760px; prose at a 37em measure inside it (75–88 characters a line, 18px from 1440); tables, code, figures and demos take the whole column |
 | On this page | 204–248px, 40–56px from the column; the column and the rail are centred as a pair, so the spare width goes to the outer margins and there is no dead gutter between the text and the rail at 1440 or 1920 |

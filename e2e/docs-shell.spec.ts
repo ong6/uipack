@@ -261,6 +261,27 @@ test.describe("widths", () => {
   });
 });
 
+test.describe("the page bar", () => {
+  for (const width of [1440, 390])
+    test(`${width}: location only (section, then parent page); the style labelled beside the source links`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto("/foundations/writing/general?theme=light");
+      const location = page.locator(".showcase-context");
+      await expect(location.getByRole("link")).toHaveText(["Rules", "Writing"]);
+      await expect(location).not.toContainText("style");
+      await expect(location.getByRole("link", { name: "Writing" })).toHaveAttribute("href", "/foundations/writing?theme=light");
+      const style = page.locator(".uipack-docs__source-links").getByRole("link", { name: "Style: Technical" });
+      await expect(style).toBeVisible();
+      await expect(style).toHaveAttribute("href", "/styles?theme=light");
+      await expect(page.getByRole("link", { name: "View as Markdown" })).toBeVisible({ visible: width > 520 });
+      // A deck sub-view's parent is the Deck player; a page with no parent shows its section alone.
+      await page.goto("/deck?deck=bento&theme=light");
+      await expect(page.locator(".showcase-context").getByRole("link")).toHaveText(["Build", "Deck player"]);
+      await page.goto("/agents?theme=light");
+      await expect(page.locator(".showcase-context").getByRole("link")).toHaveText(["Start"]);
+    });
+});
+
 test.describe("390px", () => {
   test.use({ viewport: { width: 390, height: 844 }, hasTouch: true });
 

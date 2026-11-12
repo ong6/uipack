@@ -128,9 +128,17 @@ test.describe("/web collection", () => {
       await page.goto(`/web?theme=${theme}`);
       await expect(page.locator(".uipack-web").first()).toHaveAttribute("data-theme", theme);
       await expect(page.getByRole("button", { name: "Open navigation" })).toBeVisible();
-      // The context line names the page's section, then its style, Technical (the one implemented
-      // style; no switcher), then links to the page's cards in the Assets gallery.
-      await expect(page.locator(".showcase-context a")).toHaveText(["Build", "Technical style", "See it in Assets"]);
+      // The location row names the page's section (it has no parent page); its style, Technical
+      // (the one implemented style; no switcher), is labelled in the meta row, where the link to
+      // the page's cards in the Assets gallery sits too. A phone keeps the style.
+      await expect(page.locator(".showcase-context a")).toHaveText(["Build"]);
+      await expect(page.locator(".uipack-docs__source-links a")).toHaveText([
+        "Style: Technical",
+        "See it in Assets",
+        "View as Markdown",
+        "Edit on GitHub",
+      ]);
+      await expect(page.locator(".showcase-style-link")).toBeVisible();
       await expect(page.locator(".showcase-context").getByRole("group", { name: "Style" })).toHaveCount(0);
       await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
       await waitForStable(() => page.evaluate(() => window.scrollY));

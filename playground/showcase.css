@@ -512,7 +512,8 @@ html:has(.showcase-frame:not([data-banner="static"])) {
 /* Compact navigation (data-nav="compact" on the frame, set by ShowcaseShell below 900px, or below
    1440px on a page that hosts a whole sample site): the sidebar steps aside, the header's menu
    button opens it as a drawer (DocsLayout mobileNavigation="drawer"), and the page takes the width.
-   Below 520px the theme toggle keeps only its icon and the page bar drops its source links. */
+   Below 520px the theme toggle keeps only its icon and the page bar keeps only the page's style
+   beside its location. */
 .showcase-header > * {
   min-width: 0;
 }
@@ -593,7 +594,8 @@ html:has(.showcase-frame:not([data-banner="static"])) {
   .theme__text {
     display: none;
   }
-  .showcase-frame .uipack-docs__source-links {
+  /* A phone keeps the page's style, its one fact, and drops the source and Assets links. */
+  .showcase-frame .uipack-docs__source-links > a:not(.showcase-style-link) {
     display: none;
   }
   .showcase-brand {
