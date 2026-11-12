@@ -127,10 +127,18 @@ test.describe("/web collection", () => {
       await page.setViewportSize({ width: 390, height: 844 });
       await page.goto(`/web?theme=${theme}`);
       await expect(page.locator(".uipack-web").first()).toHaveAttribute("data-theme", theme);
-      await expect(page.locator(".showcase-menu-button")).toHaveAccessibleName("Examples: Example landing page");
-      // The context line names the page's style, Technical (the one implemented style); no switcher.
-      // …then links to the page's cards in the Assets gallery.
-      await expect(page.locator(".showcase-context a")).toHaveText(["Technical style", "See it in Assets"]);
+      await expect(page.getByRole("button", { name: "Open navigation" })).toBeVisible();
+      // The location row names the page's section (it has no parent page); its style, Technical
+      // (the one implemented style; no switcher), is labelled in the meta row, where the link to
+      // the page's cards in the Assets gallery sits too. A phone keeps the style.
+      await expect(page.locator(".showcase-context a")).toHaveText(["Build"]);
+      await expect(page.locator(".uipack-docs__source-links a")).toHaveText([
+        "Style: Technical",
+        "See it in Assets",
+        "View as Markdown",
+        "Edit on GitHub",
+      ]);
+      await expect(page.locator(".showcase-style-link")).toBeVisible();
       await expect(page.locator(".showcase-context").getByRole("group", { name: "Style" })).toHaveCount(0);
       await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
       await waitForStable(() => page.evaluate(() => window.scrollY));
@@ -252,9 +260,9 @@ test.describe("/web collection", () => {
     const a = await pos();
     await expect.poll(pos).not.toBe(a);
     // The dot grid lights under the mouse.
+    // Hovered where nothing covers it (the docs site's banner is sticky).
     const tile = page.locator(".web-bg-tile").nth(1);
-    const box = (await tile.boundingBox())!;
-    await page.mouse.move(box.x + 60, box.y + 60);
+    await tile.hover({ position: { x: 60, y: 60 } });
     await expect(tile.locator(".uipack-web-gridbg")).toHaveAttribute("data-lit", "true");
   });
 

@@ -1,7 +1,7 @@
 // Data-only modules, not the uipack/objects barrel: this file is in the playground's entry chunk.
 import { objectDirections } from "../src/objects/variants";
 import { objectScenes } from "../src/objects/scene-list";
-import { docsManifest, type DocsPageEntry } from "./docs-manifest";
+import { docsManifest, docsSections, type DocsPageEntry, type DocsSectionId } from "./docs-manifest";
 import { figureRows } from "./figure-rows";
 /**
  * Content type and visual style are independent axes. Technical is the one style (pages, documents,
@@ -46,7 +46,23 @@ export const visualStyles = [
  */
 type ManifestPage = (typeof docsManifest)[number]["pages"][number];
 export type LibraryGroup = (typeof docsManifest)[number]["id"];
-export const libraryGroups = docsManifest.map((g) => ({ id: g.id as LibraryGroup, label: g.label, defaultPage: g.pages[0].id }));
+export const libraryGroups = docsManifest.map((g) => ({
+  id: g.id as LibraryGroup,
+  label: g.label,
+  section: g.section as DocsSectionId,
+  /** The caption above the group's pages in the sidebar; none for a section's untitled first group. */
+  caption: "caption" in g && g.caption === false ? undefined : g.label,
+  defaultPage: g.pages[0].id,
+}));
+
+/** The five sidebar sections in order, each with its groups. */
+export const librarySections = docsSections.map((s) => ({
+  ...s,
+  groups: libraryGroups.filter((g) => g.section === s.id),
+}));
+
+/** The section a page sits in. */
+export const sectionOfPage = (page: { group: string }) => librarySections.find((s) => s.groups.some((g) => g.id === page.group));
 
 /**
  * One page. Several entries may share a `path` and differ by `query` (a sub-view, such as a deck):

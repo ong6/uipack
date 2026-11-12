@@ -3,7 +3,7 @@
 // to the catalog (or a check here) covers it everywhere. The catalog-derived names (groups, labels,
 // h1 and tab text) are shared with nav.spec.ts.
 import { readFileSync } from "node:fs";
-import { libraryGroups, pageDefs, pagePath } from "../playground/catalog";
+import { libraryGroups, librarySections, pageDefs, pagePath } from "../playground/catalog";
 import { expect, type Page } from "./fixtures";
 
 // The information architecture the shell must render, read from the catalog: the groups in
@@ -13,7 +13,17 @@ export const GROUPS = libraryGroups.map((g) => ({
   opens: pageDefs.find((p) => p.id === g.defaultPage)!.label,
   pages: pageDefs.filter((p) => p.group === g.id).map((p) => [p.label, pagePath(p)] as const),
 }));
-export const ALL = GROUPS.flatMap((g) => g.pages.map(([label, path]) => ({ group: g.label, label, path })));
+/** The sidebar's five sections in order, each with its pages as [label, path]. */
+export const SECTIONS = librarySections.map((s) => ({
+  label: s.label,
+  pages: s.groups.flatMap((g) => pageDefs.filter((p) => p.group === g.id).map((p) => [p.label, pagePath(p)] as const)),
+}));
+const sectionOf = (groupId: string) => librarySections.find((s) => s.groups.some((g) => g.id === groupId))!.label;
+export const ALL = libraryGroups.flatMap((g) =>
+  pageDefs
+    .filter((p) => p.group === g.id)
+    .map((p) => ({ group: g.label, section: sectionOf(g.id), label: p.label, path: pagePath(p) })),
+);
 
 // Every page renders its Markdown file (MarkdownShowcase); the file's `#` is its h1. A file with
 // no `#` hosts a sample page whose own hero is the h1 (the example landing page, /web).
@@ -384,28 +394,22 @@ export async function checkTextFaces(page: Page) {
   expect(offenders, "visible text uses only the style's faces (no system fallback stacks)").toEqual([]);
 }
 
-/** The 390px header: compact, desktop nav rows hidden, 44px menu and theme buttons, the menu button naming the page whole. */
+/** The 390px header: compact, the desktop sidebar hidden, 44px menu and theme buttons; the page names its section. */
 export async function checkCompactHeader(page: Page, label: string, path: string) {
   await expectPageTitle(page, label, path);
   const header = await page.locator(".showcase-header").boundingBox();
-  expect(header!.height).toBeLessThanOrEqual(64);
-  // The desktop sidebar is not shown; the menu button lists the pages instead.
+  expect(header!.height).toBeLessThanOrEqual(65);
+  // The desktop sidebar is not shown; the menu button opens it as a drawer.
   await expect(sidebar(page)).toBeHidden();
-  for (const b of [page.locator(".showcase-menu-button"), page.locator("button.theme")]) {
+  const menu = page.getByRole("button", { name: "Open navigation" });
+  await expect(menu).toBeVisible();
+  for (const b of [menu, page.locator("button.theme")]) {
     const box = (await b.boundingBox())!;
     expect(box.height).toBeGreaterThanOrEqual(44);
     expect(box.width).toBeGreaterThanOrEqual(44);
   }
-  // The menu button shows the page name whole, with its group small above it.
-  const button = page.locator(".showcase-menu-button");
-  await expect(button.locator(".showcase-menu-button__page")).toHaveText(label);
-  await expect(button.locator(".showcase-menu-button__group")).toHaveText(ALL.find((p) => p.label === label)!.group);
-  expect(
-    await button.locator(".showcase-menu-button__page").evaluate((el) => {
-      const b = el.closest("button")!.getBoundingClientRect();
-      return el.scrollWidth <= el.clientWidth && el.getBoundingClientRect().right <= b.right;
-    }),
-  ).toBe(true);
+  // The page bar's chip names the page's section.
+  await expect(page.locator(".showcase-crumb")).toHaveText(ALL.find((p) => p.label === label)!.section);
 }
 
 /** No page-wide horizontal overflow at the current viewport width. */

@@ -31,7 +31,8 @@ and its spec are listed in the [registry](registry.md).
    layout per page type (`## Layout`, one `###` each), the writing style (`## Writing style`, the
    five rows) and why each component look fits (`## Component looks`). Everything else is a core
    rule and holds unchanged. A fixed look's values (a figure's flow colours, strokes, label face) are
-   not the spec's to change.
+   not the spec's to change; in dark it may set the ground a look sits on (card, canvas, surfaces),
+   as [the docs site](docs-site.md#demos-and-fixed-looks) does.
 5. Check it: `npx tsx scripts/check-spec.ts <file>` from a uipack checkout (or
    `node_modules/uipack/scripts/check-spec.ts` in a site that installs uipack). It fails on a
    missing frontmatter key or section, a contract role with neither a value nor a `TODO:`, a page
@@ -40,9 +41,10 @@ and its spec are listed in the [registry](registry.md).
    spec that sets a value a fixed look owns. An older spec's `uses: [diagrams]` still reads as
    `components: { diagrams: blueprint }`. `test/specs.test.tsx` runs it on every spec in this folder.
 
-[Technical](technical.md) is the reference: the uipack site's own spec, written to the template,
+[Technical](technical.md) is the reference: the package's default look, written to the template,
 with its role values generated from `src/styles/technical.css` so the two cannot drift. Its layout
-picks and writing style are its own choices; a new site makes its own.
+picks and writing style are its own choices; a new site makes its own. The uipack docs site's
+spec, [docs-site](docs-site.md), shows a spec that extends another and sets only its differences.
 
 ## Building a style from a spec
 

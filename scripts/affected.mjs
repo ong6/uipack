@@ -46,6 +46,7 @@ const FIGURES = [
 // The shell draws every page's header, context line and nav, so the pages whose specs read those run too.
 const SHELL = [
   "nav",
+  "docs-shell",
   "page-audit",
   "showcase",
   "gallery",
@@ -85,7 +86,7 @@ const AREAS = [
   // The grader: its browser spec runs the checks on a page with planted defects.
   // tier1 runs it on a few docs-site pages.
   [/^src\/grade\/|^scripts\/grade/, ["grade", "tier1"]],
-  [/^src\/docs\/|^playground\/Docs/, ["docs", "foundations", "nav", "tier1", "charts", "geometry", "canvas"]],
+  [/^src\/docs\/|^playground\/Docs/, ["docs", "docs-shell", "foundations", "nav", "tier1", "charts", "geometry", "canvas"]],
   // The docs site: its manifest, the Markdown page, demos, links and generated blocks.
   [
     /^playground\/(docs-manifest|docs-links|demos|MarkdownShowcase)|^scripts\/(docs-sync|check-spec|style-contract|site-model|check-agent-docs)|^docs\/(?!system\/)|^README\.md$|^llms\.txt$/,
@@ -104,7 +105,14 @@ const AREAS = [
     /^playground\/(rulesDemos|foundations)|^docs\/(system|recipes|examples)\//,
     ["foundations", "nav", "page-audit", "showcase-content"],
   ],
-  [/^playground\/(ShowcaseShell|showcase\.css|catalog|figure-rows|routes|nav|main|index\.html)/, SHELL],
+  // The landing page (/): its module, words, figures and previews, and the release line it shows.
+  [/^playground\/(LandingShowcase|landing|release)/, ["landing", "tier1"]],
+  // The live-preview stage the landing page and the Assets tab share.
+  [/^playground\/preview-stage/, ["landing", "assets-gallery"]],
+  [
+    /^playground\/(ShowcaseShell|showcase\.css|catalog|figure-rows|routes|nav|main|index\.html|site-palette|site-settings|search-index)/,
+    [...SHELL, "landing"],
+  ],
   // The Assets tab: its page, its data and the registries it draws from.
   [
     /^playground\/(GalleryShowcase|gallery-showcase|gallery-index|deckExamples|presentationExamples|figures\/)/,

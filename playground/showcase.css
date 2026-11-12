@@ -7,8 +7,10 @@
   --show-radius: 6px;
 }
 /* The shell is Technical: <body data-ui-style="technical"> (index.html) holds Technical's roles,
-   and the shell's colours read them there. Their dark half follows data-theme through color-scheme. */
-body {
+   and the shell's colours read them there, and again on the frame, where the docs site's own values
+   (site-palette.css) take over. Their dark half follows data-theme through color-scheme. */
+body,
+.showcase-frame {
   /* Type: Technical's faces (IBM Plex Sans headings and text, IBM Plex Mono labels), read on <body> like the colours. */
   --show-font-sans: var(--ui-font-text);
   --show-font-display: var(--ui-font-display);
@@ -34,51 +36,160 @@ body {
   background: var(--show-bg);
   color: var(--show-ink);
 }
-/* The frame holds the docs layout (src/docs, width="wide"): the banner (header and menu sheet),
-   then the sidebar, <main> and, on a Markdown page, "On this page". Main stacks the page bar,
+/* The frame holds the docs layout (src/docs, width="wide"): the sticky banner, then the sidebar
+   docked to the left edge under it, and the page and, on a Markdown page, "On this page" as a pair
+   centred in the rest. The widths (docs/specs/docs-site.md, "Layout"): a 232–288px sidebar; the
+   page column at most 760px with prose at a 37em measure inside it, 75–88 characters a line (tables,
+   code and figures take the whole column); "On this page" 204–248px, 40–56px from the column, so at 1440 and 1920 there
+   is no dead gutter between the text and the rail (the spare width goes to the outer margins). A
+   page with no rail (a gallery of figures, charts, a 3D scene) gets a column up to 1344px: at 1440
+   that is 1176px, so a 1120-unit figure draws within 1% of its own size (its canvas adds 64px) and
+   the 11px text floor never enlarges a subtitle past its box (in a 1132px column subtitles grew 4–5%
+   and, where glyph advances round to whole pixels on Linux, crossed node borders). Main stacks the page bar,
    the title and the page with one 32px gap. */
 .showcase-frame {
-  max-width: 1600px;
-  margin: 0 auto;
-  padding: 16px 24px 64px;
-}
-/* A phone keeps the 16px side margins the gallery had before the docs shell: a 390px screen gives
-   its charts and figures 358px, the width their phone layouts are tuned to (SpanChart's twelve
-   column codes keep 8px apart there even where advances round to whole pixels; at 24px margins
-   they came to 7.5 on Linux). */
-@media (max-width: 719px) {
-  .showcase-frame {
-    padding-inline: 16px;
-  }
+  --header-h: 64px;
+  --side-w: clamp(232px, 15vw, 288px);
+  --col: 760px;
+  --rail-w: clamp(204px, 13vw, 248px);
+  --rail-gap: clamp(40px, 3vw, 56px);
+  --full-col: 1344px;
 }
 .showcase-frame > .uipack-docs {
   padding: 0;
 }
-/* A 176px sidebar (the longest page name needs 156) and a 32px gap, not docs.css's 220px and
-   40px: at 1440 the page column is then 1184px, so a 1120-unit figure draws at its own size
-   (its canvas adds 64px of padding) and the 11px text floor never enlarges a subtitle past its
-   box. In the 1132px column the wide default left, subtitles grew 4-5% and, where glyph advances
-   round to whole pixels (Linux), crossed node borders. Outranks docs.css (loaded after this
-   file); the compact rule below outranks this one. */
-.showcase-frame > .uipack-docs[data-width="wide"] > .uipack-docs__grid {
-  gap: 32px;
-  grid-template-columns: 176px minmax(0, 1fr) 176px;
+.showcase-frame:not([data-rail="none"]) > .uipack-docs[data-width="wide"] > .uipack-docs__grid {
+  gap: 0;
+  grid-template-columns:
+    var(--side-w) minmax(24px, 1fr) minmax(0, var(--col)) var(--rail-gap) var(--rail-w)
+    minmax(24px, 1fr);
 }
-.showcase-frame > .uipack-docs[data-width="wide"] > .uipack-docs__grid[data-toc="none"] {
-  grid-template-columns: 176px minmax(0, 1fr);
+.showcase-frame[data-rail="none"] > .uipack-docs[data-width="wide"] > .uipack-docs__grid {
+  gap: 0;
+  grid-template-columns: var(--side-w) minmax(16px, 1fr) minmax(0, var(--full-col)) minmax(16px, 1fr);
 }
-@media (max-width: 1279px) {
-  .showcase-frame > .uipack-docs[data-width="wide"] > .uipack-docs__grid {
-    grid-template-columns: 176px minmax(0, 1fr);
+.showcase-frame > .uipack-docs > .uipack-docs__grid > .uipack-docs__sidebar {
+  grid-column: 1;
+  grid-row: 1;
+  position: sticky;
+  top: var(--header-h);
+  height: calc(100vh - var(--header-h));
+  height: calc(100dvh - var(--header-h));
+  max-height: none;
+  margin: 0;
+  padding: 20px 12px 48px 14px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  border-right: 1px solid var(--ui-line-soft);
+}
+.showcase-frame > .uipack-docs > .uipack-docs__grid > .uipack-docs__article {
+  grid-column: 3;
+  grid-row: 1;
+  padding: 34px 0 96px;
+  scroll-margin-top: var(--header-h);
+}
+/* 5px of padding inside its scroll box is room for a link's focus ring (2px + 3px offset). */
+.showcase-frame > .uipack-docs > .uipack-docs__grid > .uipack-docs__toc {
+  display: block;
+  grid-column: 5;
+  grid-row: 1;
+  top: calc(var(--header-h) + 29px);
+  max-height: calc(100vh - var(--header-h) - 50px);
+  margin: 29px -5px 0;
+  padding: 5px;
+}
+.showcase-frame .uipack-docs__toc > p {
+  margin: 4px 0 12px;
+}
+/* Anything scrolled to (a #fragment, a picked heading, a focused control) lands below the sticky
+   banner; headings sit 24px under it. */
+html:has(.showcase-frame:not([data-banner="static"])) {
+  scroll-padding-top: 64px;
+}
+.showcase-frame[data-banner="static"] .showcase-header {
+  position: static;
+}
+.showcase-frame[data-banner="static"] > .uipack-docs > .uipack-docs__grid > .uipack-docs__sidebar {
+  top: 0;
+  height: 100vh;
+  height: 100dvh;
+}
+.showcase-frame[data-banner="static"] > .uipack-docs > .uipack-docs__grid > .uipack-docs__toc {
+  top: 24px;
+}
+.showcase-frame .uipack-docs__prose :is(h1, h2, h3, h4, h5, h6) {
+  scroll-margin-top: 24px;
+}
+/* Prose keeps a 37em measure: 75–88 characters a line in Plex Sans, whose average glyph is about
+   0.45em (a `ch`, the width of "0", is 0.6em, so 76ch ran to 105). Tables, code, figures and demos
+   take the whole column. e2e/docs-shell.spec.ts counts the characters on each rendered line. */
+.showcase-frame
+  .uipack-docs[data-width="wide"]
+  :is(.uipack-docs__prose, .uipack-docs__flow > .uipack-docs__block:not([data-width="wide"])) {
+  max-width: none;
+}
+.showcase-frame .uipack-docs__prose > :is(p, ul, ol, dl, blockquote, h1, h2, h3, h4, h5, h6) {
+  max-width: 37em;
+}
+/* From 1440 the body steps up to 18px: the same measure, a little larger, fills the column. */
+@media (min-width: 1440px) {
+  .showcase-frame .uipack-docs__prose {
+    font-size: 18px;
   }
 }
-.showcase-frame .showcase-header {
-  margin-bottom: 32px;
+/* Between 900 and 1180 the rail folds into the "On this page" disclosure before it squeezes the measure. */
+@media (max-width: 1180px) {
+  .showcase-frame:not([data-rail="none"]) > .uipack-docs[data-width="wide"] > .uipack-docs__grid {
+    grid-template-columns: var(--side-w) minmax(24px, 1fr) minmax(0, var(--col)) minmax(24px, 1fr);
+  }
+  .showcase-frame > .uipack-docs > .uipack-docs__grid > .uipack-docs__toc {
+    display: none;
+  }
+  .showcase-frame .uipack-docs[data-width="wide"] .uipack-docs__contents {
+    display: block;
+  }
 }
-/* The header is not sticky, so the sidebar and contents stick near the top. */
-.showcase-frame :is(.uipack-docs__sidebar, .uipack-docs__toc) {
-  top: 24px;
-  max-height: calc(100vh - 48px);
+@media (min-width: 1181px) {
+  .showcase-frame .uipack-docs[data-width="wide"] .uipack-docs__contents {
+    display: none;
+  }
+}
+.showcase-frame .uipack-docs__contents {
+  margin: -4px 0 0;
+}
+/* A table wider than the column scrolls inside its box (DocsMarkdown makes the box focusable, so
+   the arrow keys scroll it too). Its cue: the content fades out over 48px at each edge with more
+   table beyond it. The fade is a mask on the box, so nothing darkens behind the text. The shell
+   marks the edges (data-more="start end", ShowcaseShell's useTableScrollCues) from the box's
+   scroll position and size; a table that fits has no mark and never fades. */
+.showcase-frame .uipack-docs__table[data-more] {
+  --table-fade-start: 0px;
+  --table-fade-end: 0px;
+  -webkit-mask: linear-gradient(
+    to right,
+    transparent,
+    black var(--table-fade-start),
+    black calc(100% - var(--table-fade-end)),
+    transparent
+  );
+  mask: linear-gradient(
+    to right,
+    transparent,
+    black var(--table-fade-start),
+    black calc(100% - var(--table-fade-end)),
+    transparent
+  );
+}
+.showcase-frame .uipack-docs__table[data-more~="start"] {
+  --table-fade-start: 48px;
+}
+.showcase-frame .uipack-docs__table[data-more~="end"] {
+  --table-fade-end: 48px;
+}
+/* A demo's box only resets the style to Technical (demos.tsx); it takes no space of its own. */
+.showcase-demo {
+  display: contents;
 }
 .showcase-shell {
   display: grid;
@@ -113,7 +224,7 @@ body {
 }
 /* A gallery demo of several sections (the diagram catalogue, the web parts) keeps the shell's
    gap between them, as the page's own sections had. */
-.showcase-shell .uipack-docs__block[data-block="uipack-demo"]:has(> section + section) {
+.showcase-shell .uipack-docs__block[data-block="uipack-demo"] > .showcase-demo:has(> section + section) {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: 32px;
@@ -121,7 +232,7 @@ body {
 /* The heading scale (docs/design-direction.md): page title 40, section heading 24 (22 on
    phones), card and figure titles 18–20 at 600. e2e/page-audit.spec.ts holds every page to it. */
 .showcase-shell > section > h2,
-.showcase-shell .uipack-docs__block[data-block="uipack-demo"] > section > h2 {
+.showcase-shell .uipack-docs__block[data-block="uipack-demo"] > .showcase-demo > section > h2 {
   font-family: var(--show-font-display);
   font-size: 24px;
   line-height: 1.25;
@@ -132,18 +243,21 @@ body {
   /* No one-word last line when a heading wraps on a phone. */
   text-wrap: balance;
 }
+/* The banner: sticky, full width, 64px; below 900px a menu button opens the sidebar drawer. */
 .showcase-header {
-  display: grid;
-  gap: 0;
+  position: sticky;
+  top: 0;
+  z-index: 40;
   min-width: 0;
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--show-rule);
+  background: var(--show-bg);
+  border-bottom: 1px solid var(--ui-line-soft);
 }
 .showcase-header__bar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 16px;
+  gap: 8px;
+  height: var(--header-h, 64px);
+  padding: 0 clamp(16px, 2.2vw, 40px);
 }
 .showcase-brand {
   /* The wordmark's SVG text reads the shell mono. */
@@ -152,16 +266,31 @@ body {
   display: flex;
   align-items: center;
   min-height: 44px;
+  margin-right: 20px;
 }
 .showcase-header button.theme {
-  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
   font: var(--show-control-font);
-  padding: 6px 12px;
+  padding: 0 12px;
   border: 1px solid var(--show-rule);
-  background: transparent;
+  background: var(--show-surface);
   color: inherit;
-  border-radius: var(--show-control-radius);
+  border-radius: 4px;
   cursor: pointer;
+}
+.showcase-header button.theme:hover {
+  border-color: var(--show-ink);
+}
+.showcase-header .theme__icon {
+  display: block;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 .showcase-frame a:focus-visible,
 .showcase-frame button:focus-visible,
@@ -171,14 +300,60 @@ body {
 }
 .showcase-context {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
+  gap: 6px 10px;
   margin: 0;
   font: 12px var(--show-font-mono);
   color: var(--show-muted);
 }
 .showcase-context a {
   color: var(--show-accent);
+}
+/* The section chip: its icon in the section's hue; the label stays ink. The link is a 44px target on
+   touch around the 26px chip. */
+.showcase-frame .showcase-context a.showcase-crumb {
+  display: inline-flex;
+  align-items: center;
+  color: var(--show-ink);
+  font-weight: 600;
+  text-decoration: none;
+}
+.showcase-crumb__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 26px;
+  padding: 0 10px 0 6px;
+  border: 1px solid color-mix(in srgb, var(--docs-hue) 34%, transparent);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--docs-hue) 10%, transparent);
+  transition: background-color 140ms ease;
+}
+.showcase-crumb:hover .showcase-crumb__chip {
+  background: color-mix(in srgb, var(--docs-hue) 16%, transparent);
+}
+@media (pointer: coarse) {
+  .showcase-frame .showcase-context a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    margin: -9px 0;
+    padding: 0;
+  }
+}
+.showcase-frame .showcase-context a.showcase-crumb:hover {
+  background: color-mix(in srgb, var(--docs-hue) 16%, transparent);
+}
+/* A section's icon (site-settings.tsx), stroked in its section's hue (--docs-hue) wherever it sits. */
+.site-section-icon {
+  flex: none;
+  color: var(--docs-hue);
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 .showcase-title {
   margin-top: -8px;
@@ -351,8 +526,11 @@ body {
   color: var(--show-muted);
 }
 
-/* Compact header and menu sheet. Desktop keeps the two rows; below 720px one
-   row holds the brand, a button naming the current page, and the theme toggle. */
+/* Compact navigation (data-nav="compact" on the frame, set by ShowcaseShell below 900px, or below
+   1440px on a page that hosts a whole sample site): the sidebar steps aside, the header's menu
+   button opens it as a drawer (DocsLayout mobileNavigation="drawer"), and the page takes the width.
+   Below 520px the theme toggle keeps only its icon and the page bar keeps only the page's style
+   beside its location. */
 .showcase-header > * {
   min-width: 0;
 }
@@ -362,176 +540,85 @@ body {
   align-items: center;
   gap: 8px;
   min-width: 0;
+  margin-left: auto;
 }
-.showcase-menu-button,
-.theme__icon {
+.showcase-menu-button {
   display: none;
+  font: var(--show-control-font);
 }
-.showcase-menu {
-  display: none;
+.showcase-frame[data-nav="compact"] .showcase-menu-button {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  margin-left: -10px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--show-ink);
+  cursor: pointer;
 }
-.showcase-menu[open] {
-  display: none;
+.showcase-menu-button:hover {
+  background: color-mix(in srgb, var(--show-ink) 6%, transparent);
 }
-/* Their type is set outside the phone query, so no control ever falls back to the UA's Arial. */
-.showcase-menu-button,
-.showcase-menu__bar {
-  font: 600 13px var(--show-font-mono);
+.showcase-menu-button svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
 }
-.showcase-menu__bar button {
-  font: inherit;
+.showcase-frame[data-nav="compact"] .showcase-brand {
+  margin-right: 8px;
 }
-/* Compact navigation (data-nav="compact" on the frame, set by ShowcaseShell below 900px, or below
-   1440px on a page that hosts a whole sample site): the sidebar steps aside and the header's menu
-   button opens every page in a sheet. Below 720px the theme toggle keeps only its icon and the
-   page bar drops its context line. */
 .showcase-frame[data-nav="compact"] .uipack-docs__sidebar {
   display: none;
 }
 /* Outranks docs.css's wide grid (loaded after this file). */
-.showcase-frame[data-nav="compact"] > .uipack-docs[data-width] > .uipack-docs__grid {
+.showcase-frame[data-nav="compact"] > .uipack-docs[data-width] > .uipack-docs__grid,
+.showcase-frame[data-nav="compact"] > .uipack-docs[data-width] > .uipack-docs__grid[data-toc="none"] {
+  display: grid;
   grid-template-columns: minmax(0, 1fr);
+  padding: 0 20px;
 }
+.showcase-frame[data-nav="compact"] > .uipack-docs > .uipack-docs__grid > .uipack-docs__article {
+  grid-column: 1;
+  padding: 24px 0 72px;
+}
+.showcase-frame[data-nav="compact"] > .uipack-docs > .uipack-docs__grid > .uipack-docs__toc {
+  display: none;
+}
+.showcase-frame[data-nav="compact"] .uipack-docs[data-width="wide"] .uipack-docs__contents {
+  display: block;
+}
+/* A phone keeps the 16px side margins the gallery had before the docs shell: a 390px screen gives
+   its charts and figures 358px, the width their phone layouts are tuned to (SpanChart's twelve
+   column codes keep 8px apart there even where advances round to whole pixels; at 24px margins
+   they came to 7.5 on Linux). */
 @media (max-width: 719px) {
-  .showcase-header__bar {
-    gap: 8px;
+  .showcase-frame[data-nav="compact"] > .uipack-docs[data-width] > .uipack-docs__grid,
+  .showcase-frame[data-nav="compact"] > .uipack-docs[data-width] > .uipack-docs__grid[data-toc="none"] {
+    padding: 0 16px;
   }
-  .showcase-header__actions {
-    flex: 1 1 0;
-  }
-  .showcase-context {
-    display: none;
-  }
+}
+@media (max-width: 520px) {
   .showcase-header button.theme {
-    display: grid;
-    place-items: center;
-    flex: none;
+    justify-content: center;
     width: 44px;
     height: 44px;
     padding: 0;
-    font-size: 18px;
-    line-height: 1;
   }
   .theme__text {
     display: none;
   }
-  .theme__icon {
-    display: block;
+  /* A phone keeps the page's style, its one fact, and drops the source and Assets links. */
+  .showcase-frame .uipack-docs__source-links > a:not(.showcase-style-link) {
+    display: none;
+  }
+  .showcase-brand {
+    margin-right: 4px;
   }
 }
-.showcase-frame[data-nav="compact"] .showcase-menu-button {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  min-height: 44px;
-  min-width: 0;
-  max-width: 100%;
-  padding: 0 12px;
-  box-sizing: border-box;
-  border: 1px solid var(--show-ink);
-  border-radius: var(--show-control-radius);
-  background: var(--show-surface);
-  color: var(--show-ink);
-  font: 600 13px var(--show-font-mono);
-  cursor: pointer;
-}
-/* Two lines: the group small above, the page name as the button's text. Only the group may
-   shorten; the page name keeps its full width. */
-.showcase-frame[data-nav="compact"] .showcase-menu-button__where {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  min-width: 0;
-  text-align: left;
-}
-.showcase-frame[data-nav="compact"] .showcase-menu-button__group {
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font: 400 12px/14px var(--show-font-mono);
-  color: var(--show-muted);
-}
-.showcase-frame[data-nav="compact"] .showcase-menu-button__page {
-  white-space: nowrap;
-  font: 600 14px/18px var(--show-font-sans);
-}
-.showcase-frame[data-nav="compact"] .showcase-menu[open] {
-  display: block;
-  position: fixed;
-  inset: 0 0 auto 0;
-  margin: 0;
-  width: 100%;
-  max-width: none;
-  max-height: 100dvh;
-  overflow-y: auto;
-  box-sizing: border-box;
-  padding: 0 16px 24px;
-  border: 0;
-  border-bottom: 1px solid var(--show-rule);
-  background: var(--show-bg);
-  color: var(--show-ink);
-}
-.showcase-frame[data-nav="compact"] .showcase-menu::backdrop {
-  background: rgba(0, 0, 0, 0.45);
-}
-.showcase-frame[data-nav="compact"] .showcase-menu__bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  min-height: 56px;
-  font: 600 13px var(--show-font-mono);
-  color: var(--show-muted);
-}
-.showcase-frame[data-nav="compact"] .showcase-menu__bar button {
-  min-height: 44px;
-  padding: 0 16px;
-  border: 1px solid var(--show-rule);
-  border-radius: var(--show-control-radius);
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  cursor: pointer;
-}
-.showcase-frame[data-nav="compact"] .showcase-menu__group {
-  border-top: 1px solid var(--show-rule);
-  padding-top: 12px;
-  margin-top: 12px;
-}
-.showcase-frame[data-nav="compact"] .showcase-menu__group p {
-  margin: 0 0 4px;
-  font: 600 12px var(--show-font-mono);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--show-muted);
-}
-.showcase-frame[data-nav="compact"] .showcase-menu__group a {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  box-sizing: border-box;
-  min-height: 48px;
-  padding: 0 12px;
-  border-left: 3px solid transparent;
-  color: var(--show-ink);
-  font-size: 16px;
-  text-decoration: none;
-}
-.showcase-frame[data-nav="compact"] .showcase-menu__group a[aria-current="page"] {
-  border-left-color: var(--show-accent);
-  background: var(--show-surface);
-  font-weight: 600;
-}
-.showcase-frame[data-nav="compact"] .showcase-menu__group a[aria-current="page"]::after {
-  content: "✓ Current";
-  font: 600 12px var(--show-font-mono);
-  color: var(--show-accent);
-}
-.showcase-frame[data-nav="compact"] .chart-frame__bar button {
-  min-height: 44px;
-}
-
 /* Touch targets in page chrome. */
 .showcase-context a {
   padding: 14px 0;
@@ -541,16 +628,6 @@ body {
   min-height: 44px;
 }
 
-/* Sub-views of one page (decks) sit indented under a label in the menu sheet. */
-.showcase-frame[data-nav="compact"] .showcase-menu__sub {
-  display: block;
-  padding: 12px 12px 4px;
-  font: 600 12px var(--show-font-mono);
-  color: var(--show-muted);
-}
-.showcase-frame[data-nav="compact"] .showcase-menu__group a.is-sub {
-  padding-left: 32px;
-}
 /* On the narrowest phones the brand keeps only its mark, so the page name still fits whole. The
    link stays a 44px target: padding reaches into the page margin and the gap, not the layout. */
 @media (max-width: 359px) {
@@ -587,7 +664,7 @@ body {
 }
 @media (max-width: 540px) {
   .showcase-shell > section > h2,
-  .showcase-shell .uipack-docs__block[data-block="uipack-demo"] > section > h2 {
+  .showcase-shell .uipack-docs__block[data-block="uipack-demo"] > .showcase-demo > section > h2 {
     font-size: 22px;
   }
 }
@@ -720,14 +797,14 @@ body {
    marked by weight and an accent underline, not colour alone. */
 .showcase-tabs {
   display: flex;
+  align-self: stretch;
   gap: 4px;
-  margin-right: auto;
-  margin-left: 16px;
 }
 .showcase-frame .showcase-tabs a {
   display: inline-flex;
   align-items: center;
   min-height: 44px;
+  margin-bottom: -1px;
   padding: 0 12px;
   font: var(--show-control-font);
   color: var(--show-muted);
@@ -753,7 +830,6 @@ body {
 }
 @media (max-width: 719px) {
   .showcase-tabs {
-    margin-left: 4px;
     gap: 0;
   }
   .showcase-frame .showcase-tabs a {
@@ -762,6 +838,17 @@ body {
 }
 
 /* The Assets view: the header, then the gallery at the frame's full width. */
+.showcase-gallery-main {
+  display: block;
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 32px 24px 64px;
+}
+@media (max-width: 719px) {
+  .showcase-gallery-main {
+    padding-inline: 16px;
+  }
+}
 .showcase-gallery-main:focus {
   outline: none;
 }
@@ -787,16 +874,4 @@ body {
   color: var(--show-bg);
   font-weight: 600;
   text-decoration: none;
-}
-
-/* A compact docs page (below 900px) has the menu button, so the Docs/Assets tabs move into its
-   sheet; the Assets view has no menu button and keeps them. */
-.showcase-frame[data-nav="compact"] .showcase-tabs {
-  display: none;
-}
-.showcase-frame[data-nav="compact"] .showcase-menu__views a[aria-current="true"] {
-  font-weight: 600;
-  text-decoration: underline;
-  text-decoration-color: var(--show-accent);
-  text-underline-offset: 4px;
 }

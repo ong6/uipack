@@ -5,9 +5,8 @@
  * object scenes, 3D stories, the asset manifest and the docs demos), so a new asset appears here
  * once it is registered there.
  */
-import { lazy, Suspense, useEffect, useMemo, useRef, useState, type ComponentType, type ReactNode } from "react";
+import { lazy, useMemo, useState, type ComponentType, type ReactNode } from "react";
 import { PRESETS } from "../src/presets";
-import { FigureLayoutWidthContext } from "../src";
 import { SlideThumbnail } from "../src/deck";
 import { renderSlideSvg } from "../src/presentations";
 import { ObjectScene, objectScenes, objectVariants } from "../src/objects";
@@ -22,6 +21,7 @@ import { demos } from "./demos";
 import { GALLERY_INTRO, galleryCategories, type GalleryCategory } from "./gallery-index";
 import { ASSET_PREVIEW_BASE } from "./docs-links";
 import { useShowcaseTheme } from "./ShowcaseShell";
+import { Scaled, useNearViewport } from "./preview-stage";
 import "../src/theme.css";
 import "../src/canvas.css";
 import "../src/web/fonts.css";
@@ -35,9 +35,8 @@ import "./gallery-showcase.css";
 
 type Theme = "light" | "dark";
 
-/** How a card shows its asset: a still SVG, a live render at its own size, or a live render scaled from a design width. */
+/** How a card shows its asset: a live render at its own size, or a live render scaled from a design width. */
 type Preview =
-  | { kind: "svg"; svg: (theme: Theme) => string }
   | { kind: "live"; render: (theme: Theme) => ReactNode; ratio: string }
   /** Rendered at `width` CSS px, then scaled: "contain" fits the whole thing in the box, "top" fills the width and crops below. */
   | { kind: "scaled"; render: (theme: Theme) => ReactNode; width: number; fit: "contain" | "top"; ratio?: string };
@@ -60,7 +59,6 @@ interface GalleryItem {
   wide?: boolean;
 }
 
-const svgUrl = (svg: string) => `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
 const lazyNamed = <M,>(load: () => Promise<M>, name: keyof M) =>
   lazy(() => load().then((m) => ({ default: m[name] as ComponentType })));
 const WebSampleStill = lazyNamed(() => import("./WebShowcase"), "WebSampleStill");
@@ -130,7 +128,18 @@ function galleryItems(): GalleryItem[] {
       title: starter.title,
       kind: "Starter",
       page: "presentations",
-      preview: { kind: "svg", svg: (theme) => renderSlideSvg(starter, { theme }) },
+      // Painted with the page's roles (inline, not an <img>), so the starter sits on the preview's
+      // ground like every other slide here, in either theme.
+      preview: {
+        kind: "live",
+        ratio: "16 / 9",
+        render: () => (
+          <div
+            className="gallery-preview__inline"
+            dangerouslySetInnerHTML={{ __html: renderSlideSvg(starter, { paint: "css" }) }}
+          />
+        ),
+      },
     });
 
   // Demos: the sample landing page and the mechanism.
@@ -240,135 +249,34 @@ function figurePreview(figure: () => ReactNode): Preview {
   return { kind: "scaled", width: 1088, fit: "contain", render: () => figure() };
 }
 
-/**
- * Previews still waiting to mount, in page order. Each mounts when it nears the viewport, or,
- * failing that, in idle time, a couple at a time, so a card the reader jumps or scrolls past
- * without the page ever seeing it (a filter, a #link, a fast scroll on a busy page) still fills in.
- */
-const waiting: (() => void)[] = [];
-let pumping = false;
-const whenIdle = (run: () => void) =>
-  "requestIdleCallback" in window ? requestIdleCallback(run, { timeout: 400 }) : setTimeout(run, 60);
-function mountLater(mount: () => void) {
-  waiting.push(mount);
-  if (pumping) return;
-  pumping = true;
-  const step = () => {
-    // Two per turn keeps each mount's render a short task.
-    waiting.splice(0, 2).forEach((m) => m());
-    if (waiting.length) whenIdle(step);
-    else pumping = false;
-  };
-  whenIdle(step);
-}
-
-/** Mount children once the box nears the viewport (or in idle time), and keep them; inert and hidden from assistive tech. */
-function useNearViewport<T extends HTMLElement>() {
-  const ref = useRef<T>(null);
-  const [near, setNear] = useState(() => typeof IntersectionObserver === "undefined");
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    el.setAttribute("inert", "");
-    if (typeof IntersectionObserver === "undefined") return;
-    let live = true;
-    const mount = () => {
-      if (!live) return;
-      live = false;
-      io.disconnect();
-      setNear(true);
-    };
-    // A busy page can deliver several entries at once (out of view, in view, out again): any
-    // entry in view counts, not just the first.
-    const io = new IntersectionObserver((entries) => entries.some((e) => e.isIntersecting) && mount(), {
-      rootMargin: "800px 0px",
-    });
-    io.observe(el);
-    mountLater(mount);
-    return () => {
-      live = false;
-      io.disconnect();
-    };
-  }, []);
-  return { ref, near };
-}
-
-function Scaled({
-  width,
-  fit,
-  ratio = "16 / 10",
-  children,
-}: {
-  width: number;
-  fit: "contain" | "top";
-  ratio?: string;
-  children: ReactNode;
-}) {
-  const { ref, near } = useNearViewport<HTMLDivElement>();
-  const stage = useRef<HTMLDivElement>(null);
-  const [box, setBox] = useState({ w: 0, h: 0 });
-  const [natural, setNatural] = useState(0);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const ro = new ResizeObserver(([e]) => setBox({ w: e.contentRect.width, h: e.contentRect.height }));
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, [ref]);
-  useEffect(() => {
-    const el = stage.current;
-    if (!el) return;
-    // The stage's own height at its design width: transforms don't change layout size.
-    const ro = new ResizeObserver(() => setNatural(el.offsetHeight));
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, [near]);
-  const byWidth = box.w / width;
-  const scale = fit === "contain" && natural ? Math.min(byWidth, box.h / natural) : byWidth;
-  const left = (box.w - width * scale) / 2;
-  const top = fit === "contain" && natural ? Math.max(0, (box.h - natural * scale) / 2) : 0;
-  return (
-    <div ref={ref} className="gallery-preview gallery-preview--scaled" style={{ aspectRatio: ratio }} aria-hidden="true">
-      {near && (
-        <div
-          ref={stage}
-          className="gallery-preview__stage"
-          style={{ width, transform: `translate(${left}px, ${top}px) scale(${scale})`, visibility: box.w ? undefined : "hidden" }}
-        >
-          {/* Figures inside lay out at the design width, so their text floor ignores the scale. */}
-          <FigureLayoutWidthContext.Provider value={width}>
-            <Suspense fallback={null}>{children}</Suspense>
-          </FigureLayoutWidthContext.Provider>
-        </div>
-      )}
-    </div>
-  );
-}
-
 function PreviewBox({ preview, theme, tile }: { preview: Preview; theme: Theme; tile?: boolean }) {
   const { ref, near } = useNearViewport<HTMLDivElement>();
   if (preview.kind === "scaled")
     return (
-      <Scaled width={preview.width} fit={preview.fit} ratio={preview.ratio}>
+      <Scaled
+        width={preview.width}
+        fit={preview.fit}
+        ratio={preview.ratio}
+        className="gallery-preview gallery-preview--scaled"
+        stageClassName="gallery-preview__stage"
+        // Previews draw each part as the package does, in Technical (the docs site's palette stops here).
+        uiStyle="technical"
+      >
         {preview.render(theme)}
       </Scaled>
     );
-  const ratio = preview.kind === "live" ? preview.ratio : "16 / 10";
+  const ratio = preview.ratio;
   return (
     <div
       ref={ref}
       className={`gallery-preview gallery-preview--${preview.kind}${tile ? " gallery-preview--tile" : ""}`}
       style={tile ? undefined : { aspectRatio: ratio }}
       aria-hidden="true"
+      data-ui-style="technical"
     >
-      {near && (preview.kind === "svg" ? <SvgStill svg={preview.svg} theme={theme} /> : preview.render(theme))}
+      {near && preview.render(theme)}
     </div>
   );
-}
-
-function SvgStill({ svg, theme }: { svg: (theme: Theme) => string; theme: Theme }) {
-  const src = useMemo(() => svg(theme), [svg, theme]);
-  return src ? <img src={svgUrl(src)} alt="" decoding="async" /> : <span className="gallery-preview__none">Open to view</span>;
 }
 
 function Card({ item, theme }: { item: GalleryItem; theme: Theme }) {

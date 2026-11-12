@@ -1,0 +1,85 @@
+/* The docs site's own values: its spec, docs/specs/docs-site.md, extends Technical and sets only
+   these. Light keeps Technical's values exactly (test/site-palette.test.tsx holds every light half
+   to technical.css); dark is the site's own: a near-black neutral ground (charcoal, not navy), raised
+   neutral surfaces a step lighter each, a neutral ink ramp, and the gold and the section hues
+   re-tuned for it (every text value 4.5:1 or more on every surface; marks 3:1).
+
+   Unlayered, so it wins over technical.css's layered tokens, and the roles derived from these
+   (lines, the nav fill, the call-to-action) follow. Two rules: the ground, on the shell's frame and
+   on every demo, gallery preview and figure canvas dialog (in <body>); and the rest, on the frame
+   and every Technical host inside it, stopping at a demo (.showcase-demo) and a gallery preview:
+   each sets data-ui-style itself, so the part inside draws in Technical's ink, accent, flow and data
+   hues, on the site's ground. Loaded only by the docs site (playground/main.tsx): the package and
+   every other site keep Technical as it is. */
+
+/* The site's values, except the ground. */
+.showcase-frame,
+.showcase-frame [data-ui-style="technical"]:not(:is(.showcase-demo, .gallery-preview), :is(.showcase-demo, .gallery-preview) *) {
+  /* Ink: a neutral ramp, three levels. */
+  --ui-ink: light-dark(#0b2748, #eceef1);
+  --ui-ink-2: light-dark(#3d5878, #b3bac2);
+  --ui-ink-3: light-dark(#4b6485, #8f979f);
+  /* The one accent: Technical's amber in light, a gold tuned for charcoal in dark. */
+  --ui-accent: light-dark(#9c5700, #f3c05a);
+  --ui-on-accent: light-dark(#ffffff, #111315);
+  --ui-accent-surface: light-dark(#0b2748, #f3c05a);
+  --ui-accent-ink-2: light-dark(#f0c45a, #111315);
+  --ui-on-cta: light-dark(#ffffff, #111315);
+  /* Data: the context grey and the slate slot go neutral with the ground. */
+  --ui-data-context: light-dark(#8ea0b5, #737b85);
+  --ui-data-1: light-dark(#0b2748, #eceef1);
+  --ui-data-2: light-dark(#9c5700, #f3c05a);
+  --ui-data-4: light-dark(#5a708b, #a2adbb);
+  --ui-on-data-1: light-dark(#ffffff, #111315);
+  --ui-on-data-2: light-dark(#ffffff, #111315);
+  --ui-on-data-3: light-dark(#ffffff, #111315);
+  --ui-on-data-4: light-dark(#ffffff, #111315);
+  /* The closing band's ink (its fill is the ground's, below). */
+  --ui-band-ink: light-dark(#eef3fa, #eceef1);
+  --ui-band-ink-2: light-dark(#a9bfd9, #b3bac2);
+  --ui-on-band-cta: light-dark(#0b2748, #111315);
+
+  /* Navigation hues (the spec's "Navigation" section): one per sidebar section, used only on the
+     section's heading icon, the current-page marker, the page's breadcrumb chip and its search
+     results. Start is the ink; Rules the accent; Build, Check and Reference are the request cyan,
+     the response green and the slate, re-tuned for charcoal in dark. */
+  --site-hue-start: var(--ui-ink);
+  --site-hue-rules: var(--ui-accent);
+  --site-hue-build: light-dark(#0b77a3, #7cc4ec);
+  --site-hue-check: light-dark(#2b7a4b, #7dd9a0);
+  --site-hue-reference: light-dark(#5a708b, #a2adbb);
+}
+
+/* The ground, the page's and every demo's (the spec's "Demos and fixed looks"): the paper, the
+   surfaces, node fills, solid lines and the closing band. A demo, a gallery preview and a figure's
+   canvas dialog draw their part in Technical, and on this site sit on the site's charcoal ground, so
+   nothing large reads as navy beside the charcoal page. Light keeps Technical's values exactly. */
+:is(.showcase-demo, .gallery-preview, .uipack-canvas-dialog),
+:is(.showcase-demo, .gallery-preview, .uipack-canvas-dialog) [data-ui-style="technical"],
+.showcase-frame,
+.showcase-frame [data-ui-style="technical"] {
+  /* Surfaces: charcoal, each raised surface a little lighter. */
+  --ui-paper: light-dark(#f3f6f9, #111315);
+  --ui-surface: light-dark(#fcfdfe, #16181b);
+  --ui-surface-raised: light-dark(#ffffff, #1c1f23);
+  --ui-surface-2: light-dark(#e2e9f1, #22262a);
+  --ui-node: light-dark(#ffffff, #16181b);
+  --ui-line-solid: light-dark(#b9c8d9, #363b41);
+  --tune-slide-line: light-dark(#b9c8d9, #363b41);
+  /* The closing band: a step below the ground in dark. */
+  --ui-band-fill: light-dark(#0b2748, #0b0c0e);
+}
+
+/* A 3D scene's card in dark (the still it shows before WebGL draws, or without it): every art
+   direction's card sits on the site's charcoal, a lighter pool behind the subject, instead of its own
+   night colours (the cartoon and abstract cards are navy). The scene's own world, once WebGL draws
+   it, is the look's. */
+:is(.showcase-frame, .uipack-canvas-dialog) .uipack-object[data-theme="dark"][data-art-direction]:not([data-surface="page"]) {
+  --object-bg: var(--ui-surface);
+  background: radial-gradient(ellipse at 50% 38%, var(--ui-surface-2), var(--ui-paper));
+}
+
+/* The page ground behind the frame (overscroll, a short page) is the site's paper. */
+html body {
+  --show-bg: light-dark(#f3f6f9, #111315);
+}

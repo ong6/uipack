@@ -56,7 +56,8 @@ test.describe("themes", () => {
         .locator("figure.uipack")
         .first()
         .evaluate((el) => getComputedStyle(el).backgroundColor);
-      expect(bg).toBe(theme === "dark" ? "rgb(13, 42, 79)" : "rgb(252, 253, 254)");
+      // Technical's card in light; in dark the docs site's charcoal ground (docs/specs/docs-site.md).
+      expect(bg).toBe(theme === "dark" ? "rgb(22, 24, 27)" : "rgb(252, 253, 254)");
       expect(errors).toEqual([]);
     });
   }

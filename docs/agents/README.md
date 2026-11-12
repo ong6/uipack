@@ -34,14 +34,19 @@ uipack clone.
 
 ## Fixed vs per site
 
-A spec may set only what [this table](../system/spec-settings.md) lists: palette, faces, shape,
-ornaments, treatments, density, motion feel, the page types and a layout for each (grid, regions,
-section order, hero), its writing style (tone, title forms, density, house words, tighter budgets)
-and the component looks it picks. Everything else holds on every site: the layout floors (reading
-order, a real narrow layout, no overflow, tap targets, focus, the 8px unit), motion timings,
-contrast, keyboard and touch support, the core writing rules and slot ceilings, and a fixed look's
-values (a figure never takes the site's accent). A request for a fixed value is a core-rule change, not a
-site setting: say so instead of overriding it locally.
+A spec may set only what [this table](../system/spec-settings.md) lists; everything else holds on
+every site.
+
+| A spec may set (per site) | Holds on every site (fixed) |
+| --- | --- |
+| Palette, faces, shape, ornaments, treatments, density, motion feel | The layout floors: reading order, a real narrow layout, no overflow, tap targets, focus, the 8px unit |
+| The page types, and a layout for each: grid, regions, section order, hero | Motion timings |
+| Its writing style: tone, title forms, density, house words, tighter budgets | Contrast, keyboard and touch support |
+| The component looks it picks | The core writing rules and slot ceilings |
+| In dark, the ground a fixed look sits on | A fixed look's other values: a figure never takes the site's accent |
+
+A request for a fixed value is a core-rule change, not a site setting: say so instead of
+overriding it locally.
 
 ## Rules that catch agents most often
 

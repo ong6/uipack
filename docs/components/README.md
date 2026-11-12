@@ -26,7 +26,7 @@ reads the same list.
 
 | Mode | Means | A spec that picks it |
 | --- | --- | --- |
-| `fixed` | Identical on every site; only light and dark follow the host. A reader who met it on one site reads it on another | May not set the values it fixes (its component doc lists them); the checker fails a spec that does |
+| `fixed` | Identical on every site; only light and dark follow the host. A reader who met it on one site reads it on another | May not set the values it fixes (its component doc lists them); the checker fails a spec that does. One allowance: in dark, the spec may set the ground the look sits on (card, canvas, surfaces, solid lines), never its hues, shapes or faces |
 | `flex` | Keeps its drawing, lighting and motion, and takes the site's roles (palette, faces) as its row says | Sets nothing extra: the look reads the spec's roles. Diagrams take theirs from a diagram theme the spec declares (`diagram-themes:`) |
 
 A look is never recoloured or re-faced locally. A site that wants a fixed look in its own colours

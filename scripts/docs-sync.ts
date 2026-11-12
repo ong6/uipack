@@ -24,13 +24,19 @@ import { sectionOrder, uiStyles } from "../src/style";
 import { tidyChrome, tidySections } from "../playground/tidyFacts";
 import { figureRows } from "../playground/figure-rows";
 import { LAYER_SECTION_PARTS } from "../examples/articleSectionParts";
-import { docsManifest, docsPages, siteRegistry, type DocsPageEntry } from "../playground/docs-manifest";
+import { docsManifest, docsPages, docsSections, siteRegistry, type DocsPageEntry } from "../playground/docs-manifest";
+import { installLine, tarballUrl as releaseTarball } from "../playground/release";
 import { objectDirections, objectLooks, objectVariants } from "../src/objects/variants";
 import { frontmatter } from "./check-spec";
 import { COMPONENTS, LAYOUT_ARCHETYPES, PAGE_TYPES } from "./site-model";
 import { CORE_ROLES, lightDark, parseValueSet } from "./style-contract";
 
 const pagesOf = (g: (typeof docsManifest)[number]): readonly DocsPageEntry[] => g.pages;
+/** A group as the sidebar places it: its section, then its caption ("Build · Components"; "Start" for an untitled group). */
+const groupName = (g: (typeof docsManifest)[number]): string => {
+  const section = docsSections.find((s) => s.id === g.section)!.label;
+  return "caption" in g && g.caption === false ? section : `${section} · ${g.label}`;
+};
 /** A page as the site names it: "Deck player: Bento" for a sub-view, "Article parts: Verification" for a sub-page. */
 const pageName = (p: DocsPageEntry): string => {
   if (p.title) return `${p.title}: ${p.label}`;
@@ -113,7 +119,7 @@ export function siteMap(from: string) {
   return docsManifest
     .map(
       (g) =>
-        `- **${g.label}:** ${pagesOf(g)
+        `- **${groupName(g)}:** ${pagesOf(g)
           .map((p) => `[${pageName(p)}](${rel(from, p.file)})`)
           .join(", ")}`,
     )
@@ -131,7 +137,7 @@ export function llmsTxt() {
     const lines = pagesOf(g)
       .filter((p) => !seen.has(p.file) && seen.add(p.file))
       .map((p) => `- [${pageName(p)}](${p.file}): ${p.summary ?? p.intro}`);
-    return lines.length ? `## ${g.label}\n\n${lines.join("\n")}` : "";
+    return lines.length ? `## ${groupName(g)}\n\n${lines.join("\n")}` : "";
   });
   return [
     "# UiPack",
@@ -187,16 +193,68 @@ export function skillsSection() {
 
 const code = (v: string) => `\`${v.replace(/\|/g, "\\|")}\``;
 
-/** A spec's Role values table: every role its style file (frontmatter `values`) sets, light and dark. */
-export function specRoles(file: string) {
-  const values = frontmatter(readFileSync(join(root, file), "utf8"))?.values;
+/** A spec's own value file (frontmatter `values`), as role to value. */
+function specValues(file: string): Map<string, string> {
+  const fm = frontmatter(readFileSync(join(root, file), "utf8"));
+  const values = fm?.values;
   if (typeof values !== "string" || !existsSync(join(root, values)))
     throw new Error(`${file}: spec-roles needs frontmatter values: <style file>`);
-  const rows = [...parseValueSet(readFileSync(join(root, values), "utf8"))].map(([name, value]) => {
+  return parseValueSet(readFileSync(join(root, values), "utf8"));
+}
+
+/** The spec in docs/specs whose `spec:` id is `id`. */
+function specFile(id: string) {
+  const name = readdirSync(join(root, "docs/specs")).find(
+    (f) => f.endsWith(".md") && frontmatter(readFileSync(join(root, "docs/specs", f), "utf8"))?.spec === id,
+  );
+  return name && `docs/specs/${name}`;
+}
+
+/**
+ * A spec's Role values table: every role its style file (frontmatter `values`) sets, light and dark.
+ * A spec that extends another and names a file of its own values (the docs site's, over Technical)
+ * gets the base spec's roles with its own laid over them.
+ */
+export function specRoles(file: string) {
+  const fm = frontmatter(readFileSync(join(root, file), "utf8"));
+  const base = typeof fm?.extends === "string" && fm.extends !== "core" ? specFile(fm.extends) : undefined;
+  const own = specValues(file);
+  const set = base ? new Map([...specValues(base), ...own]) : own;
+  const rows = [...set].map(([name, value]) => {
     const [light, dark] = lightDark(value);
     return `| ${code(`--ui-${name}`)} | ${code(light)} | ${code(dark)} |`;
   });
   return ["| Role | Light | Dark |", "| --- | --- | --- |", ...rows].join("\n");
+}
+
+/** A spec's navigation hues: the `--site-hue-<section>` roles its value file sets, light and dark. */
+export function navHues(file: string) {
+  const values = frontmatter(readFileSync(join(root, file), "utf8"))?.values;
+  if (typeof values !== "string") throw new Error(`${file}: nav-hues needs frontmatter values: <file>`);
+  const css = readFileSync(join(root, values), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
+  const rows = [...css.matchAll(/--site-hue-([a-z0-9-]+):\s*([^;]+);/g)].map(([, section, value]) => {
+    const [light, dark] = lightDark(value.replace(/\s+/g, " ").trim());
+    const label = section.charAt(0).toUpperCase() + section.slice(1);
+    return `| ${label} | ${code(`--site-hue-${section}`)} | ${code(light)} | ${code(dark)} |`;
+  });
+  return ["| Section | Role | Light | Dark |", "| --- | --- | --- | --- |", ...rows].join("\n");
+}
+
+/**
+ * The ground a spec sets under demos and fixed looks in dark (its value file's
+ * `:is(.showcase-demo, …)` rule): each role, light and dark.
+ */
+export function demoGround(file: string) {
+  const values = frontmatter(readFileSync(join(root, file), "utf8"))?.values;
+  if (typeof values !== "string") throw new Error(`${file}: demo-ground needs frontmatter values: <file>`);
+  const css = readFileSync(join(root, values), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
+  const block = /^:is\(\.showcase-demo[^{]*\{([^}]*)\}/m.exec(css)?.[1];
+  if (!block) throw new Error(`${values}: no demo ground rule (:is(.showcase-demo, …) { … })`);
+  const rows = [...block.matchAll(/--((?:ui|tune)-[a-z0-9-]+):\s*([^;]+);/g)].map(([, role, value]) => {
+    const [light, dark] = lightDark(value.replace(/\s+/g, " ").trim());
+    return `| ${code(`--${role}`)} | ${code(light)} | ${code(dark)} |`;
+  });
+  return ["| Role | Light (Technical's) | Dark (the site's) |", "| --- | --- | --- |", ...rows].join("\n");
 }
 
 /** The template's Role values table: every contract role, both cells a TODO to fill. */
@@ -232,12 +290,11 @@ export function diagramFamily() {
 /** The latest release: package.json's version, which a release tags as `v<version>` on main (docs/releases.md). */
 export const releaseVersion = (): string => JSON.parse(readFileSync(join(root, "package.json"), "utf8")).version;
 
-/** The release tarball the release workflow attaches to tag `v<version>` (.github/workflows/release.yml). */
-export const tarballUrl = (version = releaseVersion()) =>
-  `https://github.com/ong6/uipack/releases/download/v${version}/uipack-${version}.tgz`;
+/** The release tarball for a version (playground/release.ts, which the landing page reads too). */
+export const tarballUrl = (version = releaseVersion()) => releaseTarball(version);
 
 /** The install line a site runs for the latest release. */
-export const installCommand = (version = releaseVersion()) => ["```sh", `npm install ${tarballUrl(version)}`, "```"].join("\n");
+export const installCommand = (version = releaseVersion()) => ["```sh", installLine(version), "```"].join("\n");
 
 const semver = (v: string) => /^v?(\d+)\.(\d+)\.(\d+)$/.exec(v)?.slice(1).map(Number) ?? null;
 
@@ -516,6 +573,8 @@ export const generators: Record<string, (file: string) => string> = {
   "slot-budgets": () => slotBudgetTable(),
   "site-map": (file) => siteMap(file),
   "spec-roles": (file) => specRoles(file),
+  "nav-hues": (file) => navHues(file),
+  "demo-ground": (file) => demoGround(file),
   "contract-roles": () => contractRoles(),
   "diagram-family": () => diagramFamily(),
   "site-registry": (file) => registryTable(file),

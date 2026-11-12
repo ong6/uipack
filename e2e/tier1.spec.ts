@@ -4,16 +4,17 @@ import { expect, test } from "./fixtures";
 
 // Tier 1 (docs/grading/tier-1.md) on a few docs-site pages that between them hold every shared
 // part a regression would hit: the shell (header, sidebar, page bar), prose and index lists, the
-// figures at both widths, the /web sample and the docs layout demo. Each runs the four views
-// (1440 and 390, light and dark) with the same spec as `npm run grade -- check <url> --spec uipack`,
-// no screenshots. A failure names the check, view, selector and measured number.
-const PAGES = ["/", "/components/diagrams", "/web", "/docs"];
+// figures at both widths, the /web sample and the docs layout demo. Each runs the docs site's six
+// views (1920, 1440 and 390, light and dark) with the same config as
+// `npm run grade -- check <url> --spec playground/grade.json`, no screenshots. A failure names the
+// check, view, selector and measured number.
+const PAGES = ["/", "/what-uipack-is", "/components/diagrams", "/web", "/docs"];
 
 for (const path of PAGES)
   test(`tier 1 passes on ${path}`, async ({ baseURL, browserName }) => {
     test.skip(browserName !== "chromium", "the grader drives its own Chromium");
-    test.setTimeout(150_000);
-    const report = await gradeUrl(new URL(path, baseURL).toString(), loadSpec("uipack"));
+    test.setTimeout(240_000);
+    const report = await gradeUrl(new URL(path, baseURL).toString(), loadSpec("playground/grade.json"));
     const failing = report.views.flatMap((v) =>
       v.checks
         .filter((c) => c.status === "fail")

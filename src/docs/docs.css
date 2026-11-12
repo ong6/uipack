@@ -18,6 +18,10 @@
   --docs-surface-strong: var(--tune-docs-warm-surface-strong, var(--ui-surface-2));
   --docs-accent: var(--tune-docs-warm-accent, var(--ui-accent));
   --docs-focus: var(--tune-docs-warm-focus, var(--ui-accent));
+  --docs-faint: var(--docs-muted);
+  --docs-rule-strong: color-mix(in srgb, var(--docs-ink) 26%, transparent);
+  --docs-paper: var(--tune-docs-warm-surface, var(--ui-paper));
+  --docs-raised: var(--tune-docs-warm-surface, var(--ui-surface-raised));
   color-scheme: light;
   color: var(--docs-ink);
   font-family: var(--docs-font-text);
@@ -39,6 +43,10 @@
   --docs-surface-strong: var(--tune-docs-surface-strong, var(--ui-surface-2));
   --docs-accent: var(--ui-accent);
   --docs-focus: var(--ui-accent);
+  --docs-faint: var(--ui-ink-3);
+  --docs-rule-strong: var(--ui-line);
+  --docs-paper: var(--ui-paper);
+  --docs-raised: var(--ui-surface-raised);
 }
 
 /* A host block (`.uipack-docs__block`: a live demo, a host's own page) keeps its own styles, so
@@ -146,7 +154,8 @@
 
 .uipack-docs__navigation,
 .uipack-docs__navigation ul,
-.uipack-docs__toc ol {
+.uipack-docs__toc ol,
+.uipack-docs__contents ol {
   margin: 0;
   padding: 0;
 }
@@ -167,7 +176,8 @@
 }
 
 .uipack-docs__navigation li,
-.uipack-docs__toc li {
+.uipack-docs__toc li,
+.uipack-docs__contents li {
   list-style: none;
 }
 
@@ -302,11 +312,11 @@
   }
 }
 
-.uipack-docs__toc ol {
+.uipack-docs__toc > ol {
   border-left: 1px solid var(--docs-rule);
 }
 
-.uipack-docs__toc a {
+.uipack-docs__toc > ol a {
   align-items: center;
   border-left: 2px solid transparent;
   color: var(--docs-muted);
@@ -319,7 +329,7 @@
   text-decoration: none;
 }
 
-.uipack-docs__toc li[data-level="3"] a {
+.uipack-docs__toc > ol li[data-level="3"] a {
   padding-left: 23px;
 }
 
@@ -327,7 +337,7 @@
   color: var(--docs-ink);
 }
 
-.uipack-docs__toc a[aria-current="location"] {
+.uipack-docs__toc > ol a[aria-current="location"] {
   border-left-color: var(--docs-accent);
   color: var(--docs-ink);
   font-weight: 600;
@@ -706,6 +716,758 @@
 
 @media (prefers-reduced-motion: reduce) {
   .uipack-docs__chevron {
+    transition: none;
+  }
+}
+
+/* ---------------------------------------------------------------- sections, markers, search */
+
+/* Collapsible sections (collapsible): the heading is a button with the section's icon in its hue,
+   its page count and a chevron; the body folds on a grid row. Three text levels below it: the
+   section label (mono caps, ink), a page (ink-2) and a sub-page (ink-3, on a tree line). */
+.uipack-docs__navigation[data-collapsible] .uipack-docs__nav-section + .uipack-docs__nav-section {
+  margin-top: 2px;
+}
+
+.uipack-docs__navigation[data-collapsible] .uipack-docs__nav-heading {
+  margin: 0;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.uipack-docs__nav-heading button {
+  align-items: center;
+  background: none;
+  border: 0;
+  border-radius: 4px;
+  color: var(--docs-ink);
+  cursor: pointer;
+  display: flex;
+  font: 600 12px/1 var(--docs-font-mono);
+  gap: 10px;
+  letter-spacing: 0.08em;
+  min-height: 40px;
+  padding: 6px 8px 6px 4px;
+  text-align: left;
+  text-transform: uppercase;
+  width: 100%;
+}
+
+.uipack-docs__nav-heading button:hover {
+  background: color-mix(in srgb, var(--docs-ink) 5%, transparent);
+}
+
+.uipack-docs__nav-heading button:focus-visible {
+  outline: 2px solid var(--docs-focus);
+  outline-offset: -2px;
+}
+
+.uipack-docs__nav-icon {
+  background: color-mix(in srgb, var(--docs-hue, var(--docs-ink)) 13%, transparent);
+  border-radius: 5px;
+  color: var(--docs-hue, var(--docs-ink));
+  display: inline-grid;
+  flex: none;
+  height: 24px;
+  place-items: center;
+  width: 24px;
+}
+
+.uipack-docs__nav-icon svg {
+  fill: none;
+  height: 15px;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
+  width: 15px;
+}
+
+.uipack-docs__nav-label {
+  min-width: 0;
+}
+
+.uipack-docs__nav-count {
+  color: var(--docs-faint);
+  font-weight: 400;
+  letter-spacing: 0;
+  margin-left: auto;
+}
+
+.uipack-docs__nav-chevron {
+  color: var(--docs-faint);
+  fill: none;
+  flex: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+  transition: transform 200ms var(--ui-ease-settle, ease);
+}
+
+.uipack-docs__nav-section[data-open] > .uipack-docs__nav-heading .uipack-docs__nav-chevron {
+  transform: rotate(90deg);
+}
+
+.uipack-docs__nav-section[data-open] > .uipack-docs__nav-heading .uipack-docs__nav-count {
+  visibility: hidden;
+}
+
+.uipack-docs__nav-body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 260ms var(--ui-ease-settle, ease);
+}
+
+.uipack-docs__nav-section[data-open] > .uipack-docs__nav-body {
+  grid-template-rows: 1fr;
+}
+
+.uipack-docs__nav-body > div {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.uipack-docs__nav-inner {
+  padding: 2px 0 14px;
+}
+
+/* Shut: hidden once the fold has played, so its links leave the tab order and the a11y tree. */
+.uipack-docs__nav-section:not([data-open]) .uipack-docs__nav-inner {
+  transition: visibility 0s linear 260ms;
+  visibility: hidden;
+}
+
+.uipack-docs__nav-caption {
+  align-items: center;
+  color: var(--docs-faint);
+  display: flex;
+  font: 500 12px/1.2 var(--docs-font-mono);
+  gap: 8px;
+  letter-spacing: 0.02em;
+  margin: 0;
+  padding: 12px 8px 4px 40px;
+}
+
+.uipack-docs__nav-caption::after {
+  background: var(--docs-rule);
+  content: "";
+  flex: 1;
+  height: 1px;
+}
+
+/* Three text levels, each AA or better and at a reading size: the section label (mono caps, ink),
+   a page (14px, ink-2) and a sub-page (13px, ink-2, on the tree line). */
+.uipack-docs__navigation[data-collapsible] a {
+  border-left: 0;
+  border-radius: 4px;
+  font-size: 14px;
+  min-height: 34px;
+  padding: 6px 8px 6px 40px;
+  position: relative;
+}
+
+.uipack-docs__navigation[data-collapsible] .uipack-docs__nav-sub {
+  margin: 0 0 4px;
+  position: relative;
+}
+
+/* The tree line sub-pages hang from (the sidebar marker docks on it: DocsMarkers NAV_SUB_DOCK_X). */
+.uipack-docs__navigation[data-collapsible] .uipack-docs__nav-sub::before {
+  background: var(--docs-rule-strong);
+  bottom: 9px;
+  content: "";
+  left: 46px;
+  position: absolute;
+  top: 3px;
+  width: 1px;
+}
+
+.uipack-docs__navigation[data-collapsible] .uipack-docs__nav-sub a {
+  color: var(--docs-muted);
+  font-size: 13px;
+  min-height: 32px;
+  padding: 4px 8px 4px 58px;
+}
+
+.uipack-docs__navigation[data-collapsible] a:hover {
+  background: color-mix(in srgb, var(--docs-ink) 4%, transparent);
+  color: var(--docs-ink);
+}
+
+.uipack-docs__navigation[data-collapsible] a[aria-current="page"] {
+  background: color-mix(in srgb, var(--docs-ink) 6%, transparent);
+  color: var(--docs-ink);
+  font-weight: 600;
+}
+
+.uipack-docs__navigation[data-collapsible] a:focus-visible {
+  outline-offset: -2px;
+}
+
+/* Collapsible with the plain marker: a dot in the section's hue beside the current page. */
+.uipack-docs__navigation[data-collapsible]:not([data-marker]) a[aria-current="page"]::before {
+  background: var(--docs-hue, var(--docs-accent));
+  border-radius: 50%;
+  content: "";
+  height: 7px;
+  left: 12.5px;
+  margin-top: -3.5px;
+  position: absolute;
+  top: 50%;
+  width: 7px;
+}
+
+.uipack-docs__navigation[data-collapsible]:not([data-marker]) .uipack-docs__nav-sub a[aria-current="page"]::before {
+  box-shadow: 0 0 0 2px var(--docs-paper);
+  left: 43px;
+}
+
+/* The travelling marker (marker="plane" | "mark"): a decorative drawing over the nav's left edge,
+   in the current section's hue, with a short dotted trail while it flies. */
+.uipack-docs__navigation[data-marker] {
+  position: relative;
+}
+
+.uipack-docs__nav-track {
+  color: var(--docs-hue, var(--docs-accent));
+  left: 0;
+  overflow: visible;
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  transition:
+    color 500ms ease,
+    opacity 160ms ease;
+  width: 64px;
+  z-index: 1;
+}
+
+.uipack-docs__nav-track[data-hidden] {
+  opacity: 0;
+}
+
+.uipack-docs__nav-trail {
+  fill: none;
+  opacity: 0;
+  stroke: currentColor;
+  stroke-dasharray: 0 4.5;
+  stroke-linecap: round;
+  stroke-width: 2;
+  transition: opacity 600ms ease;
+}
+
+.uipack-docs__nav-track[data-flying] .uipack-docs__nav-trail {
+  opacity: 0.8;
+  transition: none;
+}
+
+.uipack-docs__marker-body {
+  fill: currentColor;
+}
+
+.uipack-docs__marker-fold {
+  fill: none;
+  stroke: var(--docs-paper);
+  stroke-width: 1;
+}
+
+.uipack-docs__marker-mark rect {
+  fill: var(--docs-paper);
+  stroke: currentColor;
+  stroke-width: 1.4;
+}
+
+.uipack-docs__marker-mark circle {
+  fill: currentColor;
+}
+
+/* "On this page" with a travelling marker: a dotted path, a step right for each h3, the part read
+   in the accent and the marker on the current heading. */
+.uipack-docs__rail {
+  position: relative;
+}
+
+.uipack-docs__rail-track {
+  color: var(--docs-accent);
+  left: 0;
+  overflow: visible;
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  width: 32px;
+}
+
+.uipack-docs__rail-base,
+.uipack-docs__rail-done {
+  fill: none;
+  stroke-dasharray: 0 4.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.uipack-docs__rail-base {
+  stroke: color-mix(in srgb, var(--docs-ink) 32%, transparent);
+  stroke-width: 1.6;
+}
+
+.uipack-docs__rail-done {
+  stroke: var(--docs-accent);
+  stroke-width: 2;
+}
+
+.uipack-docs__toc-list a {
+  color: var(--docs-muted);
+  display: block;
+  font-size: 13.5px;
+  line-height: 1.45;
+  padding: 6px 0 6px 28px;
+  text-decoration: none;
+}
+
+.uipack-docs__toc-list li[data-level="3"] a {
+  font-size: 13px;
+  padding-left: 40px;
+}
+
+.uipack-docs__toc-list a[aria-current="location"] {
+  color: var(--docs-ink);
+  font-weight: 600;
+}
+
+/* "On this page" as a disclosure above the page, where the contents column has no room. */
+.uipack-docs__contents {
+  border-bottom: 1px solid var(--docs-rule);
+  border-top: 1px solid var(--docs-rule);
+  display: none;
+}
+
+.uipack-docs__contents summary {
+  align-items: center;
+  cursor: pointer;
+  display: flex;
+  gap: 12px;
+  list-style: none;
+  min-height: 52px;
+  padding: 8px 2px;
+}
+
+.uipack-docs__contents summary::-webkit-details-marker {
+  display: none;
+}
+
+.uipack-docs__contents summary span {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.uipack-docs__contents summary small {
+  color: var(--docs-muted);
+  font-family: var(--docs-font-mono);
+  font-size: 12px;
+  line-height: 1.3;
+  margin-left: auto;
+  text-align: right;
+}
+
+.uipack-docs__contents .uipack-docs__chevron {
+  fill: none;
+  flex: none;
+  height: 16px;
+  stroke: var(--docs-accent);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+  transition: transform 150ms ease;
+  width: 16px;
+}
+
+.uipack-docs__contents[open] .uipack-docs__chevron {
+  transform: rotate(180deg);
+}
+
+.uipack-docs__contents ol {
+  border-top: 1px solid var(--docs-rule);
+  padding: 4px 0 14px;
+}
+
+.uipack-docs__contents a {
+  align-items: center;
+  color: var(--docs-muted);
+  display: flex;
+  font-size: 14px;
+  min-height: 44px;
+  padding: 0 2px;
+  text-decoration: none;
+}
+
+.uipack-docs__contents li[data-level="3"] a {
+  font-size: 13.5px;
+  padding-left: 18px;
+}
+
+.uipack-docs__contents a[aria-current="location"] {
+  color: var(--docs-ink);
+  font-weight: 600;
+}
+
+@media (max-width: 1279px) {
+  .uipack-docs[data-width="wide"] .uipack-docs__contents {
+    display: block;
+  }
+}
+
+@media (max-width: 899px) {
+  .uipack-docs__contents {
+    display: block;
+  }
+}
+
+/* The drawer (mobileNavigation="drawer"): the sidebar as a modal sheet from the left. */
+.uipack-docs__drawer {
+  background: var(--docs-paper);
+  border: 0;
+  border-right: 1px solid var(--docs-rule-strong);
+  color: var(--docs-ink);
+  height: 100dvh;
+  inset: 0 auto 0 0;
+  margin: 0;
+  max-height: none;
+  max-width: none;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 8px 14px 48px 16px;
+  position: fixed;
+  transform: translateX(-102%);
+  transition:
+    transform 280ms var(--ui-ease-settle, ease),
+    overlay 280ms allow-discrete,
+    display 280ms allow-discrete;
+  width: min(330px, 88vw);
+}
+
+.uipack-docs__drawer[open] {
+  transform: none;
+}
+
+@starting-style {
+  .uipack-docs__drawer[open] {
+    transform: translateX(-102%);
+  }
+}
+
+.uipack-docs__drawer::backdrop {
+  background: rgb(0 0 0 / 0);
+  transition:
+    background-color 200ms ease,
+    overlay 280ms allow-discrete,
+    display 280ms allow-discrete;
+}
+
+.uipack-docs__drawer[open]::backdrop {
+  background: rgb(0 0 0 / 0.5);
+}
+
+@starting-style {
+  .uipack-docs__drawer[open]::backdrop {
+    background: rgb(0 0 0 / 0);
+  }
+}
+
+.uipack-docs__drawer-head {
+  align-items: center;
+  color: var(--docs-muted);
+  display: flex;
+  font: 600 12px/1 var(--docs-font-mono);
+  height: 52px;
+  justify-content: space-between;
+  letter-spacing: 0.08em;
+  margin: 0 -6px 8px 0;
+  text-transform: uppercase;
+}
+
+.uipack-docs__drawer-head button {
+  font: inherit;
+  background: transparent;
+  border: 0;
+  border-radius: 4px;
+  color: var(--docs-ink);
+  cursor: pointer;
+  display: inline-grid;
+  height: 44px;
+  place-items: center;
+  width: 44px;
+}
+
+.uipack-docs__drawer-head button:hover {
+  background: color-mix(in srgb, var(--docs-ink) 6%, transparent);
+}
+
+.uipack-docs__drawer-head svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-width: 1.8;
+}
+
+.uipack-docs__drawer .uipack-docs__nav-heading button,
+.uipack-docs__drawer .uipack-docs__navigation a {
+  min-height: 44px;
+}
+
+.uipack-docs__drawer .uipack-docs__navigation .uipack-docs__nav-sub a {
+  min-height: 40px;
+}
+
+/* Search: the box in the sidebar opens a dialog; results are grouped by section in its hue. */
+.uipack-docs-search__button {
+  align-items: center;
+  background: var(--docs-raised);
+  border: 1px solid var(--docs-rule-strong);
+  border-radius: 4px;
+  color: var(--docs-faint);
+  cursor: pointer;
+  display: flex;
+  font: 400 13.5px var(--docs-font-text);
+  gap: 8px;
+  height: 38px;
+  margin: 0 0 18px;
+  padding: 0 7px 0 10px;
+  text-align: left;
+  width: 100%;
+}
+
+.uipack-docs-search__button:hover {
+  border-color: var(--docs-muted);
+}
+
+.uipack-docs-search__button:focus-visible {
+  outline: 2px solid var(--docs-focus);
+  outline-offset: 2px;
+}
+
+.uipack-docs-search__placeholder {
+  flex: 1;
+}
+
+.uipack-docs-search kbd,
+.uipack-docs-search__button kbd {
+  background: var(--docs-surface);
+  border: 1px solid var(--docs-rule);
+  border-radius: 3px;
+  color: var(--docs-muted);
+  font: 500 12px/1 var(--docs-font-mono);
+  padding: 3px 5px;
+}
+
+.uipack-docs-search__icon {
+  fill: none;
+  flex: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-width: 2;
+}
+
+.uipack-docs-search {
+  background: var(--docs-paper);
+  border: 1px solid var(--docs-rule-strong);
+  border-radius: 6px;
+  box-shadow: 0 24px 64px rgb(0 0 0 / 0.28);
+  color: var(--docs-ink);
+  margin: 72px auto auto;
+  max-height: min(600px, calc(100dvh - 96px));
+  max-width: none;
+  padding: 0;
+  width: min(660px, calc(100vw - 32px));
+}
+
+.uipack-docs-search[open] {
+  display: flex;
+}
+
+.uipack-docs-search::backdrop {
+  background: rgb(0 0 0 / 0.45);
+}
+
+.uipack-docs-search__panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  width: 100%;
+}
+
+.uipack-docs-search__bar {
+  align-items: center;
+  border-bottom: 1px solid var(--docs-rule);
+  color: var(--docs-muted);
+  display: flex;
+  gap: 10px;
+  padding: 0 12px 0 16px;
+}
+
+.uipack-docs-search__bar input {
+  background: transparent;
+  border: 0;
+  color: var(--docs-ink);
+  flex: 1;
+  font: 400 16px var(--docs-font-text);
+  height: 56px;
+  min-width: 0;
+  outline: none;
+}
+
+.uipack-docs-search__bar input::placeholder {
+  color: var(--docs-faint);
+}
+
+.uipack-docs-search__bar input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.uipack-docs-search__close {
+  background: var(--docs-surface);
+  border: 1px solid var(--docs-rule);
+  border-radius: 3px;
+  color: var(--docs-muted);
+  cursor: pointer;
+  font: 500 12px/1 var(--docs-font-mono);
+  min-height: 32px;
+  min-width: 44px;
+  padding: 0 8px;
+}
+
+.uipack-docs-search__close:focus-visible,
+.uipack-docs-search__option:focus-visible {
+  outline: 2px solid var(--docs-focus);
+  outline-offset: 2px;
+}
+
+.uipack-docs-search__vh {
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}
+
+.uipack-docs-search__status {
+  color: var(--docs-muted);
+  font: 400 12px/1.4 var(--docs-font-mono);
+  margin: 0;
+  padding: 10px 16px 2px;
+}
+
+.uipack-docs-search__results {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0 8px 12px;
+}
+
+.uipack-docs-search__group-label {
+  align-items: center;
+  color: var(--docs-ink);
+  display: flex;
+  font: 600 12px/1 var(--docs-font-mono);
+  gap: 8px;
+  letter-spacing: 0.08em;
+  margin: 14px 8px 6px;
+  text-transform: uppercase;
+}
+
+.uipack-docs .uipack-docs-search__option {
+  border-left: 3px solid transparent;
+  border-radius: 4px;
+  color: var(--docs-ink);
+  display: grid;
+  gap: 3px;
+  padding: 9px 10px 9px 12px;
+  text-decoration: none;
+}
+
+.uipack-docs .uipack-docs-search__option[aria-selected="true"] {
+  background: color-mix(in srgb, var(--docs-hue, var(--docs-accent)) 12%, transparent);
+  border-left-color: var(--docs-hue, var(--docs-accent));
+}
+
+.uipack-docs-search__where {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.uipack-docs-search__where > span[aria-hidden] {
+  color: var(--docs-faint);
+  font-weight: 400;
+}
+
+.uipack-docs-search__snippet {
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  color: var(--docs-muted);
+  display: -webkit-box;
+  font-size: 13px;
+  line-height: 1.5;
+  overflow: hidden;
+}
+
+.uipack-docs-search__keys {
+  border-top: 1px solid var(--docs-rule);
+  color: var(--docs-muted);
+  display: flex;
+  font: 400 12px/1 var(--docs-font-mono);
+  gap: 18px;
+  margin: 0;
+  padding: 10px 16px;
+}
+
+.uipack-docs-search__keys kbd {
+  margin-right: 3px;
+}
+
+@media (max-width: 600px) {
+  .uipack-docs-search {
+    border: 0;
+    border-radius: 0;
+    height: 100dvh;
+    margin: 0;
+    max-height: none;
+    width: 100vw;
+  }
+
+  .uipack-docs-search__keys {
+    display: none;
+  }
+}
+
+@media (pointer: coarse) {
+  .uipack-docs-search__close {
+    min-height: 44px;
+  }
+
+  .uipack-docs-search__option {
+    min-height: 44px;
+  }
+
+  .uipack-docs-search__button {
+    height: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .uipack-docs__nav-body,
+  .uipack-docs__nav-chevron,
+  .uipack-docs__nav-track,
+  .uipack-docs__nav-trail,
+  .uipack-docs__contents .uipack-docs__chevron,
+  .uipack-docs__drawer,
+  .uipack-docs__drawer::backdrop {
+    transition: none;
+  }
+
+  .uipack-docs__nav-section:not([data-open]) .uipack-docs__nav-inner {
     transition: none;
   }
 }

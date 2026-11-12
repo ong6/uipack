@@ -3,7 +3,7 @@
 What every site spec must define, what each role means and which entry names read it. This is a
 core rule: it holds no site's values. Each website has one spec that fills it
 ([how to write a spec](../specs/README.md)); a value shown here as an example is labelled as
-coming from the [Technical spec](../specs/technical.md), the uipack site's own.
+coming from the [Technical spec](../specs/technical.md), the package's default look.
 
 A style is a **token set keyed to semantic roles**. Layouts and content ask for a role (`ink-2`,
 `accent`, `font.label`). A style answers with values. A different style gives different answers and
@@ -19,7 +19,7 @@ Today that is Technical alone. What a spec may choose, and what holds for every 
 
 These are the roles every style must fill. They live in `src/styles/`: `roles.css` declares the
 cascade layers and resets the optional roles, and each style is one value set keyed by
-`data-ui-style` (today only `technical.css`, the uipack site's spec and the default on `:root`). Every colour role is `light-dark(light, dark)`, so light and dark are two
+`data-ui-style` (today only `technical.css`, Technical, the default on `:root`). Every colour role is `light-dark(light, dark)`, so light and dark are two
 halves of one value set, resolved from the element's `color-scheme`. `test/style-roles.test.tsx`
 fails if a style leaves a core role out, and `scripts/check-spec.ts` fails a spec that gives one
 neither a value nor a `TODO:`.
@@ -166,6 +166,11 @@ mono caps of at least 11px. Technical's faces are in [its spec](../specs/technic
 - **Glow means selection.** It is never ambient. The one exception is a drillable node's soft glow
   ([Design direction](../design-direction.md)).
 - **Hierarchy by weight and opacity**, not by more hues. Text at 100 / 87 / 66% of one ink.
+- **Navigation hues are a spec's choice.** A spec may give each section of a site's navigation a
+  hue of its own ([what a spec may set](spec-settings.md), Navigation). It marks place, never text:
+  only the section's icon, the current-place marker and the page's breadcrumb chip, always beside
+  the section's label, at 3:1 or more as a mark on every ground. Text stays the ink ramp and the
+  accent stays the one accent.
 - **Contrast** of at least 4.5:1 for small text and 3:1 for large, in both themes.
 - **Radius scale**: one container radius per site (example, Technical: 0, square).
 - **Texture is optional and quiet**: grain 4–8%, grid lines 8% ink, dots 20% ink. One ambient

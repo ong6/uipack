@@ -38,7 +38,7 @@ function StyleCard({ style, theme, wide }: { style: VisualStyle; theme: "light" 
       <div>
         {style.id === "technical" ? (
           <>
-            <a href={`/?theme=${theme}`}>Diagrams</a>
+            <a href={`/components/diagrams?theme=${theme}`}>Diagrams</a>
             <a href={`/animations?theme=${theme}`}>3D animations</a>
             <a href={`/presentations?theme=${theme}`}>Presentations</a>
             <a href={`/web?theme=${theme}`}>Product page</a>

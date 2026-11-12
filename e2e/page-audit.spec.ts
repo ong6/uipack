@@ -21,14 +21,15 @@ import {
 test.describe.configure({ mode: "parallel" });
 
 // Mobile routes the owner asked to keep clean: no page-wide overflow at 390 and 768, in both themes.
-const MOBILE_ROUTES = ["/", "/charts", "/assets", "/styles", "/presentations", "/animations", "/docs", "/article"];
+const MOBILE_ROUTES = ["/what-uipack-is", "/charts", "/assets", "/styles", "/presentations", "/animations", "/docs", "/article"];
 // Pages and widths whose focus rings sit in scrolling or clipping rows.
 const FOCUS_RING_PAGES: Record<number, string[]> = {
   1440: ["/mechanism", "/docs", "/presentations"],
-  390: ["/animations", "/assets", "/mechanism", "/web", "/"],
+  390: ["/animations", "/assets", "/mechanism", "/web", "/what-uipack-is"],
 };
-// WebKit runs the audit on a few pages: the diagrams page, the /web sample page, and the docs layout.
-const CROSS_BROWSER = ["/", "/web", "/docs"];
+// WebKit runs the audit on a few pages: the first docs page, the /web sample page, and the docs layout.
+// (The landing page, outside the manifest, has its own spec: e2e/landing.spec.ts.)
+const CROSS_BROWSER = ["/what-uipack-is", "/web", "/docs"];
 
 async function open(page: Page, path: string, width: number) {
   await page.setViewportSize({ width, height: 900 });

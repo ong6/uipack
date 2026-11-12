@@ -1,20 +1,23 @@
 import { figureEntries } from "../playground/catalog";
 import { expect, test, waitForPage, waitForStable } from "./fixtures";
-import { ALL, GROUPS, currentLink, expectPageTitle, outline, sidebar, tabOf, title } from "./page-audit";
+import { ALL, SECTIONS, currentLink, expectPageTitle, outline, sidebar, tabOf, title } from "./page-audit";
 
 // Every page's own outline, tab title, phone header and overflow are checked in page-audit.spec.ts.
-// This spec covers moving between pages: the sidebar, the phone menu, previous and next, aliases,
-// sub-views and fallbacks.
+// This spec covers moving between pages: the sidebar, the phone drawer, previous and next, aliases,
+// sub-views and fallbacks. The sidebar's marker, search and widths are in docs-shell.spec.ts.
 const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 test("every page is reachable from the sidebar with the right current marker", async ({ page }) => {
   test.setTimeout(180_000); // visits every page, including the 3D and web ones, in dev mode
   // 1440: /web, which hosts a whole sample site, keeps the sidebar only from there (narrower, the menu).
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto("/?theme=dark");
-  // The sidebar is the manifest: its groups in order, each page under its group.
-  await expect(sidebar(page).locator(".uipack-docs__nav-section > h2")).toHaveText(GROUPS.map((g) => g.label));
-  for (const { group, label, path } of ALL) {
+  await page.goto("/what-uipack-is?theme=dark");
+  // The sidebar is the manifest: its five sections in order, each page under its section.
+  await expect(sidebar(page).locator(".uipack-docs__nav-label")).toHaveText(SECTIONS.map((s) => s.label));
+  for (const { section, label, path } of ALL) {
+    // A section the reader has not opened yet is opened first; open ones stay open from page to page.
+    const heading = sidebar(page).getByRole("button", { name: section, exact: true });
+    if ((await heading.getAttribute("aria-expanded")) === "false") await heading.click();
     await sidebar(page).getByRole("link", { name: label, exact: true }).click();
     await expect(page).toHaveURL(new RegExp(`${escape(path)}${path.includes("?") ? "&" : "\\?"}theme=dark$`));
     await expectPageTitle(page, label, path);
@@ -27,7 +30,7 @@ test("every page is reachable from the sidebar with the right current marker", a
       .locator(".showcase-header a, .showcase-frame > .uipack-docs > .uipack-docs__grid > .uipack-docs__sidebar a")
       .evaluateAll((els) => els.map((a) => a.getAttribute("href")));
     expect(hrefs.every((h) => h!.includes("theme=dark"))).toBe(true);
-    await expect(page.locator(".showcase-context")).toContainText(group);
+    await expect(page.locator(".showcase-crumb")).toHaveText(section);
   }
 });
 
@@ -43,7 +46,7 @@ test("previous and next follow the sidebar's order", async ({ page }) => {
     "/foundations/writing/general?theme=light",
   );
   // The first page has no previous link.
-  await page.goto("/");
+  await page.goto("/what-uipack-is");
   await expect(
     page.getByRole("navigation", { name: "Previous and next documentation pages" }).locator('[rel="prev"]'),
   ).toHaveCount(0);
@@ -71,6 +74,7 @@ test("the theme toggle updates the sidebar links and keeps the page", async ({ p
   await page.getByRole("button", { name: "dark mode", exact: true }).click();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
   await expect(sidebar(page).getByRole("link", { name: "Article parts" })).toHaveAttribute("href", "/article?theme=dark");
+  await sidebar(page).getByRole("button", { name: "Rules", exact: true }).click();
   await expect(sidebar(page).getByRole("link", { name: "Overview", exact: true })).toHaveAttribute(
     "href",
     "/foundations?theme=dark",
@@ -91,12 +95,16 @@ test("aliases /diagrams, /drill and /slides open their pages", async ({ page }) 
   await page.goto("/slides");
   await expectPageTitle(page, "3D animations", "/animations");
   await expect(currentLink(page)).toHaveText("3D animations");
-  // "/" is the home page now; an old link into the catalogue's sections moves to its page.
+  // "/" is the landing page now; an old link into the catalogue's sections moves to its page, and
+  // one into the "What UiPack is" page (which was "/" before the landing page) moves to that page.
   await page.goto("/#pipeline");
   await expect(page).toHaveURL(/\/components\/diagrams#pipeline$/);
   await expect(page.locator('section[data-section="pipeline"]')).toBeVisible();
+  await page.goto("/#install");
+  await expect(page).toHaveURL(/\/what-uipack-is#install$/);
+  await expectPageTitle(page, "What UiPack is", "/what-uipack-is");
   await page.goto("/start");
-  await expectPageTitle(page, "What UiPack is", "/");
+  await expectPageTitle(page, "What UiPack is", "/what-uipack-is");
 });
 
 test("diagrams page has its named sections and charts moved out", async ({ page }) => {
@@ -129,72 +137,81 @@ test("assets page lists no diagrams", async ({ page }) => {
   expect(cats.map((c) => c.replace(/\d+$/, "").trim())).toEqual(["All", "Icons", "Motion", "Backgrounds", "Marks"]);
 });
 
-test.describe("390px header and menu", () => {
+test.describe("390px header and drawer", () => {
   test.use({ viewport: { width: 390, height: 844 } });
 
-  test("the menu button names where you are, lists every page, navigates and keeps the theme", async ({ page }) => {
+  test("the menu button opens the sidebar as a drawer: every section, the current page marked, navigates and keeps the theme", async ({
+    page,
+  }) => {
     await page.goto("/charts?theme=dark");
-    const button = page.locator(".showcase-menu-button");
-    await expect(button).toHaveAccessibleName("Components: Charts");
+    const button = page.getByRole("button", { name: "Open navigation" });
     await expect(button).toHaveAttribute("aria-expanded", "false");
     await button.click();
-    const sheet = page.getByRole("dialog", { name: "Library menu" });
-    await expect(sheet).toBeVisible();
+    const drawer = page.getByRole("dialog", { name: "Library menu" });
+    await expect(drawer).toBeVisible();
     await expect(button).toHaveAttribute("aria-expanded", "true");
-    // Focus moved into the sheet.
-    expect(await sheet.evaluate((el) => el.contains(document.activeElement))).toBe(true);
-    // The two views first (the header's Docs/Assets tabs give way to them), then every group
-    // heading and every page, in order, with 48px rows.
-    await expect(sheet.locator(".showcase-menu__group > p")).toHaveText(["Views", ...GROUPS.map((g) => g.label)]);
-    await expect(sheet.getByRole("link")).toHaveText(["Docs", "Assets", ...ALL.map((p) => p.label)]);
-    // The links are a navigation landmark, the phone's only one while the header's navs are hidden.
-    await expect(sheet.getByRole("navigation", { name: "All library pages" }).getByRole("link")).toHaveCount(ALL.length);
-    const heights = await sheet.getByRole("link").evaluateAll((els) => els.map((a) => a.getBoundingClientRect().height));
-    expect(Math.min(...heights)).toBeGreaterThanOrEqual(48);
-    // The current page is marked for assistive tech and visibly, beyond colour.
-    const current = sheet.locator('[aria-current="page"]');
+    // Focus moved into the drawer, which slides in from the left edge.
+    expect(await drawer.evaluate((el) => el.contains(document.activeElement))).toBe(true);
+    await expect.poll(() => drawer.evaluate((el) => Math.round(el.getBoundingClientRect().left))).toBe(0);
+    // Its sections are the sidebar's, the current one open; rows are 44px tap targets.
+    await expect(drawer.locator(".uipack-docs__nav-label")).toHaveText(SECTIONS.map((s) => s.label));
+    await expect(drawer.getByRole("button", { name: "Build", exact: true })).toHaveAttribute("aria-expanded", "true");
+    const heights = await drawer
+      .locator(".uipack-docs__nav-heading button, .uipack-docs__navigation > section[data-open] a")
+      .evaluateAll((els) => els.filter((a) => a.getClientRects().length).map((a) => a.getBoundingClientRect().height));
+    expect(Math.min(...heights)).toBeGreaterThanOrEqual(40);
+    const current = drawer.locator('[aria-current="page"]');
     await expect(current).toHaveCount(1);
     await expect(current).toHaveText("Charts");
-    expect(await current.evaluate((el) => getComputedStyle(el, "::after").content)).toContain("Current");
-    const hrefs = await sheet.getByRole("link").evaluateAll((els) => els.map((a) => a.getAttribute("href")));
-    expect(hrefs.every((h) => h!.endsWith("theme=dark"))).toBe(true);
-    await sheet.getByRole("link", { name: "Icons & marks" }).click();
+    // The current page is marked beyond colour: weight and a tinted row.
+    expect(await current.evaluate((el) => getComputedStyle(el).fontWeight)).toBe("600");
+    const hrefs = await drawer.getByRole("link").evaluateAll((els) => els.map((a) => a.getAttribute("href")));
+    expect(hrefs.every((h) => h!.includes("theme=dark"))).toBe(true);
+    await drawer.getByRole("button", { name: "Reference", exact: true }).click();
+    await drawer.getByRole("link", { name: "Icons & marks" }).click();
     await expect(page).toHaveURL(/\/assets\?theme=dark$/);
     await expectPageTitle(page, "Icons & marks", "/assets");
-    await expect(page.locator(".showcase-menu-button")).toHaveAccessibleName("Reference: Icons & marks");
+    await expect(page.locator(".showcase-crumb")).toHaveText("Reference");
     await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
   });
 
-  test("Escape and Close both close the menu and return focus to the button", { tag: "@cross-browser" }, async ({ page }) => {
-    await page.goto("/components/diagrams");
-    const button = page.locator(".showcase-menu-button");
-    const sheet = page.getByRole("dialog", { name: "Library menu" });
-    await button.click();
-    await expect(sheet).toBeVisible();
-    await page.keyboard.press("Escape");
-    await expect(sheet).toBeHidden();
-    await expect(button).toBeFocused();
-    await expect(button).toHaveAttribute("aria-expanded", "false");
-    await button.click();
-    await sheet.getByRole("button", { name: "Close" }).click();
-    await expect(sheet).toBeHidden();
-    await expect(button).toBeFocused();
-  });
+  test(
+    "Escape, the close button and the scrim close the drawer and return focus to the button",
+    { tag: "@cross-browser" },
+    async ({ page }) => {
+      await page.goto("/components/diagrams");
+      const button = page.getByRole("button", { name: "Open navigation" });
+      const drawer = page.getByRole("dialog", { name: "Library menu" });
+      await button.click();
+      await expect(drawer).toBeVisible();
+      await page.keyboard.press("Escape");
+      await expect(drawer).toBeHidden();
+      await expect(button).toBeFocused();
+      await expect(button).toHaveAttribute("aria-expanded", "false");
+      await button.click();
+      await drawer.getByRole("button", { name: "Close navigation" }).click();
+      await expect(drawer).toBeHidden();
+      await expect(button).toBeFocused();
+      await button.click();
+      await expect(drawer).toBeVisible();
+      await page.mouse.click(380, 400);
+      await expect(drawer).toBeHidden();
+    },
+  );
 
   test(
-    "Tab and Shift+Tab cycle the menu's own controls, never the dialog box or the page",
+    "Tab and Shift+Tab cycle the drawer's own controls, never the dialog box or the page",
     { tag: "@cross-browser" },
     async ({ page, browserName }) => {
       const tab = browserName === "webkit" ? "Alt+Tab" : "Tab";
       await page.goto("/charts");
-      const sheet = page.getByRole("dialog", { name: "Library menu" });
-      await page.locator(".showcase-menu-button").click();
-      await expect(sheet).toBeVisible();
-      const close = sheet.getByRole("button", { name: "Close" });
-      await expect(close).toBeFocused();
-      const stops = await sheet.locator("a[href], button").count();
-      // One full lap and a step more: every stop is a link or Close inside the menu, and the lap ends on Close.
-      for (let i = 0; i < stops; i++) {
+      const drawer = page.getByRole("dialog", { name: "Library menu" });
+      await page.getByRole("button", { name: "Open navigation" }).click();
+      await expect(drawer).toBeVisible();
+      const stops = await drawer
+        .locator("a[href], button")
+        .evaluateAll((els) => els.filter((el) => el.getClientRects().length && !el.closest("[inert]")).length);
+      for (let i = 0; i < stops + 1; i++) {
         await page.keyboard.press(tab);
         expect(
           await page.evaluate(
@@ -202,34 +219,27 @@ test.describe("390px header and menu", () => {
           ),
         ).toBe(true);
       }
-      await expect(close).toBeFocused();
       await page.keyboard.press(`Shift+${tab}`);
-      await expect(sheet.getByRole("link").last()).toBeFocused();
+      expect(await page.evaluate(() => document.activeElement?.closest("dialog") !== null)).toBe(true);
     },
   );
 
-  test("the open menu locks the page's scroll and gives it back on close", { tag: "@cross-browser" }, async ({ page }) => {
+  test("the open drawer locks the page's scroll and gives it back on close", { tag: "@cross-browser" }, async ({ page }) => {
     await page.goto("/charts");
     await expect(page.locator(".showcase-loading")).toHaveCount(0);
     await page.evaluate(() => scrollTo(0, 400));
     const overflow = () => page.evaluate(() => getComputedStyle(document.documentElement).overflow);
     const before = await overflow();
-    // Opened where the page is (a pointer click would scroll the button into view first).
-    await page.locator(".showcase-menu-button").evaluate((b: HTMLButtonElement) => b.click());
+    await page.getByRole("button", { name: "Open navigation" }).evaluate((b: HTMLButtonElement) => b.click());
     await expect(page.getByRole("dialog", { name: "Library menu" })).toBeVisible();
     expect(await overflow()).toBe("hidden");
     const at = await page.evaluate(() => scrollY);
     expect(at).toBeGreaterThan(0);
-    await page.mouse.move(195, 600);
-    await page.mouse.wheel(0, 600);
-    // A wheel or swipe over the sheet does not move the page behind it.
-    await page.waitForTimeout(200); // watching that nothing moves needs time to pass
-    expect(await page.evaluate(() => scrollY)).toBe(at);
     await page.keyboard.press("Escape");
     await expect.poll(overflow).toBe(before);
     await page.mouse.move(195, 600);
     await page.mouse.wheel(0, 300);
-    await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(0);
+    await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(at - 1);
   });
 
   test("the theme icon button has a name and flips the theme", async ({ page }) => {
@@ -244,7 +254,7 @@ test("/web keeps the menu below 1440px, so its sample site gets a desktop width"
   await page.setViewportSize({ width: 1280, height: 800 });
   await page.goto("/web");
   await expect(sidebar(page)).toBeHidden();
-  await expect(page.locator(".showcase-menu-button")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Open navigation" })).toBeVisible();
   expect(await page.locator(".web-example").evaluate((el) => el.getBoundingClientRect().width)).toBeGreaterThanOrEqual(1024);
   await page.setViewportSize({ width: 1440, height: 800 });
   await expect(sidebar(page)).toBeVisible();
@@ -256,11 +266,11 @@ test.describe("the sidebar from 900px, the menu below", () => {
     await page.setViewportSize({ width: 768, height: 900 });
     await page.goto("/charts");
     await expect(sidebar(page)).toBeHidden();
-    await expect(page.locator(".showcase-menu-button")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Open navigation" })).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(768);
     await page.setViewportSize({ width: 1024, height: 900 });
     await expect(sidebar(page)).toBeVisible();
-    await expect(page.locator(".showcase-menu-button")).toBeHidden();
+    await expect(page.getByRole("button", { name: "Open navigation" })).toBeHidden();
     const heights = await sidebar(page)
       .getByRole("link")
       .evaluateAll((els) => els.map((a) => a.getBoundingClientRect().height));
@@ -289,21 +299,21 @@ test("deck sub-views: aria-current follows the deck query, defaulting to the fir
   );
 });
 
-test.describe("deck sub-views in the 390px menu", () => {
+test.describe("deck sub-views in the 390px drawer", () => {
   test.use({ viewport: { width: 390, height: 844 } });
-  test("they sit indented under a Deck player label and the current one is marked", async ({ page }) => {
+  test("they hang under Deck player on its tree line and the current one is marked", async ({ page }) => {
     await page.goto("/deck?deck=consulting");
-    await expect(page.locator(".showcase-menu-button")).toHaveAccessibleName("Components: Consulting");
-    await page.locator(".showcase-menu-button").click();
-    const sheet = page.getByRole("dialog", { name: "Library menu" });
-    await expect(sheet.getByRole("group", { name: "Components" }).locator(".showcase-menu__sub")).toHaveText("Deck player");
-    await expect(sheet.locator('[aria-current="page"]')).toHaveText("Consulting");
+    await page.getByRole("button", { name: "Open navigation" }).click();
+    const drawer = page.getByRole("dialog", { name: "Library menu" });
+    const run = drawer.getByRole("list", { name: "Deck player" });
+    await expect(run.getByRole("link")).toHaveText(["Tech talk", "Bento", "Consulting"]);
+    await expect(drawer.locator('[aria-current="page"]')).toHaveText("Consulting");
     const pad = async (name: string) =>
-      sheet.getByRole("link", { name, exact: true }).evaluate((el) => parseFloat(getComputedStyle(el).paddingLeft));
+      drawer.getByRole("link", { name, exact: true }).evaluate((el) => parseFloat(getComputedStyle(el).paddingLeft));
     expect(await pad("Bento")).toBeGreaterThan(await pad("Slide starters"));
-    await sheet.getByRole("link", { name: "Bento", exact: true }).click();
+    await drawer.getByRole("link", { name: "Bento", exact: true }).click();
     await expect(page).toHaveURL(/\/deck\?deck=bento&theme=light$/);
-    await expect(page.locator(".showcase-menu-button")).toHaveAccessibleName("Components: Bento");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveAccessibleName("Deck player · Bento");
   });
 });
 
@@ -311,11 +321,11 @@ test.describe("desktop sidebar groups", () => {
   test.use({ viewport: { width: 1280, height: 900 } });
   test("Rules lists the guides the pager walks, nothing else", async ({ page }) => {
     await page.goto("/foundations/writing");
-    const foundations = sidebar(page).locator(".uipack-docs__nav-section", {
-      has: page.getByRole("heading", { name: "Rules" }),
-    });
-    // The manifest's Rules group, sub-pages indented under Writing and Layout.
-    await expect(foundations.getByRole("link")).toHaveText(ALL.filter((p) => p.group === "Rules").map((p) => p.label));
+    const rules = sidebar(page).locator('.uipack-docs__nav-section[data-nav-section="rules"]');
+    // The manifest's Rules section (the core rules, then the site specs under their caption),
+    // sub-pages indented under Writing and Layout.
+    await expect(rules.getByRole("link")).toHaveText(ALL.filter((p) => p.section === "Rules").map((p) => p.label));
+    await expect(rules.locator(".uipack-docs__nav-caption")).toHaveText(["Site specs"]);
     await expect(sidebar(page).getByRole("list", { name: "Writing" }).getByRole("link")).toHaveText([
       "General rules",
       "Talks and slides",

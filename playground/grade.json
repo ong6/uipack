@@ -1,0 +1,11 @@
+{
+  "extends": "uipack",
+  "name": "ui.junxiong.dev",
+  "styleSpec": "../docs/specs/docs-site.md",
+  "notes": "The docs site's tier-1 config (docs/grading/tier-1.md): the playground's harness, the docs site's spec for faces, and a 1920 view beside 1440 and 390, where the shell's widths (docs/specs/docs-site.md, Layout) differ most.",
+  "viewports": [
+    { "name": "1920", "width": 1920, "height": 1080 },
+    { "name": "1440", "width": 1440, "height": 900 },
+    { "name": "390", "width": 390, "height": 844, "touch": true }
+  ]
+}

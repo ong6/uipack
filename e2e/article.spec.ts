@@ -253,12 +253,13 @@ test.describe("Article parts in the playground (notes palette)", () => {
       const { page, close } = await open(browser, 1440, `/article?theme=${theme}`);
       await page.locator(".uipack-cluster").first().waitFor();
       expectSoundLayout(await page.evaluate(audit), 1440);
-      // The Technical fallbacks switch with data-theme.
+      // The Technical fallbacks switch with data-theme; in dark the docs site's demos sit on its
+      // charcoal ground (docs/specs/docs-site.md, "Demos and fixed looks").
       const fill = await page
         .locator("a.uipack-notecard")
         .first()
         .evaluate((el) => getComputedStyle(el).backgroundColor);
-      expect(fill).toBe(theme === "light" ? "rgb(226, 233, 241)" : "rgb(17, 49, 90)");
+      expect(fill).toBe(theme === "light" ? "rgb(226, 233, 241)" : "rgb(34, 38, 42)");
       await close();
     }
   });

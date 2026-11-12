@@ -268,7 +268,8 @@ test.describe("/deck player", () => {
     await page.keyboard.press("Escape");
     await expect(dialog).toBeHidden();
     await expect(page.getByRole("button", { name: "All slides" })).toBeFocused();
-    await expect(page.locator("[inert]:not(.uipack-deck-layer)")).toHaveCount(0);
+    // (A shut sidebar section stays inert: that is the sidebar's own, not the overview's.)
+    await expect(page.locator("[inert]:not(.uipack-deck-layer, .uipack-docs__nav-body)")).toHaveCount(0);
     // The deck keys work again.
     await deck(page).focus();
     await page.keyboard.press("ArrowRight");
