@@ -29,13 +29,15 @@ function mountLater(mount: () => void) {
 
 /**
  * Mount children once the box nears the viewport (or in idle time, unless `idle` is false), and
- * keep them. `inert` (the default) makes the box inert, a picture rather than a control.
+ * keep them. `inert` (the default) makes the box inert, a picture rather than a control. `margin`
+ * and `threshold` are the IntersectionObserver's: how near counts, and how much must show.
  */
 export function useNearViewport<T extends HTMLElement>({
   inert = true,
   idle = true,
   margin = "800px 0px",
-}: { inert?: boolean; idle?: boolean; margin?: string } = {}) {
+  threshold = 0,
+}: { inert?: boolean; idle?: boolean; margin?: string; threshold?: number } = {}) {
   const ref = useRef<T>(null);
   const [near, setNear] = useState(() => typeof IntersectionObserver === "undefined");
   useEffect(() => {
@@ -54,6 +56,7 @@ export function useNearViewport<T extends HTMLElement>({
     // entry in view counts, not just the first.
     const io = new IntersectionObserver((entries) => entries.some((e) => e.isIntersecting) && mount(), {
       rootMargin: margin,
+      threshold,
     });
     io.observe(el);
     if (idle) mountLater(mount);
@@ -61,7 +64,7 @@ export function useNearViewport<T extends HTMLElement>({
       live = false;
       io.disconnect();
     };
-  }, [inert, idle, margin]);
+  }, [inert, idle, margin, threshold]);
   return { ref, near };
 }
 

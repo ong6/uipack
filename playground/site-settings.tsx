@@ -1,6 +1,6 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
 import type { MarkCell } from "../src";
-import type { DocsMarkerShape } from "../src/docs";
+import { isMarkerShape, type DocsMarkerShape } from "../src/docs/DocsMarkers";
 import type { DocsSectionId } from "./docs-manifest";
 
 /**
@@ -16,13 +16,12 @@ const MARKER_KEY = "uipack-docs-marker";
 /** The marker for this page load: the query's, else the one remembered this visit, else the site's. */
 export function markerSetting(search = location.search): DocsMarkerShape {
   const asked = new URLSearchParams(search).get("marker");
-  const valid = (v: unknown): v is DocsMarkerShape => v === "plane" || v === "mark";
   try {
-    if (valid(asked)) sessionStorage.setItem(MARKER_KEY, asked);
+    if (isMarkerShape(asked)) sessionStorage.setItem(MARKER_KEY, asked);
     const kept = sessionStorage.getItem(MARKER_KEY);
-    return valid(kept) ? kept : SITE_MARKER;
+    return isMarkerShape(kept) ? kept : SITE_MARKER;
   } catch {
-    return valid(asked) ? asked : SITE_MARKER;
+    return isMarkerShape(asked) ? asked : SITE_MARKER;
   }
 }
 
@@ -85,6 +84,9 @@ export function useBrandMark(section: DocsSectionId | undefined): {
   const cell = state === NEUTRAL ? undefined : BRAND_CELLS[state];
   return { state, live: cell ?? 3, liveColor: cell === undefined ? undefined : sectionHue(state as DocsSectionId) };
 }
+
+/** A section's hue as `--docs-hue` on an element, the name the docs layout and the site's CSS read it by. */
+export const sectionHueStyle = (id: DocsSectionId) => ({ "--docs-hue": sectionHue(id) }) as CSSProperties;
 
 /** Each section's icon: 24-unit line drawings, stroked in the section's hue by the docs layout. */
 const ICON_PATHS: Record<DocsSectionId, ReactNode> = {

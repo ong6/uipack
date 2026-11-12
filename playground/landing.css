@@ -6,11 +6,6 @@
    landing view"), which the header's bar reads too, so the header and every section share edges. */
 
 .uipack-landing {
-  /* Section tints for the job cards and the site map: the docs site's section hues (site-palette.css,
-     the spec's "Navigation"), the same ones the sidebar marks its sections with. */
-  --landing-hue-rules: var(--site-hue-rules);
-  --landing-hue-build: var(--site-hue-build);
-  --landing-hue-check: var(--site-hue-check);
   --landing-band-line: color-mix(in srgb, var(--ui-band-ink) 20%, transparent);
   /* Vertical rhythm, in steps of 8 (layout floor 6), set per width rather than fluid: the gap between
      two sections, the hero's top, the band's own padding and the footer's top. */
@@ -22,21 +17,6 @@
   font-family: var(--ui-font-text);
   font-size: 16px;
   line-height: 1.6;
-}
-.uipack-landing [data-section="rules"] {
-  --hue: var(--landing-hue-rules);
-}
-.uipack-landing [data-section="build"] {
-  --hue: var(--landing-hue-build);
-}
-.uipack-landing [data-section="check"] {
-  --hue: var(--landing-hue-check);
-}
-.uipack-landing [data-section="start"] {
-  --hue: var(--site-hue-start);
-}
-.uipack-landing [data-section="reference"] {
-  --hue: var(--site-hue-reference);
 }
 @media (max-width: 1023px) {
   .uipack-landing {
@@ -320,8 +300,8 @@
   max-width: 52ch;
   color: var(--ui-ink-2);
 }
-.landing-head__aside [data-section] {
-  color: var(--hue);
+.landing-head__aside .landing-hue {
+  color: var(--docs-hue);
   font-weight: 600;
 }
 
@@ -344,17 +324,24 @@
   flex-direction: column;
   gap: 8px;
   padding: 24px;
-  border: 1px solid color-mix(in srgb, var(--hue) 28%, transparent);
-  background: color-mix(in srgb, var(--hue) 6%, var(--ui-surface-raised));
-  box-shadow: inset 0 2px 0 var(--hue);
+  border: 1px solid color-mix(in srgb, var(--docs-hue) 28%, transparent);
+  background: color-mix(in srgb, var(--docs-hue) 6%, var(--ui-surface-raised));
+  box-shadow: inset 0 2px 0 var(--docs-hue);
   color: var(--ui-ink);
   text-decoration: none;
   transition:
     border-color var(--ui-dur-quick) var(--ui-ease-settle),
     transform var(--ui-dur-quick) var(--ui-ease-settle);
 }
+/* Dark: no tinted fills (the owner: no large blue areas in dark). The card is the neutral raised
+   surface with a neutral edge; its section hue stays on the top rule, the chip and the drawing.
+   :where() keeps this at the card rule's weight, so the hover border below still applies. */
+:where(.showcase-frame[data-theme="dark"]) .uipack-landing .landing-job {
+  border-color: var(--ui-line-soft);
+  background: var(--ui-surface-raised);
+}
 .landing-job:hover {
-  border-color: var(--hue);
+  border-color: var(--docs-hue);
   transform: translateY(-2px);
 }
 .landing-job__top {
@@ -366,26 +353,19 @@
 .landing-job__art {
   width: 76px;
   height: 50px;
-  color: var(--hue);
+  color: var(--docs-hue);
 }
 .landing-job__chip {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   padding: 4px 8px;
-  border: 1px solid color-mix(in srgb, var(--hue) 32%, transparent);
-  background: color-mix(in srgb, var(--hue) 9%, transparent);
+  border: 1px solid color-mix(in srgb, var(--docs-hue) 32%, transparent);
+  background: color-mix(in srgb, var(--docs-hue) 9%, transparent);
   color: var(--ui-ink);
   font: 600 12px/1.2 var(--ui-font-label);
   letter-spacing: 0.06em;
   text-transform: uppercase;
-}
-.landing-job__chip .site-section-icon {
-  fill: none;
-  stroke: var(--hue);
-  stroke-width: 1.7;
-  stroke-linecap: round;
-  stroke-linejoin: round;
 }
 .landing-job h3 {
   font-size: 18px;
@@ -722,13 +702,6 @@
   font: 600 12px/1.3 var(--ui-font-label);
   letter-spacing: 0.08em;
   text-transform: uppercase;
-}
-.landing-map h3 .site-section-icon {
-  fill: none;
-  stroke: var(--hue);
-  stroke-width: 1.7;
-  stroke-linecap: round;
-  stroke-linejoin: round;
 }
 .landing-map__caption {
   margin-bottom: 4px;

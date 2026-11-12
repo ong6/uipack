@@ -863,7 +863,7 @@ export const siteRegistry: readonly SiteEntry[] = [
     repo: "ong6/uipack",
     spec: "docs/specs/docs-site.md",
     specStatus: "written",
-    components: ["diagrams: blueprint (theme: blueprint)", "3d: all six", "mechanism: isometric"],
+    components: ["diagrams: blueprint (theme: docs-night)", "3d: all six", "mechanism: isometric"],
     pins: "current",
     notes:
       "Extends Technical with its own dark palette, navigation hues and location marker (playground/site-palette.css, playground/site-settings.tsx); light is Technical's",

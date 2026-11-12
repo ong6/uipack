@@ -10,16 +10,7 @@ import {
   type LibraryPage,
   type PageDef,
 } from "./catalog";
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-  useSyncExternalStore,
-  type CSSProperties,
-  type ReactNode,
-} from "react";
+import { createContext, useContext, useEffect, useMemo, useState, useSyncExternalStore, type ReactNode } from "react";
 import { Wordmark } from "../src";
 import {
   DocsLayout,
@@ -30,12 +21,12 @@ import {
   type DocsSection,
   type DocsTocItem,
 } from "../src/docs";
-import { DocsSearchButton, DocsSearchDialog } from "../src/docs/DocsSearch";
+import { DocsSearchButton, DocsSearchDialog, useDocsSearchShortcut } from "../src/docs/DocsSearch";
 import "../src/docs/docs.css";
 import { editUrl } from "./docs-manifest";
 import { galleryCategoryForPage, galleryHref } from "./gallery-index";
 import { SEARCH_INDEX_PATH } from "./search-index-path";
-import { markerSetting, NAV_MEMORY_KEY, SectionIcon, sectionHue, useBrandMark } from "./site-settings";
+import { markerSetting, NAV_MEMORY_KEY, SectionIcon, sectionHue, sectionHueStyle, useBrandMark } from "./site-settings";
 import { LANDING_TITLE } from "./landing-index";
 
 type ShowcaseTheme = {
@@ -210,17 +201,7 @@ export function ShowcaseShell({
   const search = useSiteSearch(theme);
   // The landing page's own search dialog (a docs page's is DocsLayout's): open from its header or ⌘K.
   const [searching, setSearching] = useState(false);
-  useEffect(() => {
-    if (!landing) return;
-    const onKey = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && !e.altKey && e.key.toLowerCase() === "k") {
-        e.preventDefault();
-        setSearching(true);
-      }
-    };
-    addEventListener("keydown", onKey);
-    return () => removeEventListener("keydown", onKey);
-  }, [landing]);
+  useDocsSearchShortcut(landing, setSearching);
   // The marker's shape for this load: the site's, or ?marker= (kept for the visit).
   const [marker] = useState(() => markerSetting());
   // Every page names itself in the tab, /web too: the sample page it hosts publishes the rest of its
@@ -322,7 +303,7 @@ export function ShowcaseShell({
           open={searching}
           onClose={() => setSearching(false)}
           options={search}
-          sections={sidebarSections(theme).map((s) => ({ id: s.id ?? s.title, title: s.title, icon: s.icon, hue: s.hue }))}
+          sections={sidebarSections(theme)}
         />
       </div>
     );
@@ -387,7 +368,7 @@ export function ShowcaseShell({
                   pageDefs.find((p) => p.id === section.groups[0].defaultPage)!,
                   theme,
                 )}
-                style={{ "--docs-hue": sectionHue(section.id) } as CSSProperties}
+                style={sectionHueStyle(section.id)}
               >
                 <span className="showcase-crumb__chip">
                   <SectionIcon id={section.id} size={14} />

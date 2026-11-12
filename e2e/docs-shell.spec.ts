@@ -376,13 +376,13 @@ test.describe("search", () => {
   test.use({ viewport: { width: 1440, height: 900 } });
 
   test("⌘K / Ctrl-K and the sidebar box open it; results are grouped by section, keyboard first", async ({ page }) => {
+    // The index loads on first open, not with the page: nothing requests it while the page loads.
+    const requested: string[] = [];
+    page.on("request", (r) => new URL(r.url()).pathname === "/search-index.json" && requested.push(r.url()));
     await page.goto("/charts?theme=dark");
     await expect(page.locator("main h1")).toBeVisible();
+    await page.waitForLoadState("load");
     const dialog = page.getByRole("dialog", { name: "Search the docs" });
-    // The index loads on first open, not with the page.
-    const requested: string[] = [];
-    page.on("request", (r) => r.url().includes("search-index") && requested.push(r.url()));
-    await page.waitForTimeout(300); // nothing should fetch it while the page sits
     expect(requested).toEqual([]);
     await page.keyboard.press("ControlOrMeta+k");
     await expect(dialog).toBeVisible();
