@@ -87,16 +87,17 @@ const colourOf = (page: Page, value: string) =>
     return colour;
   }, value);
 
-/** Waits until a marker's centre stops moving, and returns it. */
+/** Waits until a marker's centre has stopped moving (three readings running: a busy page can hold a hop's start back), and returns it. */
 async function settled(page: Page, selector: string) {
   let last = NaN;
+  let calm = 0;
   await expect
     .poll(
       async () => {
         const y = await midY(page, selector);
-        const still = Math.abs(y - last) < 0.5;
+        calm = Math.abs(y - last) < 0.5 ? calm + 1 : 0;
         last = y;
-        return still;
+        return calm >= 3;
       },
       { intervals: [120], timeout: 8000 },
     )
