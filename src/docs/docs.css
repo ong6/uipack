@@ -1185,6 +1185,7 @@
 }
 
 .uipack-docs__drawer-head button {
+  font: inherit;
   background: transparent;
   border: 0;
   border-radius: 4px;

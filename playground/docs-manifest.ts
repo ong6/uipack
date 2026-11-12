@@ -37,6 +37,11 @@ export interface DocsPageEntry {
   readonly fullWidth?: boolean;
   /** The page hosts a complete sample page with its own h1 (the /web sample). */
   readonly hostsPage?: boolean;
+  /**
+   * A demo on the page takes the whole window (the deck's present view scrolls its stage to the top
+   * edge): the site's banner scrolls away with the page instead of sticking over it.
+   */
+  readonly fullWindow?: boolean;
   /** The `visualStyles` name the page's content uses; default "Technical". */
   readonly styleName?: string;
 }
@@ -428,6 +433,7 @@ export const docsManifest = [
         label: "Tech talk",
         title: "Deck player",
         path: "/deck",
+        fullWindow: true,
         query: {
           deck: "moves",
         },
@@ -441,6 +447,7 @@ export const docsManifest = [
         label: "Bento",
         title: "Deck player",
         path: "/deck",
+        fullWindow: true,
         query: {
           deck: "bento",
         },
@@ -454,6 +461,7 @@ export const docsManifest = [
         label: "Consulting",
         title: "Deck player",
         path: "/deck",
+        fullWindow: true,
         query: {
           deck: "consulting",
         },

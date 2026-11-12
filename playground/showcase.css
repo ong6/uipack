@@ -7,8 +7,10 @@
   --show-radius: 6px;
 }
 /* The shell is Technical: <body data-ui-style="technical"> (index.html) holds Technical's roles,
-   and the shell's colours read them there. Their dark half follows data-theme through color-scheme. */
-body {
+   and the shell's colours read them there, and again on the frame, where the docs site's own values
+   (site-palette.css) take over. Their dark half follows data-theme through color-scheme. */
+body,
+.showcase-frame {
   /* Type: Technical's faces (IBM Plex Sans headings and text, IBM Plex Mono labels), read on <body> like the colours. */
   --show-font-sans: var(--ui-font-text);
   --show-font-display: var(--ui-font-display);
@@ -100,9 +102,24 @@ body {
 .showcase-frame .uipack-docs__toc > p {
   margin: 4px 0 12px;
 }
-/* Headings land under the sticky banner. */
+/* Anything scrolled to (a #fragment, a picked heading, a focused control) lands below the sticky
+   banner; headings sit 24px under it. */
+html:has(.showcase-frame:not([data-banner="static"])) {
+  scroll-padding-top: 64px;
+}
+.showcase-frame[data-banner="static"] .showcase-header {
+  position: static;
+}
+.showcase-frame[data-banner="static"] > .uipack-docs > .uipack-docs__grid > .uipack-docs__sidebar {
+  top: 0;
+  height: 100vh;
+  height: 100dvh;
+}
+.showcase-frame[data-banner="static"] > .uipack-docs > .uipack-docs__grid > .uipack-docs__toc {
+  top: 24px;
+}
 .showcase-frame .uipack-docs__prose :is(h1, h2, h3, h4, h5, h6) {
-  scroll-margin-top: calc(var(--header-h) + 24px);
+  scroll-margin-top: 24px;
 }
 /* Prose keeps a 76ch measure; tables, code, figures and demos take the whole column. */
 .showcase-frame
@@ -132,6 +149,10 @@ body {
 }
 .showcase-frame .uipack-docs__contents {
   margin: -4px 0 0;
+}
+/* A demo's box only resets the style to Technical (demos.tsx); it takes no space of its own. */
+.showcase-demo {
+  display: contents;
 }
 .showcase-shell {
   display: grid;
@@ -166,7 +187,7 @@ body {
 }
 /* A gallery demo of several sections (the diagram catalogue, the web parts) keeps the shell's
    gap between them, as the page's own sections had. */
-.showcase-shell .uipack-docs__block[data-block="uipack-demo"]:has(> section + section) {
+.showcase-shell .uipack-docs__block[data-block="uipack-demo"] > .showcase-demo:has(> section + section) {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: 32px;
@@ -174,7 +195,7 @@ body {
 /* The heading scale (docs/design-direction.md): page title 40, section heading 24 (22 on
    phones), card and figure titles 18–20 at 600. e2e/page-audit.spec.ts holds every page to it. */
 .showcase-shell > section > h2,
-.showcase-shell .uipack-docs__block[data-block="uipack-demo"] > section > h2 {
+.showcase-shell .uipack-docs__block[data-block="uipack-demo"] > .showcase-demo > section > h2 {
   font-family: var(--show-font-display);
   font-size: 24px;
   line-height: 1.25;
@@ -489,6 +510,7 @@ body {
 }
 .showcase-menu-button {
   display: none;
+  font: var(--show-control-font);
 }
 .showcase-frame[data-nav="compact"] .showcase-menu-button {
   display: inline-grid;
@@ -607,7 +629,7 @@ body {
 }
 @media (max-width: 540px) {
   .showcase-shell > section > h2,
-  .showcase-shell .uipack-docs__block[data-block="uipack-demo"] > section > h2 {
+  .showcase-shell .uipack-docs__block[data-block="uipack-demo"] > .showcase-demo > section > h2 {
     font-size: 22px;
   }
 }

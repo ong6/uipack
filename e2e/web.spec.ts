@@ -252,9 +252,9 @@ test.describe("/web collection", () => {
     const a = await pos();
     await expect.poll(pos).not.toBe(a);
     // The dot grid lights under the mouse.
+    // Hovered where nothing covers it (the docs site's banner is sticky).
     const tile = page.locator(".web-bg-tile").nth(1);
-    const box = (await tile.boundingBox())!;
-    await page.mouse.move(box.x + 60, box.y + 60);
+    await tile.hover({ position: { x: 60, y: 60 } });
     await expect(tile.locator(".uipack-web-gridbg")).toHaveAttribute("data-lit", "true");
   });
 

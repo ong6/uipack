@@ -300,6 +300,9 @@ export function ShowcaseShell({ active, children }: { active: LibraryPage | "not
       // Whether the page has "On this page": known from the manifest before its Markdown loads, so
       // the column does not shift sideways when the headings arrive.
       data-rail={markdown && !hostsPage && !page.fullWidth ? undefined : "none"}
+      // A page hosting a whole sample site (/web) keeps the sample's own sticky nav, and a page whose
+      // demo takes the window (the deck) keeps it whole: on both the banner scrolls away.
+      data-banner={hostsPage || page.fullWindow ? "static" : undefined}
     >
       <DocsLayout
         productTitle="UIPACK"

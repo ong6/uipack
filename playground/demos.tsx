@@ -123,7 +123,11 @@ export function DemoBlock({ id }: { id: string }) {
         </p>
       }
     >
-      <demo.Component />
+      {/* A demo shows the part as the package draws it: in Technical, not the docs site's own
+          palette (site-palette.css stops at this box; docs/specs/docs-site.md). */}
+      <div className="showcase-demo" data-ui-style="technical">
+        <demo.Component />
+      </div>
     </Suspense>
   );
 }

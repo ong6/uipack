@@ -300,8 +300,10 @@ Technical's ([Technical, Writing style](technical.md#writing-style)): the house 
 ## Component looks
 
 As Technical: diagrams in `blueprint` (theme `blueprint`), all six 3D looks, the `isometric`
-mechanism. Figures read the page's roles, so in dark they sit on the site's charcoal surfaces; their
-grammar, flow meanings and strokes are the look's own.
+mechanism. A fixed look's values are not this spec's to set, and every live demo and Assets preview
+shows a part as the package draws it: the site's values stop at each demo (`.showcase-demo`) and
+preview, which reset to Technical, so in dark a figure keeps Blueprint's Prussian card on the site's
+charcoal page. The site's values cover the shell, the prose, its tables and code.
 
 ## Reuse
 

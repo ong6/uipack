@@ -328,7 +328,14 @@ function Scaled({
   const left = (box.w - width * scale) / 2;
   const top = fit === "contain" && natural ? Math.max(0, (box.h - natural * scale) / 2) : 0;
   return (
-    <div ref={ref} className="gallery-preview gallery-preview--scaled" style={{ aspectRatio: ratio }} aria-hidden="true">
+    // Previews draw each part as the package does, in Technical (the docs site's palette stops here).
+    <div
+      ref={ref}
+      className="gallery-preview gallery-preview--scaled"
+      style={{ aspectRatio: ratio }}
+      aria-hidden="true"
+      data-ui-style="technical"
+    >
       {near && (
         <div
           ref={stage}
@@ -360,6 +367,7 @@ function PreviewBox({ preview, theme, tile }: { preview: Preview; theme: Theme; 
       className={`gallery-preview gallery-preview--${preview.kind}${tile ? " gallery-preview--tile" : ""}`}
       style={tile ? undefined : { aspectRatio: ratio }}
       aria-hidden="true"
+      data-ui-style="technical"
     >
       {near && (preview.kind === "svg" ? <SvgStill svg={preview.svg} theme={theme} /> : preview.render(theme))}
     </div>

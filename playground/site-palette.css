@@ -4,12 +4,15 @@
    neutral surfaces a step lighter each, a neutral ink ramp, and the gold and the section hues
    re-tuned for it (every text value 4.5:1 or more on every surface; marks 3:1).
 
-   Unlayered, on the same hosts as Technical's value set (:root and every [data-ui-style="technical"]),
-   so it wins over technical.css's layered tokens wherever Technical is set, and the roles derived
-   from these (lines, the nav fill, the call-to-action) follow. Loaded only by the docs site
+   Unlayered, on the shell's frame and every Technical host inside it, so it wins over technical.css's
+   layered tokens there and the roles derived from these (lines, the nav fill, the call-to-action)
+   follow. It stops at a demo (.showcase-demo) and a gallery preview: each sets data-ui-style
+   itself, so the part inside draws as the package draws it, in Technical (a fixed look's values,
+   the Blueprint figure card among them, are never a site's; docs/system/spec-settings.md). A
+   figure's canvas dialog, in <body>, keeps Technical too. Loaded only by the docs site
    (playground/main.tsx): the package and every other site keep Technical as it is. */
-:root,
-[data-ui-style="technical"] {
+.showcase-frame,
+.showcase-frame [data-ui-style="technical"]:not(:is(.showcase-demo, .gallery-preview), :is(.showcase-demo, .gallery-preview) *) {
   /* Surfaces: charcoal, each raised surface a little lighter. */
   --ui-paper: light-dark(#f3f6f9, #111315);
   --ui-surface: light-dark(#fcfdfe, #16181b);
@@ -52,4 +55,9 @@
   --site-hue-build: light-dark(#0b77a3, #7cc4ec);
   --site-hue-check: light-dark(#2b7a4b, #7dd9a0);
   --site-hue-reference: light-dark(#5a708b, #a2adbb);
+}
+
+/* The page ground behind the frame (overscroll, a short page) is the site's paper. */
+html body {
+  --show-bg: light-dark(#f3f6f9, #111315);
 }

@@ -202,12 +202,13 @@ test.describe("widths", () => {
       });
       // No dead gutter: the rail starts within ~a quarter of the column of the prose's right edge.
       expect(g.toc.left - g.proseRight).toBeLessThanOrEqual(220);
-      expect(g.toc.left - g.main.right).toBeGreaterThanOrEqual(38);
-      expect(g.toc.left - g.main.right).toBeLessThanOrEqual(58);
+      expect(g.toc.left + 5 - g.main.right).toBeGreaterThanOrEqual(38);
+      expect(g.toc.left + 5 - g.main.right).toBeLessThanOrEqual(58);
       expect(g.main.width).toBeLessThanOrEqual(881);
-      // The pair is centred in the space right of the sidebar.
+      // The pair is centred in the space right of the sidebar (the rail's box reaches 5px past its
+      // text on each side: room for a focus ring).
       const leftGap = g.main.left - g.side.right;
-      const rightGap = g.vw - g.toc.right;
+      const rightGap = g.vw - (g.toc.right - 5);
       expect(Math.abs(leftGap - rightGap)).toBeLessThanOrEqual(2);
       // Prose stops at about 76ch; a table takes the whole column.
       expect(g.proseWidth).toBeLessThanOrEqual(g.fontSize * 0.62 * 76);
