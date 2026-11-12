@@ -33,6 +33,12 @@ const ChartPreview = lazy(() => import("./landing/ChartPreview"));
 const ArticlePreview = lazy(() => import("./landing/ArticlePreview"));
 const ObjectPreview = lazy(() => import("./landing/ObjectPreview"));
 
+/** How near the viewport a lazy part mounts: about a screen ahead, so it is drawn before it shows. */
+const NEAR_MARGIN = "600px 0px";
+
+/** How long the copy button says "Copied" (or "Select it") before it reads "Copy" again. */
+const COPY_STATE_MS = 1800;
+
 const page = (id: string): PageDef => {
   const found = pageDefs.find((p) => p.id === id);
   if (!found) throw new Error(`landing: no docs page "${id}"`);
@@ -81,7 +87,7 @@ function InstallCommand() {
       setState("failed");
     }
     clearTimeout(timer.current);
-    timer.current = setTimeout(() => setState("idle"), 1800);
+    timer.current = setTimeout(() => setState("idle"), COPY_STATE_MS);
   };
   return (
     <div className="landing-install">
@@ -298,7 +304,7 @@ function Jobs({ theme }: { theme: Theme }) {
 
 /** Mounts its children once the box nears the viewport; the box keeps a minimum height meanwhile. */
 function WhenNear({ className, children }: { className: string; children: ReactNode }) {
-  const { ref, near } = useNearViewport<HTMLDivElement>({ inert: false, idle: false, margin: "600px 0px" });
+  const { ref, near } = useNearViewport<HTMLDivElement>({ inert: false, idle: false, margin: NEAR_MARGIN });
   return (
     <div ref={ref} className={className}>
       {near && <Suspense fallback={null}>{children}</Suspense>}
@@ -388,7 +394,7 @@ const picture = (width: number, fit: "contain" | "top", content: ReactNode) => (
     ratio="auto"
     className="landing-preview"
     stageClassName="landing-preview__stage"
-    margin="600px 0px"
+    margin={NEAR_MARGIN}
     idle={false}
   >
     {content}
