@@ -17,6 +17,7 @@ import { figureRows } from "./figure-rows";
 import { ShowcaseShell, ShowcaseThemeProvider, useShowcaseTheme } from "./ShowcaseShell";
 import { GALLERY_PATH } from "./gallery-index";
 import { LANDING_MODULE, LANDING_PATH, LANDING_SECTIONS } from "./landing-index";
+import { keepScrollPosition, READER_INPUT } from "./scroll-memory";
 
 // Every page module is its own chunk, with its own CSS. The shell (header, h1, intro) is in this
 // entry and renders at once; the page fills in below it when its chunk arrives. In a build,
@@ -62,10 +63,12 @@ function NotFound() {
  * focus there, so Tab carries on from the target. Content above it that is still loading (faces,
  * images) would push it down, so it stays aligned for two seconds or until the reader scrolls,
  * taps or types. Form controls are left to their page, which may own them (the charts select the
- * filter a hash names).
+ * filter a hash names). On a back or forward load the reader's own position is restored instead.
  */
 let hashOpened = false;
-const READER_INPUT = ["wheel", "touchstart", "pointerdown", "keydown"] as const;
+// Back and Forward return to where the reader was (scroll-memory.ts); that position then wins
+// over the address's #fragment, as it does in a browser.
+const restoringScroll = keepScrollPosition();
 function OpenHashTarget() {
   useEffect(() => {
     let id = location.hash.slice(1);
@@ -74,7 +77,7 @@ function OpenHashTarget() {
     } catch {
       /* keep the raw id */
     }
-    if (!id || hashOpened) return;
+    if (!id || hashOpened || restoringScroll) return;
     // Once per load, and outliving StrictMode's remount: the alignment ends on its own.
     const open = () => {
       const el = document.getElementById(id);

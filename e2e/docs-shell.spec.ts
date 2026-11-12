@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "./fixtures";
+import { expect, test, waitForStable, type Page } from "./fixtures";
 import { sidebar } from "./page-audit";
 
 // The docs shell's own behaviour (docs/specs/docs-site.md, "Navigation" and "Layout"): the
@@ -306,6 +306,121 @@ test.describe("the sidebar's marker", () => {
         return r.top + r.height / 2;
       });
     expect(Math.abs(landed - target)).toBeLessThan(3);
+  });
+
+  test("a long trip starts at the edge of the sidebar's visible part, and the header's mark changes on its own clock", async ({
+    page,
+  }) => {
+    await page.goto("/recipes/landing?theme=light");
+    const nav = sidebar(page);
+    await settled(page, navMarker);
+    // The reader opens Check and scrolls the sidebar to a page in it: the current page's link is far above, out of view.
+    await nav.getByRole("button", { name: "Check", exact: true }).click();
+    const link = nav.locator('a[href^="/grading/rubrics/landing"]');
+    // Once the section has opened (its fold plays), so the sidebar is laid out as the next page's will be.
+    await waitForStable(() => page.locator(".uipack-docs__sidebar").evaluate((el) => el.scrollHeight));
+    await link.scrollIntoViewIfNeeded();
+    await expect(nav.locator('[aria-current="page"]')).not.toBeInViewport();
+    const far = await nav.locator('[aria-current="page"]').evaluate(
+      (a, to) => {
+        const target = document.querySelector(`.uipack-docs__sidebar a[href="${to}"]`)!;
+        return target.getBoundingClientRect().top - a.getBoundingClientRect().top;
+      },
+      (await link.getAttribute("href"))!,
+    );
+    expect(far).toBeGreaterThan(900);
+    // The next page records, from its first script: every frame of the sidebar marker's trip against
+    // the sidebar's box, when its dot changes cell, and the header mark's portal (its wait, and when it changes).
+    await page.addInitScript(() => {
+      interface Trip {
+        frames: { top: number; bottom: number; boxTop: number; boxBottom: number; y: number }[];
+        navChanged?: number;
+        brandWait?: number;
+        brandChanged?: number;
+      }
+      const w = window as { __trip?: Trip };
+      const trip: Trip = (w.__trip = { frames: [] });
+      new MutationObserver((records) => {
+        for (const r of records) {
+          const el = r.target as Element;
+          if (
+            r.attributeName === "transform" &&
+            el.matches(".uipack-docs__sidebar .uipack-docs__nav-track .uipack-docs__marker")
+          ) {
+            const track = el.closest("svg")!;
+            if (!track.hasAttribute("data-flying") || track.hasAttribute("data-hidden")) continue;
+            const box = el.closest(".uipack-docs__sidebar")!.getBoundingClientRect();
+            const m = el.getBoundingClientRect();
+            const y = Number(el.getAttribute("transform")?.match(/translate\([-\d.]+ ([-\d.]+)\)/)?.[1]);
+            trip.frames.push({ top: m.top, bottom: m.bottom, boxTop: box.top, boxBottom: box.bottom, y });
+          } else if (r.attributeName === "data-brand-hop" && el.getAttribute("data-brand-hop") === "in") {
+            requestAnimationFrame(() => {
+              const playing = el.querySelector("svg > g")?.getAnimations()[0];
+              trip.brandWait = Number(playing?.effect?.getComputedTiming().delay);
+            });
+          } else if (r.attributeName === "data-brand" && r.oldValue && trip.brandChanged === undefined) {
+            trip.brandChanged = performance.now();
+          } else if (
+            r.attributeName === "data-live" &&
+            trip.frames.length &&
+            trip.navChanged === undefined &&
+            el.closest(".uipack-docs__sidebar .uipack-docs__marker")
+          ) {
+            // The dot moves to this page's cell: the sidebar's own portal, half-way.
+            trip.navChanged = performance.now();
+          }
+        }
+      }).observe(document, {
+        subtree: true,
+        attributes: true,
+        attributeOldValue: true,
+        attributeFilter: ["transform", "data-brand-hop", "data-brand", "data-live"],
+      });
+    });
+    await link.click();
+    await expect(page).toHaveURL(/\/grading\/rubrics\/landing/);
+    const track = page.locator(".uipack-docs__sidebar .uipack-docs__nav-track");
+    // The trip has played out: the header's mark is Check's, and the marker has docked beside the link.
+    await expect(page.locator(".showcase-brand")).toHaveAttribute("data-brand", "check");
+    await expect(page.locator(".showcase-brand")).not.toHaveAttribute("data-brand-hop");
+    await expect
+      .poll(() => page.evaluate(() => (window as { __trip?: { frames: unknown[] } }).__trip!.frames.length))
+      .toBeGreaterThan(10);
+    await expect(track).not.toHaveAttribute("data-flying", { timeout: 8000 });
+    const trip = await page.evaluate(
+      () =>
+        (
+          window as {
+            __trip?: {
+              frames: { top: number; bottom: number; boxTop: number; boxBottom: number; y: number }[];
+              navChanged?: number;
+              brandWait?: number;
+              brandChanged?: number;
+            };
+          }
+        ).__trip!,
+    );
+    // Every frame of the trip, the first included, is inside the sidebar's box: it sets off just
+    // inside the top edge (the side the old page is on), not from the old link 900px and more above.
+    for (const [i, f] of trip.frames.entries()) {
+      expect(f.top, `frame ${i} top`).toBeGreaterThanOrEqual(f.boxTop);
+      expect(f.bottom, `frame ${i} bottom`).toBeLessThanOrEqual(f.boxBottom);
+    }
+    const first = trip.frames[0];
+    expect(first.top - first.boxTop).toBeLessThan(40);
+    // So the trip is the distance seen, not the distance between the two links.
+    const travelled = trip.frames.at(-1)!.y - first.y;
+    expect(travelled).toBeGreaterThan(36);
+    expect(travelled).toBeLessThan(first.boxBottom - first.boxTop);
+    // The header's portal waits no longer than the settle (--site-mark-wait), though the sidebar's
+    // marker reaches its own portal later than that on a trip this long: the header changes first.
+    const settle = await page
+      .locator(".showcase-brand")
+      .evaluate((el) => parseFloat(getComputedStyle(el).getPropertyValue("--site-mark-wait")));
+    expect(settle).toBe(400);
+    expect(trip.brandWait).toBe(settle);
+    expect(trip.brandChanged).toBeLessThan(trip.navChanged!);
+    await expect.poll(() => dotOf(page, navMarker)).toMatchObject({ cell: "3" });
   });
 
   test("on a Reference page the mark is the neutral one: the dot bottom right in the ink", async ({ page }) => {

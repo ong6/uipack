@@ -81,8 +81,10 @@ const PORTAL_HALF = 320;
  * the state the reader left is kept for the visit (sessionStorage): the mark is first drawn there,
  * then changes to this page's in a portal (showcase.css plays it on the anchor `props` go on: the
  * mark turns into a ring, the state changes while it is out of sight, and it comes back out). The
- * portal waits for the page to settle, or, when the sidebar marker is travelling to its own portal
- * (`onMarkerTrip`, the docs layout's prop), for that, so the two change together. With reduced
+ * portal waits for the page to settle (`--site-mark-wait`, showcase.css), or, when the sidebar
+ * marker reaches its own portal sooner (`onMarkerTrip`, the docs layout's prop), for that, so the
+ * two change together; it never waits longer than the settle, however far the sidebar's marker has
+ * to travel. With reduced
  * motion, with nothing remembered, or with `hop` off (the landing page, whose mark loops), it is
  * drawn in place.
  */
@@ -148,7 +150,8 @@ export function useBrandMark(
       style: portal
         ? ({
             "--brand-hop-hue": brandHue(now),
-            ...(portal.wait === undefined ? null : { "--brand-hop-wait": `${portal.wait}ms` }),
+            // The sidebar's portal when it comes within the settle, else the settle: one clock.
+            ...(portal.wait === undefined ? null : { "--brand-hop-wait": `min(${portal.wait}ms, var(--site-mark-wait))` }),
           } as CSSProperties)
         : undefined,
       onAnimationEnd: (event: AnimationEvent) => {

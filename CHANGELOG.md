@@ -17,6 +17,17 @@ release is cut and how a site moves to it.
   themselves wherever they are mounted (a result was a browser-default link when the dialog had no
   `.uipack-docs` ancestor); they need only the `--docs-*` names on an ancestor.
 - **`DocsLayout` drawer:** a sub-page row is a 44px tap target (it was 40px).
+- **`DocsLayout` sidebar marker:** a trip from a page whose link is scrolled out of the sidebar's
+  view starts just inside the edge it comes in by, so the marker is seen from its first frame (it
+  set off from the hidden link and spent most of a long trip out of sight), and the trip's hops
+  and time are those of the distance seen. `visibleRoute` cuts a route to a box.
+- **The docs site, Back and Forward:** they return the reader to where they were on the landing
+  page, the Assets tab and every docs page (each opened at its top: the content mounts after the
+  browser has tried to restore the position). A page opened by a link still starts at its top, and
+  a `#fragment` still lands on its heading.
+- **The docs site's header mark:** its portal starts within 400ms of the page (`--site-mark-wait`)
+  however far the sidebar's marker has to travel (it waited up to 1.2s for a long trip); it still
+  changes with the sidebar's marker when that reaches its portal sooner.
 
 ### Added
 
