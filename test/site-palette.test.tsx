@@ -12,14 +12,15 @@ const declarations = (block: string) =>
   Object.fromEntries(
     [...block.matchAll(/--([a-z][a-z0-9-]*):\s*([^;]+);/g)].map((m) => [m[1], m[2].replace(/\s+/g, " ").trim()]),
   );
-// The frame's rule (the site's palette) is the file's first block; the demo ground is the rule whose
-// selector starts with :is(.showcase-demo, …).
+// Two rules: the site's values but the ground, on the frame and stopping at demos (the file's first
+// block), and the ground, whose selector starts with :is(.showcase-demo, …) and also names the frame.
 const frameBlock = /\{([^}]*)\}/.exec(css)![1];
-const groundBlock = /^:is\(\.showcase-demo[^{]*\{([^}]*)\}/m.exec(css)![1];
+const ground = /^(:is\(\.showcase-demo[^{]*)\{([^}]*)\}/m.exec(css)!;
+const groundSelectors = ground[1].split(/,\s*(?![^()]*\))/).map((s) => s.trim());
+const groundValues = declarations(ground[2]);
 const site: Record<string, string> = {};
-for (const [name, value] of Object.entries(declarations(frameBlock)))
+for (const [name, value] of Object.entries({ ...declarations(frameBlock), ...groundValues }))
   if (/^(ui|site)-/.test(name)) site[name.replace(/^(ui|site)-/, "$1:")] = value;
-const ground = declarations(groundBlock);
 const technical = readStyle("technical");
 const siteUi = Object.fromEntries(
   Object.entries(site)
@@ -91,7 +92,7 @@ describe("the docs site's ground under demos and fixed looks", () => {
   const demo: Record<string, string> = {
     ...technical,
     ...Object.fromEntries(
-      Object.entries(ground)
+      Object.entries(groundValues)
         .filter(([k]) => k.startsWith("ui-"))
         .map(([k, v]) => [k.slice(3), v]),
     ),
@@ -100,21 +101,19 @@ describe("the docs site's ground under demos and fixed looks", () => {
 
   it("sets only the ground: surfaces, node fills, solid lines and the band, never a hue, ink or face", () => {
     const allowed = new Set([...GROUNDS, "tune-slide-line", "ui-band-fill"]);
-    for (const name of Object.keys(ground)) expect(allowed, name).toContain(name);
-    for (const name of GROUNDS) expect(ground, name).toHaveProperty(name);
+    for (const name of Object.keys(groundValues)) expect(allowed, name).toContain(name);
+    for (const name of GROUNDS) expect(groundValues, name).toHaveProperty(name);
   });
 
-  it("keeps every light half Technical's and every dark half the page's own", () => {
-    for (const [name, value] of Object.entries(ground)) {
-      const [light, dark] = lightDark(value);
-      if (name.startsWith("ui-")) {
-        const role = name.slice(3);
-        expect(resolveColor(light, "light", technical), `${name} light`).toEqual(
-          resolveColor(lightDark(technical[role])[0], "light", technical),
-        );
-        expect(dark, `${name} dark`).toBe(lightDark(site[`ui:${role}`])[1]);
-      }
-    }
+  it("is one rule for the page and every demo, preview and canvas dialog, and the frame's own rule leaves it alone", () => {
+    for (const selector of [
+      ".showcase-frame",
+      '.showcase-frame [data-ui-style="technical"]',
+      ":is(.showcase-demo, .gallery-preview, .uipack-canvas-dialog)",
+      ':is(.showcase-demo, .gallery-preview, .uipack-canvas-dialog) [data-ui-style="technical"]',
+    ])
+      expect(groundSelectors).toContain(selector);
+    for (const name of Object.keys(groundValues)) expect(declarations(frameBlock), name).not.toHaveProperty(name);
   });
 
   it("dark is neutral: no ground reads as navy", () => {
