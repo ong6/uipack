@@ -689,42 +689,6 @@
 .landing-band__url:hover {
   border-color: var(--ui-band-cta);
 }
-.landing-steps {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px 24px;
-  margin-top: 4px;
-  padding: 0;
-  list-style: none;
-  counter-reset: step;
-}
-.landing-steps li {
-  display: grid;
-  grid-template-columns: 24px minmax(0, 1fr);
-  gap: 8px;
-  align-items: start;
-  font-size: 15px;
-  line-height: var(--site-leading-label);
-  counter-increment: step;
-}
-.landing-steps li::before {
-  content: counter(step);
-  display: grid;
-  place-items: center;
-  width: 24px;
-  height: 24px;
-  box-sizing: border-box;
-  border: 1px solid var(--ui-band-cta);
-  border-radius: 50%;
-  color: var(--ui-band-cta);
-  font: 600 12px / var(--site-leading-label) var(--ui-font-label);
-}
-.landing-steps small {
-  display: block;
-  margin-top: 2px;
-  color: var(--ui-band-ink-2);
-  font: 400 12px / var(--site-leading-label) var(--ui-font-label);
-}
 
 /* ---------------------------------------------------------------- footer: site map */
 .landing-foot {
@@ -797,9 +761,7 @@
   .landing-tile--diagrams {
     grid-column: auto;
   }
-  .landing-steps {
-    grid-template-columns: minmax(0, 1fr);
-  }
+
   .landing-hero__ctas .landing-btn {
     flex: 1 1 auto;
   }

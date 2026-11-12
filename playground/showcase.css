@@ -401,9 +401,9 @@ html:has(.showcase-frame:not([data-banner="static"])) {
    accent) would otherwise reach the brand, and the Rules dot would be lost in an accent mark. */
 .showcase-header .showcase-brand {
   color: inherit;
-  /* How long a page settles before the dot hops: the first paint, the fonts and the sidebar are in.
-     A travelling sidebar marker makes it wait longer, so both land together (--brand-trip). The hop
-     itself is the slow duration role. */
+  /* How long a page settles before the mark's portal opens: the first paint, the fonts and the
+     sidebar are in. It is also the longest the header waits for a travelling sidebar marker's own
+     portal (site-settings.tsx): the header keeps this one clock. */
   --site-mark-wait: 400ms;
 }
 /* The hop rises above the mark's box by a few units; it is paint only (no layout, and the brand's
