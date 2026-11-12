@@ -301,7 +301,7 @@ location marker and the section hues are navigation, not ornaments: they are set
 | On this page | 204–248px, 40–56px from the column; the column and the rail are centred as a pair, so the spare width goes to the outer margins and there is no dead gutter between the text and the rail at 1440 or 1920 |
 | A page without a rail | Its demos need the width (a figure gallery, charts, 3D): a column up to 1344px, 1176px at 1440, so a 1120-unit figure draws within 1% of its own size |
 | 900–1180px | "On this page" folds into a disclosure above the page |
-| A table wider than the column | Scrolls inside its own focusable box (the arrow keys move it), with a shade on each edge that has more table beyond it; never a page-wide scroll |
+| A table wider than the column | Scrolls inside its own focusable box (the arrow keys move it), its content fading out at each edge that has more table beyond it (a mask that follows the box's scroll, so nothing darkens behind the text); never a page-wide scroll |
 | Below 900px | The sidebar becomes a drawer from the header's menu button; "On this page" is the disclosure; phone type sizes are the docs layout's own |
 
 ## Writing style

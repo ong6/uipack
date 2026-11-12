@@ -66,7 +66,7 @@ One default changes what a page draws (below), so this is a minor release
   the site's `docs-night` theme ([its spec](docs/specs/docs-site.md#demos-and-fixed-looks)).
   junxiong.dev, notes.junxiong.dev and the package's own defaults are unchanged.
 - **The docs site's pages read at a measure:** prose runs 75–88 characters a line (a 37em measure,
-  18px from 1440, in a 760px column), a wide table shades the edge it scrolls toward, the row
+  18px from 1440, in a 760px column), a wide table fades out at the edge it scrolls toward, the row
   above each page says only where it sits ("Rules › Writing") with "Style: Technical" beside View
   as Markdown, and sidebar sub-pages and "On this page" are 13px or more in ink-2.
 - **The docs site** groups its pages in five sidebar sections (Start, Rules, Build, Check,

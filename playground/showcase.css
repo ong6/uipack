@@ -159,16 +159,54 @@ html:has(.showcase-frame:not([data-banner="static"])) {
   margin: -4px 0 0;
 }
 /* A table wider than the column scrolls inside its box (DocsMarkdown makes the box focusable, so
-   the arrow keys scroll it too). Its cue: a shade on each edge that has more table beyond it. Two
-   paper-coloured covers ride with the content (local), solid across a shade's whole 18px, and hide
-   the fixed shades (scroll) at an edge the reader has reached; a table that fits shows neither. */
+   the arrow keys scroll it too). Its cue: the content fades out at each edge that has more table
+   beyond it. The fade is a mask on the box, so nothing darkens behind the text; its two widths
+   follow the box's own scroll position (a scroll timeline), so the start has no fade until the
+   reader scrolls and the end clears once reached. A table that fits has no scroll range, so the
+   timeline is inactive and it never fades. */
+@property --table-fade-start {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+@property --table-fade-end {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+@keyframes showcase-table-fade {
+  0% {
+    --table-fade-start: 0px;
+    --table-fade-end: 48px;
+  }
+  8% {
+    --table-fade-start: 48px;
+  }
+  92% {
+    --table-fade-end: 48px;
+  }
+  100% {
+    --table-fade-start: 48px;
+    --table-fade-end: 0px;
+  }
+}
 .showcase-frame .uipack-docs__table {
-  --table-shade: color-mix(in srgb, var(--ui-ink) 36%, transparent);
-  background:
-    linear-gradient(to right, var(--ui-paper) 18px, transparent) left / 36px 100% no-repeat local,
-    linear-gradient(to left, var(--ui-paper) 18px, transparent) right / 36px 100% no-repeat local,
-    radial-gradient(farthest-side at 0 50%, var(--table-shade), transparent) left / 18px 100% no-repeat scroll,
-    radial-gradient(farthest-side at 100% 50%, var(--table-shade), transparent) right / 18px 100% no-repeat scroll;
+  -webkit-mask: linear-gradient(
+    to right,
+    transparent,
+    black var(--table-fade-start),
+    black calc(100% - var(--table-fade-end)),
+    transparent
+  );
+  mask: linear-gradient(
+    to right,
+    transparent,
+    black var(--table-fade-start),
+    black calc(100% - var(--table-fade-end)),
+    transparent
+  );
+  animation: showcase-table-fade linear both;
+  animation-timeline: scroll(self inline);
 }
 /* A demo's box only resets the style to Technical (demos.tsx); it takes no space of its own. */
 .showcase-demo {

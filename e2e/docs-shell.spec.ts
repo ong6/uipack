@@ -364,32 +364,45 @@ test.describe("390px", () => {
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
   });
 
-  test("a wide table scrolls in a focusable box that shades the edge with more table beyond it", async ({ page }) => {
+  test("a wide table scrolls in a focusable box whose content fades at each edge with more beyond it", async ({ page }) => {
     await page.goto("/agents?theme=light");
     await expect(page.locator("main h1")).toBeVisible();
     const box = page.locator(".uipack-docs__prose .uipack-docs__table").first();
     await expect(box).toBeVisible();
     await box.scrollIntoViewIfNeeded();
     const look = () =>
-      box.evaluate((el) => ({
-        overflows: el.scrollWidth > el.clientWidth + 1,
-        tabIndex: el.tabIndex,
-        attachment: getComputedStyle(el).backgroundAttachment,
-        image: getComputedStyle(el).backgroundImage,
-        left: el.scrollLeft,
-      }));
+      box.evaluate((el) => {
+        const s = getComputedStyle(el);
+        return {
+          overflows: el.scrollWidth > el.clientWidth + 1,
+          tabIndex: el.tabIndex,
+          mask: s.maskImage || s.getPropertyValue("-webkit-mask-image"),
+          start: parseFloat(s.getPropertyValue("--table-fade-start")),
+          end: parseFloat(s.getPropertyValue("--table-fade-end")),
+          left: el.scrollLeft,
+          max: el.scrollWidth - el.clientWidth,
+        };
+      });
     const start = await look();
     expect(start.overflows).toBe(true);
     expect(start.tabIndex).toBe(0);
-    // Covers that ride with the content over shades fixed to the box's edges.
-    expect(start.attachment).toBe("local, local, scroll, scroll");
-    expect(start.image.match(/radial-gradient/g)).toHaveLength(2);
-    // The keyboard scrolls it: focused, the right arrow moves it along.
+    expect(start.mask).toContain("linear-gradient");
+    // At the start only the far edge fades: there is more table to the right, none to the left.
     expect(start.left).toBe(0);
+    expect(start.start).toBe(0);
+    expect(start.end).toBeGreaterThan(24);
+    // The keyboard scrolls it: focused, the right arrow moves it along, and the near edge fades too.
     await box.focus();
     await page.keyboard.press("ArrowRight");
-    await expect.poll(async () => (await look()).left).toBeGreaterThan(0);
+    await expect.poll(async () => (await look()).start).toBeGreaterThan(24);
+    // At the end the far edge clears.
+    await box.evaluate((el) => (el.scrollLeft = el.scrollWidth));
+    await expect.poll(async () => (await look()).end).toBe(0);
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+    // A table that fits never fades (its scroll timeline has no range).
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await expect.poll(async () => (await look()).overflows).toBe(false);
+    expect((await look()).end).toBe(0);
   });
 
   test("phone type sizes: prose 16px, h1 36px", async ({ page }) => {
