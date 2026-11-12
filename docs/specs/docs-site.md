@@ -263,7 +263,9 @@ Sans text, IBM Plex Mono labels, self-hosted. Sidebar levels: section labels in 
 
 ## Density and rhythm
 
-Technical's (density 0.9, the core type ratio). Prose keeps a 76ch measure.
+Technical's (density 0.9, the core type ratio). Prose keeps a 37em measure, 75–88 characters a line
+(Plex Sans averages about 0.45em a character; a `ch` is 0.6em, so a 76ch measure ran to 105), and
+steps up from 17px to 18px from 1440.
 
 ## Ornaments
 
@@ -293,7 +295,7 @@ location marker and the section hues are navigation, not ornaments: they are set
 | --- | --- |
 | Banner | Sticky, 64px, full width |
 | Sidebar | Docked to the left edge under the banner, 232–288px (15vw), scrolling on its own |
-| Page column | At most 880px; prose at a 76ch measure inside it; tables, code, figures and demos take the whole column |
+| Page column | At most 760px; prose at a 37em measure inside it (75–88 characters a line, 18px from 1440); tables, code, figures and demos take the whole column |
 | On this page | 204–248px, 40–56px from the column; the column and the rail are centred as a pair, so the spare width goes to the outer margins and there is no dead gutter between the text and the rail at 1440 or 1920 |
 | A page without a rail | Its demos need the width (a figure gallery, charts, 3D): a column up to 1344px, 1176px at 1440, so a 1120-unit figure draws within 1% of its own size |
 | 900–1180px | "On this page" folds into a disclosure above the page |

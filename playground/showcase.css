@@ -39,8 +39,8 @@ body {
 /* The frame holds the docs layout (src/docs, width="wide"): the sticky banner, then the sidebar
    docked to the left edge under it, and the page and, on a Markdown page, "On this page" as a pair
    centred in the rest. The widths (docs/specs/docs-site.md, "Layout"): a 232–288px sidebar; the
-   page column at most 880px with prose at a 76ch measure inside it (tables, code and figures take
-   the whole column); "On this page" 204–248px, 40–56px from the column, so at 1440 and 1920 there
+   page column at most 760px with prose at a 37em measure inside it, 75–88 characters a line (tables,
+   code and figures take the whole column); "On this page" 204–248px, 40–56px from the column, so at 1440 and 1920 there
    is no dead gutter between the text and the rail (the spare width goes to the outer margins). A
    page with no rail (a gallery of figures, charts, a 3D scene) gets a column up to 1344px: at 1440
    that is 1176px, so a 1120-unit figure draws within 1% of its own size (its canvas adds 64px) and
@@ -50,7 +50,7 @@ body {
 .showcase-frame {
   --header-h: 64px;
   --side-w: clamp(232px, 15vw, 288px);
-  --col: 880px;
+  --col: 760px;
   --rail-w: clamp(204px, 13vw, 248px);
   --rail-gap: clamp(40px, 3vw, 56px);
   --full-col: 1344px;
@@ -121,14 +121,22 @@ html:has(.showcase-frame:not([data-banner="static"])) {
 .showcase-frame .uipack-docs__prose :is(h1, h2, h3, h4, h5, h6) {
   scroll-margin-top: 24px;
 }
-/* Prose keeps a 76ch measure; tables, code, figures and demos take the whole column. */
+/* Prose keeps a 37em measure: 75–88 characters a line in Plex Sans, whose average glyph is about
+   0.45em (a `ch`, the width of "0", is 0.6em, so 76ch ran to 105). Tables, code, figures and demos
+   take the whole column. e2e/docs-shell.spec.ts counts the characters on each rendered line. */
 .showcase-frame
   .uipack-docs[data-width="wide"]
   :is(.uipack-docs__prose, .uipack-docs__flow > .uipack-docs__block:not([data-width="wide"])) {
   max-width: none;
 }
 .showcase-frame .uipack-docs__prose > :is(p, ul, ol, dl, blockquote, h1, h2, h3, h4, h5, h6) {
-  max-width: 76ch;
+  max-width: 37em;
+}
+/* From 1440 the body steps up to 18px: the same measure, a little larger, fills the column. */
+@media (min-width: 1440px) {
+  .showcase-frame .uipack-docs__prose {
+    font-size: 18px;
+  }
 }
 /* Between 900 and 1180 the rail folds into the "On this page" disclosure before it squeezes the measure. */
 @media (max-width: 1180px) {

@@ -183,7 +183,9 @@ test.describe("the sidebar's marker", () => {
 
 test.describe("widths", () => {
   for (const width of [1440, 1920]) {
-    test(`${width}: the column and the rail sit together, prose at its measure, tables the full column`, async ({ page }) => {
+    test(`${width}: the column and the rail sit together, prose at 75–88 characters a line, tables the full column`, async ({
+      page,
+    }) => {
       await page.setViewportSize({ width, height: 1000 });
       await page.goto("/agents?theme=light");
       const rail = page.locator(".uipack-docs__toc");
@@ -196,22 +198,46 @@ test.describe("widths", () => {
         const paras = [...document.querySelectorAll<HTMLElement>(".uipack-docs__prose > p")];
         const proseRight = Math.max(...paras.map((p) => p.getBoundingClientRect().right));
         const proseWidth = Math.max(...paras.map((p) => p.getBoundingClientRect().width));
-        const fontSize = parseFloat(getComputedStyle(paras[0]).fontSize);
         const table = document.querySelector(".uipack-docs__prose .uipack-docs__table")?.getBoundingClientRect();
-        return { side, main, toc, proseRight, proseWidth, fontSize, table, vw: innerWidth };
+        // Characters on each rendered line of the long paragraphs and list items (a line is the
+        // characters whose boxes share a vertical centre), each block's last line left out.
+        const perLine = (el: Element) => {
+          const rows = new Map<number, number>();
+          const walk = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+          const range = document.createRange();
+          for (let n = walk.nextNode() as Text | null; n; n = walk.nextNode() as Text | null)
+            for (let i = 0; i < n.data.length; i++) {
+              range.setStart(n, i);
+              range.setEnd(n, i + 1);
+              const r = range.getClientRects()[0];
+              if (r) rows.set(Math.round(r.top + r.height / 2), (rows.get(Math.round(r.top + r.height / 2)) ?? 0) + 1);
+            }
+          return [...rows.values()].slice(0, -1);
+        };
+        const long = (sel: string, min: number) =>
+          [...document.querySelectorAll(sel)].filter((e) => (e.textContent ?? "").length > min).flatMap(perLine);
+        const lines = long(".uipack-docs__prose > p", 300).sort((a, b) => a - b);
+        const items = long(".uipack-docs__prose > :is(ul, ol) > li", 200);
+        return { side, main, toc, proseRight, proseWidth, table, lines, items, vw: innerWidth };
       });
       // No dead gutter: the rail starts within ~a quarter of the column of the prose's right edge.
       expect(g.toc.left - g.proseRight).toBeLessThanOrEqual(220);
       expect(g.toc.left + 5 - g.main.right).toBeGreaterThanOrEqual(38);
       expect(g.toc.left + 5 - g.main.right).toBeLessThanOrEqual(58);
-      expect(g.main.width).toBeLessThanOrEqual(881);
+      expect(g.main.width).toBeLessThanOrEqual(761);
       // The pair is centred in the space right of the sidebar (the rail's box reaches 5px past its
       // text on each side: room for a focus ring).
       const leftGap = g.main.left - g.side.right;
       const rightGap = g.vw - (g.toc.right - 5);
       expect(Math.abs(leftGap - rightGap)).toBeLessThanOrEqual(2);
-      // Prose stops at about 76ch; a table takes the whole column.
-      expect(g.proseWidth).toBeLessThanOrEqual(g.fontSize * 0.62 * 76);
+      // Prose runs 75–88 characters a line (the median line in range, none longer); list items
+      // never run longer either. A table takes the whole column.
+      expect(g.lines.length).toBeGreaterThan(10);
+      const median = g.lines[Math.floor(g.lines.length / 2)];
+      expect(median).toBeGreaterThanOrEqual(75);
+      expect(median).toBeLessThanOrEqual(88);
+      expect(Math.max(...g.lines)).toBeLessThanOrEqual(88);
+      expect(Math.max(...g.items)).toBeLessThanOrEqual(88);
       expect(g.proseWidth).toBeLessThan(g.main.width);
       expect(Math.abs(g.table!.width - g.main.width)).toBeLessThanOrEqual(1);
     });
