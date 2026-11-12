@@ -7,6 +7,13 @@ release is cut and how a site moves to it.
 
 ## [Unreleased]
 
+### Fixed
+
+- **`DocsLayout` collapsible sidebar:** a section's label starts on its page links' text edge (it
+  sat 2px to their left).
+- **`DocsLayout` "On this page" disclosure:** its label stays on one line on a phone when the
+  current heading beside it wraps.
+
 ## [0.6.0] - 2026-11-12
 
 The docs shell (`uipack/docs`) gains collapsible sections with navigation hues, a travelling
