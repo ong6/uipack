@@ -351,27 +351,13 @@ function hasWebGL() {
  * (playground/assets/styles, scripts/style-stills.mjs). Its own Pause stays usable.
  */
 function ScenePreview({ theme }: { theme: Theme }) {
-  const ref = useRef<HTMLDivElement>(null);
   // Decided once, on the client: a still without motion, WebGL or IntersectionObserver.
-  const [mode, setMode] = useState<"waiting" | "live" | "still">(() =>
-    matchMedia("(prefers-reduced-motion: reduce)").matches || !hasWebGL() || typeof IntersectionObserver === "undefined"
-      ? "still"
-      : "waiting",
+  const [stillOnly] = useState(
+    () => matchMedia("(prefers-reduced-motion: reduce)").matches || !hasWebGL() || typeof IntersectionObserver === "undefined",
   );
-  useEffect(() => {
-    const el = ref.current;
-    if (!el || mode !== "waiting") return;
-    const io = new IntersectionObserver(
-      (entries) => {
-        if (!entries.some((e) => e.isIntersecting)) return;
-        io.disconnect();
-        setMode("live");
-      },
-      { threshold: 0.35 },
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, [mode]);
+  // "On screen": a third of the tile showing, with no margin and no idle-time mount.
+  const { ref, near } = useNearViewport<HTMLDivElement>({ inert: false, idle: false, margin: "0px", threshold: 0.35 });
+  const mode = stillOnly ? "still" : near ? "live" : "waiting";
   const still = new URL(`./assets/styles/studio-${theme}.jpg`, import.meta.url).href;
   return (
     <div ref={ref} className="landing-scene" data-scene={mode}>
