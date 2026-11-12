@@ -121,7 +121,7 @@ function Hero({ theme }: { theme: Theme }) {
             <b>UiPack</b> v{version} · design system
           </p>
           <h1 id="landing-title">
-            The design manager for <em>every site</em> that installs it.
+            The design system for <em>every site</em> that installs it.
           </h1>
           <p className="landing-hero__sub">
             Diagrams, slides, web pages, motion and 3D, as React and SVG components with the rules for writing and laying them

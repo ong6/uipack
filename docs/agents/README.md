@@ -1,6 +1,6 @@
 # How agents use UiPack
 
-UiPack is the design manager for every site that installs it. This page is the read order for an
+UiPack is the design system for every site that installs it. This page is the read order for an
 agent: where the rules live, where each site's spec lives, and what is fixed versus set per site.
 The same files ship in the package, so read them from `node_modules/uipack/` in a site, or from a
 uipack clone.

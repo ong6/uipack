@@ -1,6 +1,6 @@
 # How to write a site spec
 
-UiPack is the design manager for every site that uses it. Each website has its own layout,
+UiPack is the design system for every site that uses it. Each website has its own layout,
 writing style, theme, fonts and design direction, all in its spec; the core rules keep only what
 must hold everywhere. The docs are layered so an agent reads any site the same way:
 
