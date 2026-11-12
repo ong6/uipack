@@ -396,8 +396,9 @@ test.describe("390px", () => {
           overflows: el.scrollWidth > el.clientWidth + 1,
           tabIndex: el.tabIndex,
           mask: s.maskImage || s.getPropertyValue("-webkit-mask-image"),
-          start: parseFloat(s.getPropertyValue("--table-fade-start")),
-          end: parseFloat(s.getPropertyValue("--table-fade-end")),
+          more: el.dataset.more ?? "",
+          start: parseFloat(s.getPropertyValue("--table-fade-start")) || 0,
+          end: parseFloat(s.getPropertyValue("--table-fade-end")) || 0,
           left: el.scrollLeft,
           max: el.scrollWidth - el.clientWidth,
         };
@@ -418,9 +419,10 @@ test.describe("390px", () => {
     await box.evaluate((el) => (el.scrollLeft = el.scrollWidth));
     await expect.poll(async () => (await look()).end).toBe(0);
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
-    // A table that fits never fades (its scroll timeline has no range).
+    // A table that fits is never marked, so it never fades.
     await page.setViewportSize({ width: 1440, height: 900 });
     await expect.poll(async () => (await look()).overflows).toBe(false);
+    await expect.poll(async () => (await look()).more).toBe("");
     expect((await look()).end).toBe(0);
   });
 

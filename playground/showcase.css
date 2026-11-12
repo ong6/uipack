@@ -159,38 +159,13 @@ html:has(.showcase-frame:not([data-banner="static"])) {
   margin: -4px 0 0;
 }
 /* A table wider than the column scrolls inside its box (DocsMarkdown makes the box focusable, so
-   the arrow keys scroll it too). Its cue: the content fades out at each edge that has more table
-   beyond it. The fade is a mask on the box, so nothing darkens behind the text; its two widths
-   follow the box's own scroll position (a scroll timeline), so the start has no fade until the
-   reader scrolls and the end clears once reached. A table that fits has no scroll range, so the
-   timeline is inactive and it never fades. */
-@property --table-fade-start {
-  syntax: "<length>";
-  inherits: false;
-  initial-value: 0px;
-}
-@property --table-fade-end {
-  syntax: "<length>";
-  inherits: false;
-  initial-value: 0px;
-}
-@keyframes showcase-table-fade {
-  0% {
-    --table-fade-start: 0px;
-    --table-fade-end: 48px;
-  }
-  8% {
-    --table-fade-start: 48px;
-  }
-  92% {
-    --table-fade-end: 48px;
-  }
-  100% {
-    --table-fade-start: 48px;
-    --table-fade-end: 0px;
-  }
-}
-.showcase-frame .uipack-docs__table {
+   the arrow keys scroll it too). Its cue: the content fades out over 48px at each edge with more
+   table beyond it. The fade is a mask on the box, so nothing darkens behind the text. The shell
+   marks the edges (data-more="start end", ShowcaseShell's useTableScrollCues) from the box's
+   scroll position and size; a table that fits has no mark and never fades. */
+.showcase-frame .uipack-docs__table[data-more] {
+  --table-fade-start: 0px;
+  --table-fade-end: 0px;
   -webkit-mask: linear-gradient(
     to right,
     transparent,
@@ -205,8 +180,12 @@ html:has(.showcase-frame:not([data-banner="static"])) {
     black calc(100% - var(--table-fade-end)),
     transparent
   );
-  animation: showcase-table-fade linear both;
-  animation-timeline: scroll(self inline);
+}
+.showcase-frame .uipack-docs__table[data-more~="start"] {
+  --table-fade-start: 48px;
+}
+.showcase-frame .uipack-docs__table[data-more~="end"] {
+  --table-fade-end: 48px;
 }
 /* A demo's box only resets the style to Technical (demos.tsx); it takes no space of its own. */
 .showcase-demo {

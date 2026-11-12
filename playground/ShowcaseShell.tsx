@@ -113,6 +113,53 @@ export function useMediaQuery(query: string) {
 }
 
 /**
+ * Marks each docs table's scroll box with the edges it can still scroll toward (`data-more`:
+ * "start", "end", both, or no attribute), for showcase.css's edge fade. Tables arrive with each
+ * page's Markdown, so new boxes are picked up as they appear; a box is re-marked when it scrolls
+ * (one capturing listener) or when it or its table changes size.
+ */
+function useTableScrollCues() {
+  useEffect(() => {
+    const mark = (box: HTMLElement) => {
+      // A box that fits has nothing beyond either edge, whatever scroll offset it kept from before.
+      const max = box.scrollWidth - box.clientWidth;
+      const more = max > 1 ? [box.scrollLeft > 1 && "start", box.scrollLeft < max - 1 && "end"].filter(Boolean).join(" ") : "";
+      if (more) box.dataset.more = more;
+      else delete box.dataset.more;
+    };
+    const boxOf = (el: Element) => el.closest<HTMLElement>(".uipack-docs__table");
+    const resized = new ResizeObserver((entries) => {
+      for (const e of entries) {
+        const box = boxOf(e.target);
+        if (box) mark(box);
+      }
+    });
+    const seen = new WeakSet<Element>();
+    const scan = () => {
+      for (const box of document.querySelectorAll<HTMLElement>(".uipack-docs__table")) {
+        if (seen.has(box)) continue;
+        seen.add(box);
+        resized.observe(box);
+        if (box.firstElementChild) resized.observe(box.firstElementChild);
+        mark(box);
+      }
+    };
+    const added = new MutationObserver(scan);
+    added.observe(document.body, { childList: true, subtree: true });
+    scan();
+    const onScroll = (e: Event) => {
+      if (e.target instanceof HTMLElement && e.target.classList.contains("uipack-docs__table")) mark(e.target);
+    };
+    addEventListener("scroll", onScroll, { capture: true, passive: true });
+    return () => {
+      removeEventListener("scroll", onScroll, true);
+      resized.disconnect();
+      added.disconnect();
+    };
+  }, []);
+}
+
+/**
  * The sidebar: the manifest's five sections, each with its icon and hue; inside one, each group's
  * pages under the group's caption; a page's sub-pages and sub-views (the decks) under its name.
  */
@@ -185,6 +232,7 @@ export function ShowcaseShell({
   children: ReactNode;
 }) {
   const { theme, flip, note, toc } = useShowcaseTheme();
+  useTableScrollCues();
   // The Assets tab (/gallery) and the landing page (/) are modes of this shell: the same header, no docs sidebar.
   const gallery = active === "gallery";
   const landing = active === "landing";
