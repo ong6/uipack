@@ -54,6 +54,8 @@ body {
   --rail-w: clamp(204px, 13vw, 248px);
   --rail-gap: clamp(40px, 3vw, 56px);
   --full-col: 1344px;
+  /* The sidebar's left inset; the banner's logo starts on it. */
+  --side-pad: 14px;
 }
 .showcase-frame > .uipack-docs {
   padding: 0;
@@ -77,7 +79,7 @@ body {
   height: calc(100dvh - var(--header-h));
   max-height: none;
   margin: 0;
-  padding: 20px 12px 48px 14px;
+  padding: 20px 12px 48px var(--side-pad);
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-width: thin;
@@ -89,14 +91,15 @@ body {
   padding: 34px 0 96px;
   scroll-margin-top: var(--header-h);
 }
-/* 5px of padding inside its scroll box is room for a link's focus ring (2px + 3px offset). */
+/* 5px of padding inside its scroll box is room for a link's focus ring (2px + 3px offset). Its title
+   sits on the centre line of the page's first row (the section chip and the source links). */
 .showcase-frame > .uipack-docs > .uipack-docs__grid > .uipack-docs__toc {
   display: block;
   grid-column: 5;
   grid-row: 1;
-  top: calc(var(--header-h) + 29px);
-  max-height: calc(100vh - var(--header-h) - 50px);
-  margin: 29px -5px 0;
+  top: calc(var(--header-h) + 34px);
+  max-height: calc(100vh - var(--header-h) - 55px);
+  margin: 34px -5px 0;
   padding: 5px;
 }
 .showcase-frame .uipack-docs__toc > p {
@@ -470,7 +473,9 @@ html:has(.showcase-frame:not([data-banner="static"])) {
   width: 100%;
   --uipack-bg: var(--show-bg);
 }
-.chart-frame:not([data-frame="full"])::after {
+/* Drawn only where the column has room beside the frame (data-edge, FiguresShowcase.tsx): the
+   label never makes the page scroll sideways (a 896px frame in a 836px column at 1100). */
+.chart-frame[data-edge]:not([data-frame="full"])::after {
   content: attr(data-frame) "px";
   position: absolute;
   top: 0;
@@ -573,7 +578,8 @@ html:has(.showcase-frame:not([data-banner="static"])) {
   flex: none;
   width: 44px;
   height: 44px;
-  margin-left: -10px;
+  /* The icon's first stroke, not the 44px box, starts on the page's left edge. */
+  margin-left: -15px;
   border: 0;
   border-radius: 4px;
   background: transparent;
@@ -871,6 +877,34 @@ html:has(.showcase-frame:not([data-banner="static"])) {
 }
 @media (max-width: 719px) {
   .showcase-gallery-main {
+    padding-inline: 16px;
+  }
+}
+/* The banner's content keeps the edges of what is under it (e2e/docs-shell.spec.ts, e2e/assets-gallery.spec.ts):
+   on a docs page the logo starts on the sidebar's inset and the last control ends on the right edge
+   of "On this page" (of the page column where there is no rail); on Assets both sit on the grid's
+   edges. Percentages are of the banner's width, the width the layout under it divides. */
+.showcase-frame:not([data-mode]) .showcase-header__bar {
+  padding-left: var(--side-pad);
+  padding-right: max(24px, calc((100% - var(--side-w) - var(--col) - var(--rail-gap) - var(--rail-w)) / 2));
+}
+@media (max-width: 1180px) {
+  .showcase-frame:not([data-mode]) .showcase-header__bar {
+    padding-right: max(24px, calc((100% - var(--side-w) - var(--col)) / 2));
+  }
+}
+.showcase-frame[data-rail="none"]:not([data-mode]) .showcase-header__bar {
+  padding-right: max(16px, calc((100% - var(--side-w) - var(--full-col)) / 2));
+}
+.showcase-frame[data-nav="compact"]:not([data-mode]) .showcase-header__bar {
+  padding-inline: 20px;
+}
+.showcase-frame[data-mode="gallery"] .showcase-header__bar {
+  padding-inline: max(24px, calc((100% - 1600px) / 2));
+}
+@media (max-width: 719px) {
+  .showcase-frame[data-nav="compact"]:not([data-mode]) .showcase-header__bar,
+  .showcase-frame[data-mode="gallery"] .showcase-header__bar {
     padding-inline: 16px;
   }
 }

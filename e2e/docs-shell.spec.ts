@@ -235,6 +235,80 @@ test.describe("widths", () => {
   });
 });
 
+// The banner's content keeps the edges of the layout under it: the logo (below 900px the menu
+// icon) starts where the sidebar's content (the page) starts, and the last control ends where "On
+// this page" ends, or the page column on a page with no rail. Within 1px at every width.
+test.describe("the banner's edges", () => {
+  for (const path of ["/agents", "/components/diagrams"])
+    for (const width of [1920, 1440, 1100, 390]) {
+      test(`${path} at ${width}: the logo and the last control sit on the layout's edges`, async ({ page }) => {
+        await page.setViewportSize({ width, height: 900 });
+        await page.goto(`${path}?theme=light`);
+        await expect(page.locator("main.uipack-docs__article h1")).toBeVisible();
+        const g = await page.evaluate(() => {
+          const box = (s: string) => {
+            const r = document.querySelector(s)?.getBoundingClientRect();
+            return r && r.width > 0 ? { left: r.left, right: r.right, mid: r.top + r.height / 2 } : null;
+          };
+          return {
+            menu: box(".showcase-menu-button path"),
+            brand: box(".showcase-brand svg")!,
+            tab: box(".showcase-tabs a")!,
+            last: box(".showcase-header__actions > :last-child")!,
+            search: box(".uipack-docs__sidebar .uipack-docs-search__button"),
+            main: box("main.uipack-docs__article")!,
+            // The rail's box reaches 5px past its text on each side (room for a focus ring).
+            railTitle: box(".uipack-docs__toc > p"),
+            scrollWidth: document.documentElement.scrollWidth,
+          };
+        });
+        if (width >= 900) {
+          expect(g.menu, "no menu button beside a docked sidebar").toBeNull();
+          expect(Math.abs(g.brand.left - g.search!.left), "logo on the sidebar's left edge").toBeLessThanOrEqual(1);
+        } else {
+          expect(g.search, "the sidebar is a drawer").toBeNull();
+          expect(Math.abs(g.menu!.left - g.main.left), "menu icon on the page's left edge").toBeLessThanOrEqual(1);
+        }
+        const right = g.railTitle ? g.railTitle.right : g.main.right;
+        expect(Math.abs(g.last.right - right), "last control on the layout's right edge").toBeLessThanOrEqual(1);
+        // One centre line across the bar.
+        for (const item of [g.menu, g.tab, g.last]) if (item) expect(Math.abs(item.mid - g.brand.mid)).toBeLessThanOrEqual(1);
+        expect(g.scrollWidth).toBeLessThanOrEqual(width);
+      });
+    }
+
+  test("the sidebar's section labels start on its page links' text edge; the rail's title on the first row's centre line", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/agents?theme=light");
+    await expect(page.locator(".uipack-docs__toc")).toBeVisible();
+    const g = await page.evaluate(() => {
+      const nav = document.querySelector(".uipack-docs__sidebar .uipack-docs__navigation")!;
+      const link = nav.querySelector<HTMLElement>(".uipack-docs__nav-section[data-open] .uipack-docs__nav-inner a")!;
+      const mid = (s: string) => {
+        const r = document.querySelector(s)!.getBoundingClientRect();
+        return r.top + r.height / 2;
+      };
+      return {
+        label: nav.querySelector(".uipack-docs__nav-label")!.getBoundingClientRect().left,
+        linkText: link.getBoundingClientRect().left + parseFloat(getComputedStyle(link).paddingLeft),
+        railTitle: mid(".uipack-docs__toc > p"),
+        firstRow: mid(".showcase-context"),
+      };
+    });
+    expect(Math.abs(g.label - g.linkText)).toBeLessThanOrEqual(1);
+    expect(Math.abs(g.railTitle - g.firstRow)).toBeLessThanOrEqual(1);
+  });
+
+  test("the charts page never scrolls sideways where its frame fills the column", async ({ page }) => {
+    await page.setViewportSize({ width: 1100, height: 900 });
+    await page.goto("/charts?theme=light");
+    await expect(page.locator(".chart-frame").first()).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(1100);
+  });
+});
+
 test.describe("390px", () => {
   test.use({ viewport: { width: 390, height: 844 }, hasTouch: true });
 

@@ -744,7 +744,8 @@
   cursor: pointer;
   display: flex;
   font: 600 12px/1 var(--docs-font-mono);
-  gap: 10px;
+  /* 4 + the 24px icon + 12: the label starts on the page links' 40px text edge. */
+  gap: 12px;
   letter-spacing: 0.08em;
   min-height: 40px;
   padding: 6px 8px 6px 4px;
@@ -1055,8 +1056,10 @@
 }
 
 .uipack-docs__contents summary span {
+  flex: none;
   font-size: 14px;
   font-weight: 600;
+  white-space: nowrap;
 }
 
 .uipack-docs__contents summary small {

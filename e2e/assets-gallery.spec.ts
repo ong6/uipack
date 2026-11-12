@@ -54,6 +54,21 @@ for (const theme of ["light", "dark"] as const)
     });
   }
 
+// The banner's logo and last control sit on the grid's left and right edges, within 1px.
+for (const width of [1920, 1440, 390])
+  test(`the banner keeps the grid's edges at ${width}`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/gallery?theme=light");
+    await expect(page.getByRole("heading", { level: 1, name: "Assets" })).toBeVisible();
+    const g = await page.evaluate(() => {
+      const box = (s: string) => document.querySelector(s)!.getBoundingClientRect();
+      const grid = box(".gallery-grid");
+      return { brand: box(".showcase-brand svg").left, last: box(".showcase-header__actions > :last-child").right, grid };
+    });
+    expect(Math.abs(g.brand - g.grid.left)).toBeLessThanOrEqual(1);
+    expect(Math.abs(g.last - g.grid.right)).toBeLessThanOrEqual(1);
+  });
+
 test("every card links to a docs page that exists", async ({ page }) => {
   await page.goto("/gallery?theme=light");
   await expect(page.locator(".gallery-card__link").first()).toBeVisible();

@@ -7,7 +7,7 @@
 }
 .gallery-head h1 {
   margin: 0 0 8px;
-  font: 700 40px/1.15 var(--show-font-display);
+  font: 600 40px/1.15 var(--show-font-display);
   letter-spacing: -0.01em;
   color: var(--show-ink);
 }
@@ -51,7 +51,7 @@
 }
 .gallery-section h2 {
   margin: 0;
-  font: 650 24px/1.25 var(--show-font-display);
+  font: 600 24px/1.25 var(--show-font-display);
   color: var(--show-ink);
 }
 .gallery-group {
