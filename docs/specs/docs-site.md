@@ -291,7 +291,7 @@ location marker and the section hues are navigation, not ornaments: they are set
 
 | Setting | This site |
 | --- | --- |
-| Banner | Sticky, 64px, full width |
+| Banner | Sticky, 64px, full width; its logo starts on the sidebar's left inset (below 900px the menu icon on the page's edge) and its last control ends on the right edge of "On this page", or of the page column where there is no rail. On Assets both sit on the grid's edges |
 | Sidebar | Docked to the left edge under the banner, 232–288px (15vw), scrolling on its own |
 | Page column | At most 880px; prose at a 76ch measure inside it; tables, code, figures and demos take the whole column |
 | On this page | 204–248px, 40–56px from the column; the column and the rail are centred as a pair, so the spare width goes to the outer margins and there is no dead gutter between the text and the rail at 1440 or 1920 |
