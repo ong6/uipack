@@ -231,6 +231,61 @@ html:has(.showcase-frame:not([data-banner="static"])) {
   min-height: 44px;
   margin-right: 20px;
 }
+/* The mark's dot (the spec's "The mark"): the Wordmark draws it on the section's cell in the
+   section's hue; these rules only move it. Between pages it crosses from the cell the reader left,
+   on the sidebar marker's timing. On the landing page it visits Start, Rules, Build and Check in
+   turn, 2s each, each cell lit for its quarter of one 8s loop (the delay sets the quarter). Reduced
+   motion gets neither: the dot is drawn in place, and the landing page keeps the neutral mark.
+   The squares and the name are the ink on every page: inside the docs layout its link colour (the
+   accent) would otherwise reach the brand, and the Rules dot would be lost in an accent mark. */
+.showcase-header .showcase-brand {
+  color: inherit;
+}
+.showcase-brand rect[data-cell="0"] {
+  --brand-hue: var(--site-hue-start);
+  --brand-turn: 0;
+}
+.showcase-brand rect[data-cell="1"] {
+  --brand-hue: var(--site-hue-rules);
+  --brand-turn: 1;
+}
+.showcase-brand rect[data-cell="2"] {
+  --brand-hue: var(--site-hue-build);
+  --brand-turn: 2;
+}
+.showcase-brand rect[data-cell="3"] {
+  --brand-hue: var(--site-hue-check);
+  --brand-turn: 3;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .showcase-brand rect[data-cell] {
+    transition:
+      rx 280ms var(--ui-ease-settle, ease),
+      fill 280ms var(--ui-ease-settle, ease),
+      stroke 280ms var(--ui-ease-settle, ease),
+      fill-opacity 280ms var(--ui-ease-settle, ease);
+  }
+  .showcase-frame[data-mode="landing"] .showcase-brand rect[data-cell] {
+    animation: showcase-brand-turn 8s var(--ui-ease-settle, ease) calc(var(--brand-turn) * 2s - 8s) infinite;
+  }
+}
+@keyframes showcase-brand-turn {
+  0%,
+  21.5%,
+  100% {
+    rx: 5px;
+    fill: var(--brand-hue);
+    stroke: var(--brand-hue);
+    fill-opacity: 1;
+  }
+  25%,
+  96.5% {
+    rx: 2px;
+    fill: currentColor;
+    stroke: currentColor;
+    fill-opacity: 0;
+  }
+}
 .showcase-header button.theme {
   display: inline-flex;
   align-items: center;
@@ -601,6 +656,11 @@ html:has(.showcase-frame:not([data-banner="static"])) {
     padding: 0 8px 0 12px;
     margin: 0 -8px 0 -12px;
     overflow: hidden;
+  }
+  /* The docs layout sizes its boxes by their border; the width above is the mark's own, so the whole
+     mark shows there too (the dot may sit in either column). */
+  .showcase-header .showcase-brand {
+    box-sizing: content-box;
   }
   /* Full size, not shrunk to fit: the clip keeps the mark and drops the word. */
   .showcase-brand svg {

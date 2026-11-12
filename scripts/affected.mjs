@@ -49,6 +49,7 @@ const SHELL = [
   "docs-shell",
   "page-audit",
   "showcase",
+  "brand-mark",
   "gallery",
   "assets-gallery",
   "web",
@@ -81,6 +82,8 @@ const AREAS = [
   [/^src\/objects\//, ["objects", "art-directions", "contact-directions"]],
   [/^src\/slides\//, ["slides"]],
   [/^src\/browser\/|^assets\//, ["assets"]],
+  // The marks: the docs site's header draws the wordmark, its dot on the page's section.
+  [/^src\/marks\//, ["brand-mark", "assets"]],
   [/^src\/drill\//, ["drill", "geometry"]],
   [/^src\/static\//, ["static"]],
   // The grader: its browser spec runs the checks on a page with planted defects.

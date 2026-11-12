@@ -224,9 +224,9 @@ component looks, examples), **Check** (grading, rubrics, testing) and **Referenc
 icons, releases, contributing, web reference). The pages in each are `docsManifest` in
 `playground/docs-manifest.ts`.
 
-**Hues.** Each section has a hue, used on exactly three things: the section heading's icon, the
-current-page marker, and the page's breadcrumb chip (and the section's group in search results).
-Never on text, links or status. Start is the ink and Rules the accent; Build, Check and Reference
+**Hues.** Each section has a hue, used on exactly four things: the section heading's icon, the
+current-page marker, the page's breadcrumb chip (and the section's group in search results), and
+the dot of the header's mark (below). Never on text, links or status. Start is the ink and Rules the accent; Build, Check and Reference
 are Technical's request cyan, response green and slate, re-tuned for charcoal in dark. Each is 3:1
 or more as a mark on every ground. Generated from `playground/site-palette.css`:
 
@@ -250,6 +250,22 @@ the reader left along the sidebar's page column (out to a sub-page's tree line),
 if it must, the new section opening as it arrives, a short dotted trail fading behind it, and docks
 facing the link, tinted with the section's hue. With reduced motion it jumps. The current page is
 also marked by weight and a tinted row, so the marker is never the only cue.
+
+**The mark.** The header's uipack mark is the one mark (three outlined squares and one filled dot)
+with its dot on the page's section (owner, 2026-11-12): its four cells in reading order are Start
+(top left), Rules (top right), Build (bottom left) and Check (bottom right), and on a page in one of
+them that cell is the dot, filled in the section's hue; the other three are squares in the ink, and
+the name stays in the ink. Reference has no cell: its pages, the Assets tab, the landing page at
+rest and a not-found page show the neutral mark, the dot bottom right in the ink, as the package
+draws it. Each hue holds 3:1 or more as the dot on the header's ground in both themes (the lowest is
+Build in light, 4.6:1). When the page changes section the dot crosses from the cell the reader left
+(kept for the visit in sessionStorage, as the sidebar marker's page is) on the sidebar marker's
+timing, 280ms on the settle curve. On the landing page it visits Start, Rules, Build and Check in
+turn, 2s each, in one 8s CSS loop that never moves the header. With reduced motion the dot is drawn
+in place and the landing page holds the neutral mark. The dot repeats what the breadcrumb chip and
+the sidebar say in words, so it is never the only cue. It is `Wordmark`'s `live` and `liveColor`
+([figure parts API](../figure-api.md)), mapped in `playground/site-settings.tsx` (`BRAND_CELLS`,
+`useBrandMark`) and moved by `playground/showcase.css`; `e2e/brand-mark.spec.ts` holds it.
 
 **Search.** A box at the top of the sidebar (and the drawer) and ⌘K / Ctrl-K open one dialog over
 every page's title, headings and text; results are grouped by section with the section's icon in

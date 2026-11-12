@@ -60,12 +60,53 @@ export const marks = {
 
 export type MarkName = keyof typeof marks;
 
-/** The uipack wordmark: the mark plus the name in mono. */
-export function Wordmark({ size = 24 }: { size?: number }) {
+/** The four cells of the uipack mark in reading order: top-left, top-right, bottom-left, bottom-right. */
+export type MarkCell = 0 | 1 | 2 | 3;
+
+const CELL_ORIGINS = [
+  [4, 4],
+  [18, 4],
+  [4, 18],
+  [18, 18],
+] as const;
+
+/**
+ * The uipack mark with its dot on the cell asked for: three outlined squares and one filled dot,
+ * the dot at `live` in `liveColor` (default the ink). Every cell carries `data-cell`, and the dot
+ * `data-live`, so a host can move the dot with CSS (each of `rx`, `fill`, `stroke` and
+ * `fill-opacity` is a presentation attribute a rule or an animation overrides).
+ */
+function markCells(live: MarkCell, liveColor = "currentColor") {
+  return CELL_ORIGINS.map(([x, y], cell) =>
+    cell === live ? (
+      <rect
+        key={cell}
+        data-cell={cell}
+        data-live=""
+        x={x}
+        y={y}
+        width="10"
+        height="10"
+        rx="5"
+        fill={liveColor}
+        stroke={liveColor}
+      />
+    ) : (
+      <rect key={cell} data-cell={cell} x={x} y={y} width="10" height="10" rx="2" fill="currentColor" fillOpacity={0} />
+    ),
+  );
+}
+
+/**
+ * The uipack wordmark: the mark plus the name in mono. `live` moves the mark's dot to another cell
+ * (0 to 3 in reading order; the dot's own cell is 3) and `liveColor` colours it; the name stays in
+ * the ink. Without `live` it draws the one mark, as it always has.
+ */
+export function Wordmark({ size = 24, live, liveColor }: { size?: number; live?: MarkCell; liveColor?: string }) {
   return (
     <svg viewBox="0 0 140 32" width={(size * 140) / 32} height={size} role="img" aria-label="uipack" style={{ display: "block" }}>
       <g fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-        {marks.uipack}
+        {live === undefined ? marks.uipack : markCells(live, liveColor)}
       </g>
       <text
         x="40"

@@ -46,8 +46,8 @@
   --ui-on-band-cta: light-dark(#0b2748, #111315);
 
   /* Navigation hues (the spec's "Navigation" section): one per sidebar section, used only on the
-     section's heading icon, the current-page marker, the page's breadcrumb chip and its search
-     results. Start is the ink; Rules the accent; Build, Check and Reference are the request cyan,
+     section's heading icon, the current-page marker, the page's breadcrumb chip, its search
+     results and the dot of the header's mark. Start is the ink; Rules the accent; Build, Check and Reference are the request cyan,
      the response green and the slate, re-tuned for charcoal in dark. */
   --site-hue-start: var(--ui-ink);
   --site-hue-rules: var(--ui-accent);
