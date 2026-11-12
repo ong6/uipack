@@ -19,7 +19,7 @@ import { installLine } from "./release";
 import { SITE_ORIGIN } from "./site";
 import { useShowcaseTheme } from "./ShowcaseShell";
 import { Scaled, useNearViewport } from "./preview-stage";
-import { JOBS, READ_ORDER, type Job } from "./landing/content";
+import { BUILT_NEXT, JOBS, READ_ORDER, type Job } from "./landing/content";
 import { JOB_ART } from "./landing/job-art";
 import { NAV_MEMORY_KEY, SectionIcon, sectionHueStyle } from "./site-settings";
 import "./landing.css";
@@ -259,11 +259,15 @@ function Built({ theme }: { theme: Theme }) {
             keep only what must hold everywhere, and the libraries give a spec named layouts and component looks to pick from.
           </p>
           <p>A deck is a page of a site, so it reads the same spec.</p>
-          <p>
-            <a href={pageHref(page("start"), theme)}>
-              What UiPack is <Arrow />
-            </a>
-          </p>
+          <ul className="landing-built__next" aria-label="Read next">
+            {BUILT_NEXT.map((link) => (
+              <li key={link.page}>
+                <a href={pageHref(page(link.page), theme)}>
+                  {link.label} <Arrow />
+                </a>
+              </li>
+            ))}
+          </ul>
         </div>
         <WhenNear className="landing-built__stack">
           <BuiltStack theme={theme} />

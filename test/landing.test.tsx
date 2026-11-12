@@ -4,7 +4,7 @@ import { routes } from "../playground/routes";
 import { siteRoutes } from "../playground/site";
 import { installLine } from "../playground/release";
 import { LANDING_MODULE, LANDING_PATH, LANDING_TITLE } from "../playground/landing-index";
-import { JOBS, LAYERS } from "../playground/landing/content";
+import { BUILT_NEXT, JOBS, LAYERS } from "../playground/landing/content";
 import { version } from "../package.json";
 
 // The landing page (/) sits outside the docs manifest; these checks hold its wiring to the rest of
@@ -28,7 +28,7 @@ describe("landing page", () => {
 
   it("opens only pages the manifest has", () => {
     const ids = new Set(pageDefs.map((p) => p.id));
-    for (const { page } of [...JOBS, ...LAYERS]) expect(ids, page).toContain(page);
+    for (const { page } of [...JOBS, ...LAYERS, ...BUILT_NEXT]) expect(ids, page).toContain(page);
   });
 
   it("shows the install line the docs print for the current release", () => {

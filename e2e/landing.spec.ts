@@ -171,6 +171,22 @@ test("the For agents band: the band fill in light; in dark a raised, ruled charc
   }
 });
 
+for (const width of [1440, 1920])
+  test(`${width}: "How it's built" is balanced: the text column runs most of the stack's height`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/?theme=light");
+    await page.locator("#built").scrollIntoViewIfNeeded();
+    await expect(page.locator("#built .uipack-stack a")).toHaveCount(6, { timeout: 15_000 });
+    const h = await page.evaluate(() => {
+      const box = (s: string) => document.querySelector(s)!.getBoundingClientRect();
+      return { text: box(".landing-built__text").height, stack: box(".landing-built__stack").height };
+    });
+    expect(h.text / h.stack).toBeGreaterThan(0.8);
+    const next = page.getByRole("list", { name: "Read next" }).getByRole("link");
+    await expect(next).toHaveCount(4);
+    for (const link of await next.all()) expect((await link.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  });
+
 test("the copy button copies the current release's install command", async ({ page, context, browserName }) => {
   test.skip(browserName !== "chromium", "clipboard permissions are Chromium's");
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);

@@ -124,6 +124,15 @@ export const LAYERS: readonly { id: string; label: string; summary: string; page
   { id: "components", label: "Components", summary: "The parts, each with its live demo", page: "figures", zone: "parts" },
 ];
 
+/** "How it's built": where to read next, beside the stack: the overview, then the three layers a newcomer opens first (labels as the stack names them). */
+export const BUILT_NEXT: readonly { label: string; page: string }[] = [
+  { label: "What UiPack is", page: "start" },
+  ...["core", "specs", "recipes"].map((id) => {
+    const layer = LAYERS.find((l) => l.id === id)!;
+    return { label: layer.label, page: layer.page };
+  }),
+];
+
 export const LAYER_ZONES = [
   { id: "kept", label: "Core and libraries", note: "kept in uipack" },
   { id: "site", label: "Site spec", note: "one per website" },
