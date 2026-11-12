@@ -9,7 +9,7 @@ The components enforce what they can; the rest is on the page author.
 
 `uipack/web` renders in Technical, the one implemented style (its values in `src/styles/technical.css`,
 its roles in [docs/system/style.md](system/style.md)). Each other website has its own
-[spec](specs/README.md) that fills the same role contract; uipack renders one by adding one value
+[spec](specs/README.md) that fills the same role contract; UiPack renders one by adding one value
 set in `src/styles`, registering it in `uiStyles`, and testing it. `<WebSurface uiStyle="…">`, `<WebPage uiStyle="…" sections={…}>` and `data-ui-style` on
 any ancestor (set before paint by `styleBootScript()`) select a registered style; omitted, it is
 Technical. A style changes tokens and ornament slots only: the same sections in the page's own

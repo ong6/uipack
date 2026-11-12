@@ -43,12 +43,12 @@ and its spec are listed in the [registry](registry.md).
 
 [Technical](technical.md) is the reference: the package's default look, written to the template,
 with its role values generated from `src/styles/technical.css` so the two cannot drift. Its layout
-picks and writing style are its own choices; a new site makes its own. The uipack docs site's
+picks and writing style are its own choices; a new site makes its own. The UiPack docs site's
 spec, [docs-site](docs-site.md), shows a spec that extends another and sets only its differences.
 
 ## Building a style from a spec
 
-A spec becomes a live style in uipack when a site needs uipack to render it (its own pages, decks
+A spec becomes a live style in UiPack when a site needs UiPack to render it (its own pages, decks
 or figures in its look):
 
 1. **Fill the role contract.** Create `src/styles/<id>.css` with one `[data-ui-style="<id>"]` block

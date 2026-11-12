@@ -131,7 +131,7 @@ The grid, from `FIGURE_GRID` in `uipack`:
 a `viewBox` much wider than its column shrinks every label below the type floor.
 
 **Patterns.** Pick the pattern from the shape of the claim before drawing. The
-[diagram catalogue](../../diagrams.md) shows each one, simplest first:
+[Architecture diagrams](../../diagrams.md) shows each one, simplest first:
 
 <!-- generated:figure-patterns -->
 | Claim shape | Pattern |

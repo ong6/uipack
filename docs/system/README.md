@@ -47,7 +47,7 @@ You can change any layer without touching the other two:
 
 - **Same words and layout, new style.** Each website has one spec that fills the same role
   contract ([how to write one](../specs/README.md)); Technical is the package's default (the docs site extends it). The spec's
-  layout and writing style are separate sections of it, so its values can change without them. uipack renders
+  layout and writing style are separate sections of it, so its values can change without them. UiPack renders
   another spec by adding one value set in `src/styles`, registering it in `uiStyles`, and testing
   it. A deck or page built in Technical then renders in it with its headlines, notes, order and
   regions unchanged: only colours, faces and ornaments differ.

@@ -3,7 +3,7 @@
 The reference for drawing a figure by hand with `uipack`: every part and its props, the connector
 rule, hover, motion and the text floor, theming, the seven presets in `uipack/presets` and static
 SVG export with `uipack/static`. Read the [diagram rules](system/style.md) and the
-[diagram catalogue](diagrams.md) first to pick a pattern; come here for the exact props.
+[Architecture diagrams](diagrams.md) first to pick a pattern; come here for the exact props.
 
 | You need | Section |
 | --- | --- |
@@ -34,7 +34,7 @@ SVG export with `uipack/static`. Read the [diagram rules](system/style.md) and t
 - User-flow parts: `Actor` (`cx`, `cy`, `role`, `sub?`, `labelSide?`), `Screen` (`x`, `y`, `w`, `h?`, `title`, `lines?`, `accent?`), `Action` (`x`, `y`, `w`, `h?`, `label`, `sub?`), `Decision` (`cx`, `cy`, `r?`, `label`), `Outcome` (`x`, `y`, `w`, `h?`, `label`, `sub?`), `LaneRule` (`x1`, `x2`, `y`). Each takes `flow`.
 - Sequence parts (participants are `Node`s): `Lifeline` (`x`, `y1`, `y2`), `Activation` (`x`, `y1`, `y2`, `accent?`), `Message` (`id`, `from`, `to`, `y`, `n?`, `label`, `kind?`, `dashed?`, `accent?`, `labelX?`, `packet?`), `Lost` (the same, ending in a `Cross`), `SelfLoop` (`id`, `x`, `y`, `h?`, `w?`, `side?`, `n?`, `kind?`, `packet?`), `Note` (`x`, `y`, `w`, `h`, `title`, `lines?`, `accent?`). [When to use each](components/diagrams.md#user-flow-and-sequence-parts).
 - `Cross`: a ✕ where something stops, such as a lost message at the end of a dashed `Connector` with `arrow={false}`.
-- `icons`: line glyphs in a 16px box (db, cache, queue, service, client, blob, agent, doc, model, tool, gateway, lock, key, clock, cron, browser, terminal, git, cloud, region, user, check, robot, chart, warning, more…). `marks`: my own marks for the tool family, plus `Wordmark` (`size?`, `live?`, `liveColor?`): the uipack mark and the name. `live` (a `MarkCell`, 0 to 3 in reading order) moves the mark's dot to that cell and `liveColor` colours it (default the ink); every cell then carries `data-cell` and the dot `data-live`, so a host's CSS can move the dot. Without `live` it draws the one mark, the dot bottom right. The docs site's header uses it to show the page's section ([docs-site spec](specs/docs-site.md#navigation)).
+- `icons`: line glyphs in a 16px box (db, cache, queue, service, client, blob, agent, doc, model, tool, gateway, lock, key, clock, cron, browser, terminal, git, cloud, region, user, check, robot, chart, warning, more…). `marks`: my own marks for the tool family, plus `Wordmark` (`size?`, `live?`, `liveColor?`): the UiPack mark and the name. `live` (a `MarkCell`, 0 to 3 in reading order) moves the mark's dot to that cell and `liveColor` colours it (default the ink); every cell then carries `data-cell` and the dot `data-live`, so a host's CSS can move the dot. Without `live` it draws the one mark, the dot bottom right. The docs site's header uses it to show the page's section ([docs-site spec](specs/docs-site.md#navigation)).
 - Geometry: `anchor`, `route`, `pathFromPoints`, `pointAlong`, `trim`, `polylineLength`, `grid`.
 
 ## The connector rule

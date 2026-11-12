@@ -21,7 +21,7 @@ template, check it, register it, then build.
    its recipe (the `uipack-page` skill). A multi-page build follows
    [multi-agent website build](multi-agent-build.md).
 
-Until uipack renders the spec as a style ([building a style from a spec](../specs/README.md#building-a-style-from-a-spec)),
+Until UiPack renders the spec as a style ([building a style from a spec](../specs/README.md#building-a-style-from-a-spec)),
 a site can set the same `--ui-*` roles in its own CSS: the library's CSS sits in cascade layers, so
 the site's unlayered rules win and components read them. Building the style is a uipack change,
 made only when the owner or a brief asks.

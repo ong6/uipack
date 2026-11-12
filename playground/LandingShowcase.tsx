@@ -13,7 +13,7 @@
 import { lazy, Suspense, useEffect, useRef, useState, type ReactNode } from "react";
 import { version } from "../package.json";
 import { librarySections, pageDefs, pageHref, type PageDef } from "./catalog";
-import { REPO_URL, type DocsSectionId } from "./docs-manifest";
+import { REPO_URL } from "./docs-manifest";
 import { galleryHref } from "./gallery-index";
 import { installLine } from "./release";
 import { SITE_ORIGIN } from "./site";
@@ -125,18 +125,19 @@ function Hero({ theme }: { theme: Theme }) {
           </h1>
           <p className="landing-hero__sub">
             Diagrams, slides, web pages, motion and 3D, as React and SVG components with the rules for writing and laying them
-            out. Agents read the same files as Markdown.
+            out. Agents read its docs as Markdown.
           </p>
           <InstallCommand />
           <p className="landing-install__note">
-            ES modules only, not on npm: it installs from the tarball attached to each GitHub release.
+            UiPack is made for Jun Xiong's own sites and is not a public product. It installs from the tarball attached to each
+            GitHub release (ES modules only, not on npm).
           </p>
           <div className="landing-hero__ctas">
             <a className="landing-btn landing-btn--primary" href={pageHref(page("start"), theme)}>
               Read the docs <Arrow />
             </a>
             <a className="landing-btn landing-btn--ghost" href={galleryHref(theme)}>
-              Open the gallery
+              Open Assets
             </a>
           </div>
         </div>
@@ -188,13 +189,6 @@ function JobCard({ job, theme }: { job: Job; theme: Theme }) {
   );
 }
 
-/** A section's name in its hue, as the job cards are tinted. */
-const SectionName = ({ id }: { id: DocsSectionId }) => (
-  <span className="landing-hue" style={sectionHueStyle(id)}>
-    {librarySections.find((s) => s.id === id)!.label}
-  </span>
-);
-
 /** A section's head: the plain-name h2 (Technical's web section head), the lead and an aside. */
 function SectionHead({ id, title, lead, aside }: { id: string; title: string; lead: string; aside?: ReactNode }) {
   return (
@@ -218,11 +212,10 @@ function Jobs({ theme }: { theme: Theme }) {
         <SectionHead
           id="jobs-title"
           title="Start from your job"
-          lead="Pick what you are making; each card names what to read first."
+          lead="Each card names what to read first for the thing you are making."
           aside={
             <>
-              All four open a page in <SectionName id="build" />. A site's own spec and grading come{" "}
-              <a href="#around">further down</a>.
+              Writing a site's own spec and grading the work are <a href="#around">further down</a>.
             </>
           }
         />
@@ -243,13 +236,9 @@ function Around({ theme }: { theme: Theme }) {
       <div className="landing-wrap">
         <SectionHead
           id="around-title"
-          title="Set the rules, check the work"
-          lead="The steps either side of building: a site's own spec before, grading after."
-          aside={
-            <>
-              Each card is tinted with its section in the docs: <SectionName id="rules" /> or <SectionName id="check" />.
-            </>
-          }
+          title="Rules and checks"
+          lead="A site's own spec comes before building, and grading comes after."
+          aside="A new site writes its spec first. A page on an existing site uses that site's spec."
         />
         <ul className="landing-jobs landing-jobs--around">
           {SUPPORT_JOBS.map((job) => (
@@ -261,7 +250,7 @@ function Around({ theme }: { theme: Theme }) {
   );
 }
 
-/* ------------------------------------------------------------------ how it's built */
+/* ------------------------------------------------------------------ how it is built */
 
 /** Mounts its children once the box nears the viewport; the box keeps a minimum height meanwhile. */
 function WhenNear({ className, children }: { className: string; children: ReactNode }) {
@@ -278,9 +267,9 @@ function Built({ theme }: { theme: Theme }) {
     <section className="landing-block" id="built" aria-labelledby="built-title">
       <div className="landing-wrap landing-built">
         <div className="landing-built__text">
-          <SectionHead id="built-title" title="How it's built" lead="Core rules at the bottom, the parts on top." />
+          <SectionHead id="built-title" title="How it is built" lead="Core rules at the bottom, the parts on top." />
           <p>
-            Each website has its own layout, writing style, theme, fonts and design direction, all in its spec; the core rules
+            Each website has its own layout, writing style, theme, fonts and design direction, all in its spec. The core rules
             keep only what must hold everywhere, and the libraries give a spec named layouts and component looks to pick from.
           </p>
           <p>A deck is a page of a site, so it reads the same spec.</p>
@@ -450,10 +439,10 @@ function Parts({ theme }: { theme: Theme }) {
         <SectionHead
           id="parts-title"
           title="The parts"
-          lead="Each entry loads only what it draws."
+          lead="Each import path loads only what it draws."
           aside={
             <>
-              Every component page shows its live demo; <a href={galleryHref(theme)}>open the gallery</a> for all of them in one
+              Every component page shows its live demo, and <a href={galleryHref(theme)}>Assets</a> shows all of them in one
               place.
             </>
           }
@@ -490,7 +479,7 @@ function Agents({ theme }: { theme: Theme }) {
             it, so you can stop after the first paragraph.
           </p>
           <a className="landing-btn landing-btn--band" href={pageHref(page("agents"), theme)}>
-            How an agent uses UiPack <Arrow />
+            How agents use UiPack <Arrow />
           </a>
         </div>
         <div className="landing-band__rows">
@@ -533,7 +522,10 @@ function Agents({ theme }: { theme: Theme }) {
             </RowIcon>
             <div>
               <h3>View as Markdown</h3>
-              <p>Every page renders the Markdown file named under its title, and the site serves each file at its repo path.</p>
+              <p>
+                Every docs page renders one Markdown file, which its View as Markdown link opens, and the site serves each file at
+                its repo path.
+              </p>
               <a className="landing-band__url" href="/docs/agents/README.md">
                 {site}/docs/agents/README.md
               </a>
@@ -591,7 +583,7 @@ function SiteMap({ theme }: { theme: Theme }) {
           ))}
         </div>
         <div className="landing-foot__base">
-          <span>Jun Xiong's own design system. Not a public product: the only consumers are the sites in the registry.</span>
+          <span>Jun Xiong's own design system. Its only consumers are the sites in the registry.</span>
           <span className="landing-foot__links">
             <a href={REPO_URL}>GitHub</a>
             <a href="/llms.txt">llms.txt</a>

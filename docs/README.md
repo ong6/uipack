@@ -9,22 +9,25 @@ start, then lists every page of these docs.
 
 - **Agents first.** An agent building a page, deck, figure or copy for one of the owner's sites
   reads these files as Markdown, from `node_modules/uipack/docs/` in a site or a clone. Start at
-  [For agents](agents/README.md); [`llms.txt`](../llms.txt) lists every file with one line on what
-  it is for. Without a checkout, fetch them from the docs site, which serves each file at its repo
-  path (`https://ui.junxiong.dev/llms.txt`, `https://ui.junxiong.dev/docs/agents/README.md`). Each file opens with what it is for and who should read it, so you can stop after the
-  first paragraph, and it is headed so you can jump to your part (`scripts/check-agent-docs.ts`
-  checks both).
+  [How agents use UiPack](agents/README.md); [`llms.txt`](../llms.txt) lists every file with one
+  line on what it is for.
 - **The owner** reviews the same pages on the [docs site](https://ui.junxiong.dev), where each one shows its live demos.
 - **Not a public product.** The only consumers are the sites in the registry, so there is no
   compatibility promise beyond them.
 
-The site and the files are one source: every page renders the Markdown file named under its
-title ("View as Markdown").
+The site and the files are one source: each docs page renders one Markdown file, which its
+"View as Markdown" link opens. Without a checkout, fetch the files from the docs site, which serves
+each at its repo path (`https://ui.junxiong.dev/llms.txt`,
+`https://ui.junxiong.dev/docs/agents/README.md`).
+
+Each file opens with what it is for and who should read it, so you can stop after the first
+paragraph, and it is headed so you can jump to your part (`scripts/check-agent-docs.ts` checks
+both).
 
 ## How it is built
 
-Each website has its own layout, writing style, theme, fonts and design direction, all in its spec;
-the core rules keep only what must hold everywhere, and the libraries give a spec named layouts and
+Each website has its own layout, writing style, theme, fonts and design direction, all in its spec.
+The core rules keep only what must hold everywhere, and the libraries give a spec named layouts and
 component looks to pick from. A deck is a page of a site, so it reads the same spec.
 
 | Layer | What it holds | Start with |
@@ -34,17 +37,17 @@ component looks to pick from. A deck is a page of a site, so it reads the same s
 | Component looks | Each component's named looks, `fixed` (the same on every site, like the diagrams) or `flex` (taking the site's roles) | [Component looks](components/README.md) |
 | Site specs | One per website: its roles, a layout per page type, its writing style and the looks it picks; built from a template and checked | [How to write a spec](specs/README.md), [what a spec may set](system/spec-settings.md), [Technical](specs/technical.md) |
 | Recipes | One per page type: the parts and the rules it relies on | [Recipes](recipes/README.md) |
-| Components | The parts, each with its live demo | [Diagram catalogue](diagrams.md), [Deck player](deck.md), [Web principles](web-principles.md) |
+| Components | The parts, each with its live demo | [Architecture diagrams](diagrams.md), [Deck player](deck.md), [Web principles](web-principles.md) |
 
 ## Where to start
 
 | You want to | Read |
 | --- | --- |
-| Work as an agent or split a site across subagents | [For agents](agents/README.md): read order, the [multi-agent build](agents/multi-agent-build.md) and the [subagent brief](agents/subagent-brief.md); job skills in [`skills/`](../skills/README.md) |
+| Work as an agent or split a site across subagents | [How agents use UiPack](agents/README.md): read order, the [multi-agent build](agents/multi-agent-build.md) and the [subagent brief](agents/subagent-brief.md); job skills in [`skills/`](../skills/README.md) |
 | Build a landing page | [Landing recipe](recipes/landing.md), then the [example](examples/landing-page.md) |
 | Write documentation or an article | [Documentation recipe](recipes/documentation.md), then the [example](examples/text-page.md) |
 | Make a deck | [Deck recipe](recipes/deck-slide.md), then the [Deck player](deck.md) |
-| Draw a diagram | [The Blueprint look](components/diagrams.md), [figure labels and captions](system/writing/figures.md), then the [catalogue](diagrams.md) |
+| Draw a diagram | [The Blueprint look](components/diagrams.md), [figure labels and captions](system/writing/figures.md), then [Architecture diagrams](diagrams.md) |
 | Give a site its own look, layout and voice | [How to write a spec](specs/README.md) and [what a spec may set](system/spec-settings.md) |
 | Add a part to the library | [Contributing](contributing.md) and [component-first](component-first.md) |
 
