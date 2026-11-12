@@ -856,10 +856,12 @@
   height: 1px;
 }
 
+/* Three text levels, each AA or better and at a reading size: the section label (mono caps, ink),
+   a page (14px, ink-2) and a sub-page (13px, ink-2, on the tree line). */
 .uipack-docs__navigation[data-collapsible] a {
   border-left: 0;
   border-radius: 4px;
-  font-size: 13.5px;
+  font-size: 14px;
   min-height: 34px;
   padding: 6px 8px 6px 40px;
   position: relative;
@@ -882,8 +884,8 @@
 }
 
 .uipack-docs__navigation[data-collapsible] .uipack-docs__nav-sub a {
-  color: var(--docs-faint);
-  font-size: 12.5px;
+  color: var(--docs-muted);
+  font-size: 13px;
   min-height: 32px;
   padding: 4px 8px 4px 58px;
 }
@@ -1017,14 +1019,14 @@
 .uipack-docs__toc-list a {
   color: var(--docs-muted);
   display: block;
-  font-size: 12.5px;
+  font-size: 13.5px;
   line-height: 1.45;
   padding: 6px 0 6px 28px;
   text-decoration: none;
 }
 
 .uipack-docs__toc-list li[data-level="3"] a {
-  font-size: 12px;
+  font-size: 13px;
   padding-left: 40px;
 }
 

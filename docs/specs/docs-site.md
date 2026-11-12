@@ -259,7 +259,8 @@ its hue.
 
 Technical's, unchanged ([Technical, Type](technical.md#type)): IBM Plex Sans 600 headings, Plex
 Sans text, IBM Plex Mono labels, self-hosted. Sidebar levels: section labels in mono caps 12px
-600 (ink), pages 13.5px (ink-2), sub-pages 12.5px (ink-3), captions 12px mono (ink-3).
+600 (ink), pages 14px (ink-2), sub-pages 13px (ink-2, on the tree line), captions 12px mono (ink-3); "On
+this page" 13.5px (ink-2), its sub-headings 13px.
 
 ## Density and rhythm
 

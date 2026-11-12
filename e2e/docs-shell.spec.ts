@@ -181,6 +181,55 @@ test.describe("the sidebar's marker", () => {
   });
 });
 
+test.describe("sidebar and rail text", () => {
+  test.use({ viewport: { width: 1440, height: 900 } });
+  for (const theme of ["light", "dark"] as const)
+    test(`${theme}: sub-pages and "On this page" read at 13px or more and 4.5:1 or more, under the pages`, async ({ page }) => {
+      await page.goto(`/foundations/writing/general?theme=${theme}`);
+      await expect(page.locator(".uipack-docs__toc-list a").first()).toBeVisible();
+      const read = await page.evaluate(() => {
+        const rgb = (c: string) => (c.match(/[\d.]+/g) ?? []).map(Number);
+        const lum = (c: string) => {
+          const [r, g, b] = rgb(c).map((v) => {
+            const s = v / 255;
+            return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
+          });
+          return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+        };
+        const ground = (el: Element | null): string => {
+          for (; el; el = el.parentElement) {
+            const bg = getComputedStyle(el).backgroundColor;
+            if (rgb(bg)[3] !== 0 && bg !== "transparent") return bg;
+          }
+          return "rgb(255, 255, 255)";
+        };
+        const measure = (sel: string) =>
+          [...document.querySelectorAll<HTMLElement>(sel)]
+            .filter((a) => a.getClientRects().length && a.getAttribute("aria-current") === null)
+            .map((a) => {
+              const [l1, l2] = [lum(getComputedStyle(a).color), lum(ground(a))].sort((x, y) => y - x);
+              return { px: parseFloat(getComputedStyle(a).fontSize), ratio: (l1 + 0.05) / (l2 + 0.05) };
+            });
+        return {
+          pages: measure(
+            ".uipack-docs__sidebar .uipack-docs__nav-section[data-open] .uipack-docs__nav-inner > div > ul > li > a",
+          ),
+          subs: measure(".uipack-docs__sidebar .uipack-docs__nav-sub a"),
+          rail: measure(".uipack-docs__toc-list a"),
+        };
+      });
+      for (const [name, links] of Object.entries(read)) {
+        expect(links.length, name).toBeGreaterThan(2);
+        for (const l of links) {
+          expect(l.px, `${name} size`).toBeGreaterThanOrEqual(13);
+          expect(l.ratio, `${name} contrast`).toBeGreaterThanOrEqual(4.5);
+        }
+      }
+      // The hierarchy holds: a sub-page is smaller than a page.
+      expect(Math.max(...read.subs.map((l) => l.px))).toBeLessThan(Math.min(...read.pages.map((l) => l.px)));
+    });
+});
+
 test.describe("widths", () => {
   for (const width of [1440, 1920]) {
     test(`${width}: the column and the rail sit together, prose at 75–88 characters a line, tables the full column`, async ({
