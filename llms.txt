@@ -4,19 +4,16 @@
 
 Agents: read docs/agents/README.md first, then the skill for your job in skills/ (README.md indexes them); the design system itself starts at docs/system/README.md. Agent instructions are in AGENTS.md. Generated from playground/docs-manifest.ts by `npm run docs:sync`; do not edit by hand.
 
-Install (ES modules only; not on npm): `npm install https://github.com/ong6/uipack/releases/download/v0.5.0/uipack-0.5.0.tgz`.
+Install (ES modules only; not on npm): `npm install https://github.com/ong6/uipack/releases/download/v0.6.0/uipack-0.6.0.tgz`.
 
-## Start here
+## Start
 
 - [What UiPack is](docs/README.md): What UiPack is, who it is for (people and agents), how its layers fit, where to start and how to install it, then every page of the docs.
 - [Install and use](README.md): Install the package, draw a first figure, and the entries for charts, articles, 3D, web pages, decks and docs.
-
-## For agents
-
 - [How agents use UiPack](docs/agents/README.md): The read order for an agent: the job's skill, the site's spec, the core rules, then the parts; what is fixed and what each site sets.
-- [Multi-agent build](docs/agents/multi-agent-build.md): How a lead splits a website across subagents: what the lead owns, what a subagent never decides, the hand-off and the review pass.
-- [Subagent brief](docs/agents/subagent-brief.md): The copy-paste brief for one subagent building one page or section: inputs, limits, outputs and the self-check.
-- [Starting a new website](docs/agents/new-website.md): A new site gets its spec first: write it from the template, check it, register it, then build.
+- [How agents use UiPack: Multi-agent build](docs/agents/multi-agent-build.md): How a lead splits a website across subagents: what the lead owns, what a subagent never decides, the hand-off and the review pass.
+- [How agents use UiPack: Subagent brief](docs/agents/subagent-brief.md): The copy-paste brief for one subagent building one page or section: inputs, limits, outputs and the self-check.
+- [How agents use UiPack: Starting a new website](docs/agents/new-website.md): A new site gets its spec first: write it from the template, check it, register it, then build.
 
 ## Rules
 
@@ -36,8 +33,18 @@ Install (ES modules only; not on npm): `npm install https://github.com/ong6/uipa
 - [Layout: Dashboard](docs/system/layout/dashboard.md): The one-question dashboard archetype: its regions, equal boxes, and the narrow form.
 - [What a spec may set](docs/system/spec-settings.md): The boundary between a site spec and the core rules: a site's look, layout, writing style and component looks, and what holds on every site.
 - [Do and don't](docs/system/do-and-dont.md): Paired examples of the rules, drawn live, and the checklist of generic AI-landing tropes to keep out.
+- [Design direction](docs/design-direction.md): The playground's visual direction, catalog taxonomy, interaction polish and presentation composition.
+- [Web principles](docs/web-principles.md): The numbered rules for uipack/web pages, each with its number and source, motion and backgrounds included.
+- [Web principles: Smooth scrolling](docs/web-smooth-scroll.md): How SmoothScroll eases the wheel on a landing page, what stays native, anchors and its API.
 
-## Recipes
+## Rules · Site specs
+
+- [How to write a spec](docs/specs/README.md): One spec per website: its look, layout, writing style and component looks on top of the core rules; how to write and check one, and how it becomes a live style.
+- [Spec template](docs/specs/TEMPLATE.md): The file a new site spec starts from: the frontmatter (pages, layouts, component looks) and the sections the checker requires.
+- [Technical](docs/specs/technical.md): The package's default look, which the docs site extends: Cyanotype, Prussian ink and one amber mark, IBM Plex, with its role values generated from the style file.
+- [Docs site](docs/specs/docs-site.md): The spec of ui.junxiong.dev: Technical's look with its own darker dark palette, the four navigation hues and the travelling location marker.
+
+## Build · Recipes
 
 - [Recipes overview](docs/recipes/README.md): One recipe per page type: the section order, the parts to use, and the rules each relies on.
 - [Build a landing page](docs/recipes/landing.md): Build a landing page: the section order the example renders, the parts per section, the steps.
@@ -45,62 +52,36 @@ Install (ES modules only; not on npm): `npm install https://github.com/ong6/uipa
 - [Build a deck](docs/recipes/deck-slide.md): Build a deck: the storylines, the slide roles, the parts and every check lintDeck runs.
 - [Build a dashboard](docs/recipes/dashboard.md): Build a dashboard: the order, the parts, the steps.
 
-## Components
+## Build · Components
 
 - [Architecture diagrams](docs/diagrams.md): The diagram catalogue: each figure pattern once, from the bare canvas to a figure you drill into, with the parts it is built from.
 - [Drill-down figures](docs/drill.md): A stack of figures where a node zooms open into its own figure: the parts, keyboard, reduced motion and export.
 - [Figure parts API](docs/figure-api.md): Every figure part and its props, the connector rule, hover, motion, theming, the seven presets and static SVG export.
 - [Charts](docs/charts.md): SpanChart and LayerStack: layered and comparative charts for articles, static HTML with no JavaScript.
 - [Article parts](docs/article.md): The labelled blocks of a long article section, with their HTML and class contract.
-- [Article parts: Verification](docs/article-verification.md): How the article parts are tested, the measured section rhythm and screenshots.
 - [Deck player: Tech talk](docs/deck.md): The deck player: one transition grammar (advance, morph, zoom), builds, the overview, the speaker and read views, keyboard and touch.
 - [Deck player: Consulting](docs/deck-consulting.md): Dense consulting slides and their charts: tracker, action title, panels, so-what, footnotes, bars, waterfall, stacked bars, lines, KPI tiles, Harvey tables and a 2×2.
 - [Deck storytelling](docs/deck-storytelling.md): Storyline templates, slide roles and the checks lintDeck runs on a deck's argument.
-- [lintDeck rules](docs/deck-lint-rules.md): Every check lintDeck runs on a deck's words, with its severity, generated from LINT_RULES.
 - [Slide starters](docs/presentations.md): Slide layouts with their speech notes, then a complete five-chapter narrative built from them.
 - [3D animations](docs/slides.md): Live 3D scenes with camera moves, animated flows and presentation controls.
 - [3D object scenes](docs/objects.md): Reusable, lazy 3D illustrations, their art directions and the player that shows them.
 - [Mechanism](docs/mechanism.md): Mechanical drawings that explain how a system moves, one part at a time.
 - [Docs layout](docs/docs-layout.md): A three-column product documentation shell with responsive navigation and Markdown prose.
+- [Web parts API](docs/web-api.md): The uipack/web parts with their props: page parts, motion, backgrounds, type and scoping.
 
-## Component looks
+## Build · Component looks
 
-- [Component looks](docs/components/README.md): Each component's named looks, fixed (the same on every site) or flex (taking the site's palette and faces), and how a spec picks them.
+- [Looks overview](docs/components/README.md): Each component's named looks, fixed (the same on every site) or flex (taking the site's palette and faces), and how a spec picks them.
 - [Diagram look and themes](docs/components/diagrams.md): The Blueprint look and diagram themes: one grammar on every site, colours, faces and ground from a theme; the theme API, the user-flow and sequence parts, the node strip.
 - [3D looks](docs/components/3d.md): The six 3D looks, which subjects offer each, and which one takes the site's palette.
 - [Mechanism look](docs/components/mechanism.md): The isometric machine look: its fixed drawing and the roles it takes from the site.
 
-## Specs
-
-- [How to write a spec](docs/specs/README.md): One spec per website: its look, layout, writing style and component looks on top of the core rules; how to write and check one, and how it becomes a live style.
-- [Spec template](docs/specs/TEMPLATE.md): The file a new site spec starts from: the frontmatter (pages, layouts, component looks) and the sections the checker requires.
-- [Technical](docs/specs/technical.md): The uipack site's spec: Cyanotype, Prussian ink and one amber mark, IBM Plex, with its role values generated from the style file.
-- [Registry](docs/specs/registry.md): Every site uipack designs for: where its spec lives, the component looks it picks and the uipack release it pins.
-
-## Examples
+## Build · Examples
 
 - [Example landing page](docs/examples/landing-page.md): A landing page built with uipack/web in Technical, how it is built, and every part it is made of.
 - [Example text page](docs/examples/text-page.md): A documentation page written to the read-alone rules: how to check a deck before you present it.
 
-## Reference
-
-- [Icons & marks](docs/icons-and-marks.md): Searchable icons, marks, canvas backgrounds and motion tokens, each with a preview and a copy button.
-- [Contributing](docs/contributing.md): Step-by-step recipes, with the exact files to touch, for a new style, page, deck, slide part, chart or figure.
-- [Testing](docs/testing.md): What the unit and browser suites check, how CI runs them and the known engine quirks.
-- [Releases](docs/releases.md): How a version is cut: semver for this repo, the changelog, the tag on main, and how each site moves its pin.
-- [Component-first](docs/component-first.md): Build, register and verify a significant visual in the library before a consumer uses it.
-- [Design direction](docs/design-direction.md): The playground's visual direction, catalog taxonomy, interaction polish and presentation composition.
-- [Canvas and selection](docs/interaction.md): Mobile reading, item selection, expanded inspection and their limits.
-- [Web principles](docs/web-principles.md): The numbered rules for uipack/web pages, each with its number and source, motion and backgrounds included.
-- [Web parts API](docs/web-api.md): The uipack/web parts with their props: page parts, motion, backgrounds, type and scoping.
-- [Web principles: Smooth scrolling](docs/web-smooth-scroll.md): How SmoothScroll eases the wheel on a landing page, what stays native, anchors and its API.
-- [Web discoverability](docs/web-discoverability.md): How a uipack/web page gets found and quoted by search and answer engines: the checklist and the crawler stance.
-- [Web discoverability: Head and structured data](docs/web-discoverability/head-and-structured-data.md): pageMeta, the head helpers, font preloads, the JSON-LD builders and the FAQ.
-- [Web discoverability: Crawl files](docs/web-discoverability/crawl-files.md): buildCrawlFiles for robots.txt, sitemap.xml and llms.txt, rssFeed, and Section lazyRender.
-- [Web discoverability: Performance](docs/web-discoverability/performance.md): Load and paint numbers measured on the /web demo, the method, and what changed each.
-- [Portfolio ideas](docs/portfolio-ideas.md): Prioritised places where uipack/web pieces would improve junxiong.dev, and what to avoid.
-
-## Grading
+## Check · Grading
 
 - [How to grade](docs/grading/README.md): How an agent grades its own UI work before handoff, and how a lead grades a subagent's: three tiers, values first.
 - [Mechanical checks](docs/grading/tier-1.md): The 13 deterministic checks, their thresholds and sources, the CLI, the report and the site config.
@@ -108,12 +89,35 @@ Install (ES modules only; not on npm): `npm install https://github.com/ong6/uipa
 - [Calibration anchors](docs/grading/calibration.md): Known human pages scored on the same rubric, so a target score reads relative to them.
 - [Regression set](docs/grading/regression.md): Fifteen frozen briefs reused every round, and the fix ledger that proves a fix reached the next build.
 - [Grading docs for agents](docs/grading/agent-docs.md): How to grade uipack's own docs for their agent readers: the mechanical check, task-based judging and the frozen tasks.
+
+## Check · Rubrics
+
 - [Landing rubric](docs/grading/rubrics/landing-v1.md): Version 1 of the frozen judge rubric for landing pages.
 - [Docs rubric](docs/grading/rubrics/docs-v1.md): Version 1 of the frozen judge rubric for documentation and articles.
 - [Deck rubric](docs/grading/rubrics/deck-slide-v1.md): Version 1 of the frozen judge rubric for decks.
 - [Dashboard rubric](docs/grading/rubrics/dashboard-v1.md): Version 1 of the frozen judge rubric for dashboards.
 - [Diagram rubric](docs/grading/rubrics/diagram-v1.md): Version 1 of the frozen judge rubric for figures.
 - [Agent docs rubric](docs/grading/rubrics/agent-docs-v1.md): Version 1 of the frozen rubric for a documentation set read by agents: routing, progressive disclosure, index, executable rules, currency, stop conditions.
+
+## Check · Testing
+
+- [Testing](docs/testing.md): What the unit and browser suites check, how CI runs them and the known engine quirks.
+- [Article verification](docs/article-verification.md): How the article parts are tested, the measured section rhythm and screenshots.
+- [lintDeck rules](docs/deck-lint-rules.md): Every check lintDeck runs on a deck's words, with its severity, generated from LINT_RULES.
+
+## Reference
+
+- [Registry](docs/specs/registry.md): Every site uipack designs for: where its spec lives, the component looks it picks and the uipack release it pins.
+- [Icons & marks](docs/icons-and-marks.md): Searchable icons, marks, canvas backgrounds and motion tokens, each with a preview and a copy button.
+- [Releases](docs/releases.md): How a version is cut: semver for this repo, the changelog, the tag on main, and how each site moves its pin.
+- [Contributing](docs/contributing.md): Step-by-step recipes, with the exact files to touch, for a new style, page, deck, slide part, chart or figure.
+- [Component-first](docs/component-first.md): Build, register and verify a significant visual in the library before a consumer uses it.
+- [Canvas and selection](docs/interaction.md): Mobile reading, item selection, expanded inspection and their limits.
+- [Web discoverability](docs/web-discoverability.md): How a uipack/web page gets found and quoted by search and answer engines: the checklist and the crawler stance.
+- [Web discoverability: Head and structured data](docs/web-discoverability/head-and-structured-data.md): pageMeta, the head helpers, font preloads, the JSON-LD builders and the FAQ.
+- [Web discoverability: Crawl files](docs/web-discoverability/crawl-files.md): buildCrawlFiles for robots.txt, sitemap.xml and llms.txt, rssFeed, and Section lazyRender.
+- [Web discoverability: Performance](docs/web-discoverability/performance.md): Load and paint numbers measured on the /web demo, the method, and what changed each.
+- [Portfolio ideas](docs/portfolio-ideas.md): Prioritised places where uipack/web pieces would improve junxiong.dev, and what to avoid.
 
 ## Skills
 

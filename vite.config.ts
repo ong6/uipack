@@ -8,6 +8,7 @@ import type { OutputBundle, OutputChunk } from "rollup";
 import { pageModules, routes } from "./playground/routes";
 import { siteFiles } from "./playground/docs-links";
 import { routeHtml, siteCrawlFiles, siteRoutes, SITE_ORIGIN } from "./playground/site";
+import { SEARCH_INDEX_PATH, siteSearchIndex } from "./playground/search-index";
 
 const CRAWL_TYPES: Record<string, string> = {
   "robots.txt": "text/plain; charset=utf-8",
@@ -82,6 +83,29 @@ function docsRawFiles(): Plugin {
     configurePreviewServer: (server) => void server.middlewares.use(serve),
     generateBundle() {
       for (const fileName of files()) this.emitFile({ type: "asset", fileName, source: readFileSync(resolve(root, fileName)) });
+    },
+  };
+}
+
+/**
+ * The docs search index (playground/search-index.ts) at /search-index.json: built from the docs
+ * manifest and the Markdown files on each request in dev and preview, and emitted once in a build.
+ * The shell fetches it the first time search opens.
+ */
+function searchIndex(): Plugin {
+  const name = SEARCH_INDEX_PATH.slice(1);
+  const build = () => JSON.stringify(siteSearchIndex(readRepoFile));
+  const serve = (req: IncomingMessage, res: ServerResponse, next: () => void) => {
+    if ((req.url ?? "").split("?")[0] !== SEARCH_INDEX_PATH) return next();
+    res.setHeader("Content-Type", "application/json; charset=utf-8");
+    res.end(build());
+  };
+  return {
+    name: "uipack-playground-search-index",
+    configureServer: (server) => void server.middlewares.use(serve),
+    configurePreviewServer: (server) => void server.middlewares.use(serve),
+    generateBundle() {
+      this.emitFile({ type: "asset", fileName: name, source: build() });
     },
   };
 }
@@ -183,7 +207,7 @@ function siteHtml(): Plugin {
 }
 
 export default defineConfig({
-  plugins: [react(), crawlFiles(), docsRawFiles(), routePreloads(), siteHtml()],
+  plugins: [react(), crawlFiles(), docsRawFiles(), searchIndex(), routePreloads(), siteHtml()],
   root: "playground",
   publicDir: false,
   appType: "spa",

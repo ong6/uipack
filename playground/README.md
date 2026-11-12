@@ -6,6 +6,21 @@ Run `npm run dev` from the repo root. The nav has two rows: groups, then the act
 
 `main` deploys to [ui.junxiong.dev](https://ui.junxiong.dev) on Vercel (`vercel.json`; pull requests get preview deployments). `npm run build:site` (`vite build`) writes the static site to `playground/dist`: one HTML file per route in `routes.ts` plus `/gallery`, each with its page's title, description and canonical (`site.ts`; Vercel's `cleanUrls` serves `x.html` at `/x`), a 404.html, the raw Markdown and images each docs page renders at their repo paths, the asset manifest's previews, and robots.txt, sitemap.xml and llms.txt for `https://ui.junxiong.dev` (`UIPACK_SITE_ORIGIN` overrides). `vercel.json` enforces a Content-Security-Policy that allows the three inline scripts in `index.html` by hash; the build fails with the new hashes when one changes. `npm run check:site` serves the build with vercel.json's headers (`scripts/serve-site.mjs`) and loads every route in light and dark, failing on a console error, a CSP violation, a failed request or a broken internal link; `npm run check:site -- https://ui.junxiong.dev` checks the live site. CI runs both, one runner per theme.
 
+## Navigation, search and the site's own look
+
+The sidebar is the manifest's five sections (Start, Rules, Build, Check, Reference; `docsSections`
+and each group's `section` in `docs-manifest.ts`), collapsible, the current one open, each with its
+icon and hue (`site-settings.tsx`, `site-palette.css`). The location marker (a paper plane, or the
+uipack square mark with `?marker=mark`) flies to the current page in the sidebar and glides to the
+current heading in "On this page"; the sidebar remembers the page being left in sessionStorage so the
+next page's marker travels from it. Below 900px the header's menu button opens the sidebar as a
+drawer and "On this page" folds into a disclosure (it does from 1180px). Search (the sidebar's box,
+⌘K / Ctrl-K) loads `/search-index.json`, built from every page's Markdown by `search-index.ts`
+(vite.config.ts serves it in dev and emits it in a build). The site's dark palette, hues, marker and
+widths are its own spec, [docs/specs/docs-site.md](../docs/specs/docs-site.md); `site-palette.css`
+lays its values over Technical's, for this site only. `e2e/docs-shell.spec.ts` covers the marker,
+widths, drawer, disclosure and search.
+
 ## Two views: Docs and Assets
 
 The header has two tabs. **Docs** is every page in the docs manifest, each rendering its Markdown

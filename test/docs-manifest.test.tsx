@@ -6,7 +6,7 @@ import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { extractDocsHeadings } from "../src/docs";
-import { docsFiles, docsManifest, docsPages, pageForFile } from "../playground/docs-manifest";
+import { docsFiles, docsManifest, docsPages, docsSections, pageForFile } from "../playground/docs-manifest";
 import { demoIdsIn, demos, withDemos } from "../playground/demos";
 import { repoPath, resolveDocsUrl, servedFiles } from "../playground/docs-links";
 import {
@@ -95,7 +95,11 @@ describe("generated blocks and llms.txt (npm run docs:sync)", () => {
     const links = [...text.matchAll(/\]\(([^)]+)\)/g)].map((m) => m[1]);
     expect(new Set(links).size).toBe(links.length);
     for (const link of links) expect(existsSync(resolve(root, link)), link).toBe(true);
-    for (const g of docsManifest) expect(text).toContain(`## ${g.label}`);
+    // Each group under its section: "## Build · Components", or "## Start" for a section's untitled group.
+    for (const g of docsManifest) {
+      const section = docsSections.find((s) => s.id === g.section)!.label;
+      expect(text).toContain("caption" in g && g.caption === false ? `## ${section}\n` : `## ${section} · ${g.label}\n`);
+    }
   });
 });
 

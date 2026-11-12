@@ -61,7 +61,7 @@ function Choice<T extends string>({
 
 /**
  * The style layer, under the live controls: the site spec, not a control. Here it is Technical,
- * the uipack site's spec; another site's spec fills the same roles.
+ * the package's default spec; another site's spec fills the same roles.
  */
 function StyleLayer() {
   return (

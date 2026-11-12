@@ -104,13 +104,13 @@ test("a card is one Tab stop and opens its docs page", async ({ page }) => {
   await expect(page).toHaveURL(new RegExp(href!.split("?")[0].replace(/\//g, "\\/")));
 });
 
-test("on a phone, a docs page offers the two views in its menu", async ({ page }) => {
+test("on a phone, a docs page keeps the two views in its header", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/components/diagrams?theme=light");
-  await expect(page.locator(".showcase-tabs")).toBeHidden();
-  await page.locator(".showcase-menu-button").click();
-  const views = page.getByRole("group", { name: "Views" });
+  const views = page.getByRole("navigation", { name: "Views" });
+  await expect(views).toBeVisible();
   await expect(views.getByRole("link", { name: "Docs" })).toHaveAttribute("aria-current", "true");
+  for (const link of await views.getByRole("link").all()) expect((await link.boundingBox())!.height).toBeGreaterThanOrEqual(44);
   await views.getByRole("link", { name: "Assets" }).click();
   await expect(page).toHaveURL(/\/gallery/);
   // The Assets view has no menu button, so its tabs stay in the header.

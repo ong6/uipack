@@ -1,6 +1,6 @@
 ---
 spec: technical
-site: uipack (this repo's docs site, playground and package defaults)
+site: uipack package defaults (the docs site extends it: docs-site.md)
 extends: core
 pages: [landing, documentation, article, deck, dashboard]
 layouts: { landing: product-landing, documentation: docs-shell, article: layer-article, deck: slide-canvas, dashboard: one-question-dashboard }
@@ -11,13 +11,15 @@ uipack: current
 values: src/styles/technical.css
 ---
 
-# Technical: the uipack site's spec
+# Technical: the package's default look
 
-Technical is the spec of the uipack site itself and the package's default look: what a figure,
-deck or page renders in when nothing else is set. Its layout picks and its writing style (the aims in `src/deck/budgets.ts` are its defaults)
-are this site's choices, not rules for other sites. It is written to the [template](TEMPLATE.md);
-its role values are generated from `src/styles/technical.css` by `npm run docs:sync`, so this page
-and the code cannot drift.
+Technical is the package's default look: what a figure, deck or page renders in when nothing else
+is set. Its layout picks and writing style (the aims in `src/deck/budgets.ts` are its defaults)
+are its own choices, not rules for other sites. Its role values are generated from
+`src/styles/technical.css` by `npm run docs:sync`, so this page and the code cannot drift.
+
+The docs site extends it with a dark palette, navigation hues and a location marker of its own
+([its spec](docs-site.md)). It is written to the [template](TEMPLATE.md).
 
 ## Identity
 
@@ -297,8 +299,8 @@ drawn for this site first. Density 0.9 compacts vertical rhythm only.
 
 ### Documentation
 
-`docs-shell` as is: this docs site, with "View as Markdown" and "Edit on GitHub" in the context row
-and `width="wide"` on pages with wide demos.
+`docs-shell` as is, with "View as Markdown" and "Edit on GitHub" in the context row and
+`width="wide"` on pages with wide demos. The docs site sets its own widths in [its spec](docs-site.md#layout).
 
 ### Article
 
@@ -358,8 +360,8 @@ thing in the same words.
 
 ## Reuse
 
-Extends `core` only. No other site reuses Technical yet; one that should look like uipack says
-`extends: technical`.
+Extends `core` only. The uipack docs site extends it ([docs-site](docs-site.md)); another site that
+should look like uipack says `extends: technical`.
 
 ## Open TODOs
 

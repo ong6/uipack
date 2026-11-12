@@ -7,6 +7,9 @@ import { createRoot } from "react-dom/client";
 import "../src/styles/roles.css";
 import "../src/styles/technical.css";
 import "../src/web/fonts.css";
+// The docs site's own values over Technical's (docs/specs/docs-site.md): its dark palette and its
+// navigation hues. After technical.css, and unlayered, so they win.
+import "./site-palette.css";
 import "./showcase.css";
 import { libraryGroups, pageDefs, pageHeading, pageHref, resolvePage } from "./catalog";
 import { pageModules, routePath, routes } from "./routes";

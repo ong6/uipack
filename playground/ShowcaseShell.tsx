@@ -1,20 +1,40 @@
 import {
   documentTitle,
-  libraryGroups,
+  librarySections,
   pageDefs,
   pageHeading,
   pageHref,
   resolvePage,
+  sectionOfPage,
   unknownSubView,
   type LibraryPage,
   type PageDef,
 } from "./catalog";
-import { createContext, Fragment, useContext, useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  useSyncExternalStore,
+  type CSSProperties,
+  type ReactNode,
+} from "react";
 import { Wordmark } from "../src";
-import { DocsLayout, type DocsNavItem, type DocsSection, type DocsTocItem } from "../src/docs";
+import {
+  DocsLayout,
+  unpackDocsSearchIndex,
+  type DocsNavItem,
+  type DocsSearchIndexFile,
+  type DocsSearchOptions,
+  type DocsSection,
+  type DocsTocItem,
+} from "../src/docs";
 import "../src/docs/docs.css";
 import { editUrl } from "./docs-manifest";
 import { galleryCategoryForPage, galleryHref } from "./gallery-index";
+import { SEARCH_INDEX_PATH } from "./search-index-path";
+import { markerSetting, NAV_MEMORY_KEY, SectionIcon, sectionHue } from "./site-settings";
 
 type ShowcaseTheme = {
   theme: "light" | "dark";
@@ -99,36 +119,69 @@ function useMediaQuery(query: string) {
   );
 }
 
-/** The sidebar: one section per manifest group; a page's sub-views (the decks) sit under the page's name. */
+/**
+ * The sidebar: the manifest's five sections, each with its icon and hue; inside one, each group's
+ * pages under the group's caption; a page's sub-pages and sub-views (the decks) under its name.
+ */
 function sidebarSections(theme: string): DocsSection[] {
-  return libraryGroups.map((g) => {
+  return librarySections.map((section) => {
     const items: DocsNavItem[] = [];
-    const byId = new Map<string, DocsNavItem>();
-    for (const p of pageDefs.filter((p) => p.group === g.id)) {
-      const last = items[items.length - 1];
-      const href = pageHref(p, theme);
-      const parent = p.parent ? byId.get(p.parent) : undefined;
-      if (parent) (parent.items ??= []).push({ title: p.label, href });
-      else if (p.query && last?.items && last.title === (p.title ?? p.label)) last.items.push({ title: p.label, href });
-      else if (p.query)
-        items.push({ title: p.title ?? p.label, href: `${p.path}?theme=${theme}`, items: [{ title: p.label, href }] });
-      else {
-        const item: DocsNavItem = { title: p.label, href };
-        byId.set(p.id, item);
-        items.push(item);
+    for (const g of section.groups) {
+      const byId = new Map<string, DocsNavItem>();
+      const start = items.length;
+      for (const p of pageDefs.filter((p) => p.group === g.id)) {
+        const last = items.length > start ? items[items.length - 1] : undefined;
+        const href = pageHref(p, theme);
+        const parent = p.parent ? byId.get(p.parent) : undefined;
+        if (parent) (parent.items ??= []).push({ title: p.label, href });
+        else if (p.query && last?.items && last.title === (p.title ?? p.label)) last.items.push({ title: p.label, href });
+        else if (p.query)
+          items.push({
+            title: p.title ?? p.label,
+            href: `${p.path}?theme=${theme}`,
+            group: g.caption,
+            items: [{ title: p.label, href }],
+          });
+        else {
+          const item: DocsNavItem = { title: p.label, href, group: g.caption };
+          byId.set(p.id, item);
+          items.push(item);
+        }
       }
     }
-    return { title: g.label, items };
+    return { id: section.id, title: section.label, items, icon: <SectionIcon id={section.id} />, hue: sectionHue(section.id) };
   });
+}
+
+/** Search over the site's index (playground/search-index.ts), fetched once on first open; results keep the theme. */
+function useSiteSearch(theme: string): DocsSearchOptions {
+  return useMemo(
+    () => ({
+      load: () =>
+        fetch(SEARCH_INDEX_PATH)
+          .then((r) => {
+            if (!r.ok) throw new Error(`${SEARCH_INDEX_PATH}: ${r.status}`);
+            return r.json() as Promise<DocsSearchIndexFile>;
+          })
+          .then(unpackDocsSearchIndex),
+      resolveHref: (href: string) => {
+        const url = new URL(href, location.origin);
+        url.searchParams.set("theme", theme);
+        return `${url.pathname}${url.search}${url.hash}`;
+      },
+    }),
+    [theme],
+  );
 }
 
 /**
  * The one shell for every page, rendered once by main.tsx around the page (which loads after it):
- * DocsLayout with the Technical palette, the header (brand, theme toggle, and below 900px a button
- * that opens a sheet listing every page) as its banner, the sidebar generated from the docs
- * manifest, the page in <main>, and "On this page" for a Markdown page. Above the page: its group,
- * the style its content uses, "View as Markdown" (the page's file, served raw) and "Edit on
- * GitHub". A page still rendered by its showcase module gets the h1 and intro from the manifest;
+ * DocsLayout with the Technical palette and the site's own values (site-palette.css), the header
+ * (below 900px a menu button that opens the sidebar as a drawer, the brand, the Docs and Assets
+ * tabs, the theme toggle) as its banner, the sidebar generated from the docs manifest (five
+ * collapsible sections, search at the top, the travelling marker), the page in <main>, and "On this
+ * page" for a Markdown page. Above the page: its section's chip, the style its content uses, "View
+ * as Markdown" (the page's file, served raw) and "Edit on GitHub". A page still rendered by its showcase module gets the h1 and intro from the manifest;
  * a Markdown page's own `#` is its h1. `active="not-found"` is the page for an unknown address.
  */
 export function ShowcaseShell({ active, children }: { active: LibraryPage | "not-found" | "gallery"; children: ReactNode }) {
@@ -141,148 +194,72 @@ export function ShowcaseShell({ active, children }: { active: LibraryPage | "not
   const markdown = !notFound;
   // The visual style the page's content uses, named in the context line.
   const styleName = page.styleName ?? "Technical";
-  const group = notFound ? undefined : libraryGroups.find((g) => g.id === page.group)!;
   const missing = notFound ? null : unknownSubView(page, location.search);
-  const menuRef = useRef<HTMLDialogElement>(null);
-  const menuButtonRef = useRef<HTMLButtonElement>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const search = useSiteSearch(theme);
+  // The marker's shape for this load: the site's, or ?marker= (kept for the visit).
+  const [marker] = useState(() => markerSetting());
   // Every page names itself in the tab, /web too: the sample page it hosts publishes the rest of its
   // head (description, canonical, Open Graph, JSON-LD), but the tab says which playground page it is.
   const hostsPage = "hostsPage" in page && page.hostsPage;
   useEffect(() => setDocumentTitle(gallery ? "Assets · uipack" : documentTitle(page)), [page, gallery]);
-  // Compact navigation (the header's menu instead of the sidebar) below 900px. A page hosting a
-  // whole sample site (/web) keeps it below 1440px too, so the sample gets a desktop width
+  // Compact navigation (the header's menu button opens the sidebar as a drawer) below 900px. A page
+  // hosting a whole sample site (/web) keeps it below 1440px too, so the sample gets a desktop width
   // (its own layout switches at a 1024px container) on a laptop.
   const compact = useMediaQuery(hostsPage ? "(max-width: 1439px)" : "(max-width: 899px)");
-  // The open menu covers the page on a phone: the page behind it holds still until it closes.
-  useEffect(() => {
-    if (!menuOpen) return;
-    const root = document.documentElement;
-    const was = root.style.overflow;
-    root.style.overflow = "hidden";
-    return () => {
-      root.style.overflow = was;
-    };
-  }, [menuOpen]);
+  const section = notFound ? undefined : sectionOfPage(page);
   // Previous and next follow the manifest's reading order, sub-views included.
   const index = pageDefs.findIndex((p) => p.id === page.id);
   const neighbour = (p: PageDef | undefined) => (p && !notFound ? { title: pageHeading(p), href: pageHref(p, theme) } : null);
 
   const header = (
-    <>
-      <header className="showcase-header">
-        <div className="showcase-header__bar">
-          <a className="showcase-brand" href={`/?theme=${theme}`} aria-label="UIPACK home">
-            <Wordmark size={22} />
-          </a>
-          {/* The two top-level views: the docs (text first, with samples in the pages) and the Assets gallery. */}
-          <nav className="showcase-tabs" aria-label="Views">
-            <a href={`/?theme=${theme}`} aria-current={gallery ? undefined : "true"}>
-              Docs
-            </a>
-            <a href={galleryHref(theme)} aria-current={gallery ? "true" : undefined}>
-              Assets
-            </a>
-          </nav>
-          <div className="showcase-header__actions">
-            {!gallery && (
-              <button
-                ref={menuButtonRef}
-                className="showcase-menu-button"
-                type="button"
-                aria-haspopup="dialog"
-                aria-expanded={menuOpen}
-                // Starts with the visible words in order (label in name); the colon is read as a pause.
-                aria-label={group ? `${group.label}: ${page.label}` : page.label}
-                onClick={() => {
-                  setMenuOpen(true);
-                  menuRef.current?.showModal();
-                }}
-              >
-                {/* The page name is the button's text and never truncates; the group sits small above it. */}
-                <span className="showcase-menu-button__where">
-                  {group && <span className="showcase-menu-button__group">{group.label}</span>}{" "}
-                  <span className="showcase-menu-button__page">{page.label}</span>
-                </span>
-                <span aria-hidden="true">▾</span>
-              </button>
-            )}
-            <button className="theme" type="button" aria-label={`${theme === "dark" ? "light" : "dark"} mode`} onClick={flip}>
-              <span className="theme__text" aria-hidden="true">
-                {theme === "dark" ? "light" : "dark"} mode
-              </span>
-              <span className="theme__icon" aria-hidden="true">
-                {theme === "dark" ? "☀" : "☾"}
-              </span>
-            </button>
-          </div>
-        </div>
-      </header>
-      <dialog
-        className="showcase-menu"
-        ref={menuRef}
-        aria-label="Library menu"
-        // Not a Tab stop itself: Tab cycles the menu's links and Close (onKeyDown), never the dialog box.
-        tabIndex={-1}
-        onKeyDown={(e) => {
-          if (e.key !== "Tab") return;
-          const items = Array.from(menuRef.current?.querySelectorAll<HTMLElement>("a[href], button") ?? []);
-          const first = items[0];
-          const last = items[items.length - 1];
-          if (!first || !last) return;
-          const at = document.activeElement;
-          if (e.shiftKey ? at === first || at === menuRef.current : at === last) {
-            e.preventDefault();
-            (e.shiftKey ? last : first).focus();
-          }
-        }}
-        onClose={() => {
-          setMenuOpen(false);
-          menuButtonRef.current?.focus();
-        }}
-        onClick={(e) => {
-          if (e.target === menuRef.current) menuRef.current?.close();
-        }}
-      >
-        <div className="showcase-menu__bar">
-          <span>Library</span>
-          <button type="button" onClick={() => menuRef.current?.close()}>
-            Close
+    <header className="showcase-header">
+      <div className="showcase-header__bar">
+        {!gallery && (
+          <button
+            className="showcase-menu-button"
+            type="button"
+            aria-haspopup="dialog"
+            aria-expanded={menuOpen}
+            aria-label="Open navigation"
+            onClick={() => setMenuOpen(true)}
+          >
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
+              <path d="M4 7h16M4 12h16M4 17h10" />
+            </svg>
           </button>
-        </div>
-        {/* The two views; the header's tabs give way to this on a compact docs page. */}
-        <div className="showcase-menu__group showcase-menu__views" role="group" aria-labelledby="menu-views">
-          <p id="menu-views">Views</p>
-          <a href={`/?theme=${theme}`} aria-current="true">
+        )}
+        <a className="showcase-brand" href={`/?theme=${theme}`} aria-label="UIPACK home">
+          <Wordmark size={22} />
+        </a>
+        {/* The two top-level views: the docs (text first, with samples in the pages) and the Assets gallery. */}
+        <nav className="showcase-tabs" aria-label="Views">
+          <a href={`/?theme=${theme}`} aria-current={gallery ? undefined : "true"}>
             Docs
           </a>
-          <a href={galleryHref(theme)}>Assets</a>
-        </div>
-        {/* The same list as the sidebar, which is hidden below 900px. */}
-        <nav aria-label="All library pages">
-          {libraryGroups.map((g) => (
-            <div key={g.id} role="group" aria-labelledby={`menu-${g.id}`} className="showcase-menu__group">
-              <p id={`menu-${g.id}`}>{g.label}</p>
-              {pageDefs
-                .filter((p) => p.group === g.id)
-                .map((p, i, all) => (
-                  <Fragment key={p.id}>
-                    {/* Sub-views of one page sit indented under a label naming it. */}
-                    {p.query && all[i - 1]?.path !== p.path && <span className="showcase-menu__sub">{p.title ?? p.label}</span>}
-                    <a
-                      href={pageHref(p, theme)}
-                      className={p.query || p.parent ? "is-sub" : undefined}
-                      aria-current={page.id === p.id ? "page" : undefined}
-                    >
-                      {p.label}
-                    </a>
-                  </Fragment>
-                ))}
-            </div>
-          ))}
+          <a href={galleryHref(theme)} aria-current={gallery ? "true" : undefined}>
+            Assets
+          </a>
         </nav>
-      </dialog>
-    </>
+        <div className="showcase-header__actions">
+          <button className="theme" type="button" aria-label={`${theme === "dark" ? "light" : "dark"} mode`} onClick={flip}>
+            <svg className="theme__icon" viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" focusable="false">
+              {theme === "dark" ? (
+                <>
+                  <circle cx="12" cy="12" r="4" />
+                  <path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8" />
+                </>
+              ) : (
+                <path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z" />
+              )}
+            </svg>
+            <span className="theme__text" aria-hidden="true">
+              {theme === "dark" ? "light" : "dark"} mode
+            </span>
+          </button>
+        </div>
+      </div>
+    </header>
   );
 
   const notes = (
@@ -320,12 +297,19 @@ export function ShowcaseShell({ active, children }: { active: LibraryPage | "not
       data-style="technical"
       data-ui-style="technical"
       data-nav={compact ? "compact" : undefined}
+      // Whether the page has "On this page": known from the manifest before its Markdown loads, so
+      // the column does not shift sideways when the headings arrive.
+      data-rail={markdown && !hostsPage && !page.fullWidth ? undefined : "none"}
     >
       <DocsLayout
         productTitle="UIPACK"
         productHref={`/?theme=${theme}`}
         header={header}
         sections={sidebarSections(theme)}
+        collapsible
+        marker={marker}
+        markerMemory={NAV_MEMORY_KEY}
+        search={search}
         activeHref={notFound ? "" : pageHref(page, theme)}
         onThisPage={markdown && !hostsPage && !page.fullWidth ? toc : []}
         previous={neighbour(pageDefs[index - 1])}
@@ -333,14 +317,30 @@ export function ShowcaseShell({ active, children }: { active: LibraryPage | "not
         theme={theme}
         palette="technical"
         width="wide"
-        mobileNavigation={false}
+        mobileNavigation="drawer"
+        navigationOpen={menuOpen && compact}
+        onNavigationOpenChange={setMenuOpen}
+        docsTitle="Docs"
         navigationLabel="Library"
         markdownHref={notFound ? undefined : `/${page.file}`}
         editHref={notFound ? undefined : editUrl(page.file)}
         eyebrow={
-          group && (
+          section && (
             <p className="showcase-context">
-              <span>{group.label}</span>
+              {/* The section chip: the one place on the page its hue shows. */}
+              <a
+                className="showcase-crumb"
+                href={pageHref(
+                  pageDefs.find((p) => p.id === section.groups[0].defaultPage)!,
+                  theme,
+                )}
+                style={{ "--docs-hue": sectionHue(section.id) } as CSSProperties}
+              >
+                <span className="showcase-crumb__chip">
+                  <SectionIcon id={section.id} size={14} />
+                  {section.label}
+                </span>
+              </a>
               <span aria-hidden="true">·</span>
               {/* On /styles itself the line still names the style, marked as the current page. */}
               <a href={`/styles?theme=${theme}`} aria-current={active === "styles" ? "page" : undefined}>

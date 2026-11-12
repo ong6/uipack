@@ -1,8 +1,9 @@
 /**
- * The docs site's one manifest: every sidebar group, its pages in reading order, each page's
- * route and the Markdown file it renders. Everything else reads it: the sidebar, the phone menu
- * and the pager (ShowcaseShell via catalog.ts), the route table (routes.ts), "View as Markdown"
- * and "Edit on GitHub", the raw files the dev server and the build serve (vite.config.ts),
+ * The docs site's one manifest: the five sidebar sections, the groups in each (a caption in the
+ * sidebar), their pages in reading order, each page's route and the Markdown file it renders.
+ * Everything else reads it: the sidebar, the phone drawer and the pager (ShowcaseShell via
+ * catalog.ts), the route table (routes.ts), "View as Markdown" and "Edit on GitHub", the raw files
+ * the dev server and the build serve (vite.config.ts), the search index (playground/search-index.ts),
  * `llms.txt` and the site map in docs/README.md (`npm run docs:sync`), and the test that fails
  * when a page has no file or a docs file has no page (test/docs-manifest.test.ts).
  *
@@ -40,9 +41,37 @@ export interface DocsPageEntry {
   readonly styleName?: string;
 }
 
+/**
+ * A sidebar section: one of the five places a reader looks (Start, Rules, Build, Check, Reference).
+ * Each has its icon and navigation hue (the site's spec, docs/specs/docs-site.md: the hue marks only
+ * the section's heading icon, the current-page marker and the page's breadcrumb chip).
+ */
+export interface DocsSectionEntry {
+  readonly id: string;
+  readonly label: string;
+  /** One line: what a reader finds there (the section's tooltip and the search result group). */
+  readonly summary: string;
+}
+
+export const docsSections = [
+  { id: "start", label: "Start", summary: "What UiPack is, how to install it, and the read order for agents" },
+  { id: "rules", label: "Rules", summary: "The core rules every site keeps, and the site specs that set the rest" },
+  { id: "build", label: "Build", summary: "Recipes, components, component looks and worked examples" },
+  { id: "check", label: "Check", summary: "Grading, rubrics, testing and the checks that run on your work" },
+  { id: "reference", label: "Reference", summary: "The site registry, icons, releases, contributing and web reference" },
+] as const satisfies readonly DocsSectionEntry[];
+
+export type DocsSectionId = (typeof docsSections)[number]["id"];
+
+/**
+ * A group of pages inside a section, in reading order. Its label is a caption above its pages in
+ * the sidebar (`caption: false` for a section's untitled first group).
+ */
 export interface DocsGroupEntry {
   readonly id: string;
   readonly label: string;
+  readonly section: DocsSectionId;
+  readonly caption?: false;
   readonly pages: readonly DocsPageEntry[];
 }
 
@@ -52,6 +81,8 @@ export const docsManifest = [
   {
     id: "start",
     label: "Start here",
+    section: "start",
+    caption: false,
     pages: [
       {
         id: "start",
@@ -68,12 +99,6 @@ export const docsManifest = [
         file: "README.md",
         intro: "Install the package, draw a first figure, and the entries for charts, articles, 3D, web pages, decks and docs.",
       },
-    ],
-  },
-  {
-    id: "agents",
-    label: "For agents",
-    pages: [
       {
         id: "agents",
         label: "How agents use UiPack",
@@ -89,6 +114,7 @@ export const docsManifest = [
         file: "docs/agents/multi-agent-build.md",
         intro:
           "How a lead splits a website across subagents: what the lead owns, what a subagent never decides, the hand-off and the review pass.",
+        parent: "agents",
       },
       {
         id: "agents-brief",
@@ -96,6 +122,7 @@ export const docsManifest = [
         path: "/agents/subagent-brief",
         file: "docs/agents/subagent-brief.md",
         intro: "The copy-paste brief for one subagent building one page or section: inputs, limits, outputs and the self-check.",
+        parent: "agents",
       },
       {
         id: "agents-new-site",
@@ -103,12 +130,15 @@ export const docsManifest = [
         path: "/agents/new-website",
         file: "docs/agents/new-website.md",
         intro: "A new site gets its spec first: write it from the template, check it, register it, then build.",
+        parent: "agents",
       },
     ],
   },
   {
     id: "foundations",
-    label: "Rules",
+    label: "Core rules",
+    section: "rules",
+    caption: false,
     pages: [
       {
         id: "foundations",
@@ -236,11 +266,79 @@ export const docsManifest = [
         file: "docs/system/do-and-dont.md",
         intro: "Paired examples of the rules, drawn live, and the checklist of generic AI-landing tropes to keep out.",
       },
+      {
+        id: "design-direction",
+        label: "Design direction",
+        path: "/reference/design-direction",
+        file: "docs/design-direction.md",
+        intro: "The playground's visual direction, catalog taxonomy, interaction polish and presentation composition.",
+      },
+      {
+        id: "web-principles",
+        label: "Web principles",
+        path: "/reference/web-principles",
+        file: "docs/web-principles.md",
+        intro: "The numbered rules for uipack/web pages, each with its number and source, motion and backgrounds included.",
+      },
+      {
+        id: "smooth-scroll",
+        parent: "web-principles",
+        label: "Smooth scrolling",
+        path: "/reference/web-principles/smooth-scroll",
+        file: "docs/web-smooth-scroll.md",
+        intro: "How SmoothScroll eases the wheel on a landing page, what stays native, anchors and its API.",
+      },
+    ],
+  },
+  {
+    id: "specs",
+    label: "Site specs",
+    section: "rules",
+    pages: [
+      {
+        id: "styles",
+        label: "How to write a spec",
+        path: "/styles",
+        file: "docs/specs/README.md",
+        intro:
+          "One spec per website: its look, layout, writing style and component looks on top of the core rules; how to write and check one, and how it becomes a live style.",
+      },
+      {
+        id: "spec-template",
+        label: "Spec template",
+        path: "/specs/template",
+        file: "docs/specs/TEMPLATE.md",
+        intro:
+          "The file a new site spec starts from: the frontmatter (pages, layouts, component looks) and the sections the checker requires.",
+      },
+      {
+        id: "spec-technical",
+        label: "Technical",
+        path: "/specs/technical",
+        file: "docs/specs/technical.md",
+        demos: [
+          {
+            id: "style-catalog",
+            at: "type",
+          },
+        ],
+        intro:
+          "The package's default look, which the docs site extends: Cyanotype, Prussian ink and one amber mark, IBM Plex, with its role values generated from the style file.",
+      },
+      {
+        id: "spec-docs-site",
+        label: "Docs site",
+        path: "/specs/docs-site",
+        file: "docs/specs/docs-site.md",
+        intro:
+          "The spec of ui.junxiong.dev: Technical's look with its own darker dark palette, the four navigation hues and the travelling location marker.",
+      },
     ],
   },
   {
     id: "recipes",
     label: "Recipes",
+    section: "build",
     pages: [
       {
         id: "recipes",
@@ -282,6 +380,7 @@ export const docsManifest = [
   {
     id: "components",
     label: "Components",
+    section: "build",
     pages: [
       {
         id: "figures",
@@ -323,21 +422,15 @@ export const docsManifest = [
         intro: "The labelled blocks of a long article section, with their HTML and class contract.",
       },
       {
-        id: "article-verification",
-        parent: "article",
-        label: "Verification",
-        path: "/components/article/verification",
-        file: "docs/article-verification.md",
-        intro: "How the article parts are tested, the measured section rhythm and screenshots.",
-      },
-      {
         id: "deck",
         summary:
           "The deck player: one transition grammar (advance, morph, zoom), builds, the overview, the speaker and read views, keyboard and touch.",
         label: "Tech talk",
         title: "Deck player",
         path: "/deck",
-        query: { deck: "moves" },
+        query: {
+          deck: "moves",
+        },
         isDefault: true,
         file: "docs/deck.md",
         intro:
@@ -348,7 +441,9 @@ export const docsManifest = [
         label: "Bento",
         title: "Deck player",
         path: "/deck",
-        query: { deck: "bento" },
+        query: {
+          deck: "bento",
+        },
         file: "docs/deck.md",
         intro: "The deck player's guide, with the Bento example: a quarterly review on one bento slide the camera tours.",
       },
@@ -359,7 +454,9 @@ export const docsManifest = [
         label: "Consulting",
         title: "Deck player",
         path: "/deck",
-        query: { deck: "consulting" },
+        query: {
+          deck: "consulting",
+        },
         file: "docs/deck-consulting.md",
         intro:
           "Consulting slides, with the example decision request: dense charts, a so-what panel and sources, written read-alone.",
@@ -370,13 +467,6 @@ export const docsManifest = [
         path: "/components/deck-storytelling",
         file: "docs/deck-storytelling.md",
         intro: "Storyline templates, slide roles and the checks lintDeck runs on a deck's argument.",
-      },
-      {
-        id: "deck-lint-rules",
-        label: "lintDeck rules",
-        path: "/components/deck-lint-rules",
-        file: "docs/deck-lint-rules.md",
-        intro: "Every check lintDeck runs on a deck's words, with its severity, generated from LINT_RULES.",
       },
       {
         id: "presentations",
@@ -416,15 +506,23 @@ export const docsManifest = [
         file: "docs/docs-layout.md",
         intro: "A three-column product documentation shell with responsive navigation and Markdown prose.",
       },
+      {
+        id: "web-api",
+        label: "Web parts API",
+        path: "/reference/web-api",
+        file: "docs/web-api.md",
+        intro: "The uipack/web parts with their props: page parts, motion, backgrounds, type and scoping.",
+      },
     ],
   },
   {
     id: "looks",
     label: "Component looks",
+    section: "build",
     pages: [
       {
         id: "component-looks",
-        label: "Component looks",
+        label: "Looks overview",
         path: "/looks",
         file: "docs/components/README.md",
         intro:
@@ -455,47 +553,9 @@ export const docsManifest = [
     ],
   },
   {
-    id: "specs",
-    label: "Specs",
-    pages: [
-      {
-        id: "styles",
-        label: "How to write a spec",
-        path: "/styles",
-        file: "docs/specs/README.md",
-        intro:
-          "One spec per website: its look, layout, writing style and component looks on top of the core rules; how to write and check one, and how it becomes a live style.",
-      },
-      {
-        id: "spec-template",
-        label: "Spec template",
-        path: "/specs/template",
-        file: "docs/specs/TEMPLATE.md",
-        intro:
-          "The file a new site spec starts from: the frontmatter (pages, layouts, component looks) and the sections the checker requires.",
-      },
-      {
-        id: "spec-technical",
-        label: "Technical",
-        path: "/specs/technical",
-        file: "docs/specs/technical.md",
-        demos: [{ id: "style-catalog", at: "type" }],
-        intro:
-          "The uipack site's spec: Cyanotype, Prussian ink and one amber mark, IBM Plex, with its role values generated from the style file.",
-      },
-      {
-        id: "spec-registry",
-        label: "Registry",
-        path: "/specs/registry",
-        file: "docs/specs/registry.md",
-        intro:
-          "Every site uipack designs for: where its spec lives, the component looks it picks and the uipack release it pins.",
-      },
-    ],
-  },
-  {
     id: "examples",
     label: "Examples",
+    section: "build",
     pages: [
       {
         id: "web",
@@ -515,123 +575,9 @@ export const docsManifest = [
     ],
   },
   {
-    id: "reference",
-    label: "Reference",
-    pages: [
-      {
-        id: "assets",
-        label: "Icons & marks",
-        path: "/assets",
-        file: "docs/icons-and-marks.md",
-        intro: "Searchable icons, marks, canvas backgrounds and motion tokens, each with a preview and a copy button.",
-      },
-      {
-        id: "contributing",
-        label: "Contributing",
-        path: "/reference/contributing",
-        file: "docs/contributing.md",
-        intro: "Step-by-step recipes, with the exact files to touch, for a new style, page, deck, slide part, chart or figure.",
-      },
-      {
-        id: "testing",
-        label: "Testing",
-        path: "/reference/testing",
-        file: "docs/testing.md",
-        intro: "What the unit and browser suites check, how CI runs them and the known engine quirks.",
-      },
-      {
-        id: "releases",
-        label: "Releases",
-        path: "/reference/releases",
-        file: "docs/releases.md",
-        intro: "How a version is cut: semver for this repo, the changelog, the tag on main, and how each site moves its pin.",
-      },
-      {
-        id: "component-first",
-        label: "Component-first",
-        path: "/reference/component-first",
-        file: "docs/component-first.md",
-        intro: "Build, register and verify a significant visual in the library before a consumer uses it.",
-      },
-      {
-        id: "design-direction",
-        label: "Design direction",
-        path: "/reference/design-direction",
-        file: "docs/design-direction.md",
-        intro: "The playground's visual direction, catalog taxonomy, interaction polish and presentation composition.",
-      },
-      {
-        id: "interaction",
-        label: "Canvas and selection",
-        path: "/reference/interaction",
-        file: "docs/interaction.md",
-        intro: "Mobile reading, item selection, expanded inspection and their limits.",
-      },
-      {
-        id: "web-principles",
-        label: "Web principles",
-        path: "/reference/web-principles",
-        file: "docs/web-principles.md",
-        intro: "The numbered rules for uipack/web pages, each with its number and source, motion and backgrounds included.",
-      },
-      {
-        id: "web-api",
-        label: "Web parts API",
-        path: "/reference/web-api",
-        file: "docs/web-api.md",
-        intro: "The uipack/web parts with their props: page parts, motion, backgrounds, type and scoping.",
-      },
-      {
-        id: "smooth-scroll",
-        parent: "web-principles",
-        label: "Smooth scrolling",
-        path: "/reference/web-principles/smooth-scroll",
-        file: "docs/web-smooth-scroll.md",
-        intro: "How SmoothScroll eases the wheel on a landing page, what stays native, anchors and its API.",
-      },
-      {
-        id: "discoverability",
-        label: "Web discoverability",
-        path: "/reference/discoverability",
-        file: "docs/web-discoverability.md",
-        intro: "How a uipack/web page gets found and quoted by search and answer engines: the checklist and the crawler stance.",
-      },
-      {
-        id: "discoverability-head",
-        parent: "discoverability",
-        label: "Head and structured data",
-        path: "/reference/discoverability/head",
-        file: "docs/web-discoverability/head-and-structured-data.md",
-        intro: "pageMeta, the head helpers, font preloads, the JSON-LD builders and the FAQ.",
-      },
-      {
-        id: "discoverability-crawl",
-        parent: "discoverability",
-        label: "Crawl files",
-        path: "/reference/discoverability/crawl-files",
-        file: "docs/web-discoverability/crawl-files.md",
-        intro: "buildCrawlFiles for robots.txt, sitemap.xml and llms.txt, rssFeed, and Section lazyRender.",
-      },
-      {
-        id: "discoverability-performance",
-        parent: "discoverability",
-        label: "Performance",
-        path: "/reference/discoverability/performance",
-        file: "docs/web-discoverability/performance.md",
-        intro: "Load and paint numbers measured on the /web demo, the method, and what changed each.",
-      },
-      {
-        id: "portfolio-ideas",
-        label: "Portfolio ideas",
-        path: "/reference/portfolio-ideas",
-        file: "docs/portfolio-ideas.md",
-        intro: "Prioritised places where uipack/web pieces would improve junxiong.dev, and what to avoid.",
-      },
-    ],
-  },
-  {
     id: "grading",
     label: "Grading",
+    section: "check",
     pages: [
       {
         id: "grading",
@@ -677,6 +623,13 @@ export const docsManifest = [
         intro:
           "How to grade uipack's own docs for their agent readers: the mechanical check, task-based judging and the frozen tasks.",
       },
+    ],
+  },
+  {
+    id: "rubrics",
+    label: "Rubrics",
+    section: "check",
+    pages: [
       {
         id: "rubric-landing",
         label: "Landing rubric",
@@ -719,6 +672,123 @@ export const docsManifest = [
         file: "docs/grading/rubrics/agent-docs-v1.md",
         intro:
           "Version 1 of the frozen rubric for a documentation set read by agents: routing, progressive disclosure, index, executable rules, currency, stop conditions.",
+      },
+    ],
+  },
+  {
+    id: "testing",
+    label: "Testing",
+    section: "check",
+    pages: [
+      {
+        id: "testing",
+        label: "Testing",
+        path: "/reference/testing",
+        file: "docs/testing.md",
+        intro: "What the unit and browser suites check, how CI runs them and the known engine quirks.",
+      },
+      {
+        id: "article-verification",
+        label: "Article verification",
+        path: "/components/article/verification",
+        file: "docs/article-verification.md",
+        intro: "How the article parts are tested, the measured section rhythm and screenshots.",
+      },
+      {
+        id: "deck-lint-rules",
+        label: "lintDeck rules",
+        path: "/components/deck-lint-rules",
+        file: "docs/deck-lint-rules.md",
+        intro: "Every check lintDeck runs on a deck's words, with its severity, generated from LINT_RULES.",
+      },
+    ],
+  },
+  {
+    id: "reference",
+    label: "Reference",
+    section: "reference",
+    caption: false,
+    pages: [
+      {
+        id: "spec-registry",
+        label: "Registry",
+        path: "/specs/registry",
+        file: "docs/specs/registry.md",
+        intro:
+          "Every site uipack designs for: where its spec lives, the component looks it picks and the uipack release it pins.",
+      },
+      {
+        id: "assets",
+        label: "Icons & marks",
+        path: "/assets",
+        file: "docs/icons-and-marks.md",
+        intro: "Searchable icons, marks, canvas backgrounds and motion tokens, each with a preview and a copy button.",
+      },
+      {
+        id: "releases",
+        label: "Releases",
+        path: "/reference/releases",
+        file: "docs/releases.md",
+        intro: "How a version is cut: semver for this repo, the changelog, the tag on main, and how each site moves its pin.",
+      },
+      {
+        id: "contributing",
+        label: "Contributing",
+        path: "/reference/contributing",
+        file: "docs/contributing.md",
+        intro: "Step-by-step recipes, with the exact files to touch, for a new style, page, deck, slide part, chart or figure.",
+      },
+      {
+        id: "component-first",
+        label: "Component-first",
+        path: "/reference/component-first",
+        file: "docs/component-first.md",
+        intro: "Build, register and verify a significant visual in the library before a consumer uses it.",
+      },
+      {
+        id: "interaction",
+        label: "Canvas and selection",
+        path: "/reference/interaction",
+        file: "docs/interaction.md",
+        intro: "Mobile reading, item selection, expanded inspection and their limits.",
+      },
+      {
+        id: "discoverability",
+        label: "Web discoverability",
+        path: "/reference/discoverability",
+        file: "docs/web-discoverability.md",
+        intro: "How a uipack/web page gets found and quoted by search and answer engines: the checklist and the crawler stance.",
+      },
+      {
+        id: "discoverability-head",
+        parent: "discoverability",
+        label: "Head and structured data",
+        path: "/reference/discoverability/head",
+        file: "docs/web-discoverability/head-and-structured-data.md",
+        intro: "pageMeta, the head helpers, font preloads, the JSON-LD builders and the FAQ.",
+      },
+      {
+        id: "discoverability-crawl",
+        parent: "discoverability",
+        label: "Crawl files",
+        path: "/reference/discoverability/crawl-files",
+        file: "docs/web-discoverability/crawl-files.md",
+        intro: "buildCrawlFiles for robots.txt, sitemap.xml and llms.txt, rssFeed, and Section lazyRender.",
+      },
+      {
+        id: "discoverability-performance",
+        parent: "discoverability",
+        label: "Performance",
+        path: "/reference/discoverability/performance",
+        file: "docs/web-discoverability/performance.md",
+        intro: "Load and paint numbers measured on the /web demo, the method, and what changed each.",
+      },
+      {
+        id: "portfolio-ideas",
+        label: "Portfolio ideas",
+        path: "/reference/portfolio-ideas",
+        file: "docs/portfolio-ideas.md",
+        intro: "Prioritised places where uipack/web pieces would improve junxiong.dev, and what to avoid.",
       },
     ],
   },
@@ -772,13 +842,23 @@ export interface SiteEntry {
 
 export const siteRegistry: readonly SiteEntry[] = [
   {
-    site: "uipack (docs site and package defaults)",
+    site: "uipack package defaults",
     repo: "ong6/uipack",
     spec: "docs/specs/technical.md",
     specStatus: "written",
     components: ["diagrams: blueprint (theme: blueprint)", "3d: all six", "mechanism: isometric"],
     pins: "current",
-    notes: "Technical, the implemented style (src/styles/technical.css)",
+    notes: "Technical, the implemented style (src/styles/technical.css): what every part renders in when a site sets nothing",
+  },
+  {
+    site: "ui.junxiong.dev (the uipack docs site)",
+    repo: "ong6/uipack",
+    spec: "docs/specs/docs-site.md",
+    specStatus: "written",
+    components: ["diagrams: blueprint (theme: blueprint)", "3d: all six", "mechanism: isometric"],
+    pins: "current",
+    notes:
+      "Extends Technical with its own dark palette, navigation hues and location marker (playground/site-palette.css, playground/site-settings.tsx); light is Technical's",
   },
   {
     site: "junxiong.dev",

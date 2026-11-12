@@ -6,7 +6,10 @@ test("library pages share navigation and preserve theme across routes and reload
   const header = page.locator(".showcase-header");
   const width = await header.evaluate((el) => el.getBoundingClientRect().width);
   const sidebar = page.getByRole("navigation", { name: "Library", exact: true });
+  // Shut sections open from their heading and stay open from page to page.
+  await sidebar.getByRole("button", { name: "Reference", exact: true }).click();
   await sidebar.getByRole("link", { name: "Icons & marks", exact: true }).click();
+  await sidebar.getByRole("button", { name: "Build", exact: true }).click();
   await sidebar.getByRole("link", { name: "3D animations", exact: true }).click();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
   await expect(sidebar.getByRole("link", { name: "3D animations", exact: true })).toHaveAttribute("aria-current", "page");
@@ -19,7 +22,8 @@ test("library pages share navigation and preserve theme across routes and reload
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
   await expect(page.locator(".uipack-animation-workspace")).toHaveAttribute("data-theme", "light");
   await page.setViewportSize({ width: 390, height: 844 });
-  await expect(page.locator(".showcase-menu-button")).toHaveAccessibleName("Components: 3D animations");
+  await expect(page.getByRole("button", { name: "Open navigation" })).toBeVisible();
+  await expect(page.locator(".showcase-crumb")).toHaveText("Build");
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
 });
 

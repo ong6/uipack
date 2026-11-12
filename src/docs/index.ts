@@ -8,3 +8,15 @@ export {
   type ExtractDocsHeadingsOptions,
   type ExtractedDocsHeading,
 } from "./DocsMarkdown";
+export { type DocsMarkerShape } from "./DocsMarkers";
+export { type DocsSearchOptions } from "./DocsSearch";
+export {
+  docsSearchEntries,
+  groupDocsResults,
+  packDocsSearchIndex,
+  searchDocs,
+  unpackDocsSearchIndex,
+  type DocsSearchEntry,
+  type DocsSearchIndexFile,
+  type DocsSearchResult,
+} from "./search";

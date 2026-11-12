@@ -40,9 +40,10 @@ and its spec are listed in the [registry](registry.md).
    spec that sets a value a fixed look owns. An older spec's `uses: [diagrams]` still reads as
    `components: { diagrams: blueprint }`. `test/specs.test.tsx` runs it on every spec in this folder.
 
-[Technical](technical.md) is the reference: the uipack site's own spec, written to the template,
+[Technical](technical.md) is the reference: the package's default look, written to the template,
 with its role values generated from `src/styles/technical.css` so the two cannot drift. Its layout
-picks and writing style are its own choices; a new site makes its own.
+picks and writing style are its own choices; a new site makes its own. The uipack docs site's
+spec, [docs-site](docs-site.md), shows a spec that extends another and sets only its differences.
 
 ## Building a style from a spec
 

@@ -58,6 +58,10 @@ minimums are core rules every spec extends, so they are the defaults.
 `--spec uipack` adds the playground's harness: the `?theme=` switch, the ready condition, the 11px
 floors in figures and charts, and Technical's faces from `docs/specs/technical.md`.
 
+The docs site's own config is [`playground/grade.json`](../../playground/grade.json): the uipack
+harness, the faces from [its spec](../specs/docs-site.md), and a 1920 view beside 1440 and 390
+(`npm run grade -- check <url> --spec playground/grade.json`).
+
 A grade config (JSON) sets the harness for another site and may point at its style spec:
 
 ```json
