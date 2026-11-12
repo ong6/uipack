@@ -505,6 +505,10 @@ test("while a page's chunk loads, the shell stays and a status line says what is
   await expect(currentLink(page)).toHaveText("Docs layout");
   const status = page.getByRole("main").getByRole("status");
   await expect(status).toHaveText("Loading Docs layout…");
+  // The page eases in (a short fade and rise): measure once that entrance is over.
+  const entered = () =>
+    page.getByRole("main").evaluate((main) => Promise.all(main.getAnimations().map((a) => a.finished.catch(() => null))));
+  await entered();
   const context = await page.locator(".showcase-context").boundingBox();
   release();
   await expect(status).toHaveCount(0);
@@ -512,6 +516,7 @@ test("while a page's chunk loads, the shell stays and a status line says what is
   await expect(page.locator('section[data-route="docs"]')).toBeVisible();
   await expect(page.getByRole("banner")).toBeVisible();
   // The page fills in below the context row; nothing above it moves.
+  await entered();
   expect(await page.locator(".showcase-context").boundingBox()).toEqual(context);
 });
 
