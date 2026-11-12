@@ -101,6 +101,40 @@ test("the grader skips only the scaled pictures: each is inert and hidden, and n
     await expect(page.locator(`.landing-tile--${tile} .landing-preview`)).toHaveCount(1);
 });
 
+test("job cards: tinted by section in light; in dark a neutral card with the hue on its top rule and chip", async ({ page }) => {
+  for (const theme of ["light", "dark"] as const) {
+    await page.goto(`/?theme=${theme}`);
+    const cards = page.locator(".landing-job");
+    await expect(cards).toHaveCount(6);
+    const looks = await cards.evaluateAll((all) => {
+      // The raised surface and the soft line, resolved where the cards sit.
+      const probe = document.createElement("span");
+      probe.style.cssText = "background: var(--ui-surface-raised); border: 1px solid var(--ui-line-soft)";
+      all[0].parentElement!.append(probe);
+      const surface = getComputedStyle(probe).backgroundColor;
+      const line = getComputedStyle(probe).borderLeftColor;
+      probe.remove();
+      return all.map((card) => {
+        const s = getComputedStyle(card);
+        const hue = getComputedStyle(card.querySelector(".site-section-icon")!).color;
+        const chip = getComputedStyle(card.querySelector(".landing-job__chip")!).backgroundColor;
+        return { fill: s.backgroundColor, side: s.borderLeftColor, top: s.boxShadow, hue, chip, surface, line };
+      });
+    });
+    for (const [i, c] of looks.entries()) {
+      // The top rule is the section hue either way, and the chip carries a tint of it.
+      expect(c.top, `card ${i} top rule`).toContain(c.hue);
+      expect(c.chip, `card ${i} chip`).not.toBe("rgba(0, 0, 0, 0)");
+      if (theme === "dark") {
+        expect(c.fill, `card ${i} fill`).toBe(c.surface);
+        expect(c.side, `card ${i} edge`).toBe(c.line);
+      } else {
+        expect(c.fill, `card ${i} fill`).not.toBe(c.surface);
+      }
+    }
+  }
+});
+
 test("the copy button copies the current release's install command", async ({ page, context, browserName }) => {
   test.skip(browserName !== "chromium", "clipboard permissions are Chromium's");
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);

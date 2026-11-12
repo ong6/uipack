@@ -367,6 +367,13 @@
     border-color var(--ui-dur-quick) var(--ui-ease-settle),
     transform var(--ui-dur-quick) var(--ui-ease-settle);
 }
+/* Dark: no tinted fills (the owner: no large blue areas in dark). The card is the neutral raised
+   surface with a neutral edge; its section hue stays on the top rule, the chip and the drawing.
+   :where() keeps this at the card rule's weight, so the hover border below still applies. */
+:where(.showcase-frame[data-theme="dark"]) .uipack-landing .landing-job {
+  border-color: var(--ui-line-soft);
+  background: var(--ui-surface-raised);
+}
 .landing-job:hover {
   border-color: var(--docs-hue);
   transform: translateY(-2px);
