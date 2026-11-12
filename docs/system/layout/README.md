@@ -31,6 +31,11 @@ slot names, never colours, faces or sentences.
 7. **A style never moves a region.** The spec's palette, faces and ornaments paint the layout the
    spec chose; headings may change height between widths or faces, regions and their order do not.
    Long text is fixed in the words, never by shrinking the type.
+8. **A page's header shares its content's edges.** The first item in the header (the logo) starts
+   on the content column's start edge and the last (a button, a toggle) ends on its end edge, with
+   the column's gutters, at every width; the footer too. The header's ground and rule may run the
+   window's width; what aligns is what is inside. In a shell with a docked sidebar the content's
+   edges are the shell's: the sidebar's start edge and the page area's end edge.
 
 ## How a spec sets layout
 

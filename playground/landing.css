@@ -1,7 +1,9 @@
 /* The landing page (/, LandingShowcase.tsx), scoped under .uipack-landing. Every colour, face and
    motion value is a Technical role (var(--ui-*)), so the shell's light and dark values apply as they
    change. The page sits in the shell's landing mode (data-mode="landing"): the same header, then a
-   full-bleed page in the landing archetype's one 1120px column (docs/system/layout/landing.md). */
+   full-bleed page in the landing archetype's one 1120px column (docs/system/layout/landing.md). The
+   column and its gutters are the frame's --landing-column and --landing-gutter (showcase.css, "The
+   landing view"), which the header's bar reads too, so the header and every section share edges. */
 
 .uipack-landing {
   /* Section tints for the job cards and the site map: the docs site's section hues (site-palette.css,
@@ -10,8 +12,12 @@
   --landing-hue-build: var(--site-hue-build);
   --landing-hue-check: var(--site-hue-check);
   --landing-band-line: color-mix(in srgb, var(--ui-band-ink) 20%, transparent);
-  --landing-gutter: 32px;
+  /* Vertical rhythm, in steps of 8 (layout floor 6), set per width rather than fluid: the gap between
+     two sections, the hero's top, the band's own padding and the footer's top. */
   --landing-pad: 104px;
+  --landing-hero-top: 88px;
+  --landing-band-pad: 88px;
+  --landing-foot-top: 72px;
   color: var(--ui-ink);
   font-family: var(--ui-font-text);
   font-size: 16px;
@@ -34,111 +40,18 @@
 }
 @media (max-width: 1023px) {
   .uipack-landing {
-    --landing-gutter: 24px;
     --landing-pad: 80px;
+    --landing-hero-top: 64px;
+    --landing-band-pad: 72px;
+    --landing-foot-top: 64px;
   }
 }
 @media (max-width: 719px) {
   .uipack-landing {
-    --landing-gutter: 16px;
     --landing-pad: 64px;
-  }
-}
-
-/* The shell's landing mode: the frame goes full-bleed; the header keeps the docs pages' width. */
-.showcase-frame[data-mode="landing"] {
-  max-width: none;
-  padding: 0;
-}
-/* The docs search (its header box and dialog) reads the docs layout's palette names; the landing page
-   has no docs layout around it, so it names them here, as palette="technical" does. */
-.showcase-frame[data-mode="landing"] {
-  --docs-font-text: var(--ui-font-text);
-  --docs-font-heading: var(--ui-font-heading, var(--ui-font-text));
-  --docs-font-mono: var(--ui-font-label);
-  --docs-ink: var(--ui-ink);
-  --docs-muted: var(--ui-ink-2);
-  --docs-faint: var(--ui-ink-3);
-  --docs-rule: var(--ui-line-soft);
-  --docs-rule-strong: var(--ui-line);
-  --docs-surface: var(--ui-surface-2);
-  --docs-surface-strong: var(--ui-surface-2);
-  --docs-accent: var(--ui-accent);
-  --docs-focus: var(--ui-accent);
-  --docs-paper: var(--ui-paper);
-  --docs-raised: var(--ui-surface-raised);
-}
-.showcase-frame[data-mode="landing"] .showcase-header .uipack-docs-search__button {
-  width: clamp(160px, 22vw, 260px);
-  height: 40px;
-  margin: 0;
-}
-@media (max-width: 719px) {
-  /* A phone keeps the icon and the shortcut's room for the page: the box becomes a 44px icon button. */
-  .showcase-frame[data-mode="landing"] .showcase-header .uipack-docs-search__button {
-    justify-content: center;
-    width: 44px;
-    height: 44px;
-    padding: 0;
-  }
-  .showcase-frame[data-mode="landing"] .showcase-header .uipack-docs-search__button :is(.uipack-docs-search__placeholder, kbd) {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
-  }
-}
-.showcase-frame[data-mode="landing"] > .showcase-header {
-  max-width: 1600px;
-  margin: 0 auto;
-  padding: 16px 24px 12px;
-  box-sizing: border-box;
-}
-@media (max-width: 719px) {
-  /* The docs search (its header box and dialog) reads the docs layout's palette names; the landing page
-   has no docs layout around it, so it names them here, as palette="technical" does. */
-  .showcase-frame[data-mode="landing"] {
-    --docs-font-text: var(--ui-font-text);
-    --docs-font-heading: var(--ui-font-heading, var(--ui-font-text));
-    --docs-font-mono: var(--ui-font-label);
-    --docs-ink: var(--ui-ink);
-    --docs-muted: var(--ui-ink-2);
-    --docs-faint: var(--ui-ink-3);
-    --docs-rule: var(--ui-line-soft);
-    --docs-rule-strong: var(--ui-line);
-    --docs-surface: var(--ui-surface-2);
-    --docs-surface-strong: var(--ui-surface-2);
-    --docs-accent: var(--ui-accent);
-    --docs-focus: var(--ui-accent);
-    --docs-paper: var(--ui-paper);
-    --docs-raised: var(--ui-surface-raised);
-  }
-  .showcase-frame[data-mode="landing"] .showcase-header .uipack-docs-search__button {
-    width: clamp(160px, 22vw, 260px);
-    height: 40px;
-    margin: 0;
-  }
-  @media (max-width: 719px) {
-    /* A phone keeps the icon and the shortcut's room for the page: the box becomes a 44px icon button. */
-    .showcase-frame[data-mode="landing"] .showcase-header .uipack-docs-search__button {
-      justify-content: center;
-      width: 44px;
-      height: 44px;
-      padding: 0;
-    }
-    .showcase-frame[data-mode="landing"] .showcase-header .uipack-docs-search__button :is(.uipack-docs-search__placeholder, kbd) {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      overflow: hidden;
-      clip-path: inset(50%);
-      white-space: nowrap;
-    }
-  }
-  .showcase-frame[data-mode="landing"] > .showcase-header {
-    padding-inline: 16px;
+    --landing-hero-top: 40px;
+    --landing-band-pad: 56px;
+    --landing-foot-top: 48px;
   }
 }
 
@@ -174,7 +87,7 @@
   white-space: nowrap;
 }
 .landing-wrap {
-  width: min(1120px, 100% - 2 * var(--landing-gutter));
+  width: min(var(--landing-column), 100% - 2 * var(--landing-gutter));
   margin-inline: auto;
 }
 .landing-arrow {
@@ -239,8 +152,12 @@
 /* ---------------------------------------------------------------- hero */
 .landing-hero {
   position: relative;
-  padding: clamp(40px, 5.5vw, 88px) 0 clamp(8px, 1.5vw, 24px);
+  /* 8px under the copy keeps a focus ring inside the hero's clip; the next section gives it back. */
+  padding: var(--landing-hero-top) 0 8px;
   overflow: hidden;
+}
+.landing-hero + .landing-block {
+  padding-top: calc(var(--landing-pad) - 8px);
 }
 /* The drafting-film grid: Technical's hero ornament (--ui-backdrop), faded down the hero. */
 .landing-hero::before {
@@ -257,14 +174,15 @@
   display: grid;
   grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
   gap: 48px;
-  align-items: center;
+  /* Top-aligned, as the archetype's split hero and the page's other two-column sections are. */
+  align-items: start;
 }
 .landing-eyebrow {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   margin-bottom: 24px;
-  padding: 6px 10px;
+  padding: 4px 8px;
   border: 1px solid var(--ui-line-soft);
   background: var(--ui-surface-raised);
   color: var(--ui-ink-2);
@@ -308,7 +226,7 @@
 .landing-install__prompt {
   display: grid;
   place-items: center;
-  padding-left: 14px;
+  padding-left: 16px;
   color: var(--ui-accent-ink);
   user-select: none;
 }
@@ -326,10 +244,10 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 7px;
+  gap: 8px;
   min-width: 96px;
   min-height: 46px;
-  padding: 0 14px;
+  padding: 0 16px;
   border: 0;
   border-left: 1px solid var(--ui-line);
   background: var(--ui-surface);
@@ -348,7 +266,7 @@
   color: var(--ui-data-pos);
 }
 .landing-install__note {
-  margin: 10px 0 28px;
+  margin: 8px 0 28px;
   color: var(--ui-ink-2);
   font: 400 12px/1.5 var(--ui-font-label);
 }
@@ -411,6 +329,8 @@
 .landing-jobs {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  /* Every card one height, across rows too. */
+  grid-auto-rows: 1fr;
   gap: 16px;
   padding: 0;
   list-style: none;
@@ -423,7 +343,7 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 20px 20px 18px;
+  padding: 24px;
   border: 1px solid color-mix(in srgb, var(--hue) 28%, transparent);
   background: color-mix(in srgb, var(--hue) 6%, var(--ui-surface-raised));
   box-shadow: inset 0 2px 0 var(--hue);
@@ -441,7 +361,7 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 .landing-job__art {
   width: 76px;
@@ -451,8 +371,8 @@
 .landing-job__chip {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 8px 4px 6px;
+  gap: 8px;
+  padding: 4px 8px;
   border: 1px solid color-mix(in srgb, var(--hue) 32%, transparent);
   background: color-mix(in srgb, var(--hue) 9%, transparent);
   color: var(--ui-ink);
@@ -479,7 +399,7 @@
   line-height: 1.55;
 }
 .landing-job__go {
-  margin-top: 6px;
+  margin-top: 8px;
   color: var(--ui-accent-ink);
   font: 500 13px/1.3 var(--ui-font-label);
 }
@@ -554,7 +474,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 0 12px;
-  padding: 2px 16px;
+  padding: 0 16px;
   border-top: 1px solid var(--ui-line-soft);
 }
 .landing-tile__label h3 {
@@ -564,7 +484,7 @@
 .uipack-landing .landing-tile__link {
   display: inline-flex;
   align-items: center;
-  min-height: 44px;
+  min-height: 48px;
   color: var(--ui-ink);
   text-decoration: none;
 }
@@ -661,7 +581,7 @@
 /* ---------------------------------------------------------------- for agents band */
 .landing-band {
   margin-top: var(--landing-pad);
-  padding: clamp(56px, 6vw, 88px) 0;
+  padding: var(--landing-band-pad) 0;
   background: var(--ui-band-fill);
   color: var(--ui-band-ink);
 }
@@ -702,7 +622,7 @@
   display: grid;
   grid-template-columns: 40px minmax(0, 1fr);
   gap: 4px 16px;
-  padding: 22px 0;
+  padding: 24px 0;
   border-bottom: 1px solid var(--landing-band-line);
 }
 .landing-band__row > svg {
@@ -710,11 +630,11 @@
   color: var(--ui-band-cta);
 }
 .landing-band__row h3 {
-  margin-bottom: 6px;
+  margin-bottom: 8px;
   font-size: 17px;
 }
 .landing-band__row p {
-  margin-bottom: 10px;
+  margin-bottom: 12px;
   font-size: 15px;
 }
 .uipack-landing .landing-band__url {
@@ -722,7 +642,7 @@
   align-items: center;
   max-width: 100%;
   min-height: 32px;
-  padding: 4px 10px;
+  padding: 4px 12px;
   box-sizing: border-box;
   border: 1px solid var(--landing-band-line);
   color: var(--ui-band-ink);
@@ -737,7 +657,7 @@
 .landing-steps {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px 20px;
+  gap: 12px 24px;
   margin-top: 4px;
   padding: 0;
   list-style: none;
@@ -746,7 +666,7 @@
 .landing-steps li {
   display: grid;
   grid-template-columns: 24px minmax(0, 1fr);
-  gap: 10px;
+  gap: 8px;
   align-items: start;
   font-size: 15px;
   line-height: 1.4;
@@ -772,7 +692,7 @@
 
 /* ---------------------------------------------------------------- footer: site map */
 .landing-foot {
-  padding: clamp(48px, 5vw, 72px) 0 40px;
+  padding: var(--landing-foot-top) 0 40px;
   border-top: 1px solid var(--ui-line-soft);
 }
 .landing-map {
@@ -821,7 +741,7 @@
 }
 .uipack-landing .landing-map a {
   display: block;
-  padding: 3px 0;
+  padding: 4px 0;
   color: var(--ui-ink-2);
   font-size: 14px;
   line-height: 1.45;
@@ -846,7 +766,7 @@
 .landing-foot__links {
   display: flex;
   flex-wrap: wrap;
-  gap: 18px;
+  gap: 16px;
 }
 .uipack-landing .landing-foot__links a {
   display: inline-flex;
@@ -887,6 +807,9 @@
   .landing-jobs,
   .landing-bento {
     grid-template-columns: minmax(0, 1fr);
+  }
+  .landing-jobs {
+    grid-auto-rows: auto;
   }
   .landing-tile--diagrams {
     grid-column: auto;

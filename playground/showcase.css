@@ -817,6 +817,70 @@ html:has(.showcase-frame:not([data-banner="static"])) {
 .showcase-gallery-main:focus {
   outline: none;
 }
+
+/* The landing view (/): the frame goes full-bleed and the page (landing.css) sits in the landing
+   archetype's one column (docs/system/layout/landing.md): 1120px, with 32px gutters, 24px below
+   1024px and 16px on a phone. The banner stays the shell's (sticky, 64px, its ground and rule full
+   width); its bar takes the same column, so the logo's start edge and the last control's end edge
+   are the sections' edges at every width (docs/system/layout/README.md, floor 8). These rules load
+   with the shell, not with the page's chunk, so the header never moves when the page arrives. */
+.showcase-frame[data-mode="landing"] {
+  --landing-column: 1120px;
+  --landing-gutter: 32px;
+  max-width: none;
+  padding: 0;
+  /* The docs search (its header box and dialog) reads the docs layout's palette names; the landing
+     page has no docs layout around it, so it names them here, as palette="technical" does. */
+  --docs-font-text: var(--ui-font-text);
+  --docs-font-heading: var(--ui-font-heading, var(--ui-font-text));
+  --docs-font-mono: var(--ui-font-label);
+  --docs-ink: var(--ui-ink);
+  --docs-muted: var(--ui-ink-2);
+  --docs-faint: var(--ui-ink-3);
+  --docs-rule: var(--ui-line-soft);
+  --docs-rule-strong: var(--ui-line);
+  --docs-surface: var(--ui-surface-2);
+  --docs-surface-strong: var(--ui-surface-2);
+  --docs-accent: var(--ui-accent);
+  --docs-focus: var(--ui-accent);
+  --docs-paper: var(--ui-paper);
+  --docs-raised: var(--ui-surface-raised);
+}
+.showcase-frame[data-mode="landing"] .showcase-header__bar {
+  width: min(var(--landing-column), 100% - 2 * var(--landing-gutter));
+  margin-inline: auto;
+  padding: 0;
+}
+.showcase-frame[data-mode="landing"] .showcase-header .uipack-docs-search__button {
+  width: clamp(160px, 22vw, 260px);
+  height: 40px;
+  margin: 0;
+}
+@media (max-width: 1023px) {
+  .showcase-frame[data-mode="landing"] {
+    --landing-gutter: 24px;
+  }
+}
+@media (max-width: 719px) {
+  .showcase-frame[data-mode="landing"] {
+    --landing-gutter: 16px;
+  }
+  /* A phone keeps the icon and the shortcut's room for the page: the box becomes a 44px icon button. */
+  .showcase-frame[data-mode="landing"] .showcase-header .uipack-docs-search__button {
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+  }
+  .showcase-frame[data-mode="landing"] .showcase-header .uipack-docs-search__button :is(.uipack-docs-search__placeholder, kbd) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
 .showcase-skip:not(:focus) {
   position: absolute;
   width: 1px;
