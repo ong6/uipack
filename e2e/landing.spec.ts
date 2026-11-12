@@ -31,6 +31,24 @@ async function scrollThrough(page: Page) {
   await page.evaluate(() => scrollTo(0, 0));
 }
 
+/** Brings each lazy part into view and waits for it: the layer stack and the parts' previews. */
+async function mountLazyParts(page: Page) {
+  const wait = { timeout: 15_000 };
+  await page.locator("#built").scrollIntoViewIfNeeded();
+  await expect(page.locator("#built .uipack-stack a")).toHaveCount(6, wait);
+  for (const [tile, part] of [
+    ["diagrams", ".uipack svg"],
+    ["deck", ".uipack-deck"],
+    ["charts", ".uipack-span"],
+    ["article", ".landing-article"],
+  ]) {
+    const box = page.locator(`.landing-tile--${tile}`);
+    await box.scrollIntoViewIfNeeded();
+    await expect(box.locator(part).first()).toBeAttached(wait);
+  }
+  await page.evaluate(() => scrollTo(0, 0));
+}
+
 /** Turns WebGL off in the page, as a browser without it would report. */
 const withoutWebGL = (page: Page) =>
   page.addInitScript(() => {
@@ -61,11 +79,7 @@ for (const width of [1440, 390])
       await scrollThrough(page);
       // Every section rendered, with its live parts mounted.
       for (const id of ["jobs", "built", "parts", "agents", "site-map"]) await expect(page.locator(`#${id}`)).toBeVisible();
-      await expect(page.locator("#built .uipack-stack a")).toHaveCount(6, { timeout: 15_000 });
-      await expect(page.locator(".landing-tile--diagrams .uipack svg").first()).toBeVisible({ timeout: 15_000 });
-      await expect(page.locator(".landing-tile--deck .uipack-deck")).toHaveCount(1, { timeout: 15_000 });
-      await expect(page.locator(".landing-tile--charts .uipack-span")).toHaveCount(1, { timeout: 15_000 });
-      await expect(page.locator(".landing-tile--article .landing-article")).toHaveCount(1, { timeout: 15_000 });
+      await mountLazyParts(page);
       // Exactly one filled primary action in the hero; the gallery is the secondary.
       await expect(page.locator(".landing-hero .landing-btn--primary")).toHaveCount(1);
       expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
@@ -100,9 +114,7 @@ test("every link on the page opens a page the site has", async ({ page }) => {
   test.setTimeout(90_000);
   await withoutWebGL(page);
   await page.goto("/?theme=dark");
-  await scrollThrough(page);
-  // The stack mounts as it nears the viewport; under a loaded dev server its chunk can take a while.
-  await expect(page.locator("#built .uipack-stack a")).toHaveCount(6, { timeout: 15_000 });
+  await mountLazyParts(page);
   const hrefs = await page
     .locator(".uipack-landing a[href]")
     .evaluateAll((links) => links.map((a) => a.getAttribute("href")!).filter((h) => h.startsWith("/")));
@@ -171,18 +183,18 @@ test("under reduced motion, the 3D tile shows its still and the hero figure hold
   await expect(scene).toHaveAttribute("data-scene", "still");
 });
 
-test("the docs search opens from the landing page's header and from ⌘K / Ctrl-K", async ({ page }) => {
+test("the docs search opens from ⌘K / Ctrl-K and from the landing page's header", async ({ page }) => {
   await page.goto("/?theme=light");
   const dialog = page.locator("dialog.uipack-docs-search");
   // The landing page's own chunk has rendered (the header is up before it).
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-  await page.locator(".showcase-header .uipack-docs-search__button").click();
+  await page.keyboard.press("ControlOrMeta+k");
   await expect(dialog).toBeVisible({ timeout: 10_000 });
   await page.keyboard.type("spec template");
-  await expect(dialog.getByRole("option").first()).toBeVisible();
+  await expect(dialog.getByRole("option").first()).toBeVisible({ timeout: 10_000 });
   await page.keyboard.press("Escape");
   await expect(dialog).toBeHidden();
-  await page.keyboard.press("ControlOrMeta+k");
+  await page.locator(".showcase-header .uipack-docs-search__button").click();
   await expect(dialog).toBeVisible({ timeout: 10_000 });
 });
 

@@ -35,9 +35,9 @@ for (const theme of ["light", "dark"] as const) {
     await expect(page.locator(".mechanism-stage .uipack-mechanism")).toHaveAttribute("data-theme", theme);
     await expect(page.locator(readout)).toHaveText(/^checked \d+ · passed \d+ · returned \d+$/);
     await expect(page.locator(".mechanism-thumbs svg.iso-svg")).toHaveCount(4);
-    // The card's paper follows the theme.
+    // The card's paper follows the theme: Technical's in light, the docs site's charcoal ground in dark.
     const paper = await page.locator(".mechanism-stage .um-plate").evaluate((node) => getComputedStyle(node).backgroundColor);
-    expect(paper).toBe(theme === "light" ? "rgb(252, 253, 254)" : "rgb(13, 42, 79)");
+    expect(paper).toBe(theme === "light" ? "rgb(252, 253, 254)" : "rgb(22, 24, 27)");
     // Wall clock on purpose: let the machine run a while, then check it logged nothing.
     await page.waitForTimeout(1200);
     expect(errors).toEqual([]);

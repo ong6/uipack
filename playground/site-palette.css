@@ -78,7 +78,7 @@
    direction's card sits on the site's charcoal, a lighter pool behind the subject, instead of its own
    night colours (the cartoon and abstract cards are navy). The scene's own world, once WebGL draws
    it, is the look's. */
-:is(.showcase-frame, .uipack-canvas-dialog) .uipack-object[data-theme="dark"][data-art-direction] {
+:is(.showcase-frame, .uipack-canvas-dialog) .uipack-object[data-theme="dark"][data-art-direction]:not([data-surface="page"]) {
   --object-bg: var(--ui-surface);
   background: radial-gradient(ellipse at 50% 38%, var(--ui-surface-2), var(--ui-paper));
 }
