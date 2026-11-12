@@ -18,14 +18,20 @@
       name="description"
       content="The uipack playground: React and SVG figures, charts, 3D animations, decks and web page blocks for engineering write-ups, each with its source."
     />
-    <!-- Before the first paint, a blocking script sets the theme from the URL (the theme half of
-         uipack styleBootScript, inlined): data-theme and data-ui-theme from ?theme=. The style is
-         Technical, the one implemented style, set on <body> and on the shell's frame. -->
+    <!-- Before the first paint, a blocking script sets the theme (the theme half of uipack
+         styleBootScript, inlined; data-theme and data-ui-theme): ?theme=light|dark wins, then the
+         reader's last choice (the toggle stores it under "uipack-theme"), then the system's
+         prefers-color-scheme. The style is Technical, the one implemented style, set on <body> and
+         on the shell's frame. vercel.json's Content-Security-Policy names this script by its hash:
+         the site build fails, with the new hash, when it changes. -->
     <script>
       (function () {
-        var q = new URLSearchParams(location.search),
-          d = document.documentElement;
-        var t = q.get("theme") === "dark" ? "dark" : "light";
+        var d = document.documentElement,
+          t = new URLSearchParams(location.search).get("theme");
+        try {
+          if (t !== "light" && t !== "dark") t = localStorage.getItem("uipack-theme");
+        } catch (e) {}
+        if (t !== "light" && t !== "dark") t = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
         d.setAttribute("data-theme", t);
         d.setAttribute("data-ui-theme", t);
       })();

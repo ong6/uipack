@@ -159,7 +159,7 @@ test.describe("390px header and drawer", () => {
     const heights = await drawer
       .locator(".uipack-docs__nav-heading button, .uipack-docs__navigation > section[data-open] a")
       .evaluateAll((els) => els.filter((a) => a.getClientRects().length).map((a) => a.getBoundingClientRect().height));
-    expect(Math.min(...heights)).toBeGreaterThanOrEqual(40);
+    expect(Math.min(...heights)).toBeGreaterThanOrEqual(44);
     const current = drawer.locator('[aria-current="page"]');
     await expect(current).toHaveCount(1);
     await expect(current).toHaveText("Charts");

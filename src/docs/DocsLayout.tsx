@@ -115,6 +115,14 @@ export interface DocsLayoutProps {
   markerMemory?: string;
   /** Search: a box at the top of the sidebar and a ⌘K / Ctrl-K dialog over the host's index. */
   search?: DocsSearchOptions;
+  /**
+   * With `search`: whether the dialog is open, for a host that opens it from a control of its own
+   * (a search button in its header). Give it with `onSearchOpenChange`; without it the layout keeps
+   * the state itself.
+   */
+  searchOpen?: boolean;
+  /** With `searchOpen`: the dialog asks to open or close (the sidebar's box, ⌘K, Escape, a result picked). */
+  onSearchOpenChange?: (open: boolean) => void;
   /** The page's Markdown source as plain text ("View as Markdown"), shown above the page. */
   markdownHref?: string;
   /** Where to edit the page's source ("Edit on GitHub"), shown above the page. */
@@ -262,6 +270,8 @@ export function DocsLayout({
   onMarkerTrip,
   markerMemory,
   search,
+  searchOpen,
+  onSearchOpenChange,
   markdownHref,
   editHref,
   eyebrow,
@@ -283,7 +293,10 @@ export function DocsLayout({
   const Article = landmark;
   const drawer = useRef<HTMLDialogElement>(null);
   const contents = useRef<HTMLDetailsElement>(null);
-  const [searching, setSearching] = useState(false);
+  const [ownSearching, setOwnSearching] = useState(false);
+  // The host holds the search dialog's state when it gives it; otherwise it is the layout's own.
+  const searching = searchOpen ?? ownSearching;
+  const setSearching = onSearchOpenChange ?? setOwnSearching;
 
   // The drawer is a modal dialog: focus moves in and stays, Escape and the scrim close it, and the
   // page behind it holds still until it closes.

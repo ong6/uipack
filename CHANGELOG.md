@@ -13,6 +13,15 @@ release is cut and how a site moves to it.
   sat 2px to their left).
 - **`DocsLayout` "On this page" disclosure:** its label stays on one line on a phone when the
   current heading beside it wraps.
+- **Docs search outside a `DocsLayout`:** `DocsSearchButton` and `DocsSearchDialog` style
+  themselves wherever they are mounted (a result was a browser-default link when the dialog had no
+  `.uipack-docs` ancestor); they need only the `--docs-*` names on an ancestor.
+- **`DocsLayout` drawer:** a sub-page row is a 44px tap target (it was 40px).
+
+### Added
+
+- **`DocsLayout` `searchOpen` and `onSearchOpenChange`:** a host can open the search dialog from a
+  control of its own, a search button in its header on a phone, say.
 
 ## [0.6.0] - 2026-11-12
 

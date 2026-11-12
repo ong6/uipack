@@ -1242,11 +1242,23 @@
   min-height: 44px;
 }
 
+/* A sub-page is a 32px row in the sidebar (a mouse); in the drawer, a touch layout, it is a 44px
+   tap target like every other row (docs/system/layout, the touch floor). */
 .uipack-docs__drawer .uipack-docs__navigation .uipack-docs__nav-sub a {
-  min-height: 40px;
+  min-height: 44px;
 }
 
-/* Search: the box in the sidebar opens a dialog; results are grouped by section in its hue. */
+/* Search: the box in the sidebar opens a dialog; results are grouped by section in its hue. The
+   box and the dialog style themselves wherever a host mounts them, inside a docs layout or not (a
+   site's header on a page without one): they read the --docs-* names, which the layout sets and
+   any other host names on an ancestor, and take nothing else from `.uipack-docs`. */
+.uipack-docs-search,
+.uipack-docs-search *,
+.uipack-docs-search__button,
+.uipack-docs-search__button * {
+  box-sizing: border-box;
+}
+
 .uipack-docs-search__button {
   align-items: center;
   background: var(--docs-raised);
@@ -1301,6 +1313,7 @@
   border-radius: 6px;
   box-shadow: 0 24px 64px rgb(0 0 0 / 0.28);
   color: var(--docs-ink);
+  font-family: var(--docs-font-text);
   margin: 72px auto auto;
   max-height: min(600px, calc(100dvh - 96px));
   max-width: none;
@@ -1404,7 +1417,9 @@
   text-transform: uppercase;
 }
 
-.uipack-docs .uipack-docs-search__option {
+/* `a.`: as specific as the layout's link rule (`.uipack-docs a`), and after it, so a result is
+   never an accent, underlined link; outside a layout it needs no ancestor. */
+a.uipack-docs-search__option {
   border-left: 3px solid transparent;
   border-radius: 4px;
   color: var(--docs-ink);
@@ -1414,7 +1429,7 @@
   text-decoration: none;
 }
 
-.uipack-docs .uipack-docs-search__option[aria-selected="true"] {
+a.uipack-docs-search__option[aria-selected="true"] {
   background: color-mix(in srgb, var(--docs-hue, var(--docs-accent)) 12%, transparent);
   border-left-color: var(--docs-hue, var(--docs-accent));
 }
