@@ -98,16 +98,16 @@ export interface DocsLayoutProps {
   markerColor?: string;
   /**
    * With `marker="mark"` and `markerMemory`: how the mark changes its dot's cell and colour on a
-   * trip between pages whose marks differ. "none" (default): as its last hop lifts. "pause",
-   * "portal" or "flip": it stops before its last hop and changes there (a crouch and pop, a ring it
-   * turns into and out of, or a coin's turn).
+   * trip between pages whose marks differ. "none" (default): as its last hop lifts. "portal": it
+   * stops before its last hop, a ring opens, the mark turns into it and comes back out changed.
    */
   markerMorph?: DocsMarkerMorph;
   /**
    * The sidebar's marker sets off on a trip from the page the reader left and lands in `ms`, so a
-   * host can time something of its own to the landing. Not called when it docks in place.
+   * host can time something of its own to the landing; `changeAt` is when (ms into the trip) the
+   * mark changes in its portal, when it does. Not called when it docks in place.
    */
-  onMarkerTrip?: (ms: number) => void;
+  onMarkerTrip?: (ms: number, changeAt?: number) => void;
   /**
    * A sessionStorage key under which the sidebar remembers the page being left, its open sections
    * and its scroll, so the next page's marker travels from there. Default: none (it docks in place).

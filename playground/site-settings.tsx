@@ -10,7 +10,7 @@ import {
   type RefObject,
 } from "react";
 import type { MarkCell } from "../src";
-import { isMarkerMorph, isMarkerShape, type DocsMarkerMorph, type DocsMarkerShape } from "../src/docs/DocsMarkers";
+import { isMarkerShape, type DocsMarkerMorph, type DocsMarkerShape } from "../src/docs/DocsMarkers";
 import type { DocsSectionId } from "./docs-manifest";
 
 /**
@@ -35,25 +35,8 @@ export function markerSetting(search = location.search): DocsMarkerShape {
   }
 }
 
-/**
- * How the mark changes between sections (the docs layout's `markerMorph`). The site's is "none"
- * until the owner picks one; `?morph=pause`, `?morph=portal` or `?morph=flip` shows that option for
- * the rest of the visit, `?morph=none` goes back.
- */
-export const SITE_MORPH: DocsMarkerMorph = "none";
-
-const MORPH_KEY = "uipack-docs-morph";
-
-export function morphSetting(search = location.search): DocsMarkerMorph {
-  const asked = new URLSearchParams(search).get("morph");
-  try {
-    if (isMarkerMorph(asked)) sessionStorage.setItem(MORPH_KEY, asked);
-    const kept = sessionStorage.getItem(MORPH_KEY);
-    return isMarkerMorph(kept) ? kept : SITE_MORPH;
-  } catch {
-    return isMarkerMorph(asked) ? asked : SITE_MORPH;
-  }
-}
+/** How the mark changes between sections (the docs layout's `markerMorph`): in a portal (owner, 2026-11-12). */
+export const SITE_MORPH: DocsMarkerMorph = "portal";
 
 /** The sessionStorage key the sidebar keeps the page being left under, so the next page's marker travels from it. */
 export const NAV_MEMORY_KEY = "uipack-docs-nav";
@@ -87,17 +70,21 @@ export function markerState(section: DocsSectionId | undefined): { live: MarkCel
   return cell === undefined ? { live: 3, color: "var(--ui-ink)" } : { live: cell, color: sectionHue(section!) };
 }
 
-/** The name of the keyframes whose end lands the header mark's hop (showcase.css). */
-const BRAND_HOP = "showcase-brand-lift";
+/** The keyframes of the header mark's portal (showcase.css): into the ring, and back out. */
+const PORTAL_IN = "showcase-brand-portal-in";
+const PORTAL_OUT = "showcase-brand-portal-out";
+/** The portal's first half, in ms (the base duration role): the mark changes as it ends. */
+const PORTAL_HALF = 320;
 
 /**
  * Which state the header mark shows: the page's section, or neutral. Every page is its own load, so
  * the state the reader left is kept for the visit (sessionStorage): the mark is first drawn there,
- * then its dot hops to this page's cell (showcase.css plays the hop on the anchor `props` go on;
- * the state changes as it lands, and the cell it left redraws as a square). The hop waits for the
- * page to settle, and for the sidebar marker when it is travelling (`onMarkerTrip`, the docs
- * layout's prop), so the two land together. With reduced motion, with nothing remembered, or with
- * `hop` off (the landing page, whose mark loops), it is drawn in place.
+ * then changes to this page's in a portal (showcase.css plays it on the anchor `props` go on: the
+ * mark turns into a ring, the state changes while it is out of sight, and it comes back out). The
+ * portal waits for the page to settle, or, when the sidebar marker is travelling to its own portal
+ * (`onMarkerTrip`, the docs layout's prop), for that, so the two change together. With reduced
+ * motion, with nothing remembered, or with `hop` off (the landing page, whose mark loops), it is
+ * drawn in place.
  */
 export function useBrandMark(
   section: DocsSectionId | undefined,
@@ -106,9 +93,9 @@ export function useBrandMark(
   state: BrandState;
   live: MarkCell;
   liveColor: string | undefined;
-  /** For the brand's anchor: the state drawn, the hop in flight and the cell just left. */
+  /** For the brand's anchor: the state drawn and the portal's half in play. */
   props: AnchorHTMLAttributes<HTMLAnchorElement> & { ref: RefObject<HTMLAnchorElement> } & Record<`data-${string}`, unknown>;
-  onMarkerTrip: (ms: number) => void;
+  onMarkerTrip: (ms: number, changeAt?: number) => void;
 } {
   const now: BrandState = section && section in BRAND_CELLS ? section : NEUTRAL;
   const [state, setState] = useState<BrandState>(() => {
@@ -121,62 +108,54 @@ export function useBrandMark(
     }
     return now;
   });
-  // The sidebar marker's trip, in ms, when it is travelling (its effect runs before this hook's).
-  const trip = useRef(0);
-  const onMarkerTrip = useCallback((ms: number) => {
-    trip.current = ms;
+  // When the sidebar marker changes in its portal, in ms (its effect runs before this hook's).
+  const changeAt = useRef<number | undefined>(undefined);
+  const onMarkerTrip = useCallback((_ms: number, at?: number) => {
+    changeAt.current = at;
   }, []);
-  const [hopping, setHopping] = useState<{ trip: number } | null>(null);
-  const [left, setLeft] = useState<MarkCell | null>(null);
-  const land = useCallback(() => {
-    setHopping(null);
-    setState((was) => {
-      if (was !== now) setLeft(brandCell(was) ?? 3);
-      return now;
-    });
-  }, [now]);
+  const [portal, setPortal] = useState<{ half: "in" | "out"; wait?: number } | null>(null);
   useEffect(() => {
     try {
       sessionStorage.setItem(BRAND_KEY, now);
     } catch {
       /* no storage */
     }
-    if (state !== now) setHopping({ trip: trip.current });
-    // Once per page: the hop is fixed by the remembered state and this page's.
+    if (state !== now)
+      setPortal({ half: "in", wait: changeAt.current === undefined ? undefined : Math.max(0, changeAt.current - PORTAL_HALF) });
+    // Once per page: the change is fixed by the remembered state and this page's.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [now]);
-  // The hop's end lands it (`onAnimationEnd`); with no hop to play (no stylesheet, no CSS
-  // animations) it lands at once.
+  // Each half's end moves it on (`onAnimationEnd`); with nothing to play (no stylesheet, no CSS
+  // animations) it changes at once.
   const anchor = useRef<HTMLAnchorElement>(null);
   useEffect(() => {
-    if (!hopping) return;
+    if (!portal) return;
     const playing = anchor.current?.getAnimations?.({ subtree: true }) ?? [];
-    if (!playing.some((a) => (a as CSSAnimation).animationName === BRAND_HOP)) land();
-  }, [hopping, land]);
+    const name = portal.half === "in" ? PORTAL_IN : PORTAL_OUT;
+    if (playing.some((a) => (a as CSSAnimation).animationName === name)) return;
+    setState(now);
+    setPortal(null);
+  }, [portal, now]);
   const cell = brandCell(state);
-  const from = cell ?? 3;
-  const to = brandCell(now) ?? 3;
   return {
     state,
-    live: from,
+    live: cell ?? 3,
     liveColor: cell === undefined ? undefined : sectionHue(state as DocsSectionId),
     props: {
       ref: anchor,
       "data-brand": state,
-      "data-brand-hop": hopping ? "" : undefined,
-      "data-brand-to": hopping ? to : undefined,
-      "data-brand-left": left ?? undefined,
-      style: hopping
+      "data-brand-hop": portal?.half,
+      style: portal
         ? ({
-            // In cells: showcase.css turns them into the mark's units.
-            "--brand-hop-x": (to % 2) - (from % 2),
-            "--brand-hop-y": (to >> 1) - (from >> 1),
             "--brand-hop-hue": brandHue(now),
-            "--brand-trip": `${hopping.trip}ms`,
+            ...(portal.wait === undefined ? null : { "--brand-hop-wait": `${portal.wait}ms` }),
           } as CSSProperties)
         : undefined,
       onAnimationEnd: (event: AnimationEvent) => {
-        if (event.animationName === BRAND_HOP) land();
+        if (event.animationName === PORTAL_IN) {
+          setState(now);
+          setPortal({ half: "out" });
+        } else if (event.animationName === PORTAL_OUT) setPortal(null);
       },
     },
     onMarkerTrip,

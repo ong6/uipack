@@ -28,7 +28,7 @@ import { galleryCategoryForPage, galleryHref } from "./gallery-index";
 import { SEARCH_INDEX_PATH } from "./search-index-path";
 import {
   markerSetting,
-  morphSetting,
+  SITE_MORPH,
   markerState,
   NAV_MEMORY_KEY,
   SectionIcon,
@@ -261,7 +261,6 @@ export function ShowcaseShell({
   useDocsSearchShortcut(landing, setSearching);
   // The marker's shape for this load: the site's, or ?marker= (kept for the visit).
   const [marker] = useState(() => markerSetting());
-  const [morph] = useState(() => morphSetting());
   // Every page names itself in the tab, /web too: the sample page it hosts publishes the rest of its
   // head (description, canonical, Open Graph, JSON-LD), but the tab says which playground page it is.
   const hostsPage = "hostsPage" in page && page.hostsPage;
@@ -413,7 +412,7 @@ export function ShowcaseShell({
         marker={marker}
         markerLive={markerMark.live}
         markerColor={markerMark.color}
-        markerMorph={morph}
+        markerMorph={SITE_MORPH}
         onMarkerTrip={brand.onMarkerTrip}
         markerMemory={NAV_MEMORY_KEY}
         search={search}

@@ -251,7 +251,7 @@ for its 14px size: 5px squares on a 1.25px line, not the header's drawing scaled
 
 In the sidebar, when the page changes, the mark hops from the page the reader left along the
 page column (out to a sub-page's tree line), crossing sections if it must, the new section
-opening as it arrives. A hop is a small arc off the column (2.5 to 5px) ending in a soft squash; a trip is one hop for each 36px, nine at most, over 300ms plus 3ms a pixel (1400ms at most), so the mark stays by the short dotted trail it leaves. Each hop is a plain arc, a full turn, a lean or two skips, to either side, picked from the trip's ends. Across sections it changes its dot's cell and hue as its last hop lifts (`?morph=pause`, `portal` or `flip` previews a stop to change in). In "On this page" the mark hops down a dotted path that steps right
+opening as it arrives. A hop is a small arc off the column (4 to 7px) ending in a soft squash; a trip is one hop for each 36px, nine at most, over 300ms plus 3ms a pixel (1400ms at most), so the mark stays by the short dotted trail it leaves. Each hop is a plain arc, a full turn, a lean, two skips or a pop, to either side, a fresh pick every trip. Across sections it stops before its last hop and changes in a portal: a dashed ring in the new hue opens, the mark turns into it and comes back out with its dot on the new cell (560ms); the header's mark changes in its own portal at the same moment. In "On this page" the mark hops down a dotted path that steps right
 for each h3, the read part in the accent; when headings pass faster than a hop it makes for the
 latest, never a queue. With reduced motion nothing hops: the marker is drawn in place. The current page is also marked by weight and a tinted row, so the
 marker is never the only cue.
@@ -263,15 +263,7 @@ them that cell is the dot, filled in the section's hue; the other three are squa
 the name stays in the ink. Reference has no cell: its pages, the Assets tab, the landing page at
 rest and a not-found page show the neutral mark, the dot bottom right in the ink, as the package
 draws it. Each hue holds 3:1 or more as the dot on the header's ground in both themes (the lowest is
-Build in light, 4.6:1). When the page changes section the dot hops from the cell the reader left
-(kept for the visit in sessionStorage, as the sidebar marker's page is): the marker's hop, an arc
-6 units above the line between the cells, the dot taking the new hue on the way and squashing as
-it lands, the square it lands on making way and the cell it left redrawing as a square. The hop takes the slow duration role (560ms) and the redraw the base one (320ms). It
-waits 400ms for the page to settle (`--site-mark-wait`), or longer when the sidebar's marker is
-travelling, so the two land together. A change between the neutral mark and Check, which share a
-cell, is a hop in place. On the landing page it visits Start, Rules, Build and Check in turn, 2s
-each, hopping between them over the last 560ms of each state, in one 8s CSS loop that never moves
-the header. With reduced motion the dot is drawn in place and the landing page holds the neutral
+Build in light, 4.6:1). When the page changes section the mark changes in a portal, from the state the reader left (kept for the visit in sessionStorage, as the sidebar marker's page is): a dashed ring in the new section's hue opens over the mark, the mark turns into it and out of sight, and comes back out with its dot on the new cell; each half takes the base duration role (320ms). It waits 400ms for the page to settle (`--site-mark-wait`), or for the sidebar's marker when that is travelling to its own portal, so the two change together. On the landing page the mark rests as the default logo for 5s, then the dot visits Start, Rules, Build and Check in turn, 2s each, hopping between them over the last 560ms of each state, in one 13s CSS loop that never moves the header. With reduced motion the dot is drawn in place and the landing page holds the neutral
 mark. The dot repeats what the breadcrumb chip and the sidebar say in words, so it is never the
 only cue. It is `Wordmark`'s `live` and `liveColor` ([figure parts API](../figure-api.md)), mapped
 in `playground/site-settings.tsx` (`BRAND_CELLS`, `useBrandMark`, and `markerState` for the docs

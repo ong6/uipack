@@ -69,7 +69,8 @@ for (const theme of ["light", "dark"])
 /** Holds the brand's animations at `ms` (or, with a fraction, that far through the hop itself). */
 const seek = (page: Page, at: { ms: number } | { hop: number }) =>
   page.locator(brand).evaluate((el, at) => {
-    for (const a of el.getAnimations({ subtree: true })) {
+    // The mark's animations and the ring's (a pseudo-element's are the document's).
+    for (const a of document.getAnimations().filter((a) => el.contains((a.effect as KeyframeEffect).target))) {
       a.pause();
       const timing = a.effect!.getComputedTiming();
       a.currentTime = "ms" in at ? at.ms : (timing.delay ?? 0) + Number(timing.duration) * at.hop;
@@ -83,13 +84,15 @@ const centre = (page: Page, cell: number) =>
     return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
   });
 
-test("moving to another section hops the dot from the cell the reader left", async ({ page }) => {
+test("moving to another section changes the mark in a portal: into the ring as the page left, out as this page's", async ({
+  page,
+}) => {
   await page.goto("/foundations?theme=light");
   await expect(page.locator(brand)).toHaveAttribute("data-brand", "rules");
   await expect(page.locator(brand)).not.toHaveAttribute("data-brand-hop");
   const box = await page.locator(brand).boundingBox();
   // The next page records, from its first script, every state the mark is drawn in, and holds the
-  // hop on the ground until the test has looked at it.
+  // portal shut until the test has looked at it.
   await page.addInitScript(() => {
     const w = window as { __brand?: string[] };
     w.__brand = [];
@@ -99,55 +102,47 @@ test("moving to another section hops the dot from the cell the reader left", asy
     }).observe(document, { subtree: true, childList: true, attributes: true, attributeFilter: ["data-brand"] });
     addEventListener("DOMContentLoaded", () => {
       const hold = document.createElement("style");
-      hold.textContent = ".showcase-header .showcase-brand { --site-mark-wait: 60s !important; }";
+      hold.textContent =
+        ".showcase-header .showcase-brand { --site-mark-wait: 60s !important; --brand-hop-wait: 60s !important; }";
       document.head.append(hold);
     });
   });
   await page.goto("/recipes?theme=light");
-  // Drawn as the page left (Rules, the top right cell) with a hop to Build's cell waiting.
-  await expect(page.locator(brand)).toHaveAttribute("data-brand-hop", "");
+  // Drawn as the page left (Rules, the top right cell) with the portal's first half waiting.
+  await expect(page.locator(brand)).toHaveAttribute("data-brand-hop", "in");
   await expect(page.locator(brand)).toHaveAttribute("data-brand", "rules");
   await expect(page.locator(`${brand} rect[data-live]`)).toHaveAttribute("data-cell", "1");
-  const hop = await page
-    .locator(`${brand} rect[data-live]`)
-    .evaluate((rect) =>
-      rect.getAnimations().map((a) => [(a as CSSAnimation).animationName, a.effect!.getComputedTiming().duration]),
+  const mark = page.locator(`${brand} svg > g`);
+  const playing = () =>
+    mark.evaluate((g) =>
+      g.getAnimations().map((a) => [(a as CSSAnimation).animationName, a.effect!.getComputedTiming().duration]),
     );
-  // Slow enough to see: the slow duration role.
-  expect(hop).toEqual([
-    ["showcase-brand-hop", 560],
-    ["showcase-brand-lift", 560],
-  ]);
+  // Each half takes the base duration role.
+  expect(await playing()).toEqual([["showcase-brand-portal-in", 320]]);
+  const size = () => mark.evaluate((g) => g.getBoundingClientRect().width);
   await seek(page, { hop: 0 });
-  const from = await centre(page, 1);
-  const to = await centre(page, 2);
-  // Part-way through its flight it is between the two cells and above the straight line between them.
-  await seek(page, { hop: 0.39 });
-  const mid = await centre(page, 1);
-  expect(mid.x).toBeLessThan(from.x - 1);
-  expect(mid.x).toBeGreaterThan(to.x + 1);
-  expect(mid.y).toBeLessThan(from.y + (to.y - from.y) * 0.5 - 1.5);
-  // Landed on the new cell, in the new hue, and squashed for a moment (wider than tall).
-  await seek(page, { hop: 0.87 });
-  const landing = await page.locator(`${brand} rect[data-live]`).evaluate((rect) => {
-    const r = rect.getBoundingClientRect();
-    return { x: r.left + r.width / 2, wide: r.width - r.height, fill: getComputedStyle(rect).fill };
+  const full = await size();
+  // The ring is the new section's hue, open over the mark as the mark goes into it.
+  const ring = await page.locator(brand).evaluate((el) => {
+    const s = getComputedStyle(el, "::before");
+    return { colour: s.borderTopColor, scale: s.scale };
   });
-  expect(Math.abs(landing.x - to.x)).toBeLessThan(0.5);
-  expect(landing.wide).toBeGreaterThan(1);
-  expect(landing.fill).toBe(await role(page, "var(--site-hue-build)"));
-  // The hop ends: the state changes under it, the cell it left is marked to redraw, nothing has moved.
+  expect(ring.colour).toBe(await role(page, "var(--site-hue-build)"));
+  await seek(page, { hop: 0.8 });
+  expect(await size()).toBeLessThan(full * 0.7);
+  expect(Number(await page.locator(brand).evaluate((el) => getComputedStyle(el, "::before").scale))).toBeGreaterThan(1);
+  // The first half ends with the mark out of sight: the state changes there, and the second half
+  // brings it back out as this page's mark (Build, the bottom left cell, in its hue).
   await page.locator(brand).evaluate((el) => el.getAnimations({ subtree: true }).forEach((a) => a.finish()));
   await expect(page.locator(brand)).toHaveAttribute("data-brand", "build");
-  await expect(page.locator(brand)).not.toHaveAttribute("data-brand-hop");
-  await expect(page.locator(brand)).toHaveAttribute("data-brand-left", "1");
   await expect(page.locator(`${brand} rect[data-live]`)).toHaveAttribute("data-cell", "2");
+  expect(await page.locator(`${brand} rect[data-live]`).evaluate((r) => getComputedStyle(r).fill)).toBe(
+    await role(page, "var(--site-hue-build)"),
+  );
+  // Then it is over: at its own size, nothing moved, the portal gone.
+  await expect(page.locator(brand)).not.toHaveAttribute("data-brand-hop");
+  await expect.poll(size).toBeCloseTo(full, 0);
   expect(await page.evaluate(() => (window as { __brand?: string[] }).__brand)).toEqual(["rules", "build"]);
-  expect(
-    await page
-      .locator(`${brand} rect[data-cell="1"]`)
-      .evaluate((r) => r.getAnimations().map((a) => (a as CSSAnimation).animationName)),
-  ).toEqual(["showcase-brand-redraw"]);
   expect(await page.locator(brand).boundingBox()).toEqual(box);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
@@ -170,7 +165,7 @@ test("under reduced motion the dot is drawn in place", async ({ page }) => {
   expect(await page.locator(brand).evaluate((el) => el.getAnimations({ subtree: true }).length)).toBe(0);
 });
 
-test("on the landing page the dot visits Start, Rules, Build and Check in turn, hopping, without moving the header", async ({
+test("on the landing page the mark rests as the default logo, then the dot visits Start, Rules, Build and Check in turn, hopping, without moving the header", async ({
   page,
 }) => {
   await page.goto("/?theme=dark");
@@ -182,19 +177,30 @@ test("on the landing page the dot visits Start, Rules, Build and Check in turn, 
       el.getAnimations().map((a) => [(a as CSSAnimation).animationName, a.effect!.getComputedTiming().duration, a.playState]),
     ),
   );
+  // The bottom right cell has its own: it is Check's and the default logo's.
   expect(loops).toEqual(
-    [0, 1, 2, 3].map(() => [
-      ["showcase-brand-turn", 8000, "running"],
-      ["showcase-brand-turn-lift", 8000, "running"],
+    [0, 1, 2, 3].map((i) => [
+      [i === 3 ? "showcase-brand-turn-home" : "showcase-brand-turn", 13000, "running"],
+      [i === 3 ? "showcase-brand-turn-home-lift" : "showcase-brand-turn-lift", 13000, "running"],
     ]),
   );
   // The landing page's own styles (its chunk) place the header; measure once they have.
   await expect(page.locator(".landing-hero")).toBeVisible();
   const box = await page.locator(brand).boundingBox();
+  // The loop opens on the default logo, held for 5s: the dot bottom right, in the ink.
+  for (const ms of [400, 2500, 4300]) {
+    await seek(page, { ms });
+    const ink = await role(page, "currentColor");
+    expect(await painted(page), `default logo at ${ms}ms`).toEqual(
+      [0, 1, 2, 3].map((i) =>
+        i === 3 ? { dot: true, square: false, fill: ink, stroke: ink } : { dot: false, square: true, fill: ink, stroke: ink },
+      ),
+    );
+  }
   const hues = ["start", "rules", "build", "check"];
   for (const [turn, hue] of hues.entries()) {
-    // The middle of each state's two seconds.
-    await seek(page, { ms: turn * 2000 + 1000 });
+    // The middle of each state's two seconds, after the rest.
+    await seek(page, { ms: 5000 + turn * 2000 + 1000 });
     const colour = await role(page, `var(--site-hue-${hue})`);
     const ink = await role(page, "currentColor");
     expect(await painted(page), `state ${hue}`).toEqual(
@@ -208,10 +214,10 @@ test("on the landing page the dot visits Start, Rules, Build and Check in turn, 
   }
   // Between states it hops (the last 560ms of a state's 2s): leaving Start for Rules, the dot is
   // between the two cells and above them, and the header has not moved.
-  await seek(page, { ms: 1000 });
+  await seek(page, { ms: 6000 });
   const from = await centre(page, 0);
   const to = await centre(page, 1);
-  await seek(page, { ms: 1440 + 560 * 0.39 });
+  await seek(page, { ms: 6440 + 560 * 0.39 });
   const mid = await centre(page, 0);
   expect(mid.x).toBeGreaterThan(from.x + 1);
   expect(mid.x).toBeLessThan(to.x - 1);

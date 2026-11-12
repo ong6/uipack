@@ -34,8 +34,8 @@ One default changes what a page draws (below), so this is a minor release
   `markerMemory` (a sessionStorage key) it travels there from the page the reader left, crossing
   sections and opening the new one as it arrives. The plane flies, with a short dotted trail; the
   mark hops like a game piece (small arcs with a soft squash on landing, one hop for a neighbouring
-  link, nine at most, each hop its own way, with the same trail; `markerMorph` adds a stop to
-  change cell and colour in: a pause, a portal or a flip). `markerLive` and `markerColor` put the mark's dot on any
+  link, nine at most, each hop its own way, with the same trail; `markerMorph="portal"` adds a
+  stop to change cell and colour in: a ring the mark turns into and comes back out of). `markerLive` and `markerColor` put the mark's dot on any
   of its four cells in any colour, so the marker can show a state per page (`DocsMarkerCell`), and
   `onMarkerTrip` tells the host how long a trip takes. Reduced motion: it jumps.
 - **`DocsLayout` drawer:** `mobileNavigation="drawer"` with `navigationOpen` and
@@ -50,9 +50,11 @@ One default changes what a page draws (below), so this is a minor release
 - **`Wordmark` section states:** `live` (a `MarkCell`, 0 to 3 in reading order) moves the uipack
   mark's dot to that cell and `liveColor` colours it; without `live` the wordmark's markup is
   unchanged. The docs site's header puts the dot on the page's section in its hue (Start top left,
-  Rules top right, Build bottom left, Check bottom right; neutral elsewhere), hops it across when
-  the section changes (560ms, landing with the sidebar's marker, the cell it left redrawing as a
-  square), and on the landing page visits the four in turn, hopping (still under reduced motion).
+  Rules top right, Build bottom left, Check bottom right; neutral elsewhere), changes it in a
+  portal when the section changes (a ring the mark turns into and out of, in time with the sidebar
+  marker's), and on the landing page rests as the default logo for 5s, then visits the four in
+  turn, hopping (still under reduced motion). Each page eases in under the header (a 320ms fade
+  and rise).
   The site's location marker is that mark in the same state, in the sidebar and "On this page".
   There the brand is the ink on docs pages too (it took the docs link colour, the accent), and
   below 360px the whole mark shows on docs pages (its right column was clipped).

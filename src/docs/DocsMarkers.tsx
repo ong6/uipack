@@ -121,8 +121,11 @@ function seeded(seed: number) {
   };
 }
 
-/** How one hop is taken: a plain arc, a full turn in the air, a lean into the jump, or two quick skips. */
-export type HopKind = "hop" | "flip" | "lean" | "skip";
+/**
+ * How one hop is taken: a plain arc, a full turn in the air, a lean into the jump, two quick skips
+ * or a pop (it swells at the top of its arc). Every kind leaves the line a little.
+ */
+export type HopKind = "hop" | "flip" | "lean" | "skip" | "pop";
 export interface HopStep {
   kind: HopKind;
   /** Which side of the line the arc is on: 1 right, -1 left (the left has less room, so less lift). */
@@ -130,7 +133,7 @@ export interface HopStep {
   /** The arc's height as a share of the usual one. */
   height: number;
 }
-const HOP_KINDS: readonly HopKind[] = ["hop", "flip", "lean", "skip"];
+const HOP_KINDS: readonly HopKind[] = ["hop", "flip", "lean", "skip", "pop"];
 const PLAIN_HOP: HopStep = { kind: "hop", side: 1, height: 1 };
 
 /** A trip's hops, picked from `seed`: never the same kind twice running, about one in three to the left. */
@@ -153,7 +156,7 @@ const smooth = (f: number) => f * f * (3 - 2 * f);
 /**
  * The mark's pose at `t` (0 to 1) of a trip of `hops` equal hops over `length` px: how far along
  * (0 to 1), how far off the line it has lifted (px, negative to the left), its turn (degrees), its
- * squash, and which hop it is on. In the air it eases off and onto the line on an arc 2.5 to 5px
+ * squash, and which hop it is on. In the air it eases off and onto the line on an arc 4 to 7px
  * high; on landing it squashes a little and recovers. `plan` (hopPlan) varies each hop.
  */
 export function hopPose(t: number, hops: number, length: number, plan?: readonly HopStep[]) {
@@ -162,20 +165,22 @@ export function hopPose(t: number, hops: number, length: number, plan?: readonly
   const hop = Math.min(hops - 1, Math.floor(scaled));
   const u = scaled - hop;
   const step = plan?.[hop] ?? PLAIN_HOP;
-  const height = Math.max(2.5, Math.min(5, (length / hops) * 0.14)) * step.height * (step.side < 0 ? 0.5 : 1);
+  const height = Math.max(4, Math.min(7, (length / hops) * 0.2)) * step.height * (step.side < 0 ? 0.6 : 1);
   if (u < HOP_FLIGHT) {
     const f = u / HOP_FLIGHT;
     const eased = smooth(f);
-    const arc = step.kind === "skip" ? 0.7 * Math.abs(Math.sin(2 * Math.PI * f)) : 4 * f * (1 - f);
-    const deg = step.kind === "flip" ? 360 * eased * step.side : step.kind === "lean" ? 12 * Math.sin(2 * Math.PI * f) : 0;
+    const arc = step.kind === "skip" ? 0.8 * Math.abs(Math.sin(2 * Math.PI * f)) : 4 * f * (1 - f);
+    const deg = step.kind === "flip" ? 360 * eased * step.side : step.kind === "lean" ? 16 * Math.sin(2 * Math.PI * f) : 0;
+    // A pop swells at the top of its arc.
+    const swell = step.kind === "pop" ? 0.18 * arc : 0;
     return {
       hop,
       // Half even, half eased: it leaves and meets the line gently without stalling there.
       along: (hop + 0.5 * f + 0.5 * eased) / hops,
       lift: step.side * height * arc,
       deg,
-      sx: 1 - 0.04 * arc,
-      sy: 1 + 0.05 * arc,
+      sx: 1 - 0.04 * arc + swell,
+      sy: 1 + 0.05 * arc + swell,
     };
   }
   const squash = Math.sin((Math.PI * (u - HOP_FLIGHT)) / (1 - HOP_FLIGHT));
@@ -184,47 +189,32 @@ export function hopPose(t: number, hops: number, length: number, plan?: readonly
 
 /**
  * How the mark changes its dot's cell and colour on a trip between sections: "none" (as its last
- * hop lifts), or a short stop before the last hop: "pause" (it crouches, pops and settles), "portal"
- * (a ring opens, the mark turns into it and comes back out changed) or "flip" (it turns over like a
- * coin).
+ * hop lifts), or "portal": it stops before the last hop, a ring opens, the mark turns into it and
+ * comes back out changed.
  */
-export type DocsMarkerMorph = "none" | "pause" | "portal" | "flip";
-export const isMarkerMorph = (value: unknown): value is DocsMarkerMorph =>
-  value === "none" || value === "pause" || value === "portal" || value === "flip";
+export type DocsMarkerMorph = "none" | "portal";
 
-/** How long the stop takes, in ms. */
+/** How long the portal takes, in ms. */
 export const MORPH_MS = 560;
 
 /**
- * The mark's pose at `m` (0 to 1) of its change: its scale about its centre, its turn, how far it
- * has risen (px), how far the portal's ring is open (0 to 1) and whether it has changed yet.
+ * The mark's pose at `m` (0 to 1) of its change in the portal: its scale about its centre, its
+ * turn, how far the ring is open (0 to 1) and whether it has changed yet (half-way, while it is
+ * out of sight).
  */
-export function morphPose(kind: DocsMarkerMorph, m: number) {
-  const swapped = m >= 0.5;
-  if (kind === "flip")
-    return { sx: Math.abs(Math.cos(Math.PI * m)), sy: 1, deg: 0, rise: 5 * Math.sin(Math.PI * m), ring: 0, swapped };
-  if (kind === "portal") {
-    const ring = m < 0.25 ? smooth(m / 0.25) : m > 0.78 ? 1 - smooth((m - 0.78) / 0.22) : 1;
-    const scale =
-      m < 0.2
-        ? 1
-        : m < 0.45
-          ? 1 - smooth((m - 0.2) / 0.25)
-          : m < 0.55
-            ? 0
-            : m < 0.8
-              ? 1.1 * smooth((m - 0.55) / 0.25)
-              : 1.1 - 0.1 * smooth((m - 0.8) / 0.2);
-    return { sx: scale, sy: scale, deg: 360 * smooth(Math.min(1, Math.max(0, (m - 0.2) / 0.6))), rise: 0, ring, swapped };
-  }
-  // "pause": a crouch, a pop as it changes, and a settle.
+export function morphPose(m: number) {
+  const ring = m < 0.25 ? smooth(m / 0.25) : m > 0.78 ? 1 - smooth((m - 0.78) / 0.22) : 1;
   const scale =
-    m < 0.35
-      ? 1 - 0.2 * smooth(m / 0.35)
-      : m < 0.6
-        ? 0.8 + 0.42 * smooth((m - 0.35) / 0.25)
-        : 1.22 - 0.22 * smooth((m - 0.6) / 0.4);
-  return { sx: scale, sy: scale, deg: 9 * Math.sin(4 * Math.PI * m) * (1 - m), rise: 0, ring: 0, swapped };
+    m < 0.2
+      ? 1
+      : m < 0.45
+        ? 1 - smooth((m - 0.2) / 0.25)
+        : m < 0.55
+          ? 0
+          : m < 0.8
+            ? 1.1 * smooth((m - 0.55) / 0.25)
+            : 1.1 - 0.1 * smooth((m - 0.8) / 0.2);
+  return { scale, deg: 360 * smooth(Math.min(1, Math.max(0, (m - 0.2) / 0.6))), ring, swapped: m >= 0.5 };
 }
 
 /**
@@ -354,8 +344,8 @@ export function ContentsRail({
     s.dir = delta > 0 ? 1 : -1;
     const duration = shape === "mark" ? hopDuration(Math.abs(delta), 1100) : Math.min(950, 320 + Math.abs(delta) * 1.6);
     const hops = hopCount(Math.abs(delta), duration);
-    // Each heading-to-heading trip hops its own way: the plan is picked from where it starts and ends.
-    const plan = hopPlan(from * 3 + target * 11, hops);
+    // Each heading-to-heading trip hops its own way, a fresh pick every time.
+    const plan = hopPlan(Math.random() * 1e9, hops);
     // A hop cut short by the next heading: what was left of its lift eases out under the new hop.
     const carried = s.lift;
     const t0 = performance.now();
@@ -447,9 +437,11 @@ export const NAV_SUB_DOCK_X = 46;
 export function navRoute(from: Point, to: Point): Point[] {
   const dy = to.y - from.y;
   const dir = Math.sign(dy) || 1;
-  const step = Math.min(12, Math.abs(dy) / 3);
+  // Between two links on the same line (two pages, or two sub-pages of one tree): straight along it.
+  if (Math.abs(dy) < 1 || (from.x === to.x && Math.abs(dy) <= 120)) return [from, to];
+  // The step between the page column and a tree line is gentle, so it is no leap of its own.
+  const step = Math.min(28, Math.abs(dy) / 2);
   const pts: Point[] = [from];
-  if (Math.abs(dy) < 1) return [from, to];
   if (from.x !== NAV_DOCK_X) pts.push({ x: NAV_DOCK_X, y: from.y + dir * step });
   if (to.x !== NAV_DOCK_X) pts.push({ x: NAV_DOCK_X, y: to.y - dir * step });
   else pts.push({ x: NAV_DOCK_X, y: to.y });
@@ -462,6 +454,14 @@ export const navTripDuration = (route: Point[], shape: DocsMarkerShape = "plane"
   shape === "mark"
     ? hopDuration(polyline(route).total) + (morph === "none" ? 0 : MORPH_MS)
     : Math.min(1150, 420 + polyline(route).total * 1.1);
+
+/** When, in ms into a mark's trip along `route`, it changes in its portal (half-way through the stop before its last hop). */
+export function navTripChange(route: Point[]) {
+  const length = polyline(route).total;
+  const duration = hopDuration(length);
+  const hops = hopCount(length, duration);
+  return (duration * (hops - 1)) / hops + MORPH_MS / 2;
+}
 
 /** What a sidebar trip draws each frame: the marker's pose, its trail, and the portal's ring (0 to 1 open). */
 export type NavDraw = (
@@ -496,7 +496,8 @@ export function flyNavMarker(
   const stop = shape === "mark" && morph !== "none" ? MORPH_MS : 0;
   const duration = navTripDuration(route, shape);
   const hops = hopCount(line.total, duration);
-  const plan = hopPlan(line.total * 7 + route[0].y * 13 + route[route.length - 1].y, hops);
+  // Each trip hops its own way, a fresh pick every time.
+  const plan = hopPlan(Math.random() * 1e9, hops);
   // The stop comes before the last hop.
   const stopAt = (duration * (hops - 1)) / hops;
   const t0 = performance.now();
@@ -513,11 +514,11 @@ export function flyNavMarker(
     if (shape === "mark") {
       if (stop && elapsed >= stopAt) {
         if (elapsed < stopAt + stop) {
-          const pose = morphPose(morph, (elapsed - stopAt) / stop);
+          const pose = morphPose((elapsed - stopAt) / stop);
           if (pose.swapped) change();
           const l = (line.total * (hops - 1)) / hops;
           const p = line.at(l);
-          draw(p.x, p.y - pose.rise, pose.deg, line.slice(l - 40, l), pose.sx, pose.sy, true, pose.ring);
+          draw(p.x, p.y, pose.deg, line.slice(l - 40, l), pose.scale, pose.scale, true, pose.ring);
           frame = requestAnimationFrame(step);
           return;
         }

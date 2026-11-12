@@ -272,9 +272,8 @@ html:has(.showcase-frame:not([data-banner="static"])) {
   margin-right: 20px;
 }
 /* The mark's dot (the spec's "The mark"): the Wordmark draws it on the section's cell in the
-   section's hue; these rules only move it. Between pages it hops from the cell the reader left: the
-   old dot flies an arc to the new cell and squashes as it lands (site-settings.tsx then swaps the
-   state under it), and the cell it left redraws as a square. On the landing page it visits Start,
+   section's hue; these rules only animate it. Between pages the mark changes in a portal (below).
+   On the landing page it visits Start,
    Rules, Build and Check in turn, 2s each, in one 8s loop, hopping the same way. Reduced motion
    gets neither: the dot is drawn in place, and the landing page keeps the neutral mark.
    The squares and the name are the ink on every page: inside the docs layout its link colour (the
@@ -326,100 +325,111 @@ html:has(.showcase-frame:not([data-banner="static"])) {
   --brand-next-y: -1;
   --brand-turn: 3;
 }
+/* Between pages the mark changes in a portal, as the sidebar's does: a dashed ring in the new
+   section's hue opens over it, the mark turns into the ring and out of sight, changes there
+   (site-settings.tsx swaps the state as the first half ends), and comes back out; the ring shuts. */
+.showcase-brand {
+  position: relative;
+}
+.showcase-brand svg > g {
+  transform-box: fill-box;
+  transform-origin: center;
+}
 @media (prefers-reduced-motion: no-preference) {
-  /* Between pages: the dot of the state the reader left hops to this page's cell. */
-  .showcase-brand[data-brand-hop] rect[data-cell] {
-    --brand-hop-wait: max(var(--site-mark-wait), var(--brand-trip, 0ms) - var(--ui-dur-slow, 560ms));
+  .showcase-brand[data-brand-hop]::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: var(--brand-inset, 0px);
+    width: 22px;
+    height: 22px;
+    margin-top: -11px;
+    border: 1.5px dashed var(--brand-hop-hue);
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--brand-hop-hue) 22%, transparent);
+    pointer-events: none;
   }
-  .showcase-brand[data-brand-hop] rect[data-live] {
-    animation:
-      showcase-brand-hop var(--ui-dur-slow, 560ms) linear var(--brand-hop-wait) both,
-      showcase-brand-lift var(--ui-dur-slow, 560ms) linear var(--brand-hop-wait) both;
+  .showcase-brand[data-brand-hop="in"]::before {
+    animation: showcase-brand-ring-open var(--ui-dur-base, 320ms) var(--ui-ease-settle, ease-out)
+      var(--brand-hop-wait, var(--site-mark-wait)) both;
   }
-  /* The square it is heading for makes way before it lands. */
-  .showcase-brand[data-brand-to="0"] rect[data-cell="0"]:not([data-live]),
-  .showcase-brand[data-brand-to="1"] rect[data-cell="1"]:not([data-live]),
-  .showcase-brand[data-brand-to="2"] rect[data-cell="2"]:not([data-live]),
-  .showcase-brand[data-brand-to="3"] rect[data-cell="3"]:not([data-live]) {
-    animation: showcase-brand-yield var(--ui-dur-slow, 560ms) linear var(--brand-hop-wait) both;
+  .showcase-brand[data-brand-hop="in"] svg > g {
+    animation: showcase-brand-portal-in var(--ui-dur-base, 320ms) var(--ui-ease-travel, ease-in)
+      var(--brand-hop-wait, var(--site-mark-wait)) both;
   }
-  /* The cell it left, once it has landed. */
-  .showcase-brand[data-brand-left="0"] rect[data-cell="0"]:not([data-live]),
-  .showcase-brand[data-brand-left="1"] rect[data-cell="1"]:not([data-live]),
-  .showcase-brand[data-brand-left="2"] rect[data-cell="2"]:not([data-live]),
-  .showcase-brand[data-brand-left="3"] rect[data-cell="3"]:not([data-live]) {
-    animation: showcase-brand-redraw var(--ui-dur-base, 320ms) var(--ui-ease-settle, ease) backwards;
+  .showcase-brand[data-brand-hop="out"]::before {
+    animation: showcase-brand-ring-shut var(--ui-dur-base, 320ms) var(--ui-ease-travel, ease-in) both;
+  }
+  .showcase-brand[data-brand-hop="out"] svg > g {
+    animation: showcase-brand-portal-out var(--ui-dur-base, 320ms) var(--ui-ease-settle, ease-out) both;
   }
   .showcase-frame[data-mode="landing"] .showcase-brand rect[data-cell] {
+    /* When the dot reaches this cell: after the 5s rest, 2s a state. */
+    --brand-start: calc(5s + var(--brand-turn) * 2s);
     animation:
-      showcase-brand-turn 8s linear calc(var(--brand-turn) * 2s - 8s) infinite,
-      showcase-brand-turn-lift 8s linear calc(var(--brand-turn) * 2s - 8s) infinite;
+      showcase-brand-turn 13s linear calc(var(--brand-start) - 13s) infinite,
+      showcase-brand-turn-lift 13s linear calc(var(--brand-start) - 13s) infinite;
+  }
+  .showcase-frame[data-mode="landing"] .showcase-brand rect[data-cell="3"] {
+    animation-name: showcase-brand-turn-home, showcase-brand-turn-home-lift;
   }
 }
-/* One hop: 78% of it in the air (travel eased at both ends, a rise on the settle curve and a fall), the rest the
-   landing's soft squash onto the cell's bottom edge. The docs layout's marker hops to the same shape
-   (src/docs/DocsMarkers.tsx, hopPose). */
-@keyframes showcase-brand-hop {
+@keyframes showcase-brand-ring-open {
   from {
-    /* It leaves and meets its cell gently: the travel eases at both ends. */
-    animation-timing-function: var(--ui-ease-travel, ease-in-out);
-    translate: 0 0;
+    scale: 0;
   }
-  78%,
+  60%,
   to {
-    fill: var(--brand-hop-hue);
-    stroke: var(--brand-hop-hue);
-    translate: calc(var(--brand-hop-x) * var(--brand-pitch)) calc(var(--brand-hop-y) * var(--brand-pitch));
+    scale: 1.3;
   }
 }
-@keyframes showcase-brand-lift {
-  from {
-    animation-timing-function: var(--ui-ease-settle, ease-out);
-    transform: none;
-  }
-  39% {
-    animation-timing-function: ease-in;
-    transform: translateY(-5px) scale(0.97, 1.04);
-  }
-  78% {
-    animation-timing-function: var(--ui-ease-settle, ease-out);
-    transform: none;
-  }
-  87% {
-    animation-timing-function: var(--ui-ease-settle, ease-out);
-    transform: scale(1.08, 0.9);
-  }
-  to {
-    transform: none;
-  }
-}
-@keyframes showcase-brand-yield {
+@keyframes showcase-brand-portal-in {
   from,
-  39% {
-    stroke-opacity: 1;
+  30% {
+    transform: none;
   }
-  70%,
   to {
-    stroke-opacity: 0;
+    transform: rotate(180deg) scale(0);
   }
 }
-/* 37 is a little over a cell's outline (36.6 units), so one dash draws the whole square. */
-@keyframes showcase-brand-redraw {
+@keyframes showcase-brand-portal-out {
   from {
-    stroke-dasharray: 37;
-    stroke-dashoffset: 37;
+    transform: rotate(180deg) scale(0);
+  }
+  70% {
+    transform: rotate(350deg) scale(1.1);
   }
   to {
+    transform: rotate(360deg) scale(1);
+  }
+}
+@keyframes showcase-brand-ring-shut {
+  from,
+  45% {
+    scale: 1.3;
+  }
+  to {
+    scale: 0;
+  }
+}
+/* The landing loop, 13s: the mark rests as the default logo (the dot bottom right, in the ink) for
+   5s, then the dot visits Start, Rules, Build and Check for 2s each, hopping between them over the
+   last 560ms of each state (the slow duration role); a cell the dot has left redraws as a square
+   over 320ms (the base duration role) and makes way as the dot comes round. Each cell's loop starts
+   when the dot reaches it (--brand-start). The bottom right cell is Check's and the default's: its
+   dot turns from Check's hue to the ink and waits out the rest (showcase-brand-turn-home). */
+@keyframes showcase-brand-turn {
+  0% {
+    fill: var(--brand-hue);
+    fill-opacity: 1;
+    rx: 5px;
+    stroke: var(--brand-hue);
     stroke-dasharray: 37;
     stroke-dashoffset: 0;
+    stroke-opacity: 1;
+    translate: 0 0;
   }
-}
-/* The landing loop, per cell: the dot for its 2s, the same hop to the next cell over the last 7%
-   of the loop (the slow duration role, 560ms of 8s), then at home again as a square that redraws
-   over 4% (the base duration role) and waits for the dot to come round. */
-@keyframes showcase-brand-turn {
-  0%,
-  18% {
+  11.077% {
     animation-timing-function: var(--ui-ease-travel, ease-in-out);
     fill: var(--brand-hue);
     fill-opacity: 1;
@@ -430,8 +440,8 @@ html:has(.showcase-frame:not([data-banner="static"])) {
     stroke-opacity: 1;
     translate: 0 0;
   }
-  23.46%,
-  25% {
+  14.437%,
+  15.385% {
     fill: var(--brand-next-hue);
     fill-opacity: 1;
     rx: 5px;
@@ -441,7 +451,7 @@ html:has(.showcase-frame:not([data-banner="static"])) {
     stroke-opacity: 1;
     translate: calc(var(--brand-next-x) * var(--brand-pitch)) calc(var(--brand-next-y) * var(--brand-pitch));
   }
-  25.01% {
+  15.392% {
     animation-timing-function: var(--ui-ease-settle, ease-out);
     fill: currentColor;
     fill-opacity: 0;
@@ -452,8 +462,8 @@ html:has(.showcase-frame:not([data-banner="static"])) {
     stroke-opacity: 1;
     translate: 0 0;
   }
-  29%,
-  95.7% {
+  17.846%,
+  97.354% {
     fill: currentColor;
     fill-opacity: 0;
     rx: 2px;
@@ -463,8 +473,97 @@ html:has(.showcase-frame:not([data-banner="static"])) {
     stroke-opacity: 1;
     translate: 0 0;
   }
-  /* It makes way for the dot coming round, which lands at 98.46%. */
-  97.9%,
+  /* It makes way for the dot coming round, which lands 123ms before the loop's end. */
+  98.708%,
+  99.99% {
+    fill: currentColor;
+    fill-opacity: 0;
+    rx: 2px;
+    stroke: currentColor;
+    stroke-dasharray: 37;
+    stroke-dashoffset: 0;
+    stroke-opacity: 0;
+    translate: 0 0;
+  }
+  100% {
+    fill: var(--brand-hue);
+    fill-opacity: 1;
+    rx: 5px;
+    stroke: var(--brand-hue);
+    stroke-dasharray: 37;
+    stroke-dashoffset: 0;
+    stroke-opacity: 1;
+    translate: 0 0;
+  }
+}
+@keyframes showcase-brand-turn-home {
+  0%,
+  15.385% {
+    fill: var(--brand-hue);
+    fill-opacity: 1;
+    rx: 5px;
+    stroke: var(--brand-hue);
+    stroke-dasharray: 37;
+    stroke-dashoffset: 0;
+    stroke-opacity: 1;
+    translate: 0 0;
+  }
+  17.846% {
+    fill: currentColor;
+    fill-opacity: 1;
+    rx: 5px;
+    stroke: currentColor;
+    stroke-dasharray: 37;
+    stroke-dashoffset: 0;
+    stroke-opacity: 1;
+    translate: 0 0;
+  }
+  49.538% {
+    animation-timing-function: var(--ui-ease-travel, ease-in-out);
+    fill: currentColor;
+    fill-opacity: 1;
+    rx: 5px;
+    stroke: currentColor;
+    stroke-dasharray: 37;
+    stroke-dashoffset: 0;
+    stroke-opacity: 1;
+    translate: 0 0;
+  }
+  52.898%,
+  53.846% {
+    fill: var(--brand-next-hue);
+    fill-opacity: 1;
+    rx: 5px;
+    stroke: var(--brand-next-hue);
+    stroke-dasharray: 37;
+    stroke-dashoffset: 0;
+    stroke-opacity: 1;
+    translate: calc(var(--brand-next-x) * var(--brand-pitch)) calc(var(--brand-next-y) * var(--brand-pitch));
+  }
+  53.854% {
+    animation-timing-function: var(--ui-ease-settle, ease-out);
+    fill: currentColor;
+    fill-opacity: 0;
+    rx: 2px;
+    stroke: currentColor;
+    stroke-dasharray: 37;
+    stroke-dashoffset: 37;
+    stroke-opacity: 1;
+    translate: 0 0;
+  }
+  56.308%,
+  97.354% {
+    fill: currentColor;
+    fill-opacity: 0;
+    rx: 2px;
+    stroke: currentColor;
+    stroke-dasharray: 37;
+    stroke-dashoffset: 0;
+    stroke-opacity: 1;
+    translate: 0 0;
+  }
+  /* It makes way for the dot coming round, which lands 123ms before the loop's end. */
+  98.708%,
   99.99% {
     fill: currentColor;
     fill-opacity: 0;
@@ -488,23 +587,46 @@ html:has(.showcase-frame:not([data-banner="static"])) {
 }
 @keyframes showcase-brand-turn-lift {
   0%,
-  18% {
+  11.077% {
     animation-timing-function: var(--ui-ease-settle, ease-out);
     transform: none;
   }
-  20.73% {
+  12.757% {
     animation-timing-function: ease-in;
     transform: translateY(-5px) scale(0.97, 1.04);
   }
-  23.46% {
+  14.437% {
     animation-timing-function: var(--ui-ease-settle, ease-out);
     transform: none;
   }
-  24.09% {
+  14.825% {
     animation-timing-function: var(--ui-ease-settle, ease-out);
     transform: scale(1.08, 0.9);
   }
-  25%,
+  15.385%,
+  100% {
+    transform: none;
+  }
+}
+@keyframes showcase-brand-turn-home-lift {
+  0%,
+  49.538% {
+    animation-timing-function: var(--ui-ease-settle, ease-out);
+    transform: none;
+  }
+  51.218% {
+    animation-timing-function: ease-in;
+    transform: translateY(-5px) scale(0.97, 1.04);
+  }
+  52.898% {
+    animation-timing-function: var(--ui-ease-settle, ease-out);
+    transform: none;
+  }
+  53.286% {
+    animation-timing-function: var(--ui-ease-settle, ease-out);
+    transform: scale(1.08, 0.9);
+  }
+  53.846%,
   100% {
     transform: none;
   }
@@ -876,6 +998,7 @@ html:has(.showcase-frame:not([data-banner="static"])) {
    link stays a 44px target: padding reaches into the page margin and the gap, not the layout. */
 @media (max-width: 359px) {
   .showcase-brand {
+    --brand-inset: 12px;
     width: 24px;
     padding: 0 8px 0 12px;
     margin: 0 -8px 0 -12px;
@@ -1039,6 +1162,22 @@ html:has(.showcase-frame:not([data-banner="static"])) {
 @media (prefers-reduced-motion: reduce) {
   :is(.slides-showcase__usage, .web-generated details) > summary::before {
     transition: none;
+  }
+}
+
+/* Every page is its own load, so the page eases in under the header and sidebar, which stay put:
+   a short fade and an 8px rise on the base duration, so a change of page is not a cut. Only while it
+   plays (no fill forwards: nothing is left transformed). Reduced motion: no entrance. */
+@media (prefers-reduced-motion: no-preference) {
+  .showcase-frame #showcase-main,
+  .showcase-frame > .uipack-docs > .uipack-docs__grid > .uipack-docs__article {
+    animation: showcase-page-in var(--ui-dur-base, 320ms) var(--ui-ease-settle, ease-out) backwards;
+  }
+}
+@keyframes showcase-page-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
   }
 }
 

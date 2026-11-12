@@ -8,6 +8,7 @@ import {
   NAV_DOCK_X,
   NAV_SUB_DOCK_X,
   navRoute,
+  navTripChange,
   navTripDuration,
   prefersReducedMotion,
   readNavMemory,
@@ -86,7 +87,7 @@ export interface SectionNavigationProps {
   dot?: string;
   memoryKey?: string;
   /** The marker sets off on a trip that lands in `ms` (DocsLayout's `onMarkerTrip`). */
-  onTrip?: (ms: number) => void;
+  onTrip?: (ms: number, changeAt?: number) => void;
   /** How the mark changes between sections on a trip (DocsLayout's `markerMorph`). */
   morph?: DocsMarkerMorph;
   /** This copy plays the trip from the remembered page (the sidebar; the drawer and disclosure dock in place). */
@@ -267,7 +268,7 @@ export function SectionNavigation({
     const route = navRoute(from, to);
     // The mark stops to change only when this page's mark differs from the one it set off as.
     const changes = marker === "mark" && (trip.live !== live || trip.dot !== dot) ? morph : "none";
-    onTrip?.(navTripDuration(route, marker, changes));
+    onTrip?.(navTripDuration(route, marker, changes), changes === "none" ? undefined : navTripChange(route));
     // The plane takes on the new section's hue on the way; the mark changes as its last hop lifts.
     const arrive = () => setLeaving(false);
     const hueFrame = marker === "plane" ? requestAnimationFrame(arrive) : 0;

@@ -8,7 +8,7 @@ import {
   unpackDocsSearchIndex,
   type DocsSection,
 } from "../src/docs";
-import { hopCount, hopDuration, hopPlan, hopPose, markerTransform, morphPose } from "../src/docs/DocsMarkers";
+import { hopCount, hopDuration, hopPlan, hopPose, markerTransform, morphPose, navRoute } from "../src/docs/DocsMarkers";
 
 const page = `---
 spec: x
@@ -189,10 +189,10 @@ describe("DocsLayout sections, markers, drawer and search", () => {
     // Never a hop shorter than 150ms, whatever the distance.
     expect(hopCount(400, 500)).toBe(3);
     // One plain hop of three over 240px: on the ground at each end, highest half-way through its
-    // flight (2.5 to 5px off the line), then squashed (wider, shorter) before it rests at its own size.
+    // flight (4 to 7px off the line), then squashed (wider, shorter) before it rests at its own size.
     expect(hopPose(0, 3, 240)).toMatchObject({ hop: 0, along: 0, lift: 0, sx: 1, sy: 1 });
     const apex = hopPose(0.4 / 3, 3, 240);
-    expect(apex.lift).toBeCloseTo(5, 1);
+    expect(apex.lift).toBeCloseTo(7, 1);
     expect(apex.along).toBeCloseTo(0.5 / 3, 2);
     expect(apex.sy).toBeGreaterThan(1);
     const landing = hopPose(0.9 / 3, 3, 240);
@@ -204,7 +204,7 @@ describe("DocsLayout sections, markers, drawer and search", () => {
     const rest = hopPose(1, 3, 240);
     expect(rest).toMatchObject({ hop: 2, along: 1, lift: 0, deg: 0 });
     expect(rest.sx).toBeCloseTo(1, 5);
-    expect(hopPose(0.4, 1, 10).lift).toBeCloseTo(2.5, 1);
+    expect(hopPose(0.4, 1, 10).lift).toBeCloseTo(4, 1);
     // The squash keeps the mark's bottom edge on the ground; at rest the transform is the plane's.
     expect(markerTransform(16, 100, 0)).toBe("translate(16.00 100.00) rotate(0.0)");
     expect(markerTransform(16, 100, 0, 1.16, 0.82)).toBe("translate(16.00 101.22) scale(1.160 0.820)");
@@ -223,7 +223,9 @@ describe("DocsLayout sections, markers, drawer and search", () => {
       expect(hopPose((i + 0.9) / 9, 9, 324, plan)).toMatchObject({ lift: 0, deg: 0 });
       // An arc to the left is lower: there is less room there.
       const peak = Math.max(...[0.2, 0.3, 0.4, 0.5, 0.6].map((f) => Math.abs(hopPose((i + f) / 9, 9, 324, plan).lift)));
-      expect(peak).toBeLessThanOrEqual(step.side < 0 ? 3.2 : 6.3);
+      expect(peak).toBeLessThanOrEqual(step.side < 0 ? 5.3 : 8.8);
+      // Every hop leaves the line.
+      expect(peak).toBeGreaterThan(1.4);
     }
     expect(
       new Set(
@@ -236,20 +238,31 @@ describe("DocsLayout sections, markers, drawer and search", () => {
     ).toBeGreaterThan(20);
   });
 
-  it("changes between sections in a stop before the last hop: each option starts and ends at rest and has changed by half-way", () => {
-    for (const kind of ["pause", "portal", "flip"] as const) {
-      expect(morphPose(kind, 0)).toMatchObject({ sx: 1, sy: 1, rise: 0, ring: 0, swapped: false });
-      const end = morphPose(kind, 1);
-      expect(end.sx).toBeCloseTo(1, 5);
-      expect(end.sy).toBeCloseTo(1, 5);
-      expect(end.ring).toBeCloseTo(0, 5);
-      expect(Math.abs(end.deg % 360)).toBeCloseTo(0, 5);
-      expect(morphPose(kind, 0.49).swapped).toBe(false);
-      expect(morphPose(kind, 0.5).swapped).toBe(true);
-    }
-    // The portal is open, and the mark gone into it, as it changes; the coin is edge-on.
-    expect(morphPose("portal", 0.5)).toMatchObject({ sx: 0, ring: 1 });
-    expect(morphPose("flip", 0.5).sx).toBeCloseTo(0, 5);
+  it("changes between sections in a portal before the last hop: at rest at each end, out of sight in the open ring as it changes", () => {
+    expect(morphPose(0)).toMatchObject({ scale: 1, ring: 0, swapped: false });
+    const end = morphPose(1);
+    expect(end.scale).toBeCloseTo(1, 5);
+    expect(end.ring).toBeCloseTo(0, 5);
+    expect(end.deg % 360).toBeCloseTo(0, 5);
+    expect(morphPose(0.49).swapped).toBe(false);
+    expect(morphPose(0.5)).toMatchObject({ scale: 0, ring: 1, swapped: true });
+    // It comes out a little large and settles.
+    expect(morphPose(0.8).scale).toBeCloseTo(1.1, 5);
+  });
+
+  it("keeps two links on one line on that line, and steps gently between the page column and a tree line", () => {
+    // Two sub-pages of one tree: straight down the tree line, no trip in to the page column and back.
+    expect(navRoute({ x: 46, y: 100 }, { x: 46, y: 134 })).toEqual([
+      { x: 46, y: 100 },
+      { x: 46, y: 134 },
+    ]);
+    // A page to its sub-page: along the column, then out over a step no steeper than the trip allows.
+    const out = navRoute({ x: 16, y: 100 }, { x: 46, y: 134 });
+    expect(out).toEqual([
+      { x: 16, y: 100 },
+      { x: 16, y: 117 },
+      { x: 46, y: 134 },
+    ]);
   });
 
   it("keeps the plain list and bar by default", () => {
