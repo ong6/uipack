@@ -39,7 +39,7 @@ const PAGES = [
   { path: "/recipes", section: "build", cell: 2, hue: "var(--site-hue-build)" },
   { path: "/grading", section: "check", cell: 3, hue: "var(--site-hue-check)" },
   // No cell of their own: the neutral mark, the dot bottom right in the ink.
-  { path: "/reference/registry", section: "neutral", cell: 3, hue: "currentColor" },
+  { path: "/reference/releases", section: "neutral", cell: 3, hue: "currentColor" },
   { path: "/gallery", section: "neutral", cell: 3, hue: "currentColor" },
   { path: "/no-such-page", section: "neutral", cell: 3, hue: "currentColor" },
 ];
@@ -187,8 +187,10 @@ test("on the landing page the mark rests as the default logo, then the dot visit
   // The landing page's own styles (its chunk) place the header; measure once they have.
   await expect(page.locator(".landing-hero")).toBeVisible();
   const box = await page.locator(brand).boundingBox();
-  // The loop opens on the default logo, held for 5s: the dot bottom right, in the ink.
-  for (const ms of [400, 2500, 4300]) {
+  // The loop opens on the default logo, from its first frame (0ms: the page enters the loop 0.4s
+  // into the 5s rest, after the bottom right cell has turned from Check's hue to the ink), and holds
+  // it until the hop to Start; the end of the loop (12950ms) is the same logo, resting again.
+  for (const ms of [0, 400, 2500, 3900, 12950]) {
     await seek(page, { ms });
     const ink = await role(page, "currentColor");
     expect(await painted(page), `default logo at ${ms}ms`).toEqual(
@@ -199,8 +201,8 @@ test("on the landing page the mark rests as the default logo, then the dot visit
   }
   const hues = ["start", "rules", "build", "check"];
   for (const [turn, hue] of hues.entries()) {
-    // The middle of each state's two seconds, after the rest.
-    await seek(page, { ms: 5000 + turn * 2000 + 1000 });
+    // The middle of each state's two seconds, after the rest (4.6s on the first pass).
+    await seek(page, { ms: 4600 + turn * 2000 + 1000 });
     const colour = await role(page, `var(--site-hue-${hue})`);
     const ink = await role(page, "currentColor");
     expect(await painted(page), `state ${hue}`).toEqual(
@@ -214,10 +216,10 @@ test("on the landing page the mark rests as the default logo, then the dot visit
   }
   // Between states it hops (the last 560ms of a state's 2s): leaving Start for Rules, the dot is
   // between the two cells and above them, and the header has not moved.
-  await seek(page, { ms: 6000 });
+  await seek(page, { ms: 5600 });
   const from = await centre(page, 0);
   const to = await centre(page, 1);
-  await seek(page, { ms: 6440 + 560 * 0.39 });
+  await seek(page, { ms: 6040 + 560 * 0.39 });
   const mid = await centre(page, 0);
   expect(mid.x).toBeGreaterThan(from.x + 1);
   expect(mid.x).toBeLessThan(to.x - 1);

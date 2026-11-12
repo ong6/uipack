@@ -79,6 +79,14 @@
   background: radial-gradient(ellipse at 50% 38%, var(--ui-surface-2), var(--ui-paper));
 }
 
+/* The frame's text is the site's ink. <body> holds Technical's roles (index.html), so the colour it
+   hands down is Technical's ink, blue-tinted in dark; a view with no docs layout or landing page
+   around it (the Assets tab) and the header on those views would inherit that. Set here, every view's
+   base text is the same neutral ink as a docs page's. */
+.showcase-frame {
+  color: var(--ui-ink);
+}
+
 /* The page ground behind the frame (overscroll, a short page) is the site's paper. */
 html body {
   --show-bg: light-dark(#f3f6f9, #111315);

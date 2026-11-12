@@ -460,7 +460,7 @@ export function ShowcaseShell({
                 style={sectionHueStyle(section.id)}
               >
                 <span className="showcase-crumb__chip">
-                  <SectionIcon id={section.id} size={14} />
+                  <SectionIcon id={section.id} size={13} />
                   {section.label}
                 </span>
               </a>

@@ -5,6 +5,9 @@
   --docs-font-text: var(--ui-font-text);
   --docs-font-heading: var(--ui-font-heading, var(--ui-font-text));
   --docs-font-mono: var(--ui-font-label);
+  /* The layout's one corner radius: code blocks, inline code, the sidebar's rows and section icons.
+     A host sets it to its own (a site with square furniture: 0). */
+  --docs-radius: 4px;
 }
 
 /* Two palettes, both from the roles (src/styles): the warm docs palette by default (optional
@@ -379,19 +382,21 @@
   color: var(--docs-ink);
   font-family: var(--docs-font-heading);
   font-weight: 600;
-  letter-spacing: -0.035em;
+  /* Titles and section headings are set tight; a host may set its own (--docs-display-tracking),
+     as it may the two sizes below (--docs-title-size, --docs-section-size). */
+  letter-spacing: var(--docs-display-tracking, -0.035em);
   text-wrap-style: balance;
   line-height: 1.15;
   scroll-margin-top: 96px;
 }
 
 .uipack-docs__prose h1 {
-  font-size: clamp(38px, 5vw, 52px);
+  font-size: var(--docs-title-size, clamp(38px, 5vw, 52px));
   margin: 0 0 28px;
 }
 
 .uipack-docs__prose h2 {
-  font-size: 26px;
+  font-size: var(--docs-section-size, 26px);
   margin: 56px 0 16px;
 }
 
@@ -400,10 +405,11 @@
   margin: 36px 0 12px;
 }
 
-/* Subheadings step down in weight and tracking, the scale's card-title role (20 / 600). */
+/* Subheadings step down in weight and tracking, the scale's card-title role (20 / 600): the
+   style's display tracking. */
 .uipack-docs__prose :is(h3, h4, h5, h6) {
   font-weight: 600;
-  letter-spacing: -0.01em;
+  letter-spacing: var(--ui-display-tracking, -0.01em);
 }
 
 .uipack-docs__prose h4,
@@ -485,16 +491,19 @@
 
 .uipack-docs__prose code {
   background: var(--docs-surface-strong);
-  border-radius: 3px;
+  border-radius: var(--docs-radius);
   font-family: var(--docs-font-mono);
+  /* 0.86 of the text around it, on a whole pixel (15px in 18px prose, 12px in a 14px table), so
+     code adds no in-between sizes to the page; the plain value is for a browser without round(). */
   font-size: 0.86em;
+  font-size: round(0.86em, 1px);
   padding: 2px 5px;
 }
 
 .uipack-docs__prose pre {
   background: var(--docs-surface);
   border: 1px solid var(--docs-rule);
-  border-radius: 4px;
+  border-radius: var(--docs-radius);
   line-height: 1.6;
   overflow: auto;
   padding: 16px;
@@ -695,11 +704,11 @@
   }
 
   .uipack-docs__prose h1 {
-    font-size: 36px;
+    font-size: var(--docs-title-size, 36px);
   }
 
   .uipack-docs__prose h2 {
-    font-size: 23px;
+    font-size: var(--docs-section-size, 23px);
     margin-top: 44px;
   }
 
@@ -739,7 +748,7 @@
   align-items: center;
   background: none;
   border: 0;
-  border-radius: 4px;
+  border-radius: var(--docs-radius);
   color: var(--docs-ink);
   cursor: pointer;
   display: flex;
@@ -765,7 +774,7 @@
 
 .uipack-docs__nav-icon {
   background: color-mix(in srgb, var(--docs-hue, var(--docs-ink)) 13%, transparent);
-  border-radius: 5px;
+  border-radius: var(--docs-radius);
   color: var(--docs-hue, var(--docs-ink));
   display: inline-grid;
   flex: none;
@@ -861,7 +870,7 @@
    a page (14px, ink-2) and a sub-page (13px, ink-2, on the tree line). */
 .uipack-docs__navigation[data-collapsible] a {
   border-left: 0;
-  border-radius: 4px;
+  border-radius: var(--docs-radius);
   font-size: 14px;
   min-height: 34px;
   padding: 6px 8px 6px 40px;
@@ -1044,14 +1053,15 @@
 .uipack-docs__toc-list a {
   color: var(--docs-muted);
   display: block;
-  font-size: 13.5px;
+  /* One size for both levels (a sub-heading is set apart by its indent): 14px would wrap headings
+     in the narrow rail. */
+  font-size: 13px;
   line-height: 1.45;
   padding: 6px 0 6px 28px;
   text-decoration: none;
 }
 
 .uipack-docs__toc-list li[data-level="3"] a {
-  font-size: 13px;
   padding-left: 40px;
 }
 
@@ -1129,7 +1139,7 @@
 }
 
 .uipack-docs__contents li[data-level="3"] a {
-  font-size: 13.5px;
+  font-size: 13px;
   padding-left: 18px;
 }
 
