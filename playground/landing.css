@@ -1,7 +1,9 @@
 /* The landing page (/, LandingShowcase.tsx), scoped under .uipack-landing. Every colour, face and
    motion value is a Technical role (var(--ui-*)), so the shell's light and dark values apply as they
    change. The page sits in the shell's landing mode (data-mode="landing"): the same header, then a
-   full-bleed page in the landing archetype's one 1120px column (docs/system/layout/landing.md). */
+   full-bleed page in the landing archetype's one 1120px column (docs/system/layout/landing.md). The
+   column and its gutters are the frame's --landing-column and --landing-gutter (showcase.css, "The
+   landing view"), which the header's bar reads too, so the header and every section share edges. */
 
 .uipack-landing {
   /* Section tints for the job cards and the site map: the docs site's section hues (site-palette.css,
@@ -10,7 +12,6 @@
   --landing-hue-build: var(--site-hue-build);
   --landing-hue-check: var(--site-hue-check);
   --landing-band-line: color-mix(in srgb, var(--ui-band-ink) 20%, transparent);
-  --landing-gutter: 32px;
   --landing-pad: 104px;
   color: var(--ui-ink);
   font-family: var(--ui-font-text);
@@ -34,111 +35,12 @@
 }
 @media (max-width: 1023px) {
   .uipack-landing {
-    --landing-gutter: 24px;
     --landing-pad: 80px;
   }
 }
 @media (max-width: 719px) {
   .uipack-landing {
-    --landing-gutter: 16px;
     --landing-pad: 64px;
-  }
-}
-
-/* The shell's landing mode: the frame goes full-bleed; the header keeps the docs pages' width. */
-.showcase-frame[data-mode="landing"] {
-  max-width: none;
-  padding: 0;
-}
-/* The docs search (its header box and dialog) reads the docs layout's palette names; the landing page
-   has no docs layout around it, so it names them here, as palette="technical" does. */
-.showcase-frame[data-mode="landing"] {
-  --docs-font-text: var(--ui-font-text);
-  --docs-font-heading: var(--ui-font-heading, var(--ui-font-text));
-  --docs-font-mono: var(--ui-font-label);
-  --docs-ink: var(--ui-ink);
-  --docs-muted: var(--ui-ink-2);
-  --docs-faint: var(--ui-ink-3);
-  --docs-rule: var(--ui-line-soft);
-  --docs-rule-strong: var(--ui-line);
-  --docs-surface: var(--ui-surface-2);
-  --docs-surface-strong: var(--ui-surface-2);
-  --docs-accent: var(--ui-accent);
-  --docs-focus: var(--ui-accent);
-  --docs-paper: var(--ui-paper);
-  --docs-raised: var(--ui-surface-raised);
-}
-.showcase-frame[data-mode="landing"] .showcase-header .uipack-docs-search__button {
-  width: clamp(160px, 22vw, 260px);
-  height: 40px;
-  margin: 0;
-}
-@media (max-width: 719px) {
-  /* A phone keeps the icon and the shortcut's room for the page: the box becomes a 44px icon button. */
-  .showcase-frame[data-mode="landing"] .showcase-header .uipack-docs-search__button {
-    justify-content: center;
-    width: 44px;
-    height: 44px;
-    padding: 0;
-  }
-  .showcase-frame[data-mode="landing"] .showcase-header .uipack-docs-search__button :is(.uipack-docs-search__placeholder, kbd) {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
-  }
-}
-.showcase-frame[data-mode="landing"] > .showcase-header {
-  max-width: 1600px;
-  margin: 0 auto;
-  padding: 16px 24px 12px;
-  box-sizing: border-box;
-}
-@media (max-width: 719px) {
-  /* The docs search (its header box and dialog) reads the docs layout's palette names; the landing page
-   has no docs layout around it, so it names them here, as palette="technical" does. */
-  .showcase-frame[data-mode="landing"] {
-    --docs-font-text: var(--ui-font-text);
-    --docs-font-heading: var(--ui-font-heading, var(--ui-font-text));
-    --docs-font-mono: var(--ui-font-label);
-    --docs-ink: var(--ui-ink);
-    --docs-muted: var(--ui-ink-2);
-    --docs-faint: var(--ui-ink-3);
-    --docs-rule: var(--ui-line-soft);
-    --docs-rule-strong: var(--ui-line);
-    --docs-surface: var(--ui-surface-2);
-    --docs-surface-strong: var(--ui-surface-2);
-    --docs-accent: var(--ui-accent);
-    --docs-focus: var(--ui-accent);
-    --docs-paper: var(--ui-paper);
-    --docs-raised: var(--ui-surface-raised);
-  }
-  .showcase-frame[data-mode="landing"] .showcase-header .uipack-docs-search__button {
-    width: clamp(160px, 22vw, 260px);
-    height: 40px;
-    margin: 0;
-  }
-  @media (max-width: 719px) {
-    /* A phone keeps the icon and the shortcut's room for the page: the box becomes a 44px icon button. */
-    .showcase-frame[data-mode="landing"] .showcase-header .uipack-docs-search__button {
-      justify-content: center;
-      width: 44px;
-      height: 44px;
-      padding: 0;
-    }
-    .showcase-frame[data-mode="landing"] .showcase-header .uipack-docs-search__button :is(.uipack-docs-search__placeholder, kbd) {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      overflow: hidden;
-      clip-path: inset(50%);
-      white-space: nowrap;
-    }
-  }
-  .showcase-frame[data-mode="landing"] > .showcase-header {
-    padding-inline: 16px;
   }
 }
 
@@ -174,7 +76,7 @@
   white-space: nowrap;
 }
 .landing-wrap {
-  width: min(1120px, 100% - 2 * var(--landing-gutter));
+  width: min(var(--landing-column), 100% - 2 * var(--landing-gutter));
   margin-inline: auto;
 }
 .landing-arrow {
