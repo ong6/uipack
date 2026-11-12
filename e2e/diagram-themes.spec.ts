@@ -32,7 +32,8 @@ test.describe("diagram themes", () => {
     // blueprint light, blueprint dark, warm-paper light, …: six different grounds.
     expect(new Set(paints.map((p) => p.ground)).size).toBe(6);
     expect(paints[0].ground).toBe("rgb(252, 253, 254)");
-    expect(paints[1].ground).toBe("rgb(13, 42, 79)");
+    // Blueprint's dark specimen sits on the site's charcoal, not Blueprint's own navy (the owner, 2026-11-12).
+    expect(paints[1].ground).toBe("rgb(22, 24, 27)");
     expect(paints[2].ground).toBe("rgb(250, 246, 238)");
     // warm paper paints dots, terracotta nothing, blueprint the drafting grid.
     expect(paints[0].pattern).toContain("linear-gradient");
@@ -40,8 +41,10 @@ test.describe("diagram themes", () => {
     expect(paints[4].pattern).not.toContain("gradient");
   });
 
-  test("a blueprint scope draws what an unscoped figure draws, in both modes", async ({ page }) => {
-    for (const mode of ["light", "dark"] as const) {
+  test("a blueprint scope draws what an unscoped figure draws (light: the demo's dark specimen is the site's own)", async ({
+    page,
+  }) => {
+    for (const mode of ["light"] as const) {
       await page.goto(`/looks/diagrams?theme=${mode}`);
       const scoped = demo(page)
         .locator("figure.uipack")

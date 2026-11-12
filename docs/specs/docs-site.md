@@ -378,6 +378,7 @@ dark palette and navigation included, says `extends: docs-site`.
 
 - TODO: static SVG export (`uipack/static`), the asset manifest's dark previews and the 3D stills
   keep Technical's dark values; whether the site's stills should follow its charcoal is open (the
-  owner decides). The diagram themes demo shows each theme's own dark, Blueprint's navy included, on
-  purpose; the art directions' WebGL worlds (Cartoon's night sky, Abstract's navy pool) are their
+  owner decides). The diagram themes demo shows Blueprint on the site's charcoal in dark (the owner, 2026-11-12:
+  no blue ground on this site, the specimen included) and the two example themes' own darks; the
+  art directions' WebGL worlds (Cartoon's night sky, Abstract's navy pool) are their
   looks'.

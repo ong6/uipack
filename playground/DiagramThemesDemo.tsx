@@ -22,18 +22,18 @@ import {
   Packet,
   Screen,
   SelfLoop,
-  blueprint,
   type DiagramMode,
   type DiagramTheme,
 } from "../src";
-import { terracotta, warmPaper } from "./diagramThemes";
+import { siteBlueprint, terracotta, warmPaper } from "./diagramThemes";
 
 /*
  * Diagram theme demos (docs/components/diagrams.md): one figure in three themes and both modes,
  * and the user-flow and sequence parts once each. They show; the Markdown explains.
  */
 
-const THEMES: DiagramTheme[] = [blueprint, warmPaper, terracotta];
+// Blueprint is shown as this site draws it: on the site's charcoal in dark (diagramThemes.ts).
+const THEMES: DiagramTheme[] = [siteBlueprint, warmPaper, terracotta];
 const MODES: DiagramMode[] = ["light", "dark"];
 
 /** The same drawing every theme paints: an app, a worker, a store, one accent path, an outcome. */
