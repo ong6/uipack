@@ -25,9 +25,9 @@ covers it; `tier1.spec.ts` grades it.
 
 The sidebar is the manifest's five sections (Start, Rules, Build, Check, Reference; `docsSections`
 and each group's `section` in `docs-manifest.ts`), collapsible, the current one open, each with its
-icon and hue (`site-settings.tsx`, `site-palette.css`). The location marker (a paper plane, or the
-uipack square mark with `?marker=mark`) flies to the current page in the sidebar and glides to the
-current heading in "On this page"; the sidebar remembers the page being left in sessionStorage so the
+icon and hue (`site-settings.tsx`, `site-palette.css`). The location marker (the uipack mark in the
+page's section state, or the package's paper plane with `?marker=plane`) hops to the current page in
+the sidebar and to the current heading in "On this page"; the sidebar remembers the page being left in sessionStorage so the
 next page's marker travels from it. Below 900px the header's menu button opens the sidebar as a
 drawer and "On this page" folds into a disclosure (it does from 1180px). Search (the sidebar's box,
 ⌘K / Ctrl-K) loads `/search-index.json`, built from every page's Markdown by `search-index.ts`

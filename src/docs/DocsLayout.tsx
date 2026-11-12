@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useId, useRef, useState, type MouseEvent, type ReactNode } from "react";
-import { ContentsRail, prefersReducedMotion, type DocsMarkerShape } from "./DocsMarkers";
+import { useCallback, useEffect, useId, useRef, useState, type CSSProperties, type MouseEvent, type ReactNode } from "react";
+import { ContentsRail, prefersReducedMotion, type DocsMarkerCell, type DocsMarkerShape } from "./DocsMarkers";
 import { flatItems, SectionNavigation } from "./DocsNavigation";
 import { DocsSearchButton, DocsSearchDialog, useDocsSearchShortcut, type DocsSearchOptions } from "./DocsSearch";
 
@@ -75,11 +75,26 @@ export interface DocsLayoutProps {
   collapsible?: boolean;
   /**
    * How the current place is marked, in the sidebar and in "On this page". "bar" (default): a bar
-   * beside the link. "plane" or "mark" (the uipack square mark): a marker that travels a dotted
-   * path to the current heading as the reader scrolls, and in the sidebar from the page the reader
-   * came from to the current one, tinted with the section's hue.
+   * beside the link. "plane" or "mark" (the uipack square mark): a marker that travels to the
+   * current heading as the reader scrolls, and in the sidebar from the page the reader came from to
+   * the current one, tinted with the section's hue. The plane flies a dotted path; the mark hops.
    */
   marker?: "bar" | DocsMarkerShape;
+  /**
+   * With `marker="mark"`: which of the mark's four cells is its dot, 0 to 3 in reading order (top
+   * left, top right, bottom left, bottom right). Default 3, the mark as it is drawn everywhere.
+   */
+  markerLive?: DocsMarkerCell;
+  /**
+   * With `marker="mark"`: the dot's colour, any CSS colour. Default: the section's hue in the
+   * sidebar and the accent in "On this page". The three squares are the ink.
+   */
+  markerColor?: string;
+  /**
+   * The sidebar's marker sets off on a trip from the page the reader left and lands in `ms`, so a
+   * host can time something of its own to the landing. Not called when it docks in place.
+   */
+  onMarkerTrip?: (ms: number) => void;
   /**
    * A sessionStorage key under which the sidebar remembers the page being left, its open sections
    * and its scroll, so the next page's marker travels from there. Default: none (it docks in place).
@@ -226,6 +241,9 @@ export function DocsLayout({
   navigationLabel = "Documentation",
   collapsible = false,
   marker = "bar",
+  markerLive,
+  markerColor,
+  onMarkerTrip,
   markerMemory,
   search,
   markdownHref,
@@ -269,7 +287,16 @@ export function DocsLayout({
   useDocsSearchShortcut(!!search, setSearching);
 
   const searchButton = search && <DocsSearchButton placeholder={search.placeholder} onOpen={() => setSearching(true)} />;
-  const navProps = { sections, activeHref, label: navigationLabel, collapsible, marker, memoryKey: markerMemory };
+  const navProps = {
+    sections,
+    activeHref,
+    label: navigationLabel,
+    collapsible,
+    marker,
+    live: markerLive,
+    dot: markerColor,
+    memoryKey: markerMemory,
+  };
   const pickHeading = (id: string, event: MouseEvent<HTMLAnchorElement>) => {
     if (contents.current) contents.current.open = false;
     pick(id, event);
@@ -282,6 +309,7 @@ export function DocsLayout({
       data-palette={palette}
       data-width={width === "wide" ? "wide" : undefined}
       data-marker={travelling ? marker : undefined}
+      style={markerColor && travelling ? ({ "--docs-marker-dot": markerColor } as CSSProperties) : undefined}
       data-mobile-navigation={mobileNavigation === "drawer" ? "drawer" : undefined}
     >
       <a className="uipack-docs__skip" href={`#${contentId}`}>
@@ -366,7 +394,7 @@ export function DocsLayout({
       <div className="uipack-docs__grid" data-toc={onThisPage.length > 0 ? undefined : "none"}>
         <aside className="uipack-docs__sidebar">
           {searchButton}
-          <SectionNavigation {...navProps} travels />
+          <SectionNavigation {...navProps} onTrip={onMarkerTrip} travels />
         </aside>
 
         <Article
@@ -435,7 +463,7 @@ export function DocsLayout({
           <aside className="uipack-docs__toc" aria-label="On this page">
             <p>On this page</p>
             {travelling ? (
-              <ContentsRail items={onThisPage} current={currentSection} shape={marker} onPick={pick} />
+              <ContentsRail items={onThisPage} current={currentSection} shape={marker} live={markerLive} onPick={pick} />
             ) : (
               <ol>
                 {onThisPage.map((item) => (

@@ -1,15 +1,25 @@
-import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type AnchorHTMLAttributes,
+  type AnimationEvent,
+  type CSSProperties,
+  type ReactNode,
+  type RefObject,
+} from "react";
 import type { MarkCell } from "../src";
 import { isMarkerShape, type DocsMarkerShape } from "../src/docs/DocsMarkers";
 import type { DocsSectionId } from "./docs-manifest";
 
 /**
  * The docs site's settings (its spec, docs/specs/docs-site.md, "Navigation"): the location marker's
- * shape, used by the sidebar and by "On this page", and each section's icon. `?marker=mark` or
- * `?marker=plane` overrides the shape for the rest of the visit (sessionStorage), so the two can be
- * compared live; the default is the site's.
+ * shape, used by the sidebar and by "On this page", and each section's icon. The site's marker is
+ * the uipack mark, hopping; `?marker=plane` (the package's paper plane) or `?marker=mark` overrides
+ * the shape for the rest of the visit (sessionStorage), so the two can be compared live.
  */
-export const SITE_MARKER: DocsMarkerShape = "plane";
+export const SITE_MARKER: DocsMarkerShape = "mark";
 
 const MARKER_KEY = "uipack-docs-marker";
 
@@ -43,46 +53,114 @@ const BRAND_KEY = "uipack-docs-brand";
 const NEUTRAL = "neutral";
 type BrandState = DocsSectionId | typeof NEUTRAL;
 
+const brandCell = (state: BrandState): MarkCell | undefined => (state === NEUTRAL ? undefined : BRAND_CELLS[state]);
+/** The dot's colour in a state: the section's hue, or the ink on the neutral mark. */
+const brandHue = (state: BrandState) => (brandCell(state) === undefined ? "currentColor" : sectionHue(state as DocsSectionId));
+
+/**
+ * The mark's state for a page, for the docs layout's own marker (`markerLive`, `markerColor`): the
+ * same cell and colour the header's mark shows, so the sidebar and "On this page" carry the logo
+ * in the page's section state.
+ */
+export function markerState(section: DocsSectionId | undefined): { live: MarkCell; color: string } {
+  const cell = section ? BRAND_CELLS[section] : undefined;
+  return cell === undefined ? { live: 3, color: "var(--ui-ink)" } : { live: cell, color: sectionHue(section!) };
+}
+
+/** The name of the keyframes whose end lands the header mark's hop (showcase.css). */
+const BRAND_HOP = "showcase-brand-lift";
+
 /**
  * Which state the header mark shows: the page's section, or neutral. Every page is its own load, so
  * the state the reader left is kept for the visit (sessionStorage): the mark is first drawn there,
- * then set to this page's, and the dot's CSS transition (showcase.css) carries it across. With
- * reduced motion, or with nothing remembered, it is drawn in place.
+ * then its dot hops to this page's cell (showcase.css plays the hop on the anchor `props` go on;
+ * the state changes as it lands, and the cell it left redraws as a square). The hop waits for the
+ * page to settle, and for the sidebar marker when it is travelling (`onMarkerTrip`, the docs
+ * layout's prop), so the two land together. With reduced motion, with nothing remembered, or with
+ * `hop` off (the landing page, whose mark loops), it is drawn in place.
  */
-export function useBrandMark(section: DocsSectionId | undefined): {
+export function useBrandMark(
+  section: DocsSectionId | undefined,
+  { hop = true }: { hop?: boolean } = {},
+): {
   state: BrandState;
   live: MarkCell;
   liveColor: string | undefined;
+  /** For the brand's anchor: the state drawn, the hop in flight and the cell just left. */
+  props: AnchorHTMLAttributes<HTMLAnchorElement> & { ref: RefObject<HTMLAnchorElement> } & Record<`data-${string}`, unknown>;
+  onMarkerTrip: (ms: number) => void;
 } {
   const now: BrandState = section && section in BRAND_CELLS ? section : NEUTRAL;
   const [state, setState] = useState<BrandState>(() => {
     try {
       const left = sessionStorage.getItem(BRAND_KEY);
       const known = left === NEUTRAL || (left !== null && left in BRAND_CELLS);
-      if (known && !matchMedia("(prefers-reduced-motion: reduce)").matches) return left as BrandState;
+      if (hop && known && !matchMedia("(prefers-reduced-motion: reduce)").matches) return left as BrandState;
     } catch {
       /* no storage: drawn in place */
     }
     return now;
   });
+  // The sidebar marker's trip, in ms, when it is travelling (its effect runs before this hook's).
+  const trip = useRef(0);
+  const onMarkerTrip = useCallback((ms: number) => {
+    trip.current = ms;
+  }, []);
+  const [hopping, setHopping] = useState<{ trip: number } | null>(null);
+  const [left, setLeft] = useState<MarkCell | null>(null);
+  const land = useCallback(() => {
+    setHopping(null);
+    setState((was) => {
+      if (was !== now) setLeft(brandCell(was) ?? 3);
+      return now;
+    });
+  }, [now]);
   useEffect(() => {
     try {
       sessionStorage.setItem(BRAND_KEY, now);
     } catch {
       /* no storage */
     }
-    // Two frames, so the state the reader left is painted before the dot moves.
-    let second = 0;
-    const first = requestAnimationFrame(() => {
-      second = requestAnimationFrame(() => setState(now));
-    });
-    return () => {
-      cancelAnimationFrame(first);
-      cancelAnimationFrame(second);
-    };
+    if (state !== now) setHopping({ trip: trip.current });
+    // Once per page: the hop is fixed by the remembered state and this page's.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [now]);
-  const cell = state === NEUTRAL ? undefined : BRAND_CELLS[state];
-  return { state, live: cell ?? 3, liveColor: cell === undefined ? undefined : sectionHue(state as DocsSectionId) };
+  // The hop's end lands it (`onAnimationEnd`); with no hop to play (no stylesheet, no CSS
+  // animations) it lands at once.
+  const anchor = useRef<HTMLAnchorElement>(null);
+  useEffect(() => {
+    if (!hopping) return;
+    const playing = anchor.current?.getAnimations?.({ subtree: true }) ?? [];
+    if (!playing.some((a) => (a as CSSAnimation).animationName === BRAND_HOP)) land();
+  }, [hopping, land]);
+  const cell = brandCell(state);
+  const from = cell ?? 3;
+  const to = brandCell(now) ?? 3;
+  return {
+    state,
+    live: from,
+    liveColor: cell === undefined ? undefined : sectionHue(state as DocsSectionId),
+    props: {
+      ref: anchor,
+      "data-brand": state,
+      "data-brand-hop": hopping ? "" : undefined,
+      "data-brand-to": hopping ? to : undefined,
+      "data-brand-left": left ?? undefined,
+      style: hopping
+        ? ({
+            // In cells: showcase.css turns them into the mark's units.
+            "--brand-hop-x": (to % 2) - (from % 2),
+            "--brand-hop-y": (to >> 1) - (from >> 1),
+            "--brand-hop-hue": brandHue(now),
+            "--brand-trip": `${hopping.trip}ms`,
+          } as CSSProperties)
+        : undefined,
+      onAnimationEnd: (event: AnimationEvent) => {
+        if (event.animationName === BRAND_HOP) land();
+      },
+    },
+    onMarkerTrip,
+  };
 }
 
 /** A section's hue as `--docs-hue` on an element, the name the docs layout and the site's CSS read it by. */

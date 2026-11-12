@@ -8,6 +8,7 @@ import {
   unpackDocsSearchIndex,
   type DocsSection,
 } from "../src/docs";
+import { hopCount, hopPose, markerTransform } from "../src/docs/DocsMarkers";
 
 const page = `---
 spec: x
@@ -137,6 +138,74 @@ describe("DocsLayout sections, markers, drawer and search", () => {
     expect(container.querySelector('.uipack-docs__sidebar [data-nav-section="build"]')).toHaveStyle({ "--docs-hue": "blue" });
     expect(container.querySelector(".uipack-docs__sidebar .uipack-docs__nav-track")).toHaveAttribute("aria-hidden", "true");
     expect(side.getByTestId("build-icon").closest("[aria-hidden]")).not.toBeNull();
+  });
+
+  it("draws the mark with its dot on the live cell, in the host's colour, and leaves the plane as it was", () => {
+    const { container, rerender } = render(
+      <DocsLayout
+        productTitle="P"
+        productHref="/"
+        sections={sections}
+        activeHref="/recipes"
+        onThisPage={[{ id: "a", title: "A", level: 2 }]}
+        marker="mark"
+        markerLive={2}
+        markerColor="teal"
+      >
+        <p>Body</p>
+      </DocsLayout>,
+    );
+    expect(container.querySelector(".uipack-docs")).toHaveStyle({ "--docs-marker-dot": "teal" });
+    for (const place of [".uipack-docs__sidebar", ".uipack-docs__toc"]) {
+      const cells = [...container.querySelectorAll(`${place} .uipack-docs__marker-mark rect`)];
+      expect(cells.map((c) => c.getAttribute("data-cell"))).toEqual(["0", "1", "2", "3"]);
+      expect(cells.map((c) => c.hasAttribute("data-live"))).toEqual([false, false, true, false]);
+      expect(cells[2].closest("svg")).toHaveAttribute("aria-hidden", "true");
+    }
+    // Without a live cell it is the mark as drawn everywhere: the dot bottom right.
+    rerender(
+      <DocsLayout productTitle="P" productHref="/" sections={sections} activeHref="/recipes" marker="mark">
+        <p>Body</p>
+      </DocsLayout>,
+    );
+    expect(container.querySelector(".uipack-docs__sidebar rect[data-live]")).toHaveAttribute("data-cell", "3");
+    rerender(
+      <DocsLayout productTitle="P" productHref="/" sections={sections} activeHref="/recipes" marker="plane" markerLive={2}>
+        <p>Body</p>
+      </DocsLayout>,
+    );
+    expect(container.querySelector(".uipack-docs__sidebar .uipack-docs__marker-plane")).not.toBeNull();
+    expect(container.querySelector(".uipack-docs__marker-mark")).toBeNull();
+  });
+
+  it("hops by distance: one hop for a neighbouring link, five at most, each an arc that lands with a squash", () => {
+    // A neighbouring link (one 34px row, the plane's 457ms) is one hop; a long trip is five.
+    expect(hopCount(34, 457)).toBe(1);
+    expect(hopCount(68, 495)).toBe(2);
+    expect(hopCount(226, 669)).toBe(3);
+    expect(hopCount(2000, 1150)).toBe(5);
+    // Never a hop shorter than 220ms, whatever the distance.
+    expect(hopCount(400, 500)).toBe(2);
+    // One hop of three over 240px: on the ground at each end, highest half-way through its flight
+    // (5 to 9px off the line), then squashed (wider, shorter) before it rests at its own size.
+    expect(hopPose(0, 3, 240)).toMatchObject({ hop: 0, along: 0, lift: 0, sx: 1, sy: 1 });
+    const apex = hopPose(0.39 / 3, 3, 240);
+    expect(apex.lift).toBeCloseTo(9, 1);
+    expect(apex.along).toBeCloseTo(0.5 / 3, 2);
+    expect(apex.sy).toBeGreaterThan(1);
+    const landing = hopPose(0.89 / 3, 3, 240);
+    expect(landing).toMatchObject({ hop: 0, lift: 0 });
+    expect(landing.along).toBeCloseTo(1 / 3, 5);
+    expect(landing.sx).toBeGreaterThan(1.1);
+    expect(landing.sy).toBeLessThan(0.9);
+    expect(hopPose(0.5, 3, 240).hop).toBe(1);
+    const rest = hopPose(1, 3, 240);
+    expect(rest).toMatchObject({ hop: 2, along: 1, lift: 0 });
+    expect(rest.sx).toBeCloseTo(1, 5);
+    expect(hopPose(0.39, 1, 10).lift).toBeCloseTo(5, 1);
+    // The squash keeps the mark's bottom edge on the ground; at rest the transform is the plane's.
+    expect(markerTransform(16, 100, 0)).toBe("translate(16.00 100.00) rotate(0.0)");
+    expect(markerTransform(16, 100, 0, 1.16, 0.82)).toBe("translate(16.00 101.22) scale(1.160 0.820)");
   });
 
   it("keeps the plain list and bar by default", () => {

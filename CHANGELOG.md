@@ -29,10 +29,14 @@ One default changes what a page draws (below), so this is a minor release
   and `.hue` (a navigation hue that marks only the heading's icon, the current-page marker and search
   results), and `DocsNavItem.group` (a caption above a group of pages inside a section).
 - **`DocsLayout` marker:** `marker="plane"` or `"mark"` (the uipack square mark) instead of the bar:
-  in "On this page" it glides along a dotted path to the heading being read (a picked heading scrolls
+  in "On this page" it travels a dotted path to the heading being read (a picked heading scrolls
   into view and stays current); in the sidebar it docks beside the current page, and with
-  `markerMemory` (a sessionStorage key) it flies there from the page the reader left, crossing
-  sections and opening the new one as it arrives, with a short dotted trail. Reduced motion: it jumps.
+  `markerMemory` (a sessionStorage key) it travels there from the page the reader left, crossing
+  sections and opening the new one as it arrives. The plane flies, with a short dotted trail; the
+  mark hops like a game piece (arcs with a squash on landing, one hop for a neighbouring link, five
+  at most, in the plane's time, no trail). `markerLive` and `markerColor` put the mark's dot on any
+  of its four cells in any colour, so the marker can show a state per page (`DocsMarkerCell`), and
+  `onMarkerTrip` tells the host how long a trip takes. Reduced motion: it jumps.
 - **`DocsLayout` drawer:** `mobileNavigation="drawer"` with `navigationOpen` and
   `onNavigationOpenChange`: below 900px the sidebar is a modal drawer from the left, opened by the
   host's header button.
@@ -43,13 +47,15 @@ One default changes what a page draws (below), so this is a minor release
 - **`Wordmark` section states:** `live` (a `MarkCell`, 0 to 3 in reading order) moves the uipack
   mark's dot to that cell and `liveColor` colours it; without `live` the wordmark's markup is
   unchanged. The docs site's header puts the dot on the page's section in its hue (Start top left,
-  Rules top right, Build bottom left, Check bottom right; neutral elsewhere), moves it when the
-  section changes, and on the landing page visits the four in turn (still under reduced motion).
+  Rules top right, Build bottom left, Check bottom right; neutral elsewhere), hops it across when
+  the section changes (560ms, landing with the sidebar's marker, the cell it left redrawing as a
+  square), and on the landing page visits the four in turn, hopping (still under reduced motion).
+  The site's location marker is that mark in the same state, in the sidebar and "On this page".
   There the brand is the ink on docs pages too (it took the docs link colour, the accent), and
   below 360px the whole mark shows on docs pages (its right column was clipped).
 - **The docs site's own spec**, [docs/specs/docs-site.md](docs/specs/docs-site.md) (extends
   Technical): a darker, neutral charcoal dark palette, the five sidebar sections' hues, the location
-  marker (`?marker=mark` to compare), the shell's widths, and search. A registry row for
+  marker (`?marker=plane` to compare), the shell's widths, and search. A registry row for
   ui.junxiong.dev; Technical's row is now the package defaults.
 - `playground/grade.json`: the docs site's tier-1 config, with a 1920 view beside 1440 and 390
   (`e2e/tier1.spec.ts` uses it, on the landing page too).
