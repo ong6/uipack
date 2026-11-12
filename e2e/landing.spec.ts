@@ -96,6 +96,58 @@ for (const width of [1440, 390])
       expect(errors).toEqual([]);
     });
 
+// Layout floor 8 (docs/system/layout/README.md): the header's content sits on the page column's
+// edges. The logo's start edge and the last control's end edge are every section's edges, at the
+// archetype's three gutters (32px, 24px below 1024px, 16px on a phone), and stay there once the
+// page's own chunk has loaded.
+for (const width of [1920, 1440, 1024, 768, 390])
+  test(`the header's content edges are the page column's at ${width}`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/?theme=dark");
+    const header = page.locator(".showcase-header");
+    const edgesOfHeader = async () => {
+      const logo = (await header.locator(".showcase-brand svg").boundingBox())!;
+      const last = (await header.locator(".showcase-header__actions > :last-child").boundingBox())!;
+      return { start: logo.x, end: last.x + last.width, height: (await header.boundingBox())!.height };
+    };
+    // The header is the shell's, drawn before the page's chunk: it must already be in place.
+    await expect(header.locator(".showcase-brand svg")).toBeVisible();
+    const early = await edgesOfHeader();
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    await expect(page.locator(".landing-foot .landing-wrap")).toBeAttached();
+    const now = await edgesOfHeader();
+    expect(now, "the header moved when the page loaded").toEqual(early);
+    // The banner's ground and rule run the window's width, 64px tall plus its rule.
+    const bar = (await header.boundingBox())!;
+    expect(bar.x).toBe(0);
+    expect(bar.width).toBe(width);
+    expect(bar.height).toBe(65);
+    // One column: every section's, the closing band's and the footer's, with equal gutters.
+    const columns = await page.locator(".uipack-landing .landing-wrap").evaluateAll((wraps) =>
+      wraps.map((el) => {
+        const box = el.getBoundingClientRect();
+        return { start: box.left, end: box.right };
+      }),
+    );
+    expect(columns).toHaveLength(6);
+    const column = columns[0];
+    expect(column.end - column.start).toBeCloseTo(Math.min(1120, width - 2 * (width >= 1024 ? 32 : width >= 720 ? 24 : 16)), 0);
+    expect(column.start).toBeCloseTo(width - column.end, 0);
+    for (const other of columns) {
+      expect(Math.abs(other.start - column.start)).toBeLessThanOrEqual(1);
+      expect(Math.abs(other.end - column.end)).toBeLessThanOrEqual(1);
+    }
+    expect(Math.abs(now.start - column.start), `logo at ${now.start}, column starts at ${column.start}`).toBeLessThanOrEqual(1);
+    expect(Math.abs(now.end - column.end), `last control ends at ${now.end}, column ends at ${column.end}`).toBeLessThanOrEqual(
+      1,
+    );
+    // The header's items share one centre line.
+    const centres = await header
+      .locator(".showcase-brand svg, .showcase-tabs a, .showcase-header__actions > button")
+      .evaluateAll((items) => items.map((el) => el.getBoundingClientRect()).map((box) => box.top + box.height / 2));
+    expect(Math.max(...centres) - Math.min(...centres)).toBeLessThanOrEqual(1);
+  });
+
 test("the copy button copies the current release's install command", async ({ page, context, browserName }) => {
   test.skip(browserName !== "chromium", "clipboard permissions are Chromium's");
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);
