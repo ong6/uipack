@@ -99,7 +99,7 @@ export const docsManifest = [
       },
       {
         id: "install",
-        label: "Install and use",
+        label: "Install and use UiPack",
         path: "/start/install",
         file: "README.md",
         intro: "Install the package, draw a first figure, and the entries for charts, articles, 3D, web pages, decks and docs.",
@@ -147,7 +147,7 @@ export const docsManifest = [
     pages: [
       {
         id: "foundations",
-        label: "Overview",
+        label: "Core rules",
         path: "/foundations",
         file: "docs/system/README.md",
         intro:
@@ -170,7 +170,7 @@ export const docsManifest = [
       {
         id: "writing-general",
         parent: "foundations-writing",
-        label: "General rules",
+        label: "General writing rules",
         path: "/foundations/writing/general",
         file: "docs/system/writing/general.md",
         intro: "The rules every kind of text follows, where each word lives, and every slot's text budget.",
@@ -218,7 +218,7 @@ export const docsManifest = [
       {
         id: "layout-landing",
         parent: "foundations-layout",
-        label: "Landing",
+        label: "Landing layout",
         path: "/foundations/layout/landing",
         file: "docs/system/layout/landing.md",
         intro: "The product landing archetype: its grid, section archetypes, order, and product surfaces at a phone's width.",
@@ -226,7 +226,7 @@ export const docsManifest = [
       {
         id: "layout-documentation",
         parent: "foundations-layout",
-        label: "Documentation",
+        label: "Documentation layout",
         path: "/foundations/layout/documentation",
         file: "docs/system/layout/documentation.md",
         intro: "The docs shell archetype: a reading page's regions and the order inside it.",
@@ -234,7 +234,7 @@ export const docsManifest = [
       {
         id: "layout-article",
         parent: "foundations-layout",
-        label: "Article",
+        label: "Article layout",
         path: "/foundations/layout/article",
         file: "docs/system/layout/article.md",
         intro: "The layered long read archetype: one text column and the parts of each section.",
@@ -242,7 +242,7 @@ export const docsManifest = [
       {
         id: "layout-deck-slide",
         parent: "foundations-layout",
-        label: "Deck slide",
+        label: "Deck slide layout",
         path: "/foundations/layout/deck-slide",
         file: "docs/system/layout/deck-slide.md",
         intro:
@@ -251,7 +251,7 @@ export const docsManifest = [
       {
         id: "layout-dashboard",
         parent: "foundations-layout",
-        label: "Dashboard",
+        label: "Dashboard layout",
         path: "/foundations/layout/dashboard",
         file: "docs/system/layout/dashboard.md",
         intro: "The one-question dashboard archetype: its regions, equal boxes, and the narrow form.",
@@ -318,7 +318,7 @@ export const docsManifest = [
       },
       {
         id: "spec-technical",
-        label: "Technical",
+        label: "Technical spec",
         path: "/specs/technical",
         file: "docs/specs/technical.md",
         demos: [
@@ -332,7 +332,7 @@ export const docsManifest = [
       },
       {
         id: "spec-docs-site",
-        label: "Docs site",
+        label: "Docs site spec",
         path: "/specs/docs-site",
         file: "docs/specs/docs-site.md",
         intro:
@@ -347,7 +347,7 @@ export const docsManifest = [
     pages: [
       {
         id: "recipes",
-        label: "Recipes overview",
+        label: "Recipes",
         path: "/recipes",
         file: "docs/recipes/README.md",
         intro: "One recipe per page type: the section order, the parts to use, and the rules each relies on.",
@@ -530,7 +530,7 @@ export const docsManifest = [
     pages: [
       {
         id: "component-looks",
-        label: "Looks overview",
+        label: "Component looks",
         path: "/looks",
         file: "docs/components/README.md",
         intro:
@@ -719,7 +719,7 @@ export const docsManifest = [
     pages: [
       {
         id: "spec-registry",
-        label: "Registry",
+        label: "Site registry",
         path: "/specs/registry",
         file: "docs/specs/registry.md",
         intro:
@@ -727,7 +727,7 @@ export const docsManifest = [
       },
       {
         id: "assets",
-        label: "Icons & marks",
+        label: "Icons and marks",
         path: "/assets",
         file: "docs/icons-and-marks.md",
         intro: "Searchable icons, marks, canvas backgrounds and motion tokens, each with a preview and a copy button.",
@@ -786,7 +786,7 @@ export const docsManifest = [
       {
         id: "discoverability-performance",
         parent: "discoverability",
-        label: "Performance",
+        label: "Web performance",
         path: "/reference/discoverability/performance",
         file: "docs/web-discoverability/performance.md",
         intro: "Load and paint numbers measured on the /web demo, the method, and what changed each.",

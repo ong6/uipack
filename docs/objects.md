@@ -1,4 +1,4 @@
-# Object scenes
+# 3D object scenes
 
 The reference for `uipack/objects`: the seven lazy 3D scenes, their props, playback and fallbacks, the art directions each subject offers and why, the render budgets and the Blender sources. Pick looks for a site in [3D looks](components/3d.md); come here to place a scene or change one.
 
@@ -242,7 +242,7 @@ The website's default hobby selection is Cartoon AI, Studio Tennis, Studio Tradi
 Paper Travel and Kinetic Reading (see "Directions per subject" for the two that now fall back). Its My picks control
 restores this set after a global style preview.
 
-The website Contact page pins Cartoon (variant 3). Compare the other inbox styles in UI Pack; Contact no longer changes style from URL preview parameters.
+The website Contact page pins Cartoon (variant 3). Compare the other inbox styles in UiPack; Contact no longer changes style from URL preview parameters.
 
 ### Page-integrated artwork
 

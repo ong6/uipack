@@ -1,8 +1,8 @@
-# Writing: web and landing copy
+# Web and landing copy
 
 How to write a product, launch or announcement page: the goal, the hero, section heads, proof and
-the FAQ. It adds to the [general rules](general.md). The layout is
-[Landing](../layout/landing.md); the build steps are the [landing recipe](../../recipes/landing.md).
+the FAQ. It adds to the [general writing rules](general.md). The layout is
+[Landing layout](../layout/landing.md); the build steps are the [landing recipe](../../recipes/landing.md).
 
 ## Title form
 

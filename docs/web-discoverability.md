@@ -18,7 +18,7 @@ The detail is split by topic:
 | --- | --- |
 | The head, fonts, structured data and the FAQ | [Head and structured data](web-discoverability/head-and-structured-data.md) |
 | robots.txt, sitemap.xml, llms.txt, the feed and lazy sections | [Crawl files](web-discoverability/crawl-files.md) |
-| Measured load and paint numbers, before and after | [Performance](web-discoverability/performance.md) |
+| Measured load and paint numbers, before and after | [Web performance](web-discoverability/performance.md) |
 
 ## Checklist
 

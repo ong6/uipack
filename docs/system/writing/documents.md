@@ -1,9 +1,9 @@
-# Writing: read-alone documents
+# Read-alone documents
 
 How to write anything read without its author in the room: a pre-read, a forwarded deck, a
 report, product documentation, an article or a blog post. It adds to the
-[general rules](general.md). The layout for these pages is
-[Documentation and article](../layout/documentation.md).
+[general writing rules](general.md). The layout for these pages is
+[Documentation layout](../layout/documentation.md).
 
 ## Titles
 

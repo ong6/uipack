@@ -118,7 +118,7 @@ const notFoundPage: PageDef = {
   label: "Page not found",
   path: "",
   file: "docs/README.md",
-  intro: "There is no page at this address; it may have moved. Every page in the library is listed below.",
+  intro: "There is no page at this address; it may have moved. Every page in these docs is listed below.",
 };
 
 /** Whether a media query matches, following changes. */
@@ -278,7 +278,7 @@ export function ShowcaseShell({
   // head (description, canonical, Open Graph, JSON-LD), but the tab says which playground page it is.
   const hostsPage = "hostsPage" in page && page.hostsPage;
   useEffect(
-    () => setDocumentTitle(gallery ? "Assets · uipack" : landing ? LANDING_TITLE : documentTitle(page)),
+    () => setDocumentTitle(gallery ? "Assets · UiPack" : landing ? LANDING_TITLE : documentTitle(page)),
     [page, gallery, landing],
   );
   // Compact navigation (the header's menu button opens the sidebar as a drawer) below 900px. A page
@@ -294,7 +294,7 @@ export function ShowcaseShell({
   // Previous and next follow the manifest's reading order, sub-views included.
   const index = pageDefs.findIndex((p) => p.id === page.id);
   const neighbour = (p: PageDef | undefined) => (p && !notFound ? { title: pageHeading(p), href: pageHref(p, theme) } : null);
-  // The page's parent, for the location row: a sub-page's page ("Writing" above "General rules"),
+  // The page's parent, for the location row: a sub-page's page ("Writing" above "General writing rules"),
   // or the page a sub-view belongs to ("Deck player" above "Bento").
   const parentDef = !notFound && page.parent ? pageDefs.find((p) => p.id === page.parent) : undefined;
   const parent = parentDef
@@ -320,7 +320,7 @@ export function ShowcaseShell({
             </svg>
           </button>
         )}
-        <a className="showcase-brand" href={`/?theme=${theme}`} aria-label="UIPACK home" {...brand.props}>
+        <a className="showcase-brand" href={`/?theme=${theme}`} aria-label="UiPack home" {...brand.props}>
           <Wordmark size={22} live={brand.live} liveColor={brand.liveColor} />
         </a>
         {/* The two top-level views: the docs (text first, with samples in the pages) and the Assets gallery. */}

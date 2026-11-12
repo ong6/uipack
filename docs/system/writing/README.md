@@ -1,4 +1,4 @@
-# Writing: what it says
+# Writing
 
 Each website has its own writing style, set in its [spec](../../specs/README.md): its tone, the form
 its titles take on each page type, how dense its copy runs, its house words, and any budget it

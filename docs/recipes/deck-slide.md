@@ -1,4 +1,4 @@
-# Recipe: deck slide
+# Build a deck
 
 How to build a deck with `uipack/deck`: pick a storyline, give each slide a role and an
 archetype, write it to the mode, and run the checks. Compare your draft with the
@@ -14,7 +14,7 @@ archetype, write it to the mode, and run the checks. Compare your draft with the
   `<DeckPlayer uiStyle="<id>">` when UiPack renders it; otherwise the site's own CSS sets the roles.
 - Words: [talks and slides](../system/writing/talks.md) for a presented deck,
   [read-alone documents](../system/writing/documents.md#read-alone-decks) for one that travels.
-- Layout: [deck slide](../system/layout/deck-slide.md): canvas, regions, archetypes, transitions.
+- Layout: [deck slide layout](../system/layout/deck-slide.md): canvas, regions, archetypes, transitions.
 - Parts and API: [Deck player](../deck.md), [Deck storytelling](../deck-storytelling.md),
   [Consulting slides](../deck-consulting.md).
 

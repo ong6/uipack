@@ -62,7 +62,7 @@ for (const width of [1440, 390])
       await page.goto(`/?theme=${theme}`);
       await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
       await expect(page.getByRole("heading", { level: 1 })).toHaveText("The design system for every site that installs it.");
-      await expect(page).toHaveTitle(/^UiPack, the design system/);
+      await expect(page).toHaveTitle("The design system for every site that installs it · UiPack");
       // The hero's figure is a live uipack figure, with the drawing authored for the width.
       const figure = page.locator(".landing-hero__figure .uipack");
       await expect(figure).toBeVisible();

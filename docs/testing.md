@@ -1,12 +1,12 @@
-# Testing uipack
+# Testing
 
 What the unit and browser suites check, how CI runs them and the known engine quirks. For changing
 uipack only: the commands to run before a commit are in [AGENTS.md](../AGENTS.md#engineering-and-verification)
-(`npm run verify`, then `npm run test:affected -- --e2e`); grading a page you built is [Grading UI work](grading/README.md).
+(`npm run verify`, then `npm run test:affected -- --e2e`); grading a page you built is [How to grade](grading/README.md).
 
 ## Grading a page
 
-To grade a page the same way every time (13 mechanical checks at 1440 and 390, light and dark, then blinded pairwise judging and a fixed brief set), see [Grading UI work](grading/README.md): `npm run grade -- check <url> --spec uipack` here, `npx uipack-grade check <url>` in a consumer, or `uipack/grade` from Node.
+To grade a page the same way every time (13 mechanical checks at 1440 and 390, light and dark, then blinded pairwise judging and a fixed brief set), see [How to grade](grading/README.md): `npm run grade -- check <url> --spec uipack` here, `npx uipack-grade check <url>` in a consumer, or `uipack/grade` from Node.
 
 ## Commands
 

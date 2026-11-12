@@ -1,8 +1,8 @@
-# Multi-agent website build
+# Multi-agent build
 
 How a lead agent splits a website across subagents so the result reads as one site. The lead
 owns everything shared; each subagent builds one page or one section inside it. The brief each
-subagent gets is the [subagent brief template](subagent-brief.md).
+subagent gets is the [subagent brief](subagent-brief.md).
 
 ## Roles
 

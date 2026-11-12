@@ -14,7 +14,7 @@ const hrefOf = (p: DocsPageEntry) => {
 
 /**
  * Every page once: a file several pages render (the deck guide behind its three examples) is
- * indexed under the first of them. A sub-page is titled with its parent ("Writing: General rules"),
+ * indexed under the first of them. A sub-page is titled with its parent ("Writing: General writing rules"),
  * a sub-view with its page ("Deck player"), so a result says where it lands.
  */
 export function siteSearchIndex(read: (file: string) => string): DocsSearchIndexFile {

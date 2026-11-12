@@ -19,7 +19,7 @@ import { installLine } from "./release";
 import { SITE_ORIGIN } from "./site";
 import { useMediaQuery, useShowcaseTheme } from "./ShowcaseShell";
 import { Scaled, useNearViewport } from "./preview-stage";
-import { BUILD_JOBS, BUILT_NEXT, READ_ORDER, SUPPORT_JOBS, type Job } from "./landing/content";
+import { BUILD_JOBS, BUILT_NEXT, READ_ORDER_ANCHOR, SUPPORT_JOBS, type Job } from "./landing/content";
 import { JOB_ART } from "./landing/job-art";
 import { NAV_MEMORY_KEY, SectionIcon, sectionHueStyle } from "./site-settings";
 import "./landing.css";
@@ -238,7 +238,7 @@ function Around({ theme }: { theme: Theme }) {
           id="around-title"
           title="Rules and checks"
           lead="A site's own spec comes before building, and grading comes after."
-          aside="A new site writes its spec first. A page on an existing site uses that site's spec."
+          aside="A page on an existing site uses that site's spec."
         />
         <ul className="landing-jobs landing-jobs--around">
           {SUPPORT_JOBS.map((job) => (
@@ -398,7 +398,7 @@ const TILES: Tile[] = [
   },
   {
     id: "3d",
-    title: "3D animations and object scenes",
+    title: "3D object scenes",
     entry: "uipack/objects",
     page: "objects",
     preview: (theme) => <ScenePreview theme={theme} />,
@@ -442,8 +442,7 @@ function Parts({ theme }: { theme: Theme }) {
           lead="Each import path loads only what it draws."
           aside={
             <>
-              Every component page shows its live demo, and <a href={galleryHref(theme)}>Assets</a> shows all of them in one
-              place.
+              Most component pages show a live demo, and <a href={galleryHref(theme)}>Assets</a> shows every asset in one place.
             </>
           }
         />
@@ -474,7 +473,7 @@ function Agents({ theme }: { theme: Theme }) {
         <div>
           <SectionHead id="agents-title" title="For agents" lead="The same pages, as Markdown, in reading order." />
           <p>
-            An agent building a page, deck, figure or copy for one of the owner's sites reads these files as Markdown, from{" "}
+            An agent building a page, deck, figure or copy for one of Jun Xiong's own sites reads these files as Markdown, from{" "}
             <code>node_modules/uipack/docs/</code> in a site or a clone. Each file opens with what it is for and who should read
             it, so you can stop after the first paragraph.
           </p>
@@ -503,16 +502,11 @@ function Agents({ theme }: { theme: Theme }) {
             </RowIcon>
             <div>
               <h3>Read in this order</h3>
-              <ol className="landing-steps">
-                {READ_ORDER.map((step) => (
-                  <li key={step.title}>
-                    <span>
-                      {step.long}
-                      <small>{step.note}</small>
-                    </span>
-                  </li>
-                ))}
-              </ol>
+              <p>Which file to open first for a job, and what comes after it.</p>
+              <a className="landing-band__url" href={`${pageHref(page("agents"), theme)}#${READ_ORDER_ANCHOR}`}>
+                {site}
+                {page("agents").path}#{READ_ORDER_ANCHOR}
+              </a>
             </div>
           </div>
           <div className="landing-band__row">

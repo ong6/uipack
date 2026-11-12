@@ -1,4 +1,4 @@
-# Diagrams: the Blueprint look and diagram themes
+# Diagram look and themes
 
 Diagrams have one look, **Blueprint**, and it is `flex`: the grammar (geometry, type, strokes, what
 each flow means) is the same on every site, and a **diagram theme** supplies its colours, faces and
@@ -157,5 +157,5 @@ The [parts](../diagrams.md#parts) figure shows all four.
 ## Related
 
 - [Component looks](README.md): every look and how a spec picks.
-- [Figure API](../figure-api.md): the theme functions and the parts' props.
+- [Figure parts API](../figure-api.md): the theme functions and the parts' props.
 - [Architecture diagrams](../diagrams.md): the catalogue.

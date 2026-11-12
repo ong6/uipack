@@ -1,4 +1,4 @@
-# Layout archetype: one-question dashboard
+# Dashboard layout
 
 The `one-question-dashboard` archetype: a screen someone checks rather than reads, with live
 numbers, a table of records, a schedule and status. It covers the regions, how tiles and tables

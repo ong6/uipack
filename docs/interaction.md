@@ -1,4 +1,4 @@
-# Canvas, selection, and mobile
+# Canvas and selection
 
 How figures, charts and 3D scenes behave under touch, keyboard and small screens: what becomes selectable, what a selection shows, how Open canvas and pinch zoom work, and the narrow-layout rules. Read it before adding an interactive part; the polish standard every part ships with is in [design direction](design-direction.md#interaction-polish-the-standard-for-every-new-part-figure-and-page).
 

@@ -1,4 +1,4 @@
-# Layout archetype: product landing
+# Landing layout
 
 The `product-landing` archetype: a product, launch or announcement page built with `uipack/web`,
 with its grid, section archetypes, order, and how product surfaces behave at a phone's width. A

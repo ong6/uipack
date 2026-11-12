@@ -5,19 +5,16 @@
 import type { IconName } from "../../src";
 import type { DocsSectionId } from "../docs-manifest";
 
-/** The agent read order (docs/agents/README.md, "Read in this order"): the hero figure and the For agents band. */
-export const READ_ORDER: readonly { title: string; path: string; icon: IconName; long: string; note: string }[] = [
-  { title: "The job's skill", path: "skills/", icon: "tool", long: "The job's skill", note: "skills/" },
-  { title: "The site's spec", path: "STYLE.md", icon: "doc", long: "The site's spec", note: "STYLE.md, or its registry row" },
-  { title: "The core rules", path: "docs/system/", icon: "check", long: "The core rules for your medium", note: "docs/system/" },
-  {
-    title: "The component docs",
-    path: "docs/*.md",
-    icon: "browser",
-    long: "The component docs",
-    note: "and the entry's dist/*.d.ts",
-  },
+/** The agent read order (docs/agents/README.md, "Read in this order"): the hero figure. The For agents band links to it. */
+export const READ_ORDER: readonly { title: string; path: string; icon: IconName }[] = [
+  { title: "The job's skill", path: "skills/", icon: "tool" },
+  { title: "The site's spec", path: "STYLE.md", icon: "doc" },
+  { title: "The core rules", path: "docs/system/", icon: "check" },
+  { title: "The component docs", path: "docs/*.md", icon: "browser" },
 ];
+
+/** The heading of docs/agents/README.md that lists the read order, as its anchor on the agents page. */
+export const READ_ORDER_ANCHOR = "read-in-this-order";
 
 /**
  * The page the hero figure builds: the /web sample page's hero (playground/WebShowcase.tsx, Tidy),
@@ -32,7 +29,7 @@ export type JobSection = Extract<DocsSectionId, "rules" | "build" | "check">;
 export interface Job {
   title: string;
   text: string;
-  /** The page it opens, by docs-manifest id, and the words on its link. */
+  /** The page it opens, by docs-manifest id, and the words on its link: the page's name, or an action on it. */
   page: string;
   go: string;
   section: JobSection;
@@ -45,7 +42,7 @@ export const JOBS: readonly Job[] = [
     title: "Build a landing page",
     text: "The landing recipe, then the example landing page.",
     page: "recipe-landing",
-    go: "Landing recipe",
+    go: "Read the recipe",
     section: "build",
     art: "landing",
   },
@@ -53,7 +50,7 @@ export const JOBS: readonly Job[] = [
     title: "Write docs or an article",
     text: "The documentation recipe, then the example text page.",
     page: "recipe-documentation",
-    go: "Documentation recipe",
+    go: "Read the recipe",
     section: "build",
     art: "docs",
   },
@@ -61,15 +58,15 @@ export const JOBS: readonly Job[] = [
     title: "Make a deck",
     text: "The deck recipe, then the Deck player.",
     page: "recipe-deck-slide",
-    go: "Deck recipe",
+    go: "Read the recipe",
     section: "build",
     art: "deck",
   },
   {
     title: "Draw a diagram",
-    text: "The Blueprint look, figure labels and captions, then Architecture diagrams.",
+    text: "Diagram look and themes, figure labels and captions, then Architecture diagrams.",
     page: "component-diagrams",
-    go: "The Blueprint look",
+    go: "Diagram look and themes",
     section: "build",
     art: "diagram",
   },
@@ -102,7 +99,8 @@ export const LAYERS: readonly { id: string; label: string; summary: string; page
   {
     id: "core",
     label: "Core rules",
-    summary: "What every site keeps: the role contract, the layout floors, the core writing rules and slot ceilings",
+    summary:
+      "What every site keeps: the role contract (what a spec must define), the layout floors (what no layout may break), the core writing rules and slot ceilings (text length limits)",
     page: "foundations",
     zone: "kept",
   },
@@ -134,7 +132,13 @@ export const LAYERS: readonly { id: string; label: string; summary: string; page
     page: "recipes",
     zone: "parts",
   },
-  { id: "components", label: "Components", summary: "The parts, each with its live demo", page: "figures", zone: "parts" },
+  {
+    id: "components",
+    label: "Components",
+    summary: "The parts, most with a live demo; start with Architecture diagrams",
+    page: "figures",
+    zone: "parts",
+  },
 ];
 
 /** "How it is built": where to read next, beside the stack: the overview, then the three layers a newcomer opens first (labels as the stack names them). */

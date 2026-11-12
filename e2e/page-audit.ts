@@ -62,7 +62,7 @@ export const h1Of = (label: string) => {
 // The browser tab: the sub-view first. /web too: its sample page keeps the rest of its own head.
 export const tabOf = (label: string) => {
   const pageTitle = subViewOf(label);
-  return pageTitle ? `${label} · ${pageTitle} · uipack` : `${label} · uipack`;
+  return pageTitle ? `${label} · ${pageTitle} · UiPack` : `${label} · UiPack`;
 };
 
 /** The sidebar (DocsLayout's navigation, generated from the docs manifest), shown from 900px. */

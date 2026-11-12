@@ -1,4 +1,4 @@
-# Web discoverability: performance
+# Web performance
 
 The load and paint numbers measured on the `/web` demo, the method behind them, and what changed
 each one. The checklist they serve is in [Web discoverability](../web-discoverability.md).

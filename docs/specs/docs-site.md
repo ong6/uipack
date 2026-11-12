@@ -11,10 +11,10 @@ uipack: current
 values: playground/site-palette.css
 ---
 
-# Docs site: the ui.junxiong.dev spec
+# Docs site spec
 
 The spec of the UiPack docs site at [ui.junxiong.dev](https://ui.junxiong.dev): what it sets on top
-of [Technical](technical.md), the package's default look. Read it before changing the site's dark
+of the [Technical spec](technical.md), the package's default look. Read it before changing the site's dark
 palette, the dark ground its demos sit on, its sidebar sections and their hues, its location marker,
 the docs shell's widths or the landing page; everything else is Technical's and a rule for no other
 site.

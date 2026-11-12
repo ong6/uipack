@@ -1,4 +1,4 @@
-# Recipe: landing page
+# Build a landing page
 
 How to build a product, launch or announcement page with `uipack/web`: the section order the
 example page renders, the parts each section uses, and the rules it relies on. Compare your draft
@@ -7,9 +7,9 @@ with the [example landing page](../examples/landing-page.md).
 ## Relies on
 
 - Words: [web and landing copy](../system/writing/web.md), on top of the
-  [general rules](../system/writing/general.md).
-- Layout: [landing](../system/layout/landing.md): the grid, the section archetypes, the order.
-- Look: the site's spec ([Technical](../specs/technical.md) here); the numbered
+  [general writing rules](../system/writing/general.md).
+- Layout: [landing layout](../system/layout/landing.md): the grid, the section archetypes, the order.
+- Look: the site's spec ([Technical spec](../specs/technical.md) here); the numbered
   [web principles](../web-principles.md); [discoverability](../web-discoverability.md) for the head,
   structured data and crawl files.
 

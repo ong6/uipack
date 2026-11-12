@@ -332,7 +332,7 @@ test.describe("the sidebar's marker", () => {
     await expect(page.locator(`${navMarker} .uipack-docs__marker-plane`)).toHaveCount(1);
     await expect(page.locator(`${railMarker} .uipack-docs__marker-plane`)).toHaveCount(1);
     await expect(page.locator(".uipack-docs__marker-mark")).toHaveCount(0);
-    await sidebar(page).getByRole("link", { name: "Install and use", exact: true }).click();
+    await sidebar(page).getByRole("link", { name: "Install and use UiPack", exact: true }).click();
     await expect(page).toHaveURL(/\/start\/install/);
     await expect(page.locator(`${navMarker} .uipack-docs__marker-plane`)).toHaveCount(1);
     const y = await settled(page, navMarker);
@@ -624,7 +624,7 @@ test.describe("390px", () => {
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
     // Every row in it is a 44px tap target, a page's sub-pages included (32px rows in the sidebar).
     const subPages = drawer.locator(".uipack-docs__nav-sub a:visible");
-    await expect(subPages.filter({ hasText: "General rules" })).toBeVisible();
+    await expect(subPages.filter({ hasText: "General writing rules" })).toBeVisible();
     const rows = await drawer
       .locator("a:visible, button:visible")
       .evaluateAll((els) => els.map((el) => ({ name: el.textContent!.trim(), height: el.getBoundingClientRect().height })));
@@ -763,7 +763,7 @@ test.describe("search", () => {
     await expect(input).toBeFocused();
     await input.fill("registry");
     const options = page.getByRole("option");
-    await expect(options.first()).toContainText("Registry");
+    await expect(options.first()).toContainText("Site registry");
     await expect(options.first()).toHaveAttribute("aria-selected", "true");
     expect(requested.length).toBe(1);
     // Grouped by section: the first group is Reference, in its hue.
@@ -781,7 +781,7 @@ test.describe("search", () => {
       .click();
     await expect(dialog).toBeVisible();
     await input.fill("registry");
-    await expect(options.first()).toContainText("Registry");
+    await expect(options.first()).toContainText("Site registry");
     await page.keyboard.press("Enter");
     await expect(page).toHaveURL(/\/specs\/registry\?theme=dark$/);
     await expect(page.getByRole("heading", { level: 1 })).toContainText("registry", { ignoreCase: true });
@@ -962,10 +962,10 @@ test.describe("reduced motion", () => {
     await watchFlight(page);
     await watchPoses(page);
     await page.goto("/agents");
-    await sidebar(page).getByRole("link", { name: "Install and use", exact: true }).click();
+    await sidebar(page).getByRole("link", { name: "Install and use UiPack", exact: true }).click();
     await expect(page).toHaveURL(/\/start\/install/);
     const current = sidebar(page).locator('[aria-current="page"]');
-    await expect(current).toHaveText("Install and use");
+    await expect(current).toHaveText("Install and use UiPack");
     const link = await current.evaluate((a) => {
       const r = a.getBoundingClientRect();
       return r.top + r.height / 2;

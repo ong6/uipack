@@ -1,4 +1,4 @@
-# Recipe: documentation and article page
+# Build a docs page
 
 How to build a page someone reads: product documentation in `uipack/docs`, or a long article with
 `uipack/article` parts. The order inside a page, the parts, and the rules it relies on. Compare
@@ -7,7 +7,7 @@ your draft with the [example text page](../examples/text-page.md).
 ## Relies on
 
 - Words: [read-alone documents](../system/writing/documents.md), on top of the
-  [general rules](../system/writing/general.md); figure words from
+  [general writing rules](../system/writing/general.md); figure words from
   [figure labels and captions](../system/writing/figures.md).
 - Layout: [documentation and article](../system/layout/documentation.md).
 - Parts: [Docs layout](../docs-layout.md) and [Article parts](../article.md).

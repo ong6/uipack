@@ -1,4 +1,4 @@
-# Grading these docs for agents
+# Grading docs for agents
 
 How to grade UiPack's own documentation, whose reader is an agent with a limited context, not a
 person on the docs site. Use it after any change to `docs/`, `skills/`, `AGENTS.md`, `README.md`

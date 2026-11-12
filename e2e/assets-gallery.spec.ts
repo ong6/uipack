@@ -14,7 +14,7 @@ for (const theme of ["light", "dark"] as const)
       await page.setViewportSize({ width, height: 900 });
       await page.goto(`/gallery?theme=${theme}`);
       await expect(page.getByRole("heading", { level: 1, name: "Assets" })).toBeVisible();
-      await expect(page).toHaveTitle("Assets · uipack");
+      await expect(page).toHaveTitle("Assets · UiPack");
       await expect(page.getByRole("navigation", { name: "Views" }).getByRole("link", { name: "Assets" })).toHaveAttribute(
         "aria-current",
         "true",

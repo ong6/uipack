@@ -9,7 +9,7 @@ Install (ES modules only; not on npm): `npm install https://github.com/ong6/uipa
 ## Start
 
 - [What UiPack is](docs/README.md): What UiPack is, who it is for (people and agents), how its layers fit, where to start and how to install it, then every page of the docs.
-- [Install and use](README.md): Install the package, draw a first figure, and the entries for charts, articles, 3D, web pages, decks and docs.
+- [Install and use UiPack](README.md): Install the package, draw a first figure, and the entries for charts, articles, 3D, web pages, decks and docs.
 - [How agents use UiPack](docs/agents/README.md): The read order for an agent: the job's skill, the site's spec, the core rules, then the parts; what is fixed and what each site sets.
 - [How agents use UiPack: Multi-agent build](docs/agents/multi-agent-build.md): How a lead splits a website across subagents: what the lead owns, what a subagent never decides, the hand-off and the review pass.
 - [How agents use UiPack: Subagent brief](docs/agents/subagent-brief.md): The copy-paste brief for one subagent building one page or section: inputs, limits, outputs and the self-check.
@@ -17,20 +17,20 @@ Install (ES modules only; not on npm): `npm install https://github.com/ong6/uipa
 
 ## Rules
 
-- [Overview](docs/system/README.md): The core rules: the philosophy, the three independent layers (style, writing, layout), what each owns and where one leaks into another.
+- [Core rules](docs/system/README.md): The core rules: the philosophy, the three independent layers (style, writing, layout), what each owns and where one leaks into another.
 - [Style contract](docs/system/style.md): The roles every site spec fills and the ornament slots it paints, with this site's values (Technical) live.
 - [Writing](docs/system/writing/README.md): The writing rules, by kind of text, and every length they state, generated from the code.
-- [Writing: General rules](docs/system/writing/general.md): The rules every kind of text follows, where each word lives, and every slot's text budget.
+- [Writing: General writing rules](docs/system/writing/general.md): The rules every kind of text follows, where each word lives, and every slot's text budget.
 - [Writing: Talks and slides](docs/system/writing/talks.md): How to write a deck you present: titles, points, speaker cues, order and the ask.
 - [Writing: Read-alone documents](docs/system/writing/documents.md): How to write what is read without its author: pre-reads, read-alone decks, documentation, articles.
 - [Writing: Web and landing copy](docs/system/writing/web.md): How to write a product or launch page: the goal, the hero, section heads, proof and the FAQ.
 - [Writing: Figure labels and captions](docs/system/writing/figures.md): How to write a figure's words: caption, labels, arrows, statistics, motion beats and 3D stops.
 - [Layout](docs/system/layout/README.md): The layout floors every site keeps, the library of layout archetypes a spec picks from, and the layout of figures, motion and 3D.
-- [Layout: Landing](docs/system/layout/landing.md): The product landing archetype: its grid, section archetypes, order, and product surfaces at a phone's width.
-- [Layout: Documentation](docs/system/layout/documentation.md): The docs shell archetype: a reading page's regions and the order inside it.
-- [Layout: Article](docs/system/layout/article.md): The layered long read archetype: one text column and the parts of each section.
-- [Layout: Deck slide](docs/system/layout/deck-slide.md): The slide canvas archetype: the canvas, the regions every slide shares, the slide archetypes and the transitions.
-- [Layout: Dashboard](docs/system/layout/dashboard.md): The one-question dashboard archetype: its regions, equal boxes, and the narrow form.
+- [Layout: Landing layout](docs/system/layout/landing.md): The product landing archetype: its grid, section archetypes, order, and product surfaces at a phone's width.
+- [Layout: Documentation layout](docs/system/layout/documentation.md): The docs shell archetype: a reading page's regions and the order inside it.
+- [Layout: Article layout](docs/system/layout/article.md): The layered long read archetype: one text column and the parts of each section.
+- [Layout: Deck slide layout](docs/system/layout/deck-slide.md): The slide canvas archetype: the canvas, the regions every slide shares, the slide archetypes and the transitions.
+- [Layout: Dashboard layout](docs/system/layout/dashboard.md): The one-question dashboard archetype: its regions, equal boxes, and the narrow form.
 - [What a spec may set](docs/system/spec-settings.md): The boundary between a site spec and the core rules: a site's look, layout, writing style and component looks, and what holds on every site.
 - [Do and don't](docs/system/do-and-dont.md): Paired examples of the rules, drawn live, and the checklist of generic AI-landing tropes to keep out.
 - [Design direction](docs/design-direction.md): The playground's visual direction, catalog taxonomy, interaction polish and presentation composition.
@@ -41,12 +41,12 @@ Install (ES modules only; not on npm): `npm install https://github.com/ong6/uipa
 
 - [How to write a spec](docs/specs/README.md): One spec per website: its look, layout, writing style and component looks on top of the core rules; how to write and check one, and how it becomes a live style.
 - [Spec template](docs/specs/TEMPLATE.md): The file a new site spec starts from: the frontmatter (pages, layouts, component looks) and the sections the checker requires.
-- [Technical](docs/specs/technical.md): The package's default look, which the docs site extends: Cyanotype, Prussian ink and one amber mark, IBM Plex, with its role values generated from the style file.
-- [Docs site](docs/specs/docs-site.md): The spec of ui.junxiong.dev: Technical's look with its own darker dark palette, the four navigation hues and the travelling location marker.
+- [Technical spec](docs/specs/technical.md): The package's default look, which the docs site extends: Cyanotype, Prussian ink and one amber mark, IBM Plex, with its role values generated from the style file.
+- [Docs site spec](docs/specs/docs-site.md): The spec of ui.junxiong.dev: Technical's look with its own darker dark palette, the four navigation hues and the travelling location marker.
 
 ## Build · Recipes
 
-- [Recipes overview](docs/recipes/README.md): One recipe per page type: the section order, the parts to use, and the rules each relies on.
+- [Recipes](docs/recipes/README.md): One recipe per page type: the section order, the parts to use, and the rules each relies on.
 - [Build a landing page](docs/recipes/landing.md): Build a landing page: the section order the example renders, the parts per section, the steps.
 - [Build a docs page](docs/recipes/documentation.md): Build a reading page: the order inside it, the docs and article parts, the steps.
 - [Build a deck](docs/recipes/deck-slide.md): Build a deck: the storylines, the slide roles, the parts and every check lintDeck runs.
@@ -71,7 +71,7 @@ Install (ES modules only; not on npm): `npm install https://github.com/ong6/uipa
 
 ## Build · Component looks
 
-- [Looks overview](docs/components/README.md): Each component's named looks, fixed (the same on every site) or flex (taking the site's palette and faces), and how a spec picks them.
+- [Component looks](docs/components/README.md): Each component's named looks, fixed (the same on every site) or flex (taking the site's palette and faces), and how a spec picks them.
 - [Diagram look and themes](docs/components/diagrams.md): The Blueprint look and diagram themes: one grammar on every site, colours, faces and ground from a theme; the theme API, the user-flow and sequence parts, the node strip.
 - [3D looks](docs/components/3d.md): The six 3D looks, which subjects offer each, and which one takes the site's palette.
 - [Mechanism look](docs/components/mechanism.md): The isometric machine look: its fixed drawing and the roles it takes from the site.
@@ -107,8 +107,8 @@ Install (ES modules only; not on npm): `npm install https://github.com/ong6/uipa
 
 ## Reference
 
-- [Registry](docs/specs/registry.md): Every site uipack designs for: where its spec lives, the component looks it picks and the uipack release it pins.
-- [Icons & marks](docs/icons-and-marks.md): Searchable icons, marks, canvas backgrounds and motion tokens, each with a preview and a copy button.
+- [Site registry](docs/specs/registry.md): Every site uipack designs for: where its spec lives, the component looks it picks and the uipack release it pins.
+- [Icons and marks](docs/icons-and-marks.md): Searchable icons, marks, canvas backgrounds and motion tokens, each with a preview and a copy button.
 - [Releases](docs/releases.md): How a version is cut: semver for this repo, the changelog, the tag on main, and how each site moves its pin.
 - [Contributing](docs/contributing.md): Step-by-step recipes, with the exact files to touch, for a new style, page, deck, slide part, chart or figure.
 - [Component-first](docs/component-first.md): Build, register and verify a significant visual in the library before a consumer uses it.
@@ -116,7 +116,7 @@ Install (ES modules only; not on npm): `npm install https://github.com/ong6/uipa
 - [Web discoverability](docs/web-discoverability.md): How a uipack/web page gets found and quoted by search and answer engines: the checklist and the crawler stance.
 - [Web discoverability: Head and structured data](docs/web-discoverability/head-and-structured-data.md): pageMeta, the head helpers, font preloads, the JSON-LD builders and the FAQ.
 - [Web discoverability: Crawl files](docs/web-discoverability/crawl-files.md): buildCrawlFiles for robots.txt, sitemap.xml and llms.txt, rssFeed, and Section lazyRender.
-- [Web discoverability: Performance](docs/web-discoverability/performance.md): Load and paint numbers measured on the /web demo, the method, and what changed each.
+- [Web discoverability: Web performance](docs/web-discoverability/performance.md): Load and paint numbers measured on the /web demo, the method, and what changed each.
 - [Portfolio ideas](docs/portfolio-ideas.md): Prioritised places where uipack/web pieces would improve junxiong.dev, and what to avoid.
 
 ## Skills

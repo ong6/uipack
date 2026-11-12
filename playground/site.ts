@@ -47,7 +47,7 @@ export function siteRoutes(): SiteRoute[] {
   }
   out.set(GALLERY_PATH, {
     path: GALLERY_PATH,
-    title: "Assets · uipack",
+    title: "Assets · UiPack",
     description: GALLERY_INTRO,
     canonical: GALLERY_PATH,
     noindex: false,
@@ -67,7 +67,7 @@ const escapeHtml = (s: string) => s.replace(/&/g, "&amp;").replace(/"/g, "&quot;
  * `noindex` dropped unless the route keeps it. `route` undefined is the 404 page.
  */
 export function routeHtml(html: string, origin: string, route?: SiteRoute) {
-  const title = route?.title ?? "Page not found · uipack";
+  const title = route?.title ?? "Page not found · UiPack";
   let out = html.replace(/<title>[^<]*<\/title>/, `<title>${escapeHtml(title)}</title>`);
   if (!route) return out;
   const url = `${origin}${route.canonical}`;
@@ -78,7 +78,7 @@ export function routeHtml(html: string, origin: string, route?: SiteRoute) {
   const tags = [
     `<link rel="canonical" href="${escapeHtml(url)}" />`,
     `<meta property="og:type" content="website" />`,
-    `<meta property="og:site_name" content="uipack" />`,
+    `<meta property="og:site_name" content="UiPack" />`,
     `<meta property="og:title" content="${escapeHtml(title)}" />`,
     `<meta property="og:description" content="${escapeHtml(route.description)}" />`,
     `<meta property="og:url" content="${escapeHtml(url)}" />`,

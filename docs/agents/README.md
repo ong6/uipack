@@ -11,11 +11,11 @@ uipack clone.
    page, draw a diagram, write copy, write a site spec, review and grade). It gives the order of
    work and links to the docs below.
 2. **The site's spec.** The site repo's `STYLE.md`, or its row in the
-   [registry](../specs/registry.md): its look, the layout for your page type (`layouts:` and
+   [site registry](../specs/registry.md): its look, the layout for your page type (`layouts:` and
    `## Layout`), its writing style and the component looks it picks. A deck reads its site's spec.
    No spec yet: a new site writes one first ([starting a new website](new-website.md)); a page
    inside an existing UiPack site uses that site's spec; a one-off with no site behind it (and the
-   uipack playground) uses [Technical](../specs/technical.md) (the
+   uipack playground) uses the [Technical spec](../specs/technical.md) (the
    [page skill](../../skills/uipack-page/SKILL.md), step 1).
 3. **The core rules for your medium.** [docs/system/README.md](../system/README.md), then only your
    medium's section in [style](../system/style.md), [writing](../system/writing/README.md) and
@@ -66,7 +66,7 @@ overriding it locally.
 
 ## More in this folder
 
-- [Multi-agent website build](multi-agent-build.md): the lead, the subagents, the hand-off and the
+- [Multi-agent build](multi-agent-build.md): the lead, the subagents, the hand-off and the
   integration pass.
-- [Subagent brief template](subagent-brief.md): the copy-paste brief for one page or section.
+- [Subagent brief](subagent-brief.md): the copy-paste brief for one page or section.
 - [Starting a new website](new-website.md): spec first, register it, then build.

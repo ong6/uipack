@@ -1,4 +1,4 @@
-# Presentation starters
+# Slide starters
 
 `uipack/presentations` keeps slide design and spoken delivery in one serializable object. It supplies three generic 16:9 layouts: Opening, Explanation, and System. Consumers own the words.
 
@@ -33,7 +33,7 @@ const slide: SlideStarterData = {
 <SlideStarter slide={slide} theme="light" />;
 ```
 
-Write the slide words and the speech the way [Writing](system/writing/talks.md) describes for a presented deck: a short headline (the eyebrow is optional and off by default), fragments on screen, and `say` as a few cue lines rather than a script.
+Write the slide words and the speech the way [Talks and slides](system/writing/talks.md) describes for a presented deck: a short headline (the eyebrow is optional and off by default), fragments on screen, and `say` as a few cue lines rather than a script.
 
 `SpeakerGuide` can be used separately. It derives a rough duration at 135 words per minute, copies the full talk track, announces copy success without moving focus, and does not render the script into the SVG. `showSpeech={false}` produces an audience-only preview.
 

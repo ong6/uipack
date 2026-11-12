@@ -1,6 +1,6 @@
-# Tier 3: regression set and fix ledger
+# Regression set
 
-Rounds are comparable only when the briefs, the rubric version and the capture stay fixed. The
+Tier 3 of [grading](README.md), the regression set and the fix ledger: rounds are comparable only when the briefs, the rubric version and the capture stay fixed. The
 regression set is 3 briefs for each of 5 page types, with frozen facts, reused every round.
 
 ## The set

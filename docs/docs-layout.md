@@ -1,4 +1,4 @@
-# Product documentation layout
+# Docs layout
 
 `uipack/docs` owns the reusable product-docs shell and Markdown renderer. Import its scoped CSS once in the consumer.
 

@@ -1,4 +1,4 @@
-# Layout: the floors every site keeps, and the archetypes a spec picks
+# Layout
 
 Layout is the structure layer: grid, named regions, which content slot fills each region, the
 reading order and the beat order. Each website has its own layout, set in its
@@ -188,7 +188,7 @@ Motion layout is choreography: what moves, in what order, on which clock.
 - **Stepped figures** have one beat per step, from the beat script, with tabs `01 / 02 / 03`.
 - **Loops** longer than 5 seconds get Pause; everything ambient pauses off-screen.
 
-The deck's transition grammar (advance, morph, zoom) is in [Deck slide](deck-slide.md#transitions).
+The deck's transition grammar (advance, morph, zoom) is in [Deck slide layout](deck-slide.md#transitions).
 
 ## 3D
 

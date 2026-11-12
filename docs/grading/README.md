@@ -1,4 +1,4 @@
-# Grading UI work
+# How to grade
 
 Every agent grades UI work the same way, in three tiers. Tier 1 is a machine check and must pass
 before any handoff. Tier 2 is judged, only by fresh judges who did not build the work, pairwise
@@ -11,7 +11,7 @@ and a ledger that proves each fix reached the next build.
 | 2 Judged | Pairwise A vs B on one brief, frozen rubric, two judges in opposite order ([protocol](protocol.md)) | A lead, with fresh subagents | Win rate and paired delta, read against the [anchor](calibration.md) |
 | 3 Regression | 15 frozen briefs and the fix ledger ([regression set](regression.md)) | The lead, every round | Same briefs every round; a fix counts only when someone else verified it |
 
-These tiers grade UI work that people see. UiPack's own docs are read by agents, so they have their own tiers and rubric: [grading these docs for agents](agent-docs.md).
+These tiers grade UI work that people see. UiPack's own docs are read by agents, so they have their own tiers and rubric: [grading docs for agents](agent-docs.md).
 
 ## Grade your own work before handing off
 

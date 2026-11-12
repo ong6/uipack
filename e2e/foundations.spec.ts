@@ -68,7 +68,7 @@ test("guides fit a phone: no page overflow at 390px", async ({ page }) => {
 test("the overview renders docs/system/README.md with the live swap demo, and the pager walks the recipes", async ({ page }) => {
   await page.goto("/foundations?theme=light");
   await waitForPage(page);
-  await expect(page.getByRole("heading", { level: 1 })).toHaveAccessibleName("The UI Pack design system");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveAccessibleName("Core rules");
   // The demo block sits in the page, outside the prose, and it works: swapping the writing changes the slide.
   const demo = page.locator('.uipack-docs__block[data-block-id="layer-swap"]');
   await expect(demo).toHaveAttribute("data-width", "wide");

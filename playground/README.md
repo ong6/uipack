@@ -65,9 +65,9 @@ A few of the pages and their addresses (the manifest lists every one, with its s
 | Build | Mechanism | `/mechanism` |
 | Build | Example landing page | `/web` |
 | Build | Docs layout | `/docs` |
-| Rules | Overview, Style contract, Writing, Layout, Do and don't | `/foundations`, `/foundations/style`, `/foundations/writing`, `/foundations/layout`, `/foundations/do-and-dont` (alias `/foundations/mix`; `/foundations/recipes` opens Recipes) |
+| Rules | Core rules, Style contract, Writing, Layout, Do and don't | `/foundations`, `/foundations/style`, `/foundations/writing`, `/foundations/layout`, `/foundations/do-and-dont` (alias `/foundations/mix`; `/foundations/recipes` opens Recipes) |
 | Rules | How to write a spec | `/styles` |
-| Reference | Icons & marks | `/assets` |
+| Reference | Icons and marks | `/assets` |
 
 Every page has the same headings: the page bar (the location row, `<Section> › <Parent page>`, the section as a chip in its hue; "Style: <Style>" with the source links), one `h1`, a one-sentence intro, then sentence-case `h2` sections. Figures inside an `h2` keep `headingLevel` 3; inside an `h3` they use 4.
 

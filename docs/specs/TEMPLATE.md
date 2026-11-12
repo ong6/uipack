@@ -16,7 +16,7 @@ values: TODO the style file once implemented (src/styles/<id>.css), or none
 Copy this file to start a site's spec (`docs/specs/<id>.md` in uipack, or `STYLE.md` at the root
 of the site's own repo), keep every heading, and replace each `TODO`. A value you can't determine
 from the live site stays a `TODO:` line with what would decide it. `scripts/check-spec.ts` checks
-the shape; [How to write a site spec](README.md) explains each part.
+the shape; [How to write a spec](README.md) explains each part.
 
 Frontmatter: `spec` is the id other specs extend; `extends` is `core`, or the id of a spec whose
 look this site reuses; `pages` lists the [page types](../system/layout/README.md#how-a-spec-sets-layout)

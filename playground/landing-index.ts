@@ -8,7 +8,7 @@ export const LANDING_PATH = "/";
 export const LANDING_MODULE = "LandingShowcase";
 
 /** Its tab title and meta description (playground/site.ts writes them into index.html). */
-export const LANDING_TITLE = "UiPack, the design system for every site that installs it · uipack";
+export const LANDING_TITLE = "The design system for every site that installs it · UiPack";
 export const LANDING_DESCRIPTION =
   "Jun Xiong's own design system: diagrams, slides, web pages, motion and 3D, as React and SVG components with the rules for writing and laying them out. Agents read its docs as Markdown.";
 

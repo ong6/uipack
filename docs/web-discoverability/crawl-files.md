@@ -1,4 +1,4 @@
-# Web discoverability: crawl files
+# Crawl files
 
 How `buildCrawlFiles` writes robots.txt (with a stance per AI crawler), sitemap.xml and llms.txt,
 how `rssFeed` writes a feed, and when to use `Section lazyRender`. The crawler table and why the

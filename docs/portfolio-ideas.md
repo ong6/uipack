@@ -1,4 +1,4 @@
-# Portfolio ideas: `uipack/web` on junxiong.dev
+# Portfolio ideas
 
 Where the new Web UI pieces would improve the homepage repo (`junxiong-homepage`), in priority order.
 Nothing here has been applied; the homepage is untouched. Based on a read-only survey of that repo on
@@ -15,7 +15,7 @@ Nothing here has been applied; the homepage is untouched. Based on a read-only s
 - Motion: a local CSS `fade-up`, a 2px hover lift on cards, and 3D objects on `/hobbies` and
   `/contact` via `uipack/objects`. The homepage turns off the page fade.
 - Rules that bind the ideas below:
-  - `ui-inventory.json` plus `check-ui-ownership` require significant UI to come from UIPACK.
+  - `ui-inventory.json` plus `check-ui-ownership` require significant UI to come from UiPack.
   - The design brief says "counts and stack strips stay off the homepage" and allows dotted
     canvases only inside technical previews.
   - In the Technical style, glow is a selection signal only.
@@ -40,7 +40,7 @@ The components are token-driven, so this is configuration, not a fork.
 | # | Where | Component | Why | Avoid |
 | --- | --- | --- | --- | --- |
 | 1 | Homepage, Groundplane lead card preview (`components/SelectedWork.js`) | `DemoPlayer` | The card shows a static "Check 01". A 3-step demo (the agent asserts a fact → Groundplane finds no tool output behind it → the build fails, with the metric going from "1 unsupported claim" to "blocked") shows the product working, which is the thesis of principle 2. | Looping, and autoplay out of view. Keep it to one run, with a static list under reduced motion. Don't add the "Try it yourself" CTA if there is no live demo. |
-| 2 | Case-study heroes: `/groundplane`, `/jobforge`, `/skillsmith` | `DemoPlayer` (full width, under the title) | Each case study explains a tool with prose and a diagram. A 10-second scripted run above the diagram is proof before explanation. Content comes from the case study and playback from UIPACK, which fits the ownership rule. | Replacing the architecture diagram. Both stay, and the demo comes first. |
+| 2 | Case-study heroes: `/groundplane`, `/jobforge`, `/skillsmith` | `DemoPlayer` (full width, under the title) | Each case study explains a tool with prose and a diagram. A 10-second scripted run above the diagram is proof before explanation. Content comes from the case study and playback from UiPack, which fits the ownership rule. | Replacing the architecture diagram. Both stay, and the demo comes first. |
 | 3 | Same Groundplane card | `DotGrid` (no spotlight) inside `BackgroundFrame` | Replaces the hand-rolled `radial-gradient` canvas (`SelectedWork.js:66-80`) with the owned primitive. Same look, one owner, radial fade for free. The brief allows dotted canvases inside technical previews. | `spotlight`: a pointer glow on a card reads as selection in the Technical style. |
 | 4 | `Section` / `Articles` fade-up (`styles/globals.css:46-57`) | `Reveal variant="up"` | Retires the local keyframe and staggers the four "Also building" cards on first view. It only runs below the fold, so the hero stays instant (the homepage already skips the page fade). | The `blur` variant: a blur-in on Plex body text looks soft, not crisp. Never apply it to the hero. |
 | 5 | Theme toggle (`components/ThemeToggleButton.js`) | `withViewTransition` | Wrap `toggleColorMode` in `withViewTransition(() => flushSync(toggle))`. Light and dark cross-fade instead of snapping. It falls back to an instant swap in Firefox and under reduced motion. Low effort, site-wide. | Custom `::view-transition` animations. The default cross-fade is enough. |

@@ -41,7 +41,7 @@ test("previous and next follow the sidebar's order", async ({ page }) => {
     "href",
     "/foundations/style?theme=light",
   );
-  await expect(pager.getByRole("link", { name: /Next.*General rules/ })).toHaveAttribute(
+  await expect(pager.getByRole("link", { name: /Next.*General writing rules/ })).toHaveAttribute(
     "href",
     "/foundations/writing/general?theme=light",
   );
@@ -75,7 +75,7 @@ test("the theme toggle updates the sidebar links and keeps the page", async ({ p
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
   await expect(sidebar(page).getByRole("link", { name: "Article parts" })).toHaveAttribute("href", "/article?theme=dark");
   await sidebar(page).getByRole("button", { name: "Rules", exact: true }).click();
-  await expect(sidebar(page).getByRole("link", { name: "Overview", exact: true })).toHaveAttribute(
+  await expect(sidebar(page).getByRole("link", { name: "Core rules", exact: true })).toHaveAttribute(
     "href",
     "/foundations?theme=dark",
   );
@@ -168,9 +168,9 @@ test.describe("390px header and drawer", () => {
     const hrefs = await drawer.getByRole("link").evaluateAll((els) => els.map((a) => a.getAttribute("href")));
     expect(hrefs.every((h) => h!.includes("theme=dark"))).toBe(true);
     await drawer.getByRole("button", { name: "Reference", exact: true }).click();
-    await drawer.getByRole("link", { name: "Icons & marks" }).click();
+    await drawer.getByRole("link", { name: "Icons and marks" }).click();
     await expect(page).toHaveURL(/\/assets\?theme=dark$/);
-    await expectPageTitle(page, "Icons & marks", "/assets");
+    await expectPageTitle(page, "Icons and marks", "/assets");
     await expect(page.locator(".showcase-crumb")).toHaveText("Reference");
     await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
   });
@@ -327,7 +327,7 @@ test.describe("desktop sidebar groups", () => {
     await expect(rules.getByRole("link")).toHaveText(ALL.filter((p) => p.section === "Rules").map((p) => p.label));
     await expect(rules.locator(".uipack-docs__nav-caption")).toHaveText(["Site specs"]);
     await expect(sidebar(page).getByRole("list", { name: "Writing" }).getByRole("link")).toHaveText([
-      "General rules",
+      "General writing rules",
       "Talks and slides",
       "Read-alone documents",
       "Web and landing copy",
@@ -399,7 +399,7 @@ test.describe("landmarks and skip link", () => {
 test("an unknown address says so and links to every page", async ({ page }) => {
   await page.goto("/nope?theme=dark");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Page not found");
-  await expect(page).toHaveTitle("Page not found · uipack");
+  await expect(page).toHaveTitle("Page not found · UiPack");
   // Not the diagrams page in disguise.
   await expect(page.locator('section[data-section="pipeline"]')).toHaveCount(0);
   await expect(currentLink(page)).toHaveCount(0);
@@ -485,7 +485,7 @@ test("the deck's print page and speaker window name themselves: tab title and on
   ] as const) {
     await page.goto(path);
     const deckName = path.includes("bento") ? "Bento" : "Tech talk";
-    await expect(page).toHaveTitle(`${name} · ${deckName} · Deck player · uipack`);
+    await expect(page).toHaveTitle(`${name} · ${deckName} · Deck player · UiPack`);
     const h1 = page.getByRole("heading", { level: 1 });
     await expect(h1).toHaveCount(1);
     await expect(h1).toHaveText(`${deckName} deck, ${name.toLowerCase()}`);

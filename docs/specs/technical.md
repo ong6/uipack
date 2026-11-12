@@ -11,7 +11,7 @@ uipack: current
 values: src/styles/technical.css
 ---
 
-# Technical: the package's default look
+# Technical spec
 
 Technical is the package's default look: what a figure, deck or page renders in when nothing else
 is set. Its layout picks and writing style (the aims in `src/deck/budgets.ts` are its defaults)

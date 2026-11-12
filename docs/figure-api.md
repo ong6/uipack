@@ -64,7 +64,7 @@ The figure root (`.uipack`) reads every colour and face through a private `--uip
 first and the page's `--ui-*` role second (`--uipack-fg` is
 `var(--uipack-diagram-ink, var(--ui-ink))`). With no theme, a figure takes the active style's
 values: Technical by default, another registered style through `uiStyle` or `data-ui-style`
-([style roles](system/style.md)).
+([style contract](system/style.md)).
 
 A site or page colours its figures with one theme object:
 

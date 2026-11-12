@@ -1,6 +1,6 @@
-# Tier 1: mechanical checks
+# Mechanical checks
 
-Deterministic, no judgement. Each check runs in every view: each viewport of the spec (default 1440
+Tier 1 of [grading](README.md): deterministic, no judgement. Each check runs in every view: each viewport of the spec (default 1440
 and 390, the 390 view with touch and a coarse pointer), in light and dark, with reduced motion on.
 The page is loaded, its ready condition awaited, scrolled to the bottom and back so lazy sections
 mount, and given its fonts before anything is measured.

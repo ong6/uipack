@@ -1,4 +1,4 @@
-# Layout archetype: docs shell
+# Documentation layout
 
 The `docs-shell` archetype: a page someone reads in a navigable set, such as product documentation
 or a reference page. It covers the shell's regions, the prose column, where demos and tables sit,

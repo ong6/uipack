@@ -1,7 +1,7 @@
-# Writing: talks and slides
+# Talks and slides
 
 How to write a deck you present: titles, points, speaker cues, order and the ask. It adds to the
-[general rules](general.md). A deck that travels without you is written read-alone
+[general writing rules](general.md). A deck that travels without you is written read-alone
 ([documents.md](documents.md#read-alone-decks)). The full storytelling guide is
 [Deck storytelling](../../deck-storytelling.md); `lintDeck` checks both.
 

@@ -4,7 +4,7 @@ The design system (philosophy, the style/writing/layout layers and their per-med
 
 ## The product structure
 
-UIPACK is a library of reusable visual explanations. The browser organizes two independent axes:
+UiPack is a library of reusable visual explanations. The browser organizes two independent axes:
 
 | Axis | Values |
 | --- | --- |

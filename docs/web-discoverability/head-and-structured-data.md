@@ -1,4 +1,4 @@
-# Web discoverability: head and structured data
+# Head and structured data
 
 The `uipack/web` helpers for a page's head, its font preloads, its JSON-LD and its FAQ: what each
 takes and returns, with examples. The checklist they serve is in

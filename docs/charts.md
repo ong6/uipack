@@ -1,4 +1,4 @@
-# Charts: SpanChart and LayerStack
+# Charts
 
 `uipack/charts`, with its stylesheet `uipack/charts.css`, provides two article figures built from HTML and CSS rather than SVG:
 

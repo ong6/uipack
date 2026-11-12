@@ -49,11 +49,11 @@ starts from.
 
 | Page type | Section order and parts | Start from |
 | --- | --- | --- |
-| Landing / product | [Landing recipe](../../docs/recipes/landing.md); the [product landing](../../docs/system/layout/landing.md) archetype; [web principles](../../docs/web-principles.md) | `examples/web-starter/` (every block wired with sample rows): copy it, replace words and rows |
-| Documentation / article | [Documentation recipe](../../docs/recipes/documentation.md); [docs layout](../../docs/docs-layout.md) (`uipack/docs`), [article parts](../../docs/article.md) (`uipack/article`) | The docs shell and `DocsMarkdown` |
-| Deck / talk | [Deck recipe](../../docs/recipes/deck-slide.md); [deck storytelling](../../docs/deck-storytelling.md) (storyline, roles), [deck player](../../docs/deck.md); dense readouts: [consulting slides](../../docs/deck-consulting.md) | `starterDeck(template)` from `uipack/deck`, then `lintDeck` |
-| Dashboard | [Dashboard recipe](../../docs/recipes/dashboard.md), [layout](../../docs/system/layout/dashboard.md), [charts](../../docs/charts.md) | Ask before inventing a new section type |
-| 3D hero / motion | The looks the spec picked ([3D](../../docs/components/3d.md), [Mechanism](../../docs/components/mechanism.md)); [3D animations](../../docs/slides.md), [object scenes](../../docs/objects.md); motion rules in [style, motion](../../docs/system/style.md#motion) | Keep the 3D entry lazy; pin a scene to a look the spec picked |
+| Landing / product | [Build a landing page](../../docs/recipes/landing.md); the [product landing](../../docs/system/layout/landing.md) archetype; [web principles](../../docs/web-principles.md) | `examples/web-starter/` (every block wired with sample rows): copy it, replace words and rows |
+| Documentation / article | [Build a docs page](../../docs/recipes/documentation.md); [docs layout](../../docs/docs-layout.md) (`uipack/docs`), [article parts](../../docs/article.md) (`uipack/article`) | The docs shell and `DocsMarkdown` |
+| Deck / talk | [Build a deck](../../docs/recipes/deck-slide.md); [deck storytelling](../../docs/deck-storytelling.md) (storyline, roles), [deck player](../../docs/deck.md); dense readouts: [consulting slides](../../docs/deck-consulting.md) | `starterDeck(template)` from `uipack/deck`, then `lintDeck` |
+| Dashboard | [Build a dashboard](../../docs/recipes/dashboard.md), [layout](../../docs/system/layout/dashboard.md), [charts](../../docs/charts.md) | Ask before inventing a new section type |
+| 3D hero / motion | The looks the spec picked ([3D](../../docs/components/3d.md), [Mechanism](../../docs/components/mechanism.md)); [3D animations](../../docs/slides.md), [3D object scenes](../../docs/objects.md); motion rules in [style, motion](../../docs/system/style.md#motion) | Keep the 3D entry lazy; pin a scene to a look the spec picked |
 
 ## Build
 

@@ -1,7 +1,7 @@
-# Subagent brief template
+# Subagent brief
 
 The brief a lead gives one subagent building one page or section of a UiPack site
-([multi-agent website build](multi-agent-build.md)). Copy the block, fill every `<…>`, delete
+([multi-agent build](multi-agent-build.md)). Copy the block, fill every `<…>`, delete
 nothing. A brief with an unfilled field is not ready to send.
 
 ```text

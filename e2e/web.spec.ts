@@ -619,7 +619,7 @@ test.describe("/web discoverability", () => {
     // The canonical drops the theme parameter: one URL per page, whatever the view state.
     await expect(page.locator('head link[rel="canonical"]')).toHaveAttribute("href", `${origin}/web`);
     // The tab names the playground page; the sample's own title is its og:title and the generated head.
-    await expect(page).toHaveTitle("Example landing page · uipack");
+    await expect(page).toHaveTitle("Example landing page · UiPack");
     // The playground is an illustrative demo: its index.html keeps it out of search indexes.
     await expect(page.locator('head meta[name="robots"]')).toHaveAttribute("content", "noindex");
     const meta = (sel: string) => page.locator(`head meta[${sel}]`).getAttribute("content");

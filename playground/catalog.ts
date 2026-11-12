@@ -109,9 +109,9 @@ export function pageHeading(page: PageDef) {
   return page.query && page.title ? `${page.title} · ${page.label}` : (page.title ?? page.label);
 }
 
-/** The browser tab title: the sub-view first, so tabs tell apart ("Bento · Deck player · uipack"). */
+/** The browser tab title: the sub-view first, so tabs tell apart ("Bento · Deck player · UiPack"). */
 export function documentTitle(page: PageDef) {
-  return [page.query && page.title ? page.label : null, page.title ?? page.label, "uipack"].filter(Boolean).join(" · ");
+  return [page.query && page.title ? page.label : null, page.title ?? page.label, "UiPack"].filter(Boolean).join(" · ");
 }
 
 /**

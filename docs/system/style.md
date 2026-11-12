@@ -1,6 +1,6 @@
-# Style: the role contract
+# Style contract
 
-What every site spec must define, what each role means and which entry names read it. This is a
+The role contract: what every site spec must define, what each role means and which entry names read it. This is a
 core rule: it holds no site's values. Each website has one spec that fills it
 ([how to write a spec](../specs/README.md)); a value shown here as an example is labelled as
 coming from the [Technical spec](../specs/technical.md), the package's default look.
@@ -139,9 +139,9 @@ is `fixed` or `flex` ([every look](../components/README.md)).
 
 | What | For | Values | Guide |
 | --- | --- | --- | --- |
-| **Site specs** | One per website: its palette, faces, ornaments, voice | `src/styles/<id>.css` once implemented | [Registry](../specs/registry.md), [Technical](../specs/technical.md) |
+| **Site specs** | One per website: its palette, faces, ornaments, voice | `src/styles/<id>.css` once implemented | [Site registry](../specs/registry.md), [Technical spec](../specs/technical.md) |
 | **Mechanism** (`flex`) | One isometric machine whose working is the point | The site's roles mapped to four solid tones (derived; `--tune-mech-*` hooks), one lit part | [Mechanism look](../components/mechanism.md), [Mechanism](../mechanism.md) |
-| **3D art directions** | Object scenes | Studio (`flex`, reads `--tune-object-*`); Paper worlds, Kinetic, Cartoon, Realistic, Abstract (`fixed`) | [3D looks](../components/3d.md), [Object scenes](../objects.md) |
+| **3D art directions** | Object scenes | Studio (`flex`, reads `--tune-object-*`); Paper worlds, Kinetic, Cartoon, Realistic, Abstract (`fixed`) | [3D looks](../components/3d.md), [3D object scenes](../objects.md) |
 
 The `uiStyle` prop (`Figure`, `DeckPlayer`, `SlideStarter`, `WebSurface`, `Section`) and
 `data-ui-style` on any element set the style; the nearest one wins, and with nothing set it is

@@ -1,4 +1,4 @@
-# Deck storytelling: content and flow for internal decks
+# Deck storytelling
 
 The deck player makes slides move well. This guide covers what they say and in what order. Inside a company a deck is how work gets seen: it's presented, and often forwarded, skimmed and quoted afterwards. It has to make one point clearly in the room, and keep its facts when it lands in an inbox.
 

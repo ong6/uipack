@@ -1,4 +1,4 @@
-# What a site spec may set
+# What a spec may set
 
 Each website has its own look, layout, writing style and component looks, all in its spec
 ([how to write one](../specs/README.md)); the core rules keep only what must hold on every site.

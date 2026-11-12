@@ -1,4 +1,4 @@
-# How to write a site spec
+# How to write a spec
 
 UiPack is the design system for every site that uses it. Each website has its own layout,
 writing style, theme, fonts and design direction, all in its spec; the core rules keep only what
@@ -16,7 +16,7 @@ spec ([presentations](../system/README.md#presentations-are-websites)).
 
 **One spec per website.** A new site gets its own spec. A site that should look like an existing
 one reuses that spec (`extends: <spec id>` in its frontmatter) instead of copying it. Every site
-and its spec are listed in the [registry](registry.md).
+and its spec are listed in the [site registry](registry.md).
 
 ## Writing one
 
@@ -41,7 +41,7 @@ and its spec are listed in the [registry](registry.md).
    spec that sets a value a fixed look owns. An older spec's `uses: [diagrams]` still reads as
    `components: { diagrams: blueprint }`. `test/specs.test.tsx` runs it on every spec in this folder.
 
-[Technical](technical.md) is the reference: the package's default look, written to the template,
+The [Technical spec](technical.md) is the reference: the package's default look, written to the template,
 with its role values generated from `src/styles/technical.css` so the two cannot drift. Its layout
 picks and writing style are its own choices; a new site makes its own. The UiPack docs site's
 spec, [docs-site](docs-site.md), shows a spec that extends another and sets only its differences.
@@ -83,5 +83,5 @@ or figures in its look):
    - Screenshots of a web page, a deck and a figure at 1440 and 390, light and dark, inspected by
      eye. Compare them with the spec before calling it done.
 6. **Document it.** Set the spec's `status: implemented` and `values:` to the style file, so its
-   role table is generated from code, and update the [registry](registry.md). Then `npm run build`
+   role table is generated from code, and update the [site registry](registry.md). Then `npm run build`
    and run the tests on it.

@@ -185,7 +185,7 @@ takes the spec's.
     and check 66% text on it. (SMWD-5, SMWD-6)
 17. **Reuse the hero asset down the page.** Carry the star into later sections and let scroll drive a
     small transform (`ScrollTransform`, `useScrollProgress`), rather than adding new decoration. Beams
-    ride grid lines the way UIPACK packets ride connectors: the same idea, rhymed. Keep listeners
+    ride grid lines the way UiPack packets ride connectors: the same idea, rhymed. Keep listeners
     off while the element is off screen; on mobile a still image is fine. (CA, SMWD-6)
 18. **Hover effects are an enhancement, never the message.** Tilt at most 5°, a magnetic pull of at most 6px,
     mouse and pen only. Touch and keyboard get an equivalent still state (focus lift, static

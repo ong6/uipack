@@ -1,10 +1,10 @@
-# UIPACK agent guide
+# UiPack agent guide
 
 | Your task | Read first |
 | --- | --- |
 | Build a page, figure, deck or copy for a site | [`docs/agents/README.md`](docs/agents/README.md), then the job's skill in [`skills/`](skills/README.md); you can stop reading this file |
 | Add or change a part, page, style or entry in uipack | Its recipe in [`docs/contributing.md`](docs/contributing.md), then "Design contract" and "Engineering and verification" below |
-| Change the docs | "Design contract" below (docs bullet), then [grading these docs for agents](docs/grading/agent-docs.md) |
+| Change the docs | "Design contract" below (docs bullet), then [grading docs for agents](docs/grading/agent-docs.md) |
 
 Before any commit to uipack: `npm run build` (writes `dist/`, which is not committed; tests and the typecheck read it), `npm run verify` (format check, typecheck, lint, affected unit tests; `npm run format` fixes formatting), `npm run test:affected -- --e2e`.
 
