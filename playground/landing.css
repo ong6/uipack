@@ -599,6 +599,13 @@
   background: var(--ui-band-fill);
   color: var(--ui-band-ink);
 }
+/* Dark: the band is a raised charcoal step with ruled edges, so it reads as its own region beside
+   the near-black page; never blue (the site's band fill, a step below the ground, nearly merged
+   with it). Its inks are the band's own and hold 4.5:1 here too. */
+:where(.showcase-frame[data-theme="dark"]) .landing-band {
+  border-block: 1px solid var(--ui-line);
+  background: var(--ui-surface-raised);
+}
 .landing-band__grid {
   display: grid;
   grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);

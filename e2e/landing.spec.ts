@@ -135,6 +135,42 @@ test("job cards: tinted by section in light; in dark a neutral card with the hue
   }
 });
 
+test("the For agents band: the band fill in light; in dark a raised, ruled charcoal step, not blue", async ({ page }) => {
+  for (const theme of ["light", "dark"] as const) {
+    await page.goto(`/?theme=${theme}`);
+    const band = page.locator(".landing-band");
+    await expect(band).toBeVisible();
+    const look = await band.evaluate((el) => {
+      const probe = (css: string) => {
+        const p = document.createElement("span");
+        p.style.cssText = css;
+        el.append(p);
+        const v = getComputedStyle(p).backgroundColor;
+        p.remove();
+        return v;
+      };
+      const s = getComputedStyle(el);
+      return {
+        fill: s.backgroundColor,
+        top: s.borderTopWidth,
+        raised: probe("background: var(--ui-surface-raised)"),
+        bandFill: probe("background: var(--ui-band-fill)"),
+        page: getComputedStyle(document.body).backgroundColor,
+      };
+    });
+    if (theme === "light") {
+      expect(look.fill).toBe(look.bandFill);
+    } else {
+      expect(look.fill).toBe(look.raised);
+      expect(look.fill).not.toBe(look.page);
+      expect(look.top).toBe("1px");
+      const [r, g, b] = (look.fill.match(/\d+/g) ?? []).map(Number);
+      expect(b - r, "blue over red").toBeLessThan(16);
+      expect(Math.max(r, g, b) - Math.min(r, g, b)).toBeLessThan(16);
+    }
+  }
+});
+
 test("the copy button copies the current release's install command", async ({ page, context, browserName }) => {
   test.skip(browserName !== "chromium", "clipboard permissions are Chromium's");
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);
