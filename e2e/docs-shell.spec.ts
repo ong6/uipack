@@ -250,15 +250,15 @@ test.describe("the sidebar's marker", () => {
     await expect
       .poll(() => page.locator(".uipack-docs__sidebar .uipack-docs__nav-track").evaluate((t) => getComputedStyle(t).color))
       .toBe(colours[1]);
-    // The trip was hops: it rose off the page column (to its right) and landed back on it, with no
-    // trail; it set off as the mark of the page left (Start's cell) and landed as this page's
+    // The trip was hops: it rose off the page column (to its right) and landed back on it, its
+    // dotted trail behind it; it set off as the mark of the page left (Start's cell) and landed as this page's
     // (Rules: the top right cell, in the accent).
     const trip = await poses(page, "nav");
     const column = trip.at(-1)!.x;
     expect(Math.max(...trip.map((p) => p.x)) - column).toBeGreaterThan(3);
     expect(trip.some((p) => p.sy !== 1)).toBe(true);
     expect(trip.at(-1)!.sy).toBe(1);
-    expect(trip.some((p) => p.trail)).toBe(false);
+    expect(trip.some((p) => p.trail)).toBe(true);
     expect([...new Set(trip.map((p) => p.live))]).toEqual(["0", "1"]);
     await expect.poll(() => dotOf(page, navMarker)).toEqual({ cell: "1", fill: colours[1] });
 
@@ -321,9 +321,86 @@ test.describe("the sidebar's marker", () => {
   });
 });
 
+test.describe("sidebar and rail text", () => {
+  test.use({ viewport: { width: 1440, height: 900 } });
+  for (const theme of ["light", "dark"] as const)
+    test(`${theme}: sub-pages and "On this page" read at 13px or more and 4.5:1 or more, under the pages`, async ({ page }) => {
+      await page.goto(`/foundations/writing/general?theme=${theme}`);
+      await expect(page.locator(".uipack-docs__toc-list a").first()).toBeVisible();
+      const read = await page.evaluate(() => {
+        const rgb = (c: string) => (c.match(/[\d.]+/g) ?? []).map(Number);
+        const lum = (c: string) => {
+          const [r, g, b] = rgb(c).map((v) => {
+            const s = v / 255;
+            return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
+          });
+          return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+        };
+        const ground = (el: Element | null): string => {
+          for (; el; el = el.parentElement) {
+            const bg = getComputedStyle(el).backgroundColor;
+            if (rgb(bg)[3] !== 0 && bg !== "transparent") return bg;
+          }
+          return "rgb(255, 255, 255)";
+        };
+        const measure = (sel: string) =>
+          [...document.querySelectorAll<HTMLElement>(sel)]
+            .filter((a) => a.getClientRects().length && a.getAttribute("aria-current") === null)
+            .map((a) => {
+              const [l1, l2] = [lum(getComputedStyle(a).color), lum(ground(a))].sort((x, y) => y - x);
+              return { px: parseFloat(getComputedStyle(a).fontSize), ratio: (l1 + 0.05) / (l2 + 0.05) };
+            });
+        return {
+          pages: measure(
+            ".uipack-docs__sidebar .uipack-docs__nav-section[data-open] .uipack-docs__nav-inner > div > ul > li > a",
+          ),
+          subs: measure(".uipack-docs__sidebar .uipack-docs__nav-sub a"),
+          rail: measure(".uipack-docs__toc-list a"),
+        };
+      });
+      for (const [name, links] of Object.entries(read)) {
+        expect(links.length, name).toBeGreaterThan(2);
+        for (const l of links) {
+          expect(l.px, `${name} size`).toBeGreaterThanOrEqual(13);
+          expect(l.ratio, `${name} contrast`).toBeGreaterThanOrEqual(4.5);
+        }
+      }
+      // The hierarchy holds: a sub-page is smaller than a page.
+      expect(Math.max(...read.subs.map((l) => l.px))).toBeLessThan(Math.min(...read.pages.map((l) => l.px)));
+    });
+});
+
+/**
+ * Characters on each rendered line of the page's long paragraphs and list items (a line is the
+ * characters whose boxes share a vertical centre, from Range rects), each block's last line left
+ * out. Runs in the page.
+ */
+function charactersPerLine() {
+  const perLine = (el: Element) => {
+    const rows = new Map<number, number>();
+    const walk = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    const range = document.createRange();
+    for (let n = walk.nextNode() as Text | null; n; n = walk.nextNode() as Text | null)
+      for (let i = 0; i < n.data.length; i++) {
+        range.setStart(n, i);
+        range.setEnd(n, i + 1);
+        const r = range.getClientRects()[0];
+        if (!r) continue;
+        const row = Math.round(r.top + r.height / 2);
+        rows.set(row, (rows.get(row) ?? 0) + 1);
+      }
+    return [...rows.values()].slice(0, -1);
+  };
+  const long = (sel: string, min: number) =>
+    [...document.querySelectorAll(sel)].filter((e) => (e.textContent ?? "").length > min).flatMap(perLine);
+  return { lines: long(".uipack-docs__prose > p", 150), items: long(".uipack-docs__prose > :is(ul, ol) > li", 200) };
+}
+
 test.describe("widths", () => {
   for (const width of [1440, 1920]) {
-    test(`${width}: the column and the rail sit together, prose at its measure, tables the full column`, async ({ page }) => {
+    test(`${width}: the column and the rail sit together, prose at 75–88 characters a line, tables the full column`, async ({
+      page,
+    }) => {
       await page.setViewportSize({ width, height: 1000 });
       await page.goto("/agents?theme=light");
       const rail = page.locator(".uipack-docs__toc");
@@ -336,24 +413,41 @@ test.describe("widths", () => {
         const paras = [...document.querySelectorAll<HTMLElement>(".uipack-docs__prose > p")];
         const proseRight = Math.max(...paras.map((p) => p.getBoundingClientRect().right));
         const proseWidth = Math.max(...paras.map((p) => p.getBoundingClientRect().width));
-        const fontSize = parseFloat(getComputedStyle(paras[0]).fontSize);
         const table = document.querySelector(".uipack-docs__prose .uipack-docs__table")?.getBoundingClientRect();
-        return { side, main, toc, proseRight, proseWidth, fontSize, table, vw: innerWidth };
+        return { side, main, toc, proseRight, proseWidth, table, vw: innerWidth };
       });
       // No dead gutter: the rail starts within ~a quarter of the column of the prose's right edge.
       expect(g.toc.left - g.proseRight).toBeLessThanOrEqual(220);
       expect(g.toc.left + 5 - g.main.right).toBeGreaterThanOrEqual(38);
       expect(g.toc.left + 5 - g.main.right).toBeLessThanOrEqual(58);
-      expect(g.main.width).toBeLessThanOrEqual(881);
+      expect(g.main.width).toBeLessThanOrEqual(761);
       // The pair is centred in the space right of the sidebar (the rail's box reaches 5px past its
       // text on each side: room for a focus ring).
       const leftGap = g.main.left - g.side.right;
       const rightGap = g.vw - (g.toc.right - 5);
       expect(Math.abs(leftGap - rightGap)).toBeLessThanOrEqual(2);
-      // Prose stops at about 76ch; a table takes the whole column.
-      expect(g.proseWidth).toBeLessThanOrEqual(g.fontSize * 0.62 * 76);
+      // A table takes the whole column; prose stops short of it.
       expect(g.proseWidth).toBeLessThan(g.main.width);
       expect(Math.abs(g.table!.width - g.main.width)).toBeLessThanOrEqual(1);
+      // Prose runs 75–88 characters a line (the median line in range, none longer), list items
+      // never longer: measured on this page and on Writing, which is mostly paragraphs.
+      const lines: number[] = [];
+      const items: number[] = [];
+      for (const path of ["/agents", "/foundations/writing"]) {
+        if (path !== "/agents") await page.goto(`${path}?theme=light`);
+        await expect(page.locator(".uipack-docs__toc")).toBeVisible();
+        await page.evaluate(() => document.fonts.ready.then(() => undefined));
+        const counted = await page.evaluate(charactersPerLine);
+        lines.push(...counted.lines);
+        items.push(...counted.items);
+      }
+      lines.sort((a, b) => a - b);
+      expect(lines.length).toBeGreaterThanOrEqual(10);
+      const median = lines[Math.floor(lines.length / 2)];
+      expect(median).toBeGreaterThanOrEqual(75);
+      expect(median).toBeLessThanOrEqual(88);
+      expect(Math.max(...lines)).toBeLessThanOrEqual(88);
+      expect(Math.max(...items)).toBeLessThanOrEqual(88);
     });
   }
 
@@ -449,6 +543,27 @@ test.describe("the banner's edges", () => {
   });
 });
 
+test.describe("the page bar", () => {
+  for (const width of [1440, 390])
+    test(`${width}: location only (section, then parent page); the style labelled beside the source links`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto("/foundations/writing/general?theme=light");
+      const location = page.locator(".showcase-context");
+      await expect(location.getByRole("link")).toHaveText(["Rules", "Writing"]);
+      await expect(location).not.toContainText("style");
+      await expect(location.getByRole("link", { name: "Writing" })).toHaveAttribute("href", "/foundations/writing?theme=light");
+      const style = page.locator(".uipack-docs__source-links").getByRole("link", { name: "Style: Technical" });
+      await expect(style).toBeVisible();
+      await expect(style).toHaveAttribute("href", "/styles?theme=light");
+      await expect(page.getByRole("link", { name: "View as Markdown" })).toBeVisible({ visible: width > 520 });
+      // A deck sub-view's parent is the Deck player; a page with no parent shows its section alone.
+      await page.goto("/deck?deck=bento&theme=light");
+      await expect(page.locator(".showcase-context").getByRole("link")).toHaveText(["Build", "Deck player"]);
+      await page.goto("/agents?theme=light");
+      await expect(page.locator(".showcase-context").getByRole("link")).toHaveText(["Start"]);
+    });
+});
+
 test.describe("390px", () => {
   test.use({ viewport: { width: 390, height: 844 }, hasTouch: true });
 
@@ -480,6 +595,49 @@ test.describe("390px", () => {
     await expect(drawer.locator('[aria-current="page"]')).toHaveText("Style contract");
     await expect(drawer.locator(".uipack-docs__nav-track")).not.toHaveAttribute("data-hidden");
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+  });
+
+  test("a wide table scrolls in a focusable box whose content fades at each edge with more beyond it", async ({ page }) => {
+    await page.goto("/agents?theme=light");
+    await expect(page.locator("main h1")).toBeVisible();
+    const box = page.locator(".uipack-docs__prose .uipack-docs__table").first();
+    await expect(box).toBeVisible();
+    await box.scrollIntoViewIfNeeded();
+    const look = () =>
+      box.evaluate((el) => {
+        const s = getComputedStyle(el);
+        return {
+          overflows: el.scrollWidth > el.clientWidth + 1,
+          tabIndex: el.tabIndex,
+          mask: s.maskImage || s.getPropertyValue("-webkit-mask-image"),
+          more: el.dataset.more ?? "",
+          start: parseFloat(s.getPropertyValue("--table-fade-start")) || 0,
+          end: parseFloat(s.getPropertyValue("--table-fade-end")) || 0,
+          left: el.scrollLeft,
+          max: el.scrollWidth - el.clientWidth,
+        };
+      });
+    const start = await look();
+    expect(start.overflows).toBe(true);
+    expect(start.tabIndex).toBe(0);
+    expect(start.mask).toContain("linear-gradient");
+    // At the start only the far edge fades: there is more table to the right, none to the left.
+    expect(start.left).toBe(0);
+    expect(start.start).toBe(0);
+    expect(start.end).toBeGreaterThan(24);
+    // The keyboard scrolls it: focused, the right arrow moves it along, and the near edge fades too.
+    await box.focus();
+    await page.keyboard.press("ArrowRight");
+    await expect.poll(async () => (await look()).start).toBeGreaterThan(24);
+    // At the end the far edge clears.
+    await box.evaluate((el) => (el.scrollLeft = el.scrollWidth));
+    await expect.poll(async () => (await look()).end).toBe(0);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+    // A table that fits is never marked, so it never fades.
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await expect.poll(async () => (await look()).overflows).toBe(false);
+    await expect.poll(async () => (await look()).more).toBe("");
+    expect((await look()).end).toBe(0);
   });
 
   test("phone type sizes: prose 16px, h1 36px", async ({ page }) => {

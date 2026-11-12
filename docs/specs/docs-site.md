@@ -254,8 +254,7 @@ page column (out to a sub-page's tree line), crossing sections if it must, the n
 opening as it arrives. A hop is an arc to the right of the column, 5 to 9px high, ending in a
 squash onto the mark's bottom edge; a trip is one hop for each 40px, none shorter than 220ms and
 five at most, so a neighbouring link is one hop. It takes as long as the plane's flight (420ms plus
-1.1ms a pixel, 1150ms at most) and leaves no trail (a straight dotted line under arcs reads as a
-second path). Across sections it sets off as the mark of the page left and changes its dot's cell
+1.1ms a pixel, 1150ms at most) and leaves the plane's short dotted trail on the column behind it. Across sections it sets off as the mark of the page left and changes its dot's cell
 and hue as its last hop lifts. In "On this page" the mark hops down a dotted path that steps right
 for each h3, the read part in the accent; when headings pass faster than a hop it makes for the
 latest, never a queue. With reduced motion nothing hops: the marker is drawn in place. The current page is also marked by weight and a tinted row, so the
@@ -290,11 +289,14 @@ its hue.
 
 Technical's, unchanged ([Technical, Type](technical.md#type)): IBM Plex Sans 600 headings, Plex
 Sans text, IBM Plex Mono labels, self-hosted. Sidebar levels: section labels in mono caps 12px
-600 (ink), pages 13.5px (ink-2), sub-pages 12.5px (ink-3), captions 12px mono (ink-3).
+600 (ink), pages 14px (ink-2), sub-pages 13px (ink-2, on the tree line), captions 12px mono (ink-3); "On
+this page" 13.5px (ink-2), its sub-headings 13px.
 
 ## Density and rhythm
 
-Technical's (density 0.9, the core type ratio). Prose keeps a 76ch measure.
+Technical's (density 0.9, the core type ratio). Prose keeps a 37em measure, 75–88 characters a line
+(Plex Sans averages about 0.45em a character; a `ch` is 0.6em, so a 76ch measure ran to 105), and
+steps up from 17px to 18px from 1440.
 
 ## Ornaments
 
@@ -312,8 +314,8 @@ location marker and the section hues are navigation, not ornaments: they are set
 | Setting | This site |
 | --- | --- |
 | Banner | The shell's (sticky, 64px, its ground and rule full width); its logo, tabs, search and theme toggle sit on the page's 1120px column, on the sections' edges (`playground/showcase.css`, "The landing view") |
-| Hero | Split: the statement, the install line with a copy button (the release `docs:sync` writes), Read the docs and Open the gallery on 5 columns; the product's real output on 7: the agent read order as a live figure, with an authored phone drawing |
-| Section order | Hero, Start from your job (the four Build cards in one row, each tinted with its docs section's hue), How it's built (the layers as a `LayerStack`), The parts (live parts in a bento), Set the rules, check the work (the two secondary cards, Rules and Check: most readers only build), For agents (the closing band), then a footer site map generated from the docs manifest's five sections |
+| Hero | Split: the statement, the install line with a copy button (the release `docs:sync` writes), Read the docs and Open the gallery on 5 columns; the product's real output on 7: the agent read order as a live figure building a real page (the `/web` sample, Tidy: its brand, headline, action, a figure of the product and its result rows), with an authored phone drawing |
+| Section order | Hero, Start from your job (the four Build cards in one row, each tinted with its docs section's hue), How it's built (the layers as a `LayerStack` on two thirds, the text and a read-next list beside it), The parts (live parts in a bento), Set the rules, check the work (the two secondary cards, Rules and Check: most readers only build), For agents (the closing band), then a footer site map generated from the docs manifest's five sections |
 | Goal | Read the docs: the hero's one filled button. The closing band's action is its own (How an agent uses UiPack), in the band's gold |
 | Loading | The hero figure at once; the layer stack and the parts as they near the viewport; the 3D scene only on screen, with WebGL and motion allowed, a still otherwise |
 
@@ -324,11 +326,13 @@ location marker and the section hues are navigation, not ornaments: they are set
 | Setting | This site |
 | --- | --- |
 | Banner | Sticky, 64px, full width; its logo starts on the sidebar's left inset (below 900px the menu icon on the page's edge) and its last control ends on the right edge of "On this page", or of the page column where there is no rail. On Assets both sit on the grid's edges |
+| Page bar | Where the page sits, and nothing else: its section's chip, then its parent page (a sub-page's page, a deck view's Deck player). To the right, "Style: Technical", See it in Assets (where the gallery has the page's assets), View as Markdown and Edit on GitHub; a phone keeps the location and the style |
 | Sidebar | Docked to the left edge under the banner, 232–288px (15vw), scrolling on its own |
-| Page column | At most 880px; prose at a 76ch measure inside it; tables, code, figures and demos take the whole column |
+| Page column | At most 760px; prose at a 37em measure inside it (75–88 characters a line, 18px from 1440); tables, code, figures and demos take the whole column |
 | On this page | 204–248px, 40–56px from the column; the column and the rail are centred as a pair, so the spare width goes to the outer margins and there is no dead gutter between the text and the rail at 1440 or 1920 |
 | A page without a rail | Its demos need the width (a figure gallery, charts, 3D): a column up to 1344px, 1176px at 1440, so a 1120-unit figure draws within 1% of its own size |
 | 900–1180px | "On this page" folds into a disclosure above the page |
+| A table wider than the column | Scrolls inside its own focusable box (the arrow keys move it), its content fading out at each edge that has more table beyond it (a mask on the box, so nothing darkens behind the text; the shell marks which edges have more as the box scrolls or resizes); never a page-wide scroll |
 | Below 900px | The sidebar becomes a drawer from the header's menu button; "On this page" is the disclosure; phone type sizes are the docs layout's own |
 
 ## Writing style

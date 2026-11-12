@@ -109,7 +109,7 @@ const notFoundPage: PageDef = {
 };
 
 /** Whether a media query matches, following changes. */
-function useMediaQuery(query: string) {
+export function useMediaQuery(query: string) {
   return useSyncExternalStore(
     (change) => {
       const list = matchMedia(query);
@@ -118,6 +118,53 @@ function useMediaQuery(query: string) {
     },
     () => matchMedia(query).matches,
   );
+}
+
+/**
+ * Marks each docs table's scroll box with the edges it can still scroll toward (`data-more`:
+ * "start", "end", both, or no attribute), for showcase.css's edge fade. Tables arrive with each
+ * page's Markdown, so new boxes are picked up as they appear; a box is re-marked when it scrolls
+ * (one capturing listener) or when it or its table changes size.
+ */
+function useTableScrollCues() {
+  useEffect(() => {
+    const mark = (box: HTMLElement) => {
+      // A box that fits has nothing beyond either edge, whatever scroll offset it kept from before.
+      const max = box.scrollWidth - box.clientWidth;
+      const more = max > 1 ? [box.scrollLeft > 1 && "start", box.scrollLeft < max - 1 && "end"].filter(Boolean).join(" ") : "";
+      if (more) box.dataset.more = more;
+      else delete box.dataset.more;
+    };
+    const boxOf = (el: Element) => el.closest<HTMLElement>(".uipack-docs__table");
+    const resized = new ResizeObserver((entries) => {
+      for (const e of entries) {
+        const box = boxOf(e.target);
+        if (box) mark(box);
+      }
+    });
+    const seen = new WeakSet<Element>();
+    const scan = () => {
+      for (const box of document.querySelectorAll<HTMLElement>(".uipack-docs__table")) {
+        if (seen.has(box)) continue;
+        seen.add(box);
+        resized.observe(box);
+        if (box.firstElementChild) resized.observe(box.firstElementChild);
+        mark(box);
+      }
+    };
+    const added = new MutationObserver(scan);
+    added.observe(document.body, { childList: true, subtree: true });
+    scan();
+    const onScroll = (e: Event) => {
+      if (e.target instanceof HTMLElement && e.target.classList.contains("uipack-docs__table")) mark(e.target);
+    };
+    addEventListener("scroll", onScroll, { capture: true, passive: true });
+    return () => {
+      removeEventListener("scroll", onScroll, true);
+      resized.disconnect();
+      added.disconnect();
+    };
+  }, []);
 }
 
 /**
@@ -193,6 +240,7 @@ export function ShowcaseShell({
   children: ReactNode;
 }) {
   const { theme, flip, note, toc } = useShowcaseTheme();
+  useTableScrollCues();
   // The Assets tab (/gallery) and the landing page (/) are modes of this shell: the same header, no docs sidebar.
   const gallery = active === "gallery";
   const landing = active === "landing";
@@ -232,6 +280,14 @@ export function ShowcaseShell({
   // Previous and next follow the manifest's reading order, sub-views included.
   const index = pageDefs.findIndex((p) => p.id === page.id);
   const neighbour = (p: PageDef | undefined) => (p && !notFound ? { title: pageHeading(p), href: pageHref(p, theme) } : null);
+  // The page's parent, for the location row: a sub-page's page ("Writing" above "General rules"),
+  // or the page a sub-view belongs to ("Deck player" above "Bento").
+  const parentDef = !notFound && page.parent ? pageDefs.find((p) => p.id === page.parent) : undefined;
+  const parent = parentDef
+    ? { title: parentDef.label, href: pageHref(parentDef, theme) }
+    : !notFound && page.query && page.title
+      ? { title: page.title, href: `${page.path}?theme=${theme}` }
+      : null;
 
   const header = (
     <header className="showcase-header">
@@ -372,10 +428,11 @@ export function ShowcaseShell({
         navigationLabel="Library"
         markdownHref={notFound ? undefined : `/${page.file}`}
         editHref={notFound ? undefined : editUrl(page.file)}
+        // Where the page sits: its section's chip (the one place on the page its hue shows), then
+        // its parent page, if it has one. Facts about the page sit with the source links instead.
         eyebrow={
           section && (
             <p className="showcase-context">
-              {/* The section chip: the one place on the page its hue shows. */}
               <a
                 className="showcase-crumb"
                 href={pageHref(
@@ -389,18 +446,30 @@ export function ShowcaseShell({
                   {section.label}
                 </span>
               </a>
-              <span aria-hidden="true">·</span>
-              {/* On /styles itself the line still names the style, marked as the current page. */}
-              <a href={`/styles?theme=${theme}`} aria-current={active === "styles" ? "page" : undefined}>
-                {styleName} style
-              </a>
-              {galleryCategoryForPage(page.id) && (
+              {parent && (
                 <>
-                  <span aria-hidden="true">·</span>
-                  <a href={galleryHref(theme, galleryCategoryForPage(page.id))}>See it in Assets</a>
+                  <span aria-hidden="true">›</span>
+                  <a href={parent.href}>{parent.title}</a>
                 </>
               )}
             </p>
+          )
+        }
+        pageMeta={
+          !notFound && (
+            <>
+              {/* The style the page's content uses, labelled; on /styles itself, marked as the current page. */}
+              <a
+                className="showcase-style-link"
+                href={`/styles?theme=${theme}`}
+                aria-current={active === "styles" ? "page" : undefined}
+              >
+                Style: {styleName}
+              </a>
+              {galleryCategoryForPage(page.id) && (
+                <a href={galleryHref(theme, galleryCategoryForPage(page.id))}>See it in Assets</a>
+              )}
+            </>
           )
         }
         landmark="main"

@@ -106,8 +106,10 @@ export interface DocsLayoutProps {
   markdownHref?: string;
   /** Where to edit the page's source ("Edit on GitHub"), shown above the page. */
   editHref?: string;
-  /** A short line before those links (the page's group, say). */
+  /** A short line before those links (where the page sits: its section, its parent page). */
   eyebrow?: ReactNode;
+  /** Items in the same row as those links, before them: facts about the page, not its place (its style, say). */
+  pageMeta?: ReactNode;
   /** The article's element: "section" (default) inside a host page that has its own main, or "main". */
   landmark?: "section" | "main";
   /** The article's id, the skip link's target. Default "docs-content". */
@@ -249,6 +251,7 @@ export function DocsLayout({
   markdownHref,
   editHref,
   eyebrow,
+  pageMeta,
   landmark = "section",
   contentId = "docs-content",
   contentLabel = "Documentation content",
@@ -403,11 +406,12 @@ export function DocsLayout({
           aria-label={contentLabel}
           tabIndex={-1}
         >
-          {(markdownHref || editHref || eyebrow) && (
+          {(markdownHref || editHref || eyebrow || pageMeta) && (
             <div className="uipack-docs__page-bar">
               {eyebrow}
-              {(markdownHref || editHref) && (
+              {(markdownHref || editHref || pageMeta) && (
                 <span className="uipack-docs__source-links">
+                  {pageMeta}
                   {markdownHref && <a href={markdownHref}>View as Markdown</a>}
                   {editHref && <a href={editHref}>Edit on GitHub</a>}
                 </span>

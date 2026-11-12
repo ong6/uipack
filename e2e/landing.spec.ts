@@ -211,6 +211,105 @@ test("job cards: tinted by section in light; in dark a neutral card with the hue
   }
 });
 
+test("the For agents band: the band fill in light; in dark a raised, ruled charcoal step, not blue", async ({ page }) => {
+  for (const theme of ["light", "dark"] as const) {
+    await page.goto(`/?theme=${theme}`);
+    const band = page.locator(".landing-band");
+    await expect(band).toBeVisible();
+    const look = await band.evaluate((el) => {
+      const probe = (css: string) => {
+        const p = document.createElement("span");
+        p.style.cssText = css;
+        el.append(p);
+        const v = getComputedStyle(p).backgroundColor;
+        p.remove();
+        return v;
+      };
+      const s = getComputedStyle(el);
+      return {
+        fill: s.backgroundColor,
+        top: s.borderTopWidth,
+        raised: probe("background: var(--ui-surface-raised)"),
+        bandFill: probe("background: var(--ui-band-fill)"),
+        page: getComputedStyle(document.body).backgroundColor,
+      };
+    });
+    if (theme === "light") {
+      expect(look.fill).toBe(look.bandFill);
+    } else {
+      expect(look.fill).toBe(look.raised);
+      expect(look.fill).not.toBe(look.page);
+      expect(look.top).toBe("1px");
+      const [r, g, b] = (look.fill.match(/\d+/g) ?? []).map(Number);
+      expect(b - r, "blue over red").toBeLessThan(16);
+      expect(Math.max(r, g, b) - Math.min(r, g, b)).toBeLessThan(16);
+    }
+  }
+});
+
+for (const width of [1440, 1920])
+  test(`${width}: "How it's built" is balanced: the text column runs most of the stack's height`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/?theme=light");
+    await page.locator("#built").scrollIntoViewIfNeeded();
+    await expect(page.locator("#built .uipack-stack a")).toHaveCount(6, { timeout: 15_000 });
+    const h = await page.evaluate(() => {
+      const box = (s: string) => document.querySelector(s)!.getBoundingClientRect();
+      return { text: box(".landing-built__text").height, stack: box(".landing-built__stack").height };
+    });
+    expect(h.text / h.stack).toBeGreaterThan(0.8);
+    const next = page.getByRole("list", { name: "Read next" }).getByRole("link");
+    await expect(next).toHaveCount(4);
+    for (const link of await next.all()) expect((await link.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  });
+
+for (const width of [1440, 390])
+  test(`${width}: the part pictures are crops that read, and each ends in a fade`, async ({ page }) => {
+    await withoutWebGL(page);
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/?theme=light");
+    await mountLazyParts(page);
+    // The rendered size of the words a reader sees in each picture (inside its box), as the median
+    // over its text: the deck's slide, the chart's labels and rows, the article's prose.
+    const floors = { deck: 14, charts: 9.5, article: 12 };
+    for (const [tile, floor] of Object.entries(floors)) {
+      const box = page.locator(`.landing-tile--${tile} .landing-preview`);
+      await box.scrollIntoViewIfNeeded();
+      const seen = await box.evaluate((el) => {
+        const frame = el.getBoundingClientRect();
+        const scale = frame.width
+          ? el.firstElementChild!.getBoundingClientRect().width / (el.firstElementChild as HTMLElement).offsetWidth
+          : 0;
+        const sizes: number[] = [];
+        const walk = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+        for (let n = walk.nextNode(); n; n = walk.nextNode()) {
+          const parent = n.parentElement!;
+          const r = parent.getBoundingClientRect();
+          if (!n.textContent!.trim() || !r.width || r.top > frame.bottom - 40 || r.bottom < frame.top) continue;
+          sizes.push(parseFloat(getComputedStyle(parent).fontSize) * (scale || 1));
+        }
+        sizes.sort((a, b) => a - b);
+        return { median: sizes[Math.floor(sizes.length / 2)] ?? 0, count: sizes.length, mask: getComputedStyle(el).maskImage };
+      });
+      expect(seen.count, `${tile}: words in view`).toBeGreaterThan(2);
+      expect(seen.median, `${tile}: median rendered text`).toBeGreaterThanOrEqual(floor);
+      expect(seen.mask, `${tile}: ends in a fade`).toContain("linear-gradient");
+    }
+  });
+
+test("the hero's page is real output: the /web sample's brand, headline, action and results", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/?theme=light");
+  const wide = page.locator(".landing-hero__figure svg.uipack--wide");
+  await expect(wide).toBeVisible();
+  const words = (await wide.locator("text").allTextContents()).map((t) => t.trim());
+  for (const expected of ["Tidy", "Forty emails in.", "Three that need you.", "Start free", "37 handled", "3 need you"])
+    expect(words, expected).toContain(expected);
+  // The product's figure inside it is drawn with uipack's own nodes and connectors.
+  expect(await wide.locator('[data-uipack="node"]').count()).toBeGreaterThanOrEqual(1 + 4 + 3);
+});
+
 test("the copy button copies the current release's install command", async ({ page, context, browserName }) => {
   test.skip(browserName !== "chromium", "clipboard permissions are Chromium's");
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);

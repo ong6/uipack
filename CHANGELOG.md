@@ -34,12 +34,14 @@ One default changes what a page draws (below), so this is a minor release
   `markerMemory` (a sessionStorage key) it travels there from the page the reader left, crossing
   sections and opening the new one as it arrives. The plane flies, with a short dotted trail; the
   mark hops like a game piece (arcs with a squash on landing, one hop for a neighbouring link, five
-  at most, in the plane's time, no trail). `markerLive` and `markerColor` put the mark's dot on any
+  at most, in the plane's time, with the same trail). `markerLive` and `markerColor` put the mark's dot on any
   of its four cells in any colour, so the marker can show a state per page (`DocsMarkerCell`), and
   `onMarkerTrip` tells the host how long a trip takes. Reduced motion: it jumps.
 - **`DocsLayout` drawer:** `mobileNavigation="drawer"` with `navigationOpen` and
   `onNavigationOpenChange`: below 900px the sidebar is a modal drawer from the left, opened by the
   host's header button.
+- **`DocsLayout` page bar:** `pageMeta`, items in the row with "View as Markdown" and "Edit on
+  GitHub" (facts about the page, such as its style), so `eyebrow` can say only where the page sits.
 - **`DocsLayout` search:** `search={{ load, resolveHref }}` puts a box at the top of the sidebar and
   opens a ⌘K / Ctrl-K dialog with results grouped by section. Hand-rolled, no library or WebAssembly:
   `docsSearchEntries`, `packDocsSearchIndex`, `unpackDocsSearchIndex`, `searchDocs`,
@@ -60,8 +62,9 @@ One default changes what a page draws (below), so this is a minor release
 - `playground/grade.json`: the docs site's tier-1 config, with a 1920 view beside 1440 and 390
   (`e2e/tier1.spec.ts` uses it, on the landing page too).
 - **The docs site's landing page** at `/`, built to the landing recipe: the agent read order as a
-  live figure, the install line with a copy button (the same release line `docs:sync` writes), six
-  "Start from your job" cards tinted by section, the layers as a `LayerStack`, live parts in a bento
+  live figure building the `/web` sample page, the install line with a copy button (the same
+  release line `docs:sync` writes), six "Start from your job" cards tinted by section (in dark,
+  only their top rule and chip), the layers as a `LayerStack`, live parts in a bento
   (the agent-loop preset, the Deck player, the span chart, article parts, a 3D scene that mounts only
   on screen with WebGL), a For-agents band and a site map from the manifest; the docs search and
   ⌘K / Ctrl-K work there too. "What UiPack is" (`docs/README.md`), which `/` showed, moves to
@@ -82,6 +85,10 @@ One default changes what a page draws (below), so this is a minor release
   on the site's charcoal ground instead of Technical's navy, keeping Technical's hues; diagrams use
   the site's `docs-night` theme ([its spec](docs/specs/docs-site.md#demos-and-fixed-looks)).
   junxiong.dev, notes.junxiong.dev and the package's own defaults are unchanged.
+- **The docs site's pages read at a measure:** prose runs 75–88 characters a line (a 37em measure,
+  18px from 1440, in a 760px column), a wide table fades out at the edge it scrolls toward, the row
+  above each page says only where it sits ("Rules › Writing") with "Style: Technical" beside View
+  as Markdown, and sidebar sub-pages and "On this page" are 13px or more in ink-2.
 - **The docs site** groups its pages in five sidebar sections (Start, Rules, Build, Check,
   Reference); every URL is unchanged. Design direction and Web principles moved to Rules, Web parts
   API to Build, lintDeck rules and Article verification (renamed from "Verification") to Check,

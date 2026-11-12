@@ -350,7 +350,7 @@ export const navTripDuration = (route: Point[]) => Math.min(1150, 420 + polyline
 /**
  * Plays one sidebar trip. The plane flies the route, a short dotted trail behind it, then turns to
  * face the link it docks beside. The mark hops it, a few arcs to the right of the route (`hopCount`),
- * landing each with a squash, in the same time and with no trail; `onLastHop` fires as its final
+ * landing each with a squash, in the same time, the same trail on the route beneath it; `onLastHop` fires as its final
  * hop leaves the ground. `onFrame(y)` fires as it passes each y (the host opens the section it
  * arrives in). Returns a cancel function.
  */
@@ -377,7 +377,9 @@ export function flyNavMarker(
         last = true;
         onLastHop?.();
       }
-      draw(p.x + pose.lift, p.y, 0, "", pose.sx, pose.sy);
+      // The trail stays on the route, under the arcs: the ground the mark has just covered.
+      const l = line.total * pose.along;
+      draw(p.x + pose.lift, p.y, 0, line.slice(l - 64, l), pose.sx, pose.sy);
       onFrame?.(p.y);
     } else {
       const l = line.total * easeInOut(t);

@@ -19,6 +19,13 @@ export const READ_ORDER: readonly { title: string; path: string; icon: IconName;
   },
 ];
 
+/**
+ * The page the hero figure builds: the /web sample page's hero (playground/WebShowcase.tsx, Tidy),
+ * quoted, the headline cut where it wraps and its accented words last. Its numbers and action are
+ * tidyFacts'.
+ */
+export const HERO_PAGE = { headline: ["Forty emails in.", "Three that", "need you."] } as const;
+
 /** The docs section a job card is tinted by and named after (the manifest's sections; their hues are the site's). */
 export type JobSection = Extract<DocsSectionId, "rules" | "build" | "check">;
 
@@ -128,6 +135,15 @@ export const LAYERS: readonly { id: string; label: string; summary: string; page
     zone: "parts",
   },
   { id: "components", label: "Components", summary: "The parts, each with its live demo", page: "figures", zone: "parts" },
+];
+
+/** "How it's built": where to read next, beside the stack: the overview, then the three layers a newcomer opens first (labels as the stack names them). */
+export const BUILT_NEXT: readonly { label: string; page: string }[] = [
+  { label: "What UiPack is", page: "start" },
+  ...["core", "specs", "recipes"].map((id) => {
+    const layer = LAYERS.find((l) => l.id === id)!;
+    return { label: layer.label, page: layer.page };
+  }),
 ];
 
 export const LAYER_ZONES = [
