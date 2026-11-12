@@ -13,7 +13,7 @@ import {
   type DocsMarkerShape,
   type Point,
 } from "./DocsMarkers";
-import { DocsSearchButton, DocsSearchDialog, type DocsSearchOptions } from "./DocsSearch";
+import { DocsSearchButton, DocsSearchDialog, useDocsSearchShortcut, type DocsSearchOptions } from "./DocsSearch";
 
 export interface DocsNavItem {
   title: string;
@@ -617,18 +617,7 @@ export function DocsLayout({
     };
   }, [navigationOpen]);
 
-  // ⌘K / Ctrl-K opens search from anywhere on the page.
-  useEffect(() => {
-    if (!search) return;
-    const onKey = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && !e.altKey && e.key.toLowerCase() === "k") {
-        e.preventDefault();
-        setSearching(true);
-      }
-    };
-    addEventListener("keydown", onKey);
-    return () => removeEventListener("keydown", onKey);
-  }, [search]);
+  useDocsSearchShortcut(!!search, setSearching);
 
   const searchButton = search && <DocsSearchButton placeholder={search.placeholder} onOpen={() => setSearching(true)} />;
   const navProps = { sections, activeHref, label: navigationLabel, collapsible, marker, memoryKey: markerMemory };
@@ -813,14 +802,7 @@ export function DocsLayout({
         )}
       </div>
 
-      {search && (
-        <DocsSearchDialog
-          open={searching}
-          onClose={() => setSearching(false)}
-          options={search}
-          sections={sections.map((s) => ({ id: keyOf(s), title: s.title, icon: s.icon, hue: s.hue }))}
-        />
-      )}
+      {search && <DocsSearchDialog open={searching} onClose={() => setSearching(false)} options={search} sections={sections} />}
     </div>
   );
 }

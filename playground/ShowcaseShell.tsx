@@ -21,7 +21,7 @@ import {
   type DocsSection,
   type DocsTocItem,
 } from "../src/docs";
-import { DocsSearchButton, DocsSearchDialog } from "../src/docs/DocsSearch";
+import { DocsSearchButton, DocsSearchDialog, useDocsSearchShortcut } from "../src/docs/DocsSearch";
 import "../src/docs/docs.css";
 import { editUrl } from "./docs-manifest";
 import { galleryCategoryForPage, galleryHref } from "./gallery-index";
@@ -201,17 +201,7 @@ export function ShowcaseShell({
   const search = useSiteSearch(theme);
   // The landing page's own search dialog (a docs page's is DocsLayout's): open from its header or ⌘K.
   const [searching, setSearching] = useState(false);
-  useEffect(() => {
-    if (!landing) return;
-    const onKey = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && !e.altKey && e.key.toLowerCase() === "k") {
-        e.preventDefault();
-        setSearching(true);
-      }
-    };
-    addEventListener("keydown", onKey);
-    return () => removeEventListener("keydown", onKey);
-  }, [landing]);
+  useDocsSearchShortcut(landing, setSearching);
   // The marker's shape for this load: the site's, or ?marker= (kept for the visit).
   const [marker] = useState(() => markerSetting());
   // Every page names itself in the tab, /web too: the sample page it hosts publishes the rest of its
@@ -311,7 +301,7 @@ export function ShowcaseShell({
           open={searching}
           onClose={() => setSearching(false)}
           options={search}
-          sections={sidebarSections(theme).map((s) => ({ id: s.id ?? s.title, title: s.title, icon: s.icon, hue: s.hue }))}
+          sections={sidebarSections(theme)}
         />
       </div>
     );

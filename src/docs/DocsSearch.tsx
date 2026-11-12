@@ -11,9 +11,10 @@ export interface DocsSearchOptions {
   placeholder?: string;
 }
 
-/** A section as the results name it: its title, icon and hue (from `DocsLayout`'s sections). */
+/** A section as the results name it: its title, icon and hue (`DocsLayout`'s sections, as they are). */
 export interface DocsSearchSection {
-  id: string;
+  /** Matches an entry's `section`. Default: the title. */
+  id?: string;
   title: string;
   icon?: ReactNode;
   hue?: string;
@@ -40,6 +41,21 @@ export function DocsSearchButton({ placeholder = "Search docs", onOpen }: { plac
       <kbd aria-hidden="true">{mac ? "⌘K" : "Ctrl K"}</kbd>
     </button>
   );
+}
+
+/** ⌘K / Ctrl-K opens search from anywhere on the page while `enabled`; `setOpen` is the dialog's state setter. */
+export function useDocsSearchShortcut(enabled: boolean, setOpen: (open: boolean) => void) {
+  useEffect(() => {
+    if (!enabled) return;
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && !e.altKey && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setOpen(true);
+      }
+    };
+    addEventListener("keydown", onKey);
+    return () => removeEventListener("keydown", onKey);
+  }, [enabled, setOpen]);
 }
 
 const cache = new WeakMap<DocsSearchOptions["load"], Promise<DocsSearchEntry[]>>();
@@ -112,10 +128,8 @@ export function DocsSearchDialog({
 
   // Keep the active option in view as the arrow keys move through a long list.
   useEffect(() => {
-    list.current?.querySelector(`[id="${optionId(active)}"]`)?.scrollIntoView({ block: "nearest" });
-    // optionId depends only on the stable id.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [active]);
+    list.current?.querySelector(`[id="${id}-option-${active}"]`)?.scrollIntoView({ block: "nearest" });
+  }, [id, active]);
 
   const follow = (href: string) => {
     const url = new URL(href, location.href);
@@ -194,7 +208,7 @@ export function DocsSearchDialog({
         </p>
         <div className="uipack-docs-search__results" id={`${id}-list`} role="listbox" aria-label="Results" ref={list}>
           {groups.map((group, g) => {
-            const section = sections.find((s) => s.id === group.section);
+            const section = sections.find((s) => (s.id ?? s.title) === group.section);
             const labelId = `${id}-group-${group.section || "other"}`;
             return (
               <div
