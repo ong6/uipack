@@ -174,7 +174,10 @@ export function ContentsRail({
     const t0 = performance.now();
     const step = (now: number) => {
       const t = Math.min(1, (now - t0) / duration);
-      s.at = from + delta * easeInOut(t);
+      // Aim at the stop as it is now: the rail can re-lay out mid-glide (the current link turns
+      // bold and wraps, fonts arrive), and a target read once would land on the old position.
+      const to = s.stops[index] ?? target;
+      s.at = from + (to - from) * easeInOut(t);
       draw();
       if (t < 1) s.frame = requestAnimationFrame(step);
     };
