@@ -10,16 +10,7 @@ import {
   type LibraryPage,
   type PageDef,
 } from "./catalog";
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-  useSyncExternalStore,
-  type CSSProperties,
-  type ReactNode,
-} from "react";
+import { createContext, useContext, useEffect, useMemo, useState, useSyncExternalStore, type ReactNode } from "react";
 import { Wordmark } from "../src";
 import {
   DocsLayout,
@@ -35,7 +26,7 @@ import "../src/docs/docs.css";
 import { editUrl } from "./docs-manifest";
 import { galleryCategoryForPage, galleryHref } from "./gallery-index";
 import { SEARCH_INDEX_PATH } from "./search-index-path";
-import { markerSetting, NAV_MEMORY_KEY, SectionIcon, sectionHue } from "./site-settings";
+import { markerSetting, NAV_MEMORY_KEY, SectionIcon, sectionHue, sectionHueStyle } from "./site-settings";
 import { LANDING_TITLE } from "./landing-index";
 
 type ShowcaseTheme = {
@@ -385,7 +376,7 @@ export function ShowcaseShell({
                   pageDefs.find((p) => p.id === section.groups[0].defaultPage)!,
                   theme,
                 )}
-                style={{ "--docs-hue": sectionHue(section.id) } as CSSProperties}
+                style={sectionHueStyle(section.id)}
               >
                 <span className="showcase-crumb__chip">
                   <SectionIcon id={section.id} size={14} />

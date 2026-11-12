@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import type { DocsMarkerShape } from "../src/docs";
 import type { DocsSectionId } from "./docs-manifest";
 
@@ -30,6 +30,9 @@ export const NAV_MEMORY_KEY = "uipack-docs-nav";
 
 /** Each section's hue, a role the site's palette sets (site-palette.css). */
 export const sectionHue = (id: DocsSectionId) => `var(--site-hue-${id})`;
+
+/** A section's hue as `--docs-hue` on an element, the name the docs layout and the site's CSS read it by. */
+export const sectionHueStyle = (id: DocsSectionId) => ({ "--docs-hue": sectionHue(id) }) as CSSProperties;
 
 /** Each section's icon: 24-unit line drawings, stroked in the section's hue by the docs layout. */
 const ICON_PATHS: Record<DocsSectionId, ReactNode> = {

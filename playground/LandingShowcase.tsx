@@ -13,14 +13,14 @@
 import { lazy, Suspense, useEffect, useRef, useState, type ReactNode } from "react";
 import { version } from "../package.json";
 import { librarySections, pageDefs, pageHref, type PageDef } from "./catalog";
-import { REPO_URL } from "./docs-manifest";
+import { REPO_URL, type DocsSectionId } from "./docs-manifest";
 import { galleryHref } from "./gallery-index";
 import { installLine } from "./release";
 import { SITE_ORIGIN } from "./site";
 import { useShowcaseTheme } from "./ShowcaseShell";
 import { Scaled, useNearViewport } from "./preview-stage";
 import { JOBS, READ_ORDER, type Job } from "./landing/content";
-import { NAV_MEMORY_KEY, SectionIcon } from "./site-settings";
+import { NAV_MEMORY_KEY, SectionIcon, sectionHueStyle } from "./site-settings";
 import "./landing.css";
 
 type Theme = "light" | "dark";
@@ -214,7 +214,12 @@ function JobCard({ job, theme }: { job: Job; theme: Theme }) {
   return (
     <li className="landing-jobs__item">
       {/* The whole card is the link: one large target, named by its title and its line. */}
-      <a className="landing-job" data-section={job.section} href={pageHref(page(job.page), theme)}>
+      <a
+        className="landing-job"
+        data-section={job.section}
+        style={sectionHueStyle(job.section)}
+        href={pageHref(page(job.page), theme)}
+      >
         <div className="landing-job__top">
           <svg
             className="landing-job__art"
@@ -240,6 +245,13 @@ function JobCard({ job, theme }: { job: Job; theme: Theme }) {
     </li>
   );
 }
+
+/** A section's name in its hue, as the job cards are tinted. */
+const SectionName = ({ id }: { id: DocsSectionId }) => (
+  <span className="landing-hue" style={sectionHueStyle(id)}>
+    {librarySections.find((s) => s.id === id)!.label}
+  </span>
+);
 
 /** A section's head: the plain-name h2 (Technical's web section head), the lead and an aside. */
 function SectionHead({ id, title, lead, aside }: { id: string; title: string; lead: string; aside?: ReactNode }) {
@@ -267,8 +279,8 @@ function Jobs({ theme }: { theme: Theme }) {
           lead="Pick what you are making; each card names what to read first."
           aside={
             <>
-              Each card is tinted with its section in the docs: <span data-section="build">Build</span>,{" "}
-              <span data-section="rules">Rules</span> or <span data-section="check">Check</span>.
+              Each card is tinted with its section in the docs: <SectionName id="build" />, <SectionName id="rules" /> or{" "}
+              <SectionName id="check" />.
             </>
           }
         />
@@ -571,6 +583,7 @@ function SiteMap({ theme }: { theme: Theme }) {
               aria-labelledby={`map-${section.id}`}
               className="landing-map__section"
               data-section={section.id}
+              style={sectionHueStyle(section.id)}
             >
               <h3 id={`map-${section.id}`}>
                 <SectionIcon id={section.id} size={15} />

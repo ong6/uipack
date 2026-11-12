@@ -293,9 +293,6 @@ html:has(.showcase-frame:not([data-banner="static"])) {
   background: color-mix(in srgb, var(--docs-hue) 10%, transparent);
   transition: background-color 140ms ease;
 }
-.showcase-crumb .site-section-icon {
-  color: var(--docs-hue);
-}
 .showcase-crumb:hover .showcase-crumb__chip {
   background: color-mix(in srgb, var(--docs-hue) 16%, transparent);
 }
@@ -308,14 +305,13 @@ html:has(.showcase-frame:not([data-banner="static"])) {
     padding: 0;
   }
 }
-.site-section-icon {
-  color: var(--docs-hue);
-}
 .showcase-frame .showcase-context a.showcase-crumb:hover {
   background: color-mix(in srgb, var(--docs-hue) 16%, transparent);
 }
+/* A section's icon (site-settings.tsx), stroked in its section's hue (--docs-hue) wherever it sits. */
 .site-section-icon {
   flex: none;
+  color: var(--docs-hue);
   fill: none;
   stroke: currentColor;
   stroke-width: 1.7;

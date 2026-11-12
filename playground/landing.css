@@ -4,11 +4,6 @@
    full-bleed page in the landing archetype's one 1120px column (docs/system/layout/landing.md). */
 
 .uipack-landing {
-  /* Section tints for the job cards and the site map: the docs site's section hues (site-palette.css,
-     the spec's "Navigation"), the same ones the sidebar marks its sections with. */
-  --landing-hue-rules: var(--site-hue-rules);
-  --landing-hue-build: var(--site-hue-build);
-  --landing-hue-check: var(--site-hue-check);
   --landing-band-line: color-mix(in srgb, var(--ui-band-ink) 20%, transparent);
   --landing-gutter: 32px;
   --landing-pad: 104px;
@@ -16,21 +11,6 @@
   font-family: var(--ui-font-text);
   font-size: 16px;
   line-height: 1.6;
-}
-.uipack-landing [data-section="rules"] {
-  --hue: var(--landing-hue-rules);
-}
-.uipack-landing [data-section="build"] {
-  --hue: var(--landing-hue-build);
-}
-.uipack-landing [data-section="check"] {
-  --hue: var(--landing-hue-check);
-}
-.uipack-landing [data-section="start"] {
-  --hue: var(--site-hue-start);
-}
-.uipack-landing [data-section="reference"] {
-  --hue: var(--site-hue-reference);
 }
 @media (max-width: 1023px) {
   .uipack-landing {
@@ -356,8 +336,8 @@
   max-width: 52ch;
   color: var(--ui-ink-2);
 }
-.landing-head__aside [data-section] {
-  color: var(--hue);
+.landing-head__aside .landing-hue {
+  color: var(--docs-hue);
   font-weight: 600;
 }
 
@@ -378,9 +358,9 @@
   flex-direction: column;
   gap: 8px;
   padding: 20px 20px 18px;
-  border: 1px solid color-mix(in srgb, var(--hue) 28%, transparent);
-  background: color-mix(in srgb, var(--hue) 6%, var(--ui-surface-raised));
-  box-shadow: inset 0 2px 0 var(--hue);
+  border: 1px solid color-mix(in srgb, var(--docs-hue) 28%, transparent);
+  background: color-mix(in srgb, var(--docs-hue) 6%, var(--ui-surface-raised));
+  box-shadow: inset 0 2px 0 var(--docs-hue);
   color: var(--ui-ink);
   text-decoration: none;
   transition:
@@ -388,7 +368,7 @@
     transform var(--ui-dur-quick) var(--ui-ease-settle);
 }
 .landing-job:hover {
-  border-color: var(--hue);
+  border-color: var(--docs-hue);
   transform: translateY(-2px);
 }
 .landing-job__top {
@@ -400,26 +380,19 @@
 .landing-job__art {
   width: 76px;
   height: 50px;
-  color: var(--hue);
+  color: var(--docs-hue);
 }
 .landing-job__chip {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   padding: 4px 8px 4px 6px;
-  border: 1px solid color-mix(in srgb, var(--hue) 32%, transparent);
-  background: color-mix(in srgb, var(--hue) 9%, transparent);
+  border: 1px solid color-mix(in srgb, var(--docs-hue) 32%, transparent);
+  background: color-mix(in srgb, var(--docs-hue) 9%, transparent);
   color: var(--ui-ink);
   font: 600 12px/1.2 var(--ui-font-label);
   letter-spacing: 0.06em;
   text-transform: uppercase;
-}
-.landing-job__chip .site-section-icon {
-  fill: none;
-  stroke: var(--hue);
-  stroke-width: 1.7;
-  stroke-linecap: round;
-  stroke-linejoin: round;
 }
 .landing-job h3 {
   font-size: 18px;
@@ -756,13 +729,6 @@
   font: 600 12px/1.3 var(--ui-font-label);
   letter-spacing: 0.08em;
   text-transform: uppercase;
-}
-.landing-map h3 .site-section-icon {
-  fill: none;
-  stroke: var(--hue);
-  stroke-width: 1.7;
-  stroke-linecap: round;
-  stroke-linejoin: round;
 }
 .landing-map__caption {
   margin-bottom: 4px;
