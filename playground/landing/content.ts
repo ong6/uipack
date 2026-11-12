@@ -84,6 +84,12 @@ export const JOBS: readonly Job[] = [
   },
 ];
 
+/** The cards a reader builds from: "Start from your job" shows only these. */
+export const BUILD_JOBS: readonly Job[] = JOBS.filter((job) => job.section === "build");
+
+/** The steps either side of building (a site's own spec, grading): their own later section, "Set the rules, check the work". */
+export const SUPPORT_JOBS: readonly Job[] = JOBS.filter((job) => job.section !== "build");
+
 /** "How it's built": docs/README.md's layer table, bottom to top, as LayerStack data. */
 export const LAYERS: readonly { id: string; label: string; summary: string; page: string; zone: string }[] = [
   {

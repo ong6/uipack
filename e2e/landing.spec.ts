@@ -68,7 +68,8 @@ for (const width of [1440, 390])
       await expect(figure).toBeVisible();
       await expect(figure.locator(width < 720 ? "svg.uipack--narrow" : "svg.uipack--wide")).toBeVisible();
       // Every section rendered, with its live parts mounted.
-      for (const id of ["jobs", "built", "parts", "agents", "site-map"]) await expect(page.locator(`#${id}`)).toBeVisible();
+      for (const id of ["jobs", "built", "parts", "around", "agents", "site-map"])
+        await expect(page.locator(`#${id}`)).toBeVisible();
       await mountLazyParts(page);
       // Exactly one filled primary action in the hero; the gallery is the secondary.
       await expect(page.locator(".landing-hero .landing-btn--primary")).toHaveCount(1);
@@ -119,7 +120,7 @@ for (const width of [1920, 1440, 1024, 768, 390])
         return { start: box.left, end: box.right };
       }),
     );
-    expect(columns).toHaveLength(6);
+    expect(columns).toHaveLength(7);
     const column = columns[0];
     expect(column.end - column.start).toBeCloseTo(Math.min(1120, width - 2 * (width >= 1024 ? 32 : width >= 720 ? 24 : 16)), 0);
     expect(column.start).toBeCloseTo(width - column.end, 0);
@@ -151,6 +152,29 @@ test("the grader skips only the scaled pictures: each is inert and hidden, and n
   await expect(page.locator(".landing-preview :is(.landing-live, .landing-scene, .landing-tile__link)")).toHaveCount(0);
   for (const tile of ["deck", "charts", "article"])
     await expect(page.locator(`.landing-tile--${tile} .landing-preview`)).toHaveCount(1);
+});
+
+test("Start from your job holds only the Build cards; the Rules and Check cards sit in their own section after The parts", async ({
+  page,
+}) => {
+  await page.goto("/?theme=light");
+  const sections = (list: string) =>
+    page.locator(`${list} .landing-job`).evaluateAll((cards) => cards.map((card) => card.getAttribute("data-section")));
+  await expect(page.locator(".landing-job")).toHaveCount(6);
+  expect(await sections("#jobs")).toEqual(["build", "build", "build", "build"]);
+  expect(await sections("#around")).toEqual(["rules", "check"]);
+  const order = await page.locator(".uipack-landing section[id]").evaluateAll((all) => all.map((el) => el.id));
+  expect(order.indexOf("around")).toBeGreaterThan(order.indexOf("parts"));
+  expect(order.indexOf("around")).toBeLessThan(order.indexOf("agents"));
+  // The four build cards share one row at desktop width.
+  await page.setViewportSize({ width: 1440, height: 900 });
+  const tops = await page
+    .locator("#jobs .landing-job")
+    .evaluateAll((cards) => cards.map((card) => card.getBoundingClientRect().top));
+  expect(new Set(tops).size).toBe(1);
+  // The head's link reaches the later section.
+  await page.locator('#jobs a[href="#around"]').click();
+  await expect(page.locator("#around")).toBeInViewport();
 });
 
 test("job cards: tinted by section in light; in dark a neutral card with the hue on its top rule and chip", async ({ page }) => {

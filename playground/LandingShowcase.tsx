@@ -19,7 +19,7 @@ import { installLine } from "./release";
 import { SITE_ORIGIN } from "./site";
 import { useShowcaseTheme } from "./ShowcaseShell";
 import { Scaled, useNearViewport } from "./preview-stage";
-import { JOBS, READ_ORDER, type Job } from "./landing/content";
+import { BUILD_JOBS, READ_ORDER, SUPPORT_JOBS, type Job } from "./landing/content";
 import { JOB_ART } from "./landing/job-art";
 import { NAV_MEMORY_KEY, SectionIcon, sectionHueStyle } from "./site-settings";
 import "./landing.css";
@@ -221,13 +221,38 @@ function Jobs({ theme }: { theme: Theme }) {
           lead="Pick what you are making; each card names what to read first."
           aside={
             <>
-              Each card is tinted with its section in the docs: <SectionName id="build" />, <SectionName id="rules" /> or{" "}
-              <SectionName id="check" />.
+              All four open a page in <SectionName id="build" />. A site's own spec and grading come{" "}
+              <a href="#around">further down</a>.
             </>
           }
         />
-        <ul className="landing-jobs">
-          {JOBS.map((job) => (
+        <ul className="landing-jobs landing-jobs--build">
+          {BUILD_JOBS.map((job) => (
+            <JobCard key={job.title} job={job} theme={theme} />
+          ))}
+        </ul>
+      </div>
+    </section>
+  );
+}
+
+/** The steps either side of building, kept out of "Start from your job": most readers only build. */
+function Around({ theme }: { theme: Theme }) {
+  return (
+    <section className="landing-block" id="around" aria-labelledby="around-title">
+      <div className="landing-wrap">
+        <SectionHead
+          id="around-title"
+          title="Set the rules, check the work"
+          lead="The steps either side of building: a site's own spec before, grading after."
+          aside={
+            <>
+              Each card is tinted with its section in the docs: <SectionName id="rules" /> or <SectionName id="check" />.
+            </>
+          }
+        />
+        <ul className="landing-jobs landing-jobs--around">
+          {SUPPORT_JOBS.map((job) => (
             <JobCard key={job.title} job={job} theme={theme} />
           ))}
         </ul>
@@ -567,6 +592,7 @@ export default function LandingShowcase() {
         <Jobs theme={theme} />
         <Built theme={theme} />
         <Parts theme={theme} />
+        <Around theme={theme} />
         <Agents theme={theme} />
       </main>
       <SiteMap theme={theme} />

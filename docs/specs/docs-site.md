@@ -298,7 +298,7 @@ location marker and the section hues are navigation, not ornaments: they are set
 | --- | --- |
 | Banner | The shell's (sticky, 64px, its ground and rule full width); its logo, tabs, search and theme toggle sit on the page's 1120px column, on the sections' edges (`playground/showcase.css`, "The landing view") |
 | Hero | Split: the statement, the install line with a copy button (the release `docs:sync` writes), Read the docs and Open the gallery on 5 columns; the product's real output on 7: the agent read order as a live figure, with an authored phone drawing |
-| Section order | Hero, Start from your job (six cards, each tinted with its docs section's hue), How it's built (the layers as a `LayerStack`), The parts (live parts in a bento), For agents (the closing band), then a footer site map generated from the docs manifest's five sections |
+| Section order | Hero, Start from your job (the four Build cards in one row, each tinted with its docs section's hue), How it's built (the layers as a `LayerStack`), The parts (live parts in a bento), Set the rules, check the work (the two secondary cards, Rules and Check: most readers only build), For agents (the closing band), then a footer site map generated from the docs manifest's five sections |
 | Goal | Read the docs: the hero's one filled button. The closing band's action is its own (How an agent uses UiPack), in the band's gold |
 | Loading | The hero figure at once; the layer stack and the parts as they near the viewport; the 3D scene only on screen, with WebGL and motion allowed, a still otherwise |
 

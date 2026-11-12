@@ -315,6 +315,13 @@
   padding: 0;
   list-style: none;
 }
+/* "Start from your job": the four build cards in one row. "Set the rules, check the work": two. */
+.landing-jobs--build {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.landing-jobs--around {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
 .landing-jobs__item {
   display: grid;
 }
@@ -766,7 +773,8 @@
   .landing-head__aside {
     justify-self: start;
   }
-  .landing-jobs {
+  .landing-jobs,
+  .landing-jobs--build {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .landing-bento {
@@ -778,6 +786,8 @@
 }
 @media (max-width: 639px) {
   .landing-jobs,
+  .landing-jobs--build,
+  .landing-jobs--around,
   .landing-bento {
     grid-template-columns: minmax(0, 1fr);
   }
