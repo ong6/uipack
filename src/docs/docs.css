@@ -1227,7 +1227,7 @@
   font: inherit;
   background: transparent;
   border: 0;
-  border-radius: 4px;
+  border-radius: var(--docs-radius, 4px);
   color: var(--docs-ink);
   cursor: pointer;
   display: inline-grid;
@@ -1273,7 +1273,7 @@
   align-items: center;
   background: var(--docs-raised);
   border: 1px solid var(--docs-rule-strong);
-  border-radius: 4px;
+  border-radius: var(--docs-radius, 4px);
   color: var(--docs-faint);
   cursor: pointer;
   display: flex;
@@ -1303,7 +1303,7 @@
 .uipack-docs-search__button kbd {
   background: var(--docs-surface);
   border: 1px solid var(--docs-rule);
-  border-radius: 3px;
+  border-radius: var(--docs-radius, 4px);
   color: var(--docs-muted);
   font: 500 12px/1 var(--docs-font-mono);
   padding: 3px 5px;
@@ -1320,7 +1320,7 @@
 .uipack-docs-search {
   background: var(--docs-paper);
   border: 1px solid var(--docs-rule-strong);
-  border-radius: 6px;
+  border-radius: var(--docs-radius, 4px);
   box-shadow: 0 24px 64px rgb(0 0 0 / 0.28);
   color: var(--docs-ink);
   font-family: var(--docs-font-text);
@@ -1377,7 +1377,7 @@
 .uipack-docs-search__close {
   background: var(--docs-surface);
   border: 1px solid var(--docs-rule);
-  border-radius: 3px;
+  border-radius: var(--docs-radius, 4px);
   color: var(--docs-muted);
   cursor: pointer;
   font: 500 12px/1 var(--docs-font-mono);
@@ -1431,7 +1431,7 @@
    never an accent, underlined link; outside a layout it needs no ancestor. */
 a.uipack-docs-search__option {
   border-left: 3px solid transparent;
-  border-radius: 4px;
+  border-radius: var(--docs-radius, 4px);
   color: var(--docs-ink);
   display: grid;
   gap: 3px;
