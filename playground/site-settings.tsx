@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactNode } from "react";
-import type { DocsMarkerShape } from "../src/docs";
+import { isMarkerShape, type DocsMarkerShape } from "../src/docs/DocsMarkers";
 import type { DocsSectionId } from "./docs-manifest";
 
 /**
@@ -15,13 +15,12 @@ const MARKER_KEY = "uipack-docs-marker";
 /** The marker for this page load: the query's, else the one remembered this visit, else the site's. */
 export function markerSetting(search = location.search): DocsMarkerShape {
   const asked = new URLSearchParams(search).get("marker");
-  const valid = (v: unknown): v is DocsMarkerShape => v === "plane" || v === "mark";
   try {
-    if (valid(asked)) sessionStorage.setItem(MARKER_KEY, asked);
+    if (isMarkerShape(asked)) sessionStorage.setItem(MARKER_KEY, asked);
     const kept = sessionStorage.getItem(MARKER_KEY);
-    return valid(kept) ? kept : SITE_MARKER;
+    return isMarkerShape(kept) ? kept : SITE_MARKER;
   } catch {
-    return valid(asked) ? asked : SITE_MARKER;
+    return isMarkerShape(asked) ? asked : SITE_MARKER;
   }
 }
 

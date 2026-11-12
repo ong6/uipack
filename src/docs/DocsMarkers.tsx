@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type MouseEvent } from "react";
+import { useCallback, useEffect, useRef, type MouseEvent } from "react";
 import { useIsoLayoutEffect } from "../env";
 import type { DocsTocItem } from "./DocsLayout";
 
@@ -297,17 +297,3 @@ export function flyNavMarker(
 
 /** Whether the marker setting is one of the two shapes. */
 export const isMarkerShape = (value: unknown): value is DocsMarkerShape => value === "plane" || value === "mark";
-
-/** Re-render on a matchMedia change. */
-export function useMatchMedia(query: string) {
-  const [matches, setMatches] = useState(() => typeof matchMedia === "function" && matchMedia(query).matches);
-  useEffect(() => {
-    if (typeof matchMedia !== "function") return;
-    const list = matchMedia(query);
-    const change = () => setMatches(list.matches);
-    change();
-    list.addEventListener("change", change);
-    return () => list.removeEventListener("change", change);
-  }, [query]);
-  return matches;
-}
