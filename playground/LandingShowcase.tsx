@@ -88,9 +88,7 @@ function InstallCommand() {
       <span className="landing-install__prompt" aria-hidden="true">
         $
       </span>
-      <code className="landing-install__cmd" tabIndex={0} aria-label="Install command">
-        {line}
-      </code>
+      <code className="landing-install__cmd">{line}</code>
       <button className="landing-install__copy" type="button" onClick={() => void copy()} data-state={state}>
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
           <rect x="8" y="8" width="12" height="12" />

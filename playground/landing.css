@@ -312,26 +312,15 @@
   color: var(--ui-accent-ink);
   user-select: none;
 }
-/* The line scrolls sideways inside its box, faded at its end edge; it never wraps or widens the page. */
+/* The whole line shows, wrapped at any character when the box is narrower than it (a copied
+   command never has a hidden part, and no line box runs past the box into the figure beside it). */
 .landing-install__cmd {
   flex: 1;
   min-width: 0;
   align-self: center;
-  padding: 13px 12px;
-  overflow-x: auto;
-  white-space: nowrap;
-  scrollbar-width: none;
+  padding: 12px;
   color: var(--ui-ink);
-  -webkit-mask: linear-gradient(to right, black calc(100% - 28px), transparent);
-  mask: linear-gradient(to right, black calc(100% - 28px), transparent);
-}
-.landing-install__cmd::-webkit-scrollbar {
-  display: none;
-}
-.landing-install__cmd:focus-visible {
-  outline-offset: -2px;
-  -webkit-mask: none;
-  mask: none;
+  word-break: break-all;
 }
 .landing-install__copy {
   display: inline-flex;
