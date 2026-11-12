@@ -48,6 +48,8 @@ test("changing the pose moves the token and reaches the verdict", async ({ page 
   test.slow();
   await page.goto("/mechanism?theme=light");
   await expect(page.locator(machine)).toBeVisible();
+  // The loop runs only while the machine is on screen; at 1280×720 it starts at the fold.
+  await page.locator(machine).scrollIntoViewIfNeeded();
   await page.getByRole("button", { name: "Return", exact: true }).click();
   await expect(page.locator(readout)).toHaveText("checking proposal 3");
   await expect.poll(() => litToken(page)).not.toBeNull();
