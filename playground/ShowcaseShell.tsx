@@ -101,7 +101,7 @@ const notFoundPage: PageDef = {
 };
 
 /** Whether a media query matches, following changes. */
-function useMediaQuery(query: string) {
+export function useMediaQuery(query: string) {
   return useSyncExternalStore(
     (change) => {
       const list = matchMedia(query);

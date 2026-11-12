@@ -602,13 +602,17 @@
 }
 /* The article parts' picture: a small prose column, as a host article would set it. */
 .landing-article {
-  padding: 24px 28px;
+  padding: 16px 24px;
   background: var(--ui-paper);
   color: var(--ui-ink);
   font: 400 17px/1.65 var(--ui-font-text);
 }
 .landing-article > * + * {
   margin-top: 16px;
+}
+/* The layer head's own 40px top margin is for a host article's flow; the picture starts at it. */
+.landing-article > .uipack-layerhead.uipack-layerhead {
+  margin-top: 0;
 }
 .landing-article__title {
   font: 600 28px/1.2 var(--ui-font-display);
@@ -889,8 +893,22 @@
     transform: none;
   }
 }
-/* The deck's picture keeps its slide and controls; its phone hint (a viewport rule) is for a deck
-   a reader is holding, not a picture of one. */
-.landing-preview .uipack-deck-phone-hint {
+/* Each picture is a crop of the real part, zoomed until its words read, and it ends in a fade,
+   never on half a line. */
+.landing-preview {
+  -webkit-mask: linear-gradient(to bottom, black calc(100% - 40px), transparent);
+  mask: linear-gradient(to bottom, black calc(100% - 40px), transparent);
+}
+/* The deck: the slide alone (no controls or phone hint), drawn 1.25 times the picture's width and
+   cropped to its top left, where the title and the points are. */
+.landing-tile--deck .uipack-deck > :not(.uipack-deck-stage) {
+  display: none;
+}
+.landing-tile--deck .uipack-deck-stage {
+  width: 125%;
+  max-width: none;
+}
+/* The chart: its rows, without the filter drawer and key above them (its own page has those). */
+.landing-tile--charts .uipack-span .uipack-span__head {
   display: none;
 }

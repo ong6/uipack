@@ -187,6 +187,40 @@ for (const width of [1440, 1920])
     for (const link of await next.all()) expect((await link.boundingBox())!.height).toBeGreaterThanOrEqual(44);
   });
 
+for (const width of [1440, 390])
+  test(`${width}: the part pictures are crops that read, and each ends in a fade`, async ({ page }) => {
+    await withoutWebGL(page);
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/?theme=light");
+    await mountLazyParts(page);
+    // The rendered size of the words a reader sees in each picture (inside its box), as the median
+    // over its text: the deck's slide, the chart's labels and rows, the article's prose.
+    const floors = { deck: 14, charts: 9.5, article: 12 };
+    for (const [tile, floor] of Object.entries(floors)) {
+      const box = page.locator(`.landing-tile--${tile} .landing-preview`);
+      await box.scrollIntoViewIfNeeded();
+      const seen = await box.evaluate((el) => {
+        const frame = el.getBoundingClientRect();
+        const scale = frame.width
+          ? el.firstElementChild!.getBoundingClientRect().width / (el.firstElementChild as HTMLElement).offsetWidth
+          : 0;
+        const sizes: number[] = [];
+        const walk = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+        for (let n = walk.nextNode(); n; n = walk.nextNode()) {
+          const parent = n.parentElement!;
+          const r = parent.getBoundingClientRect();
+          if (!n.textContent!.trim() || !r.width || r.top > frame.bottom - 40 || r.bottom < frame.top) continue;
+          sizes.push(parseFloat(getComputedStyle(parent).fontSize) * (scale || 1));
+        }
+        sizes.sort((a, b) => a - b);
+        return { median: sizes[Math.floor(sizes.length / 2)] ?? 0, count: sizes.length, mask: getComputedStyle(el).maskImage };
+      });
+      expect(seen.count, `${tile}: words in view`).toBeGreaterThan(2);
+      expect(seen.median, `${tile}: median rendered text`).toBeGreaterThanOrEqual(floor);
+      expect(seen.mask, `${tile}: ends in a fade`).toContain("linear-gradient");
+    }
+  });
+
 test("the copy button copies the current release's install command", async ({ page, context, browserName }) => {
   test.skip(browserName !== "chromium", "clipboard permissions are Chromium's");
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);

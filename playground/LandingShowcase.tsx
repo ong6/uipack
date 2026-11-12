@@ -17,7 +17,7 @@ import { REPO_URL, type DocsSectionId } from "./docs-manifest";
 import { galleryHref } from "./gallery-index";
 import { installLine } from "./release";
 import { SITE_ORIGIN } from "./site";
-import { useShowcaseTheme } from "./ShowcaseShell";
+import { useMediaQuery, useShowcaseTheme } from "./ShowcaseShell";
 import { Scaled, useNearViewport } from "./preview-stage";
 import { BUILT_NEXT, JOBS, READ_ORDER, type Job } from "./landing/content";
 import { JOB_ART } from "./landing/job-art";
@@ -326,20 +326,27 @@ interface Tile {
   preview: (theme: Theme) => ReactNode;
 }
 
-/** A scaled, inert picture of a part (the deck, the chart, the article parts). */
-const picture = (width: number, fit: "contain" | "top", content: ReactNode) => (
-  <Scaled
-    width={width}
-    fit={fit}
-    ratio="auto"
-    className="landing-preview"
-    stageClassName="landing-preview__stage"
-    margin={NEAR_MARGIN}
-    idle={false}
-  >
-    {content}
-  </Scaled>
-);
+/**
+ * A scaled, inert picture of a part (the deck, the chart, the article parts), drawn at `width`
+ * CSS px, or at `phone` px on a phone, where the tile is a full-width column: near the tile's own
+ * width, so the part's words keep close to their size (landing.css crops each and fades its end).
+ */
+function Picture({ width, phone, children }: { width: number; phone?: number; children: ReactNode }) {
+  const narrow = useMediaQuery("(max-width: 639px)");
+  return (
+    <Scaled
+      width={narrow && phone ? phone : width}
+      fit="top"
+      ratio="auto"
+      className="landing-preview"
+      stageClassName="landing-preview__stage"
+      margin={NEAR_MARGIN}
+      idle={false}
+    >
+      {children}
+    </Scaled>
+  );
+}
 
 const TILES: Tile[] = [
   {
@@ -358,9 +365,23 @@ const TILES: Tile[] = [
     title: "Deck player",
     entry: "uipack/deck",
     page: "deck",
-    preview: (theme) => picture(960, "contain", <DeckPreview theme={theme} />),
+    preview: (theme) => (
+      <Picture width={960}>
+        <DeckPreview theme={theme} />
+      </Picture>
+    ),
   },
-  { id: "charts", title: "Charts", entry: "uipack/charts", page: "charts", preview: () => picture(960, "top", <ChartPreview />) },
+  {
+    id: "charts",
+    title: "Charts",
+    entry: "uipack/charts",
+    page: "charts",
+    preview: () => (
+      <Picture width={560} phone={360}>
+        <ChartPreview />
+      </Picture>
+    ),
+  },
   {
     id: "3d",
     title: "3D animations and object scenes",
@@ -373,7 +394,11 @@ const TILES: Tile[] = [
     title: "Article parts",
     entry: "uipack/article",
     page: "article",
-    preview: () => picture(640, "top", <ArticlePreview />),
+    preview: () => (
+      <Picture width={520} phone={330}>
+        <ArticlePreview />
+      </Picture>
+    ),
   },
 ];
 
