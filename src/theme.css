@@ -126,7 +126,8 @@
   align-items: center;
   gap: 6px;
   border: 1px solid var(--uipack-border);
-  border-radius: 6px;
+  /* A host names its own control radius on an ancestor (--uipack-ctl-radius); 6px without one. */
+  border-radius: var(--uipack-ctl-radius, 6px);
   background: var(--uipack-surface);
   color: var(--uipack-fg);
   /* Controls are mono, like the rest of the Technical chrome (labels, IDs, the shell's buttons). */

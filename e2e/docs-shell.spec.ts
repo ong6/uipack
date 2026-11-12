@@ -542,6 +542,8 @@ test.describe("the banner's edges", () => {
     page,
   }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
+    // Measured at rest: the page's entrance moves the first row (not the rail) for 320ms.
+    await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto("/agents?theme=light");
     await expect(page.locator(".uipack-docs__toc")).toBeVisible();
     const g = await page.evaluate(() => {

@@ -114,6 +114,8 @@ const AREAS = [
   ],
   // The landing page (/): its module, words, figures and previews, and the release line it shows.
   [/^playground\/(LandingShowcase|landing|release)/, ["landing", "site-consistency", "tier1"]],
+  // The site map: the landing page's footer and a not-found page.
+  [/^playground\/(SiteMap|site-map)/, ["landing", "site-consistency", "nav"]],
   // The live-preview stage the landing page and the Assets tab share.
   [/^playground\/preview-stage/, ["landing", "assets-gallery"]],
   [

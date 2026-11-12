@@ -11,11 +11,12 @@ import "../src/web/fonts.css";
 // navigation hues. After technical.css, and unlayered, so they win.
 import "./site-palette.css";
 import "./showcase.css";
-import { librarySections, pageDefs, pageHeading, pageHref, resolvePage } from "./catalog";
+import { pageDefs, pageHeading, resolvePage } from "./catalog";
 import { pageModules, routePath, routes } from "./routes";
 import { figureRows } from "./figure-rows";
 import { ShowcaseShell, ShowcaseThemeProvider, useShowcaseTheme } from "./ShowcaseShell";
 import { GALLERY_PATH } from "./gallery-index";
+import { SiteMap } from "./SiteMap";
 import { LANDING_MODULE, LANDING_PATH, LANDING_SECTIONS } from "./landing-index";
 
 // Every page module is its own chunk, with its own CSS. The shell (header, h1, intro) is in this
@@ -32,25 +33,8 @@ function NotFound() {
   const { theme } = useShowcaseTheme();
   return (
     <section className="showcase-not-found">
-      <div className="showcase-not-found__groups">
-        {/* The sidebar's five sections under their labels, each section's pages in sidebar order. */}
-        {librarySections.map((s) => (
-          <section key={s.id} aria-labelledby={`not-found-${s.id}`}>
-            <h2 id={`not-found-${s.id}`} className="showcase-subhead">
-              {s.label}
-            </h2>
-            <ul>
-              {s.groups
-                .flatMap((g) => pageDefs.filter((p) => p.group === g.id))
-                .map((p) => (
-                  <li key={p.id}>
-                    <a href={pageHref(p, theme)}>{p.query && p.title ? `${p.title} · ${p.label}` : p.label}</a>
-                  </li>
-                ))}
-            </ul>
-          </section>
-        ))}
-      </div>
+      {/* The site map, as the landing page's footer draws it, with every sub-page and sub-view. */}
+      <SiteMap theme={theme} every heading="h2" />
     </section>
   );
 }

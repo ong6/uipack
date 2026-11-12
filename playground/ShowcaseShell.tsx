@@ -325,7 +325,7 @@ export function ShowcaseShell({
         </a>
         {/* The two top-level views: the docs (text first, with samples in the pages) and the Assets gallery. */}
         <nav className="showcase-tabs" aria-label="Views">
-          <a href={docsHref} aria-current={gallery || landing ? undefined : "true"}>
+          <a href={docsHref} aria-current={gallery || landing || active === "not-found" ? undefined : "true"}>
             Docs
           </a>
           <a href={galleryHref(theme)} aria-current={gallery ? "true" : undefined}>

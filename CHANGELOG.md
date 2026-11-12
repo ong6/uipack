@@ -9,6 +9,8 @@ release is cut and how a site moves to it.
 
 ### Fixed
 
+- **`LayerStack`:** a band's padding sits on the 4px grid (12px; 16px at its end from 640px). A
+  one-line band keeps its 44px height; a band of two lines is 2px taller.
 - **`DocsLayout` collapsible sidebar:** a section's label starts on its page links' text edge (it
   sat 2px to their left).
 - **`DocsLayout` "On this page" disclosure:** its label stays on one line on a phone when the
@@ -20,6 +22,11 @@ release is cut and how a site moves to it.
 
 ### Added
 
+- **Figure controls:** `.uipack__ctl` (Open canvas, Pause, Replay) reads `--uipack-ctl-radius`, 6px
+  without it, so a host gives the controls its own corner.
+- **`DocsLayout` type hooks:** `--docs-leading-display`, `--docs-leading-label`,
+  `--docs-leading-text`, `--docs-leading-prose`, `--docs-label-tracking` and `--docs-title-gap`,
+  each with the layout's own value as its fallback ([docs layout](docs/docs-layout.md)).
 - **`DocsLayout` `searchOpen` and `onSearchOpenChange`:** a host can open the search dialog from a
   control of its own, a search button in its header on a phone, say.
 
