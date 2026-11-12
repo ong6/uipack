@@ -248,13 +248,19 @@ test.describe("the sidebar's marker", () => {
     await expect(page).toHaveURL(/\/foundations\/style\?theme=light$/);
     const current = sidebar(page).locator('[aria-current="page"]');
     await expect(current).toHaveText("Style contract");
-    const y = await settled(page, navMarker);
+    // Wait on where it is, not on its being still: it stands still in its portal before the last hop.
+    const linkOf = () =>
+      current.evaluate((a) => {
+        const r = a.getBoundingClientRect();
+        return { mid: r.top + r.height / 2, left: r.left, text: r.left + parseFloat(getComputedStyle(a).paddingLeft) };
+      });
+    await expect
+      .poll(async () => Math.abs((await midY(page, navMarker)) - (await linkOf()).mid), { timeout: 8000 })
+      .toBeLessThan(3);
+    await settled(page, navMarker);
     expect(await page.evaluate(() => (window as { __flew?: boolean }).__flew)).toBe(true);
-    const link = await current.evaluate((a) => {
-      const r = a.getBoundingClientRect();
-      return { mid: r.top + r.height / 2, left: r.left, text: r.left + parseFloat(getComputedStyle(a).paddingLeft) };
-    });
-    expect(Math.abs(y - link.mid)).toBeLessThan(3);
+    const link = await linkOf();
+    expect(Math.abs((await midY(page, navMarker)) - link.mid)).toBeLessThan(3);
     // Docked in the link's left padding, before its text, in the section's hue (Rules: the accent).
     const box = (await page.locator(navMarker).boundingBox())!;
     expect(box.x).toBeGreaterThanOrEqual(link.left - 1);
