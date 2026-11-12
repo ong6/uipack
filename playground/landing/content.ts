@@ -19,6 +19,13 @@ export const READ_ORDER: readonly { title: string; path: string; icon: IconName;
   },
 ];
 
+/**
+ * The page the hero figure builds: the /web sample page's hero (playground/WebShowcase.tsx, Tidy),
+ * quoted, the headline cut where it wraps and its accented words last. Its numbers and action are
+ * tidyFacts'.
+ */
+export const HERO_PAGE = { headline: ["Forty emails in.", "Three that", "need you."] } as const;
+
 /** The docs section a job card is tinted by and named after (the manifest's sections; their hues are the site's). */
 export type JobSection = Extract<DocsSectionId, "rules" | "build" | "check">;
 

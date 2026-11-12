@@ -221,6 +221,19 @@ for (const width of [1440, 390])
     }
   });
 
+test("the hero's page is real output: the /web sample's brand, headline, action and results", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/?theme=light");
+  const wide = page.locator(".landing-hero__figure svg.uipack--wide");
+  await expect(wide).toBeVisible();
+  const words = (await wide.locator("text").allTextContents()).map((t) => t.trim());
+  for (const expected of ["Tidy", "Forty emails in.", "Three that need you.", "Start free", "37 handled", "3 need you"])
+    expect(words, expected).toContain(expected);
+  // The product's figure inside it is drawn with uipack's own nodes and connectors.
+  expect(await wide.locator('[data-uipack="node"]').count()).toBeGreaterThanOrEqual(1 + 4 + 3);
+});
+
 test("the copy button copies the current release's install command", async ({ page, context, browserName }) => {
   test.skip(browserName !== "chromium", "clipboard permissions are Chromium's");
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);

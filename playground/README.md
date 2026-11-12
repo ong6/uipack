@@ -13,8 +13,8 @@ mode of `ShowcaseShell` (same header, no sidebar; the page brings its own `<main
 map), built to the [landing recipe](../docs/recipes/landing.md) in Technical. Its words are data in
 `landing/content.ts`, each from the doc it links, with pages named by manifest id; the install line
 is `release.ts`'s (the line `npm run docs:sync` writes into the docs); the site map is the manifest.
-The hero figure (`landing/HeroFigure.tsx`, the agent read order drawn with the figure parts, a wide
-and a phone drawing) loads at once; the layer stack and the bento previews (the agent-loop preset,
+The hero figure (`landing/HeroFigure.tsx`, the agent read order drawn with the figure parts building
+the `/web` sample page, Tidy, in a wide and a phone drawing) loads at once; the layer stack and the bento previews (the agent-loop preset,
 the Deck player, the span chart, article parts) mount as they near the viewport
 (`preview-stage.tsx`, shared with the gallery), and the 3D tile mounts its scene only on screen with
 WebGL and motion allowed, a still from `assets/styles/` otherwise. An old link to a heading of "What

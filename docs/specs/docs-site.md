@@ -283,7 +283,7 @@ location marker and the section hues are navigation, not ornaments: they are set
 
 | Setting | This site |
 | --- | --- |
-| Hero | Split: the statement, the install line with a copy button (the release `docs:sync` writes), Read the docs and Open the gallery on 5 columns; the product's real output on 7: the agent read order as a live figure, with an authored phone drawing |
+| Hero | Split: the statement, the install line with a copy button (the release `docs:sync` writes), Read the docs and Open the gallery on 5 columns; the product's real output on 7: the agent read order as a live figure building a real page (the `/web` sample, Tidy: its brand, headline, action, a figure of the product and its result rows), with an authored phone drawing |
 | Section order | Hero, Start from your job (six cards, each tinted with its docs section's hue), How it's built (the layers as a `LayerStack` on two thirds, the text and a read-next list beside it), The parts (live parts in a bento), For agents (the closing band), then a footer site map generated from the docs manifest's five sections |
 | Goal | Read the docs: the hero's one filled button. The closing band's action is its own (How an agent uses UiPack), in the band's gold |
 | Loading | The hero figure at once; the layer stack and the parts as they near the viewport; the 3D scene only on screen, with WebGL and motion allowed, a still otherwise |
