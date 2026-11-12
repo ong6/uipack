@@ -294,6 +294,34 @@ test.describe("390px", () => {
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
   });
 
+  test("a wide table scrolls in a focusable box that shades the edge with more table beyond it", async ({ page }) => {
+    await page.goto("/agents?theme=light");
+    await expect(page.locator("main h1")).toBeVisible();
+    const box = page.locator(".uipack-docs__prose .uipack-docs__table").first();
+    await expect(box).toBeVisible();
+    await box.scrollIntoViewIfNeeded();
+    const look = () =>
+      box.evaluate((el) => ({
+        overflows: el.scrollWidth > el.clientWidth + 1,
+        tabIndex: el.tabIndex,
+        attachment: getComputedStyle(el).backgroundAttachment,
+        image: getComputedStyle(el).backgroundImage,
+        left: el.scrollLeft,
+      }));
+    const start = await look();
+    expect(start.overflows).toBe(true);
+    expect(start.tabIndex).toBe(0);
+    // Covers that ride with the content over shades fixed to the box's edges.
+    expect(start.attachment).toBe("local, local, scroll, scroll");
+    expect(start.image.match(/radial-gradient/g)).toHaveLength(2);
+    // The keyboard scrolls it: focused, the right arrow moves it along.
+    expect(start.left).toBe(0);
+    await box.focus();
+    await page.keyboard.press("ArrowRight");
+    await expect.poll(async () => (await look()).left).toBeGreaterThan(0);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+  });
+
   test("phone type sizes: prose 16px, h1 36px", async ({ page }) => {
     await page.goto("/agents");
     expect(

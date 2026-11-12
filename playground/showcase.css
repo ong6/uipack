@@ -158,6 +158,18 @@ html:has(.showcase-frame:not([data-banner="static"])) {
 .showcase-frame .uipack-docs__contents {
   margin: -4px 0 0;
 }
+/* A table wider than the column scrolls inside its box (DocsMarkdown makes the box focusable, so
+   the arrow keys scroll it too). Its cue: a shade on each edge that has more table beyond it. Two
+   paper-coloured covers ride with the content (local), solid across a shade's whole 18px, and hide
+   the fixed shades (scroll) at an edge the reader has reached; a table that fits shows neither. */
+.showcase-frame .uipack-docs__table {
+  --table-shade: color-mix(in srgb, var(--ui-ink) 36%, transparent);
+  background:
+    linear-gradient(to right, var(--ui-paper) 18px, transparent) left / 36px 100% no-repeat local,
+    linear-gradient(to left, var(--ui-paper) 18px, transparent) right / 36px 100% no-repeat local,
+    radial-gradient(farthest-side at 0 50%, var(--table-shade), transparent) left / 18px 100% no-repeat scroll,
+    radial-gradient(farthest-side at 100% 50%, var(--table-shade), transparent) right / 18px 100% no-repeat scroll;
+}
 /* A demo's box only resets the style to Technical (demos.tsx); it takes no space of its own. */
 .showcase-demo {
   display: contents;
