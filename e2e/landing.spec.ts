@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { pageDefs } from "../playground/catalog";
 import { GALLERY_PATH } from "../playground/gallery-index";
+import { UIPACK_SPEC } from "../src/grade/spec";
 import { expect, test, type Page } from "./fixtures";
 
 // The landing page (/, playground/LandingShowcase.tsx): it renders whole at a desktop and a phone
@@ -19,16 +20,6 @@ function collectErrors(page: Page) {
   page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
   page.on("pageerror", (e) => errors.push(e.message));
   return errors;
-}
-
-/** Scrolls down the page in steps so every lazy section mounts, then back to the top. */
-async function scrollThrough(page: Page) {
-  const height = await page.evaluate(() => document.documentElement.scrollHeight);
-  for (let y = 0; y < height; y += 600) {
-    await page.evaluate((top) => scrollTo(0, top), y);
-    await page.waitForTimeout(60); // lets the IntersectionObservers fire at each stop
-  }
-  await page.evaluate(() => scrollTo(0, 0));
 }
 
 /** Brings each lazy part into view and waits for it: the layer stack and the parts' previews. */
@@ -76,7 +67,6 @@ for (const width of [1440, 390])
       const figure = page.locator(".landing-hero__figure .uipack");
       await expect(figure).toBeVisible();
       await expect(figure.locator(width < 720 ? "svg.uipack--narrow" : "svg.uipack--wide")).toBeVisible();
-      await scrollThrough(page);
       // Every section rendered, with its live parts mounted.
       for (const id of ["jobs", "built", "parts", "agents", "site-map"]) await expect(page.locator(`#${id}`)).toBeVisible();
       await mountLazyParts(page);
@@ -95,6 +85,21 @@ for (const width of [1440, 390])
       expect(smallest).toBeGreaterThanOrEqual(11);
       expect(errors).toEqual([]);
     });
+
+test("the grader skips only the scaled pictures: each is inert and hidden, and no live part is inside one", async ({ page }) => {
+  // src/grade/spec.ts ignores .landing-preview, as it does the Assets tab's previews: pictures of
+  // parts graded on their own pages. The live diagram and the 3D tile stay graded.
+  expect(UIPACK_SPEC.ignore).toContain(".landing-preview");
+  await withoutWebGL(page);
+  await page.goto("/?theme=light");
+  await mountLazyParts(page);
+  const pictures = page.locator(".landing-preview");
+  await expect(pictures).toHaveCount(3);
+  await expect(page.locator(".landing-preview:not([aria-hidden='true']), .landing-preview:not([inert])")).toHaveCount(0);
+  await expect(page.locator(".landing-preview :is(.landing-live, .landing-scene, .landing-tile__link)")).toHaveCount(0);
+  for (const tile of ["deck", "charts", "article"])
+    await expect(page.locator(`.landing-tile--${tile} .landing-preview`)).toHaveCount(1);
+});
 
 test("the copy button copies the current release's install command", async ({ page, context, browserName }) => {
   test.skip(browserName !== "chromium", "clipboard permissions are Chromium's");
