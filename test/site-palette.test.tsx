@@ -7,8 +7,19 @@ import { contrast, readStyle, resolveColor, type Theme } from "./style-values";
 // Technical's: light must stay Technical's exactly, dark is the site's charcoal, and every text
 // role and navigation hue must read on every surface it sits on.
 const css = readFileSync("playground/site-palette.css", "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
+/** The custom properties a rule block declares, as name to value. */
+const declarations = (block: string) =>
+  Object.fromEntries(
+    [...block.matchAll(/--([a-z][a-z0-9-]*):\s*([^;]+);/g)].map((m) => [m[1], m[2].replace(/\s+/g, " ").trim()]),
+  );
+// The frame's rule (the site's palette) is the file's first block; the demo ground is the rule whose
+// selector starts with :is(.showcase-demo, …).
+const frameBlock = /\{([^}]*)\}/.exec(css)![1];
+const groundBlock = /^:is\(\.showcase-demo[^{]*\{([^}]*)\}/m.exec(css)![1];
 const site: Record<string, string> = {};
-for (const m of css.matchAll(/--(ui|site)-([a-z0-9-]+):\s*([^;]+);/g)) site[`${m[1]}:${m[2]}`] = m[3].replace(/\s+/g, " ").trim();
+for (const [name, value] of Object.entries(declarations(frameBlock)))
+  if (/^(ui|site)-/.test(name)) site[name.replace(/^(ui|site)-/, "$1:")] = value;
+const ground = declarations(groundBlock);
 const technical = readStyle("technical");
 const siteUi = Object.fromEntries(
   Object.entries(site)
@@ -71,4 +82,58 @@ describe("the docs site's palette", () => {
           expect(contrast(hue(section, theme), color(ground, theme)), `${section} on ${ground}`).toBeGreaterThanOrEqual(floor);
     });
   }
+});
+
+// Demos, previews and figure dialogs keep Technical's hues and, in dark, sit on the site's ground
+// (docs/specs/docs-site.md, "Demos and fixed looks"): a fixed look's ground is the only value set.
+describe("the docs site's ground under demos and fixed looks", () => {
+  const GROUNDS = ["ui-paper", "ui-surface", "ui-surface-raised", "ui-surface-2", "ui-node", "ui-line-solid"];
+  const demo: Record<string, string> = {
+    ...technical,
+    ...Object.fromEntries(
+      Object.entries(ground)
+        .filter(([k]) => k.startsWith("ui-"))
+        .map(([k, v]) => [k.slice(3), v]),
+    ),
+  };
+  const demoColor = (name: string, theme: Theme) => resolveColor(demo[name], theme, demo);
+
+  it("sets only the ground: surfaces, node fills, solid lines and the band, never a hue, ink or face", () => {
+    const allowed = new Set([...GROUNDS, "tune-slide-line", "ui-band-fill"]);
+    for (const name of Object.keys(ground)) expect(allowed, name).toContain(name);
+    for (const name of GROUNDS) expect(ground, name).toHaveProperty(name);
+  });
+
+  it("keeps every light half Technical's and every dark half the page's own", () => {
+    for (const [name, value] of Object.entries(ground)) {
+      const [light, dark] = lightDark(value);
+      if (name.startsWith("ui-")) {
+        const role = name.slice(3);
+        expect(resolveColor(light, "light", technical), `${name} light`).toEqual(
+          resolveColor(lightDark(technical[role])[0], "light", technical),
+        );
+        expect(dark, `${name} dark`).toBe(lightDark(site[`ui:${role}`])[1]);
+      }
+    }
+  });
+
+  it("dark is neutral: no ground reads as navy", () => {
+    for (const name of ["paper", "surface", "surface-raised", "surface-2", "node", "line-solid", "band-fill"]) {
+      const [r, g, b] = demoColor(name, "dark");
+      // Technical's navy surfaces lean 50 or more toward blue; a cool charcoal leans a little.
+      expect(Math.max(r, g, b) - Math.min(r, g, b), name).toBeLessThan(16);
+      expect(b - r, `${name}: blue over red`).toBeLessThan(16);
+    }
+  });
+
+  for (const theme of ["light", "dark"] as const)
+    it(`${theme}: Technical's inks and accent hold 4.5:1, its flow colours 3:1, on every demo ground`, () => {
+      for (const surface of ["paper", "surface", "surface-raised", "surface-2", "node"]) {
+        for (const ink of ["ink", "ink-2", "ink-3", "accent"])
+          expect(contrast(demoColor(ink, theme), demoColor(surface, theme)), `${ink} on ${surface}`).toBeGreaterThanOrEqual(4.5);
+        for (const flow of ["flow-request", "flow-response", "flow-change", "flow-error"])
+          expect(contrast(demoColor(flow, theme), demoColor(surface, theme)), `${flow} on ${surface}`).toBeGreaterThanOrEqual(3);
+      }
+      expect(contrast(demoColor("band-ink", theme), demoColor("band-fill", theme))).toBeGreaterThanOrEqual(4.5);
+    });
 });

@@ -35,9 +35,8 @@ import "./gallery-showcase.css";
 
 type Theme = "light" | "dark";
 
-/** How a card shows its asset: a still SVG, a live render at its own size, or a live render scaled from a design width. */
+/** How a card shows its asset: a live render at its own size, or a live render scaled from a design width. */
 type Preview =
-  | { kind: "svg"; svg: (theme: Theme) => string }
   | { kind: "live"; render: (theme: Theme) => ReactNode; ratio: string }
   /** Rendered at `width` CSS px, then scaled: "contain" fits the whole thing in the box, "top" fills the width and crops below. */
   | { kind: "scaled"; render: (theme: Theme) => ReactNode; width: number; fit: "contain" | "top"; ratio?: string };
@@ -60,7 +59,6 @@ interface GalleryItem {
   wide?: boolean;
 }
 
-const svgUrl = (svg: string) => `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
 const lazyNamed = <M,>(load: () => Promise<M>, name: keyof M) =>
   lazy(() => load().then((m) => ({ default: m[name] as ComponentType })));
 const WebSampleStill = lazyNamed(() => import("./WebShowcase"), "WebSampleStill");
@@ -130,7 +128,18 @@ function galleryItems(): GalleryItem[] {
       title: starter.title,
       kind: "Starter",
       page: "presentations",
-      preview: { kind: "svg", svg: (theme) => renderSlideSvg(starter, { theme }) },
+      // Painted with the page's roles (inline, not an <img>), so the starter sits on the preview's
+      // ground like every other slide here, in either theme.
+      preview: {
+        kind: "live",
+        ratio: "16 / 9",
+        render: () => (
+          <div
+            className="gallery-preview__inline"
+            dangerouslySetInnerHTML={{ __html: renderSlideSvg(starter, { paint: "css" }) }}
+          />
+        ),
+      },
     });
 
   // Demos: the sample landing page and the mechanism.
@@ -256,7 +265,7 @@ function PreviewBox({ preview, theme, tile }: { preview: Preview; theme: Theme; 
         {preview.render(theme)}
       </Scaled>
     );
-  const ratio = preview.kind === "live" ? preview.ratio : "16 / 10";
+  const ratio = preview.ratio;
   return (
     <div
       ref={ref}
@@ -265,14 +274,9 @@ function PreviewBox({ preview, theme, tile }: { preview: Preview; theme: Theme; 
       aria-hidden="true"
       data-ui-style="technical"
     >
-      {near && (preview.kind === "svg" ? <SvgStill svg={preview.svg} theme={theme} /> : preview.render(theme))}
+      {near && preview.render(theme)}
     </div>
   );
-}
-
-function SvgStill({ svg, theme }: { svg: (theme: Theme) => string; theme: Theme }) {
-  const src = useMemo(() => svg(theme), [svg, theme]);
-  return src ? <img src={svgUrl(src)} alt="" decoding="async" /> : <span className="gallery-preview__none">Open to view</span>;
 }
 
 function Card({ item, theme }: { item: GalleryItem; theme: Theme }) {

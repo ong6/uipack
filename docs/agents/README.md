@@ -40,7 +40,7 @@ section order, hero), its writing style (tone, title forms, density, house words
 and the component looks it picks. Everything else holds on every site: the layout floors (reading
 order, a real narrow layout, no overflow, tap targets, focus, the 8px unit), motion timings,
 contrast, keyboard and touch support, the core writing rules and slot ceilings, and a fixed look's
-values (a figure never takes the site's accent). A request for a fixed value is a core-rule change, not a
+values (a figure never takes the site's accent; in dark a spec may set only the ground it sits on). A request for a fixed value is a core-rule change, not a
 site setting: say so instead of overriding it locally.
 
 ## Rules that catch agents most often

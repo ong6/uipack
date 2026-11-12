@@ -10,7 +10,8 @@ release is cut and how a site moves to it.
 ## [0.6.0] - 2026-11-12
 
 The docs shell (`uipack/docs`) gains collapsible sections with navigation hues, a travelling
-location marker, a drawer and search, all opt-in; the docs site uses them and gets its own spec.
+location marker, a drawer and search, all opt-in; the docs site uses them, gets its own spec and a
+landing page at `/`, and in dark shows its demos on its own charcoal ground.
 One default changes what a page draws (below), so this is a minor release
 ([version numbers](docs/releases.md#version-numbers)).
 
@@ -37,7 +38,14 @@ One default changes what a page draws (below), so this is a minor release
   marker (`?marker=mark` to compare), the shell's widths, and search. A registry row for
   ui.junxiong.dev; Technical's row is now the package defaults.
 - `playground/grade.json`: the docs site's tier-1 config, with a 1920 view beside 1440 and 390
-  (`e2e/tier1.spec.ts` uses it).
+  (`e2e/tier1.spec.ts` uses it, on the landing page too).
+- **The docs site's landing page** at `/`, built to the landing recipe: the agent read order as a
+  live figure, the install line with a copy button (the same release line `docs:sync` writes), six
+  "Start from your job" cards tinted by section, the layers as a `LayerStack`, live parts in a bento
+  (the agent-loop preset, the Deck player, the span chart, article parts, a 3D scene that mounts only
+  on screen with WebGL), a For-agents band and a site map from the manifest; the docs search and
+  ⌘K / Ctrl-K work there too. "What UiPack is" (`docs/README.md`), which `/` showed, moves to
+  `/what-uipack-is`, still the first page; `/start` and old `/#heading` links still reach it.
 
 ### Changed
 
@@ -46,7 +54,14 @@ One default changes what a page draws (below), so this is a minor release
   does not want it hides `.uipack-docs__contents`.
 - **Core rules:** a spec may set navigation hues and the location marker
   ([what a spec may set](docs/system/spec-settings.md), Navigation; [style](docs/system/style.md)):
-  a hue marks place only, beside the section's label, 3:1 as a mark.
+  a hue marks place only, beside the section's label, 3:1 as a mark. And in dark a spec may set the
+  ground a fixed look sits on (its card, canvas, surfaces and solid lines), never its hues, shapes
+  or faces ([what a spec may set](docs/system/spec-settings.md), Component looks;
+  [component looks](docs/components/README.md#modes)).
+- **The docs site in dark:** every demo, Assets preview, figure canvas dialog and 3D scene card sits
+  on the site's charcoal ground instead of Technical's navy, keeping Technical's hues; diagrams use
+  the site's `docs-night` theme ([its spec](docs/specs/docs-site.md#demos-and-fixed-looks)).
+  junxiong.dev, notes.junxiong.dev and the package's own defaults are unchanged.
 - **The docs site** groups its pages in five sidebar sections (Start, Rules, Build, Check,
   Reference); every URL is unchanged. Design direction and Web principles moved to Rules, Web parts
   API to Build, lintDeck rules and Article verification (renamed from "Verification") to Check,

@@ -8,7 +8,7 @@ import { expect, test } from "./fixtures";
 // views (1920, 1440 and 390, light and dark) with the same config as
 // `npm run grade -- check <url> --spec playground/grade.json`, no screenshots. A failure names the
 // check, view, selector and measured number.
-const PAGES = ["/", "/components/diagrams", "/web", "/docs"];
+const PAGES = ["/", "/what-uipack-is", "/components/diagrams", "/web", "/docs"];
 
 for (const path of PAGES)
   test(`tier 1 passes on ${path}`, async ({ baseURL, browserName }) => {

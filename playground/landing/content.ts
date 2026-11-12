@@ -3,6 +3,7 @@
 // docs/README.md ("How it is built"). Links name docs pages by their manifest id, so a page that
 // moves keeps its card (test: e2e/landing.spec.ts follows every one).
 import type { IconName } from "../../src";
+import type { DocsSectionId } from "../docs-manifest";
 
 /** The agent read order (docs/agents/README.md, "Read in this order"): the hero figure and the For agents band. */
 export const READ_ORDER: readonly { title: string; path: string; icon: IconName; long: string; note: string }[] = [
@@ -18,12 +19,8 @@ export const READ_ORDER: readonly { title: string; path: string; icon: IconName;
   },
 ];
 
-/**
- * The docs sections a job card is tinted by. The labels are the docs shell's five sections
- * (Start, Rules, Build, Check, Reference); the tints are landing.css's --landing-hue-* properties.
- */
-export type JobSection = "rules" | "build" | "check";
-export const SECTION_LABELS: Record<JobSection, string> = { rules: "Rules", build: "Build", check: "Check" };
+/** The docs section a job card is tinted by and named after (the manifest's sections; their hues are the site's). */
+export type JobSection = Extract<DocsSectionId, "rules" | "build" | "check">;
 
 export interface Job {
   title: string;

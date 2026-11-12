@@ -240,6 +240,23 @@ export function navHues(file: string) {
   return ["| Section | Role | Light | Dark |", "| --- | --- | --- | --- |", ...rows].join("\n");
 }
 
+/**
+ * The ground a spec sets under demos and fixed looks in dark (its value file's
+ * `:is(.showcase-demo, …)` rule): each role, light and dark.
+ */
+export function demoGround(file: string) {
+  const values = frontmatter(readFileSync(join(root, file), "utf8"))?.values;
+  if (typeof values !== "string") throw new Error(`${file}: demo-ground needs frontmatter values: <file>`);
+  const css = readFileSync(join(root, values), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
+  const block = /^:is\(\.showcase-demo[^{]*\{([^}]*)\}/m.exec(css)?.[1];
+  if (!block) throw new Error(`${values}: no demo ground rule (:is(.showcase-demo, …) { … })`);
+  const rows = [...block.matchAll(/--((?:ui|tune)-[a-z0-9-]+):\s*([^;]+);/g)].map(([, role, value]) => {
+    const [light, dark] = lightDark(value.replace(/\s+/g, " ").trim());
+    return `| ${code(`--${role}`)} | ${code(light)} | ${code(dark)} |`;
+  });
+  return ["| Role | Light (Technical's) | Dark (the site's) |", "| --- | --- | --- |", ...rows].join("\n");
+}
+
 /** The template's Role values table: every contract role, both cells a TODO to fill. */
 export function contractRoles() {
   const rows = CORE_ROLES.map((role) => `| ${code(`--ui-${role}`)} | TODO: | TODO: |`);
@@ -557,6 +574,7 @@ export const generators: Record<string, (file: string) => string> = {
   "site-map": (file) => siteMap(file),
   "spec-roles": (file) => specRoles(file),
   "nav-hues": (file) => navHues(file),
+  "demo-ground": (file) => demoGround(file),
   "contract-roles": () => contractRoles(),
   "diagram-family": () => diagramFamily(),
   "site-registry": (file) => registryTable(file),

@@ -2,10 +2,10 @@
 spec: docs-site
 site: ui.junxiong.dev (the uipack docs site, this repo's playground)
 extends: technical
-pages: [documentation]
-layouts: { documentation: docs-shell }
+pages: [landing, documentation]
+layouts: { landing: product-landing, documentation: docs-shell }
 components: { diagrams: blueprint, 3d: [studio, paper-theatre, kinetic, cartoon, realistic, abstract], mechanism: isometric }
-diagram-themes: { default: blueprint }
+diagram-themes: { default: docs-night }
 status: implemented
 uipack: current
 values: playground/site-palette.css
@@ -15,8 +15,9 @@ values: playground/site-palette.css
 
 The spec of the uipack docs site at [ui.junxiong.dev](https://ui.junxiong.dev): what it sets on top
 of [Technical](technical.md), the package's default look. Read it before changing the site's dark
-palette, its sidebar sections and their hues, its location marker or the docs shell's widths;
-everything else is Technical's and a rule for no other site.
+palette, the dark ground its demos sit on, its sidebar sections and their hues, its location marker,
+the docs shell's widths or the landing page; everything else is Technical's and a rule for no other
+site.
 
 Its values live in `playground/site-palette.css`, loaded only by the site, so the package and every
 other site keep Technical ([what a spec may set](../system/spec-settings.md)). The role table below
@@ -28,7 +29,8 @@ Technical's blueprint, read at night. Light is Technical exactly: Prussian ink o
 sheet, one amber mark. Dark is the site's own: a near-black neutral ground, charcoal rather than
 Technical's Prussian blue (the owner, 2026-11-11: "make it darker", "consider new colors for dark
 mode"), with neutral surfaces a small step lighter each, a neutral ink ramp, and Technical's gold
-and flow hues re-tuned to sit on charcoal. The sidebar is how a reader finds their way: five
+and flow hues re-tuned to sit on charcoal. Nothing large reads as blue in dark: the live demos and
+previews sit on the same charcoal ([Demos and fixed looks](#demos-and-fixed-looks)). The sidebar is how a reader finds their way: five
 sections, each with an icon and a hue, and a paper plane that flies to where the reader is.
 
 ## Role values
@@ -271,6 +273,18 @@ location marker and the section hues are navigation, not ornaments: they are set
 
 ## Layout
 
+### Landing
+
+`product-landing`, at `/` (`playground/LandingShowcase.tsx`, `playground/landing.css`, its words in
+`playground/landing/content.ts`), in the archetype's one 1120px column, with this site's changes:
+
+| Setting | This site |
+| --- | --- |
+| Hero | Split: the statement, the install line with a copy button (the release `docs:sync` writes), Read the docs and Open the gallery on 5 columns; the product's real output on 7: the agent read order as a live figure, with an authored phone drawing |
+| Section order | Hero, Start from your job (six cards, each tinted with its docs section's hue), How it's built (the layers as a `LayerStack`), The parts (live parts in a bento), For agents (the closing band), then a footer site map generated from the docs manifest's five sections |
+| Goal | Read the docs: the hero's one filled button. The closing band's action is its own (How an agent uses UiPack), in the band's gold |
+| Loading | The hero figure at once; the layer stack and the parts as they near the viewport; the 3D scene only on screen, with WebGL and motion allowed, a still otherwise |
+
 ### Documentation
 
 `docs-shell`, with this site's widths (`playground/showcase.css`):
@@ -295,15 +309,41 @@ Technical's ([Technical, Writing style](technical.md#writing-style)): the house 
 | Title form | As Technical: documentation headings are plain names |
 | Copy density | As Technical: compact, tables over prose for values |
 | House words | As Technical: "UiPack" for the product; section names Start, Rules, Build, Check, Reference |
+| Landing | As Technical: plain-name section heads of two to five words; the hero headline says what UiPack is for the reader |
 | Budgets | The ceilings, as Technical |
 
 ## Component looks
 
-As Technical: diagrams in `blueprint` (theme `blueprint`), all six 3D looks, the `isometric`
-mechanism. A fixed look's values are not this spec's to set, and every live demo and Assets preview
-shows a part as the package draws it: the site's values stop at each demo (`.showcase-demo`) and
-preview, which reset to Technical, so in dark a figure keeps Blueprint's Prussian card on the site's
-charcoal page. The site's values cover the shell, the prose, its tables and code.
+As Technical: diagrams in `blueprint`, all six 3D looks, the `isometric` mechanism. Diagrams take the
+site's diagram theme, `docs-night`: Blueprint's ink, accent and flow colours (Technical's, the
+`blueprint` theme exactly in light), on this site's charcoal ground in dark (below). Every live demo
+and Assets preview shows a part as the package draws it, with Technical's hues: the site's palette
+stops at each demo (`.showcase-demo`) and preview, which reset to Technical, except for the ground.
+
+### Demos and fixed looks
+
+In dark, every demo, Assets preview and figure canvas dialog, and every 3D scene's card, sits on the
+site's charcoal ground instead of Technical's Prussian navy (the owner, 2026-11-12: "the dark mode is
+still blue, i dont want it to be blue"; "the rules in the first place should be per site and flexible
+to changes if needed"). The site sets only the ground a part sits on, the allowance
+[a spec has for a fixed look](../system/spec-settings.md): the paper, the surfaces, node fills,
+solid lines and the closing band, the values below (the same as the page's). A part's ink, accent,
+flow, data and slide hues stay Technical's, so a figure, slide or chart reads as it does on every
+site. Light is Technical's exactly. A 3D scene's own world, once WebGL draws it, is its look's, and
+static exports and stills keep Technical (see Open TODOs). Generated from `playground/site-palette.css`:
+
+<!-- generated:demo-ground -->
+| Role | Light (Technical's) | Dark (the site's) |
+| --- | --- | --- |
+| `--ui-paper` | `#f3f6f9` | `#111315` |
+| `--ui-surface` | `#fcfdfe` | `#16181b` |
+| `--ui-surface-raised` | `#ffffff` | `#1c1f23` |
+| `--ui-surface-2` | `#e2e9f1` | `#22262a` |
+| `--ui-node` | `#ffffff` | `#16181b` |
+| `--ui-line-solid` | `#b9c8d9` | `#363b41` |
+| `--tune-slide-line` | `#b9c8d9` | `#363b41` |
+| `--ui-band-fill` | `#0b2748` | `#0b0c0e` |
+<!-- /generated -->
 
 ## Reuse
 
@@ -312,7 +352,8 @@ dark palette and navigation included, says `extends: docs-site`.
 
 ## Open TODOs
 
-- TODO: the landing page at `/` is being redesigned on its own branch; when it lands, add
-  `landing` to `pages:` with its layout here.
-- TODO: static SVG export (`uipack/static`) and still images keep Technical's dark values; whether
-  the site's stills should follow its charcoal is open (the owner decides).
+- TODO: static SVG export (`uipack/static`), the asset manifest's dark previews and the 3D stills
+  keep Technical's dark values; whether the site's stills should follow its charcoal is open (the
+  owner decides). The diagram themes demo shows each theme's own dark, Blueprint's navy included, on
+  purpose; the art directions' WebGL worlds (Cartoon's night sky, Abstract's navy pool) are their
+  looks'.

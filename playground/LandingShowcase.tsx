@@ -12,14 +12,15 @@
  */
 import { lazy, Suspense, useEffect, useRef, useState, type ReactNode } from "react";
 import { version } from "../package.json";
-import { libraryGroups, pageDefs, pageHref, type PageDef } from "./catalog";
+import { librarySections, pageDefs, pageHref, type PageDef } from "./catalog";
 import { REPO_URL } from "./docs-manifest";
 import { galleryHref } from "./gallery-index";
 import { installLine } from "./release";
 import { SITE_ORIGIN } from "./site";
 import { useShowcaseTheme } from "./ShowcaseShell";
 import { Scaled, useNearViewport } from "./preview-stage";
-import { JOBS, READ_ORDER, SECTION_LABELS, type Job } from "./landing/content";
+import { JOBS, READ_ORDER, type Job } from "./landing/content";
+import { NAV_MEMORY_KEY, SectionIcon } from "./site-settings";
 import "./landing.css";
 
 type Theme = "light" | "dark";
@@ -228,8 +229,8 @@ function JobCard({ job, theme }: { job: Job; theme: Theme }) {
             {ART[job.art]}
           </svg>
           <span className="landing-job__chip">
-            <span className="landing-job__mark" aria-hidden="true" />
-            {SECTION_LABELS[job.section]}
+            <SectionIcon id={job.section} size={13} />
+            {librarySections.find((s) => s.id === job.section)!.label}
           </span>
         </div>
         <h3>{job.title}</h3>
@@ -554,7 +555,10 @@ function Agents({ theme }: { theme: Theme }) {
 
 /* ------------------------------------------------------------------ footer */
 
-/** The site map: every docs group and its pages, from the docs manifest (sub-pages and deck sub-views stay on their page). */
+/**
+ * The site map: the docs' five sections, each with its groups (a caption over each but the first)
+ * and their pages, from the docs manifest (sub-pages and deck sub-views stay on their page).
+ */
 function SiteMap({ theme }: { theme: Theme }) {
   return (
     <footer className="landing-foot" id="site-map" aria-labelledby="site-map-title">
@@ -563,21 +567,35 @@ function SiteMap({ theme }: { theme: Theme }) {
           Site map
         </h2>
         <div className="landing-map">
-          {libraryGroups.map((g) => {
-            const pages = pageDefs.filter((p) => p.group === g.id && !p.parent && (!p.query || p.isDefault));
-            return (
-              <nav key={g.id} aria-labelledby={`map-${g.id}`} className="landing-map__group">
-                <h3 id={`map-${g.id}`}>{g.label}</h3>
-                <ul>
-                  {pages.map((p) => (
-                    <li key={p.id}>
-                      <a href={pageHref(p, theme)}>{p.query ? (p.title ?? p.label) : p.label}</a>
-                    </li>
-                  ))}
-                </ul>
-              </nav>
-            );
-          })}
+          {librarySections.map((section) => (
+            <nav
+              key={section.id}
+              aria-labelledby={`map-${section.id}`}
+              className="landing-map__section"
+              data-section={section.id}
+            >
+              <h3 id={`map-${section.id}`}>
+                <SectionIcon id={section.id} size={15} />
+                {section.label}
+              </h3>
+              <div className="landing-map__groups">
+                {section.groups.map((g) => (
+                  <div key={g.id} className="landing-map__group">
+                    {g.caption && <p className="landing-map__caption">{g.caption}</p>}
+                    <ul>
+                      {pageDefs
+                        .filter((p) => p.group === g.id && !p.parent && (!p.query || p.isDefault))
+                        .map((p) => (
+                          <li key={p.id}>
+                            <a href={pageHref(p, theme)}>{p.query ? (p.title ?? p.label) : p.label}</a>
+                          </li>
+                        ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </nav>
+          ))}
         </div>
         <div className="landing-foot__base">
           <span>Jun Xiong's own design system. Not a public product: the only consumers are the sites in the registry.</span>
@@ -594,6 +612,15 @@ function SiteMap({ theme }: { theme: Theme }) {
 
 export default function LandingShowcase() {
   const { theme } = useShowcaseTheme();
+  // The sidebar's marker travels from the page being left; the landing page has no sidebar, so a
+  // docs page opened from here docks its marker in place rather than flying from an older page.
+  useEffect(() => {
+    try {
+      sessionStorage.removeItem(NAV_MEMORY_KEY);
+    } catch {
+      /* storage blocked: nothing was remembered either */
+    }
+  }, []);
   return (
     <div className="uipack-landing" data-route="landing">
       <main id="showcase-main" tabIndex={-1} aria-labelledby="landing-title">

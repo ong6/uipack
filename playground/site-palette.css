@@ -7,9 +7,8 @@
    Unlayered, on the shell's frame and every Technical host inside it, so it wins over technical.css's
    layered tokens there and the roles derived from these (lines, the nav fill, the call-to-action)
    follow. It stops at a demo (.showcase-demo) and a gallery preview: each sets data-ui-style
-   itself, so the part inside draws as the package draws it, in Technical (a fixed look's values,
-   the Blueprint figure card among them, are never a site's; docs/system/spec-settings.md). A
-   figure's canvas dialog, in <body>, keeps Technical too. Loaded only by the docs site
+   itself, so the part inside draws as the package draws it, in Technical's hues, on the site's
+   ground in dark (the block after this one; a figure's canvas dialog, in <body>, too). Loaded only by the docs site
    (playground/main.tsx): the package and every other site keep Technical as it is. */
 .showcase-frame,
 .showcase-frame [data-ui-style="technical"]:not(:is(.showcase-demo, .gallery-preview), :is(.showcase-demo, .gallery-preview) *) {
@@ -55,6 +54,33 @@
   --site-hue-build: light-dark(#0b77a3, #7cc4ec);
   --site-hue-check: light-dark(#2b7a4b, #7dd9a0);
   --site-hue-reference: light-dark(#5a708b, #a2adbb);
+}
+
+/* Demos and previews in dark: the site's ground under the package's parts (the spec's "Demos and
+   fixed looks"). A demo, a gallery preview and a figure's canvas dialog draw their part in
+   Technical, with its ink, accent, flow and data hues, and on this site sit on the site's charcoal
+   ground: the paper, the surfaces, node fills, solid lines and the closing band take the values
+   above, so nothing large reads as navy beside the charcoal page. Light keeps Technical's values
+   exactly; test/site-palette.test.tsx holds these to the frame's values above. */
+:is(.showcase-demo, .gallery-preview, .uipack-canvas-dialog),
+:is(.showcase-demo, .gallery-preview, .uipack-canvas-dialog) [data-ui-style="technical"] {
+  --ui-paper: light-dark(#f3f6f9, #111315);
+  --ui-surface: light-dark(#fcfdfe, #16181b);
+  --ui-surface-raised: light-dark(#ffffff, #1c1f23);
+  --ui-surface-2: light-dark(#e2e9f1, #22262a);
+  --ui-node: light-dark(#ffffff, #16181b);
+  --ui-line-solid: light-dark(#b9c8d9, #363b41);
+  --tune-slide-line: light-dark(#b9c8d9, #363b41);
+  --ui-band-fill: light-dark(#0b2748, #0b0c0e);
+}
+
+/* A 3D scene's card in dark (the still it shows before WebGL draws, or without it): every art
+   direction's card sits on the site's charcoal, a lighter pool behind the subject, instead of its own
+   night colours (the cartoon and abstract cards are navy). The scene's own world, once WebGL draws
+   it, is the look's. */
+:is(.showcase-frame, .uipack-canvas-dialog) .uipack-object[data-theme="dark"][data-art-direction] {
+  --object-bg: var(--ui-surface);
+  background: radial-gradient(ellipse at 50% 38%, var(--ui-surface-2), var(--ui-paper));
 }
 
 /* The page ground behind the frame (overscroll, a short page) is the site's paper. */

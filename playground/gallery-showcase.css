@@ -102,10 +102,6 @@
   height: 100%;
   object-fit: contain;
 }
-.gallery-preview--svg > img {
-  padding: 12px;
-  box-sizing: border-box;
-}
 /* Tiles get a fixed height, not a ratio, so a row of them lines up to the pixel. */
 .gallery-preview--tile {
   display: grid;
@@ -119,6 +115,11 @@
   max-height: 70%;
 }
 .gallery-preview--live > * {
+  height: 100%;
+}
+.gallery-preview__inline > svg {
+  display: block;
+  width: 100%;
   height: 100%;
 }
 .gallery-preview__stage {

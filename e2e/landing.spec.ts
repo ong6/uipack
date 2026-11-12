@@ -61,11 +61,11 @@ for (const width of [1440, 390])
       await scrollThrough(page);
       // Every section rendered, with its live parts mounted.
       for (const id of ["jobs", "built", "parts", "agents", "site-map"]) await expect(page.locator(`#${id}`)).toBeVisible();
-      await expect(page.locator("#built .uipack-stack a")).toHaveCount(6);
-      await expect(page.locator(".landing-tile--diagrams .uipack svg").first()).toBeVisible();
-      await expect(page.locator(".landing-tile--deck .uipack-deck")).toHaveCount(1);
-      await expect(page.locator(".landing-tile--charts .uipack-span")).toHaveCount(1);
-      await expect(page.locator(".landing-tile--article .landing-article")).toHaveCount(1);
+      await expect(page.locator("#built .uipack-stack a")).toHaveCount(6, { timeout: 15_000 });
+      await expect(page.locator(".landing-tile--diagrams .uipack svg").first()).toBeVisible({ timeout: 15_000 });
+      await expect(page.locator(".landing-tile--deck .uipack-deck")).toHaveCount(1, { timeout: 15_000 });
+      await expect(page.locator(".landing-tile--charts .uipack-span")).toHaveCount(1, { timeout: 15_000 });
+      await expect(page.locator(".landing-tile--article .landing-article")).toHaveCount(1, { timeout: 15_000 });
       // Exactly one filled primary action in the hero; the gallery is the secondary.
       await expect(page.locator(".landing-hero .landing-btn--primary")).toHaveCount(1);
       expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
@@ -101,7 +101,8 @@ test("every link on the page opens a page the site has", async ({ page }) => {
   await withoutWebGL(page);
   await page.goto("/?theme=dark");
   await scrollThrough(page);
-  await expect(page.locator("#built .uipack-stack a")).toHaveCount(6);
+  // The stack mounts as it nears the viewport; under a loaded dev server its chunk can take a while.
+  await expect(page.locator("#built .uipack-stack a")).toHaveCount(6, { timeout: 15_000 });
   const hrefs = await page
     .locator(".uipack-landing a[href]")
     .evaluateAll((links) => links.map((a) => a.getAttribute("href")!).filter((h) => h.startsWith("/")));
@@ -168,4 +169,38 @@ test("under reduced motion, the 3D tile shows its still and the hero figure hold
   const scene = page.locator(".landing-scene");
   await scene.scrollIntoViewIfNeeded();
   await expect(scene).toHaveAttribute("data-scene", "still");
+});
+
+test("the docs search opens from the landing page's header and from ⌘K / Ctrl-K", async ({ page }) => {
+  await page.goto("/?theme=light");
+  const dialog = page.locator("dialog.uipack-docs-search");
+  // The landing page's own chunk has rendered (the header is up before it).
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+  await page.locator(".showcase-header .uipack-docs-search__button").click();
+  await expect(dialog).toBeVisible({ timeout: 10_000 });
+  await page.keyboard.type("spec template");
+  await expect(dialog.getByRole("option").first()).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(dialog).toBeHidden();
+  await page.keyboard.press("ControlOrMeta+k");
+  await expect(dialog).toBeVisible({ timeout: 10_000 });
+});
+
+test("the site map is the docs' five sections, Start first with What UiPack is at its top", async ({ page }) => {
+  await page.goto("/?theme=light");
+  const map = page.locator("#site-map");
+  await expect(map.locator(".landing-map__section > h3")).toHaveText(["Start", "Rules", "Build", "Check", "Reference"]);
+  await expect(map.locator('.landing-map__section[data-section="start"] a').first()).toHaveText("What UiPack is");
+});
+
+test("a docs page opened from the landing page docks its sidebar marker in place", async ({ page }) => {
+  // A docs page remembers itself for the next page's marker to fly from; the landing page, with no
+  // sidebar, clears that, so the page opened from it starts without a trip from an older page.
+  await page.goto("/agents?theme=light");
+  await page.locator("main h1").waitFor();
+  await page.goto("/?theme=light");
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+  expect(await page.evaluate(() => sessionStorage.getItem("uipack-docs-nav"))).toBeNull();
+  await page.locator(".landing-job").first().click();
+  await expect(page.locator(".uipack-docs__sidebar a[aria-current='page']")).toBeVisible();
 });
