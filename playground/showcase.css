@@ -161,8 +161,13 @@ body {
   margin: 32px -5px 0;
   padding: 5px;
 }
+/* The title is a row as tall as the page's first row (32px) and level with it, so the two share
+   a centre line exactly; the list starts 4px under it. */
 .showcase-frame .uipack-docs__toc > p {
-  margin: 4px 0 12px;
+  display: flex;
+  align-items: center;
+  min-height: 32px;
+  margin: -5px 0 4px;
 }
 /* Anything scrolled to (a #fragment, a picked heading, a focused control) lands below the sticky
    banner; headings sit 24px under it. */
@@ -770,10 +775,13 @@ html:has(.showcase-frame:not([data-banner="static"])) {
 .showcase-frame .uipack-docs-search__button {
   border-radius: var(--show-radius);
   font-size: 14px;
-  /* On the 4px grid: a 40px box, 16px over the first section (38 and 18 in the layout's own). */
+  padding: 0 8px 0 12px;
+}
+/* In the sidebar, on the 4px grid: a 40px box, 16px over the first section (38 and 18 in the
+   layout's own). The drawer keeps the layout's 44px touch box. */
+.showcase-frame .uipack-docs__sidebar > .uipack-docs-search__button {
   height: 40px;
   margin-bottom: 16px;
-  padding: 0 8px 0 12px;
 }
 .showcase-frame .uipack-docs-search__button kbd {
   padding: 4px;
