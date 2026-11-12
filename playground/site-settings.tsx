@@ -1,4 +1,5 @@
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import type { MarkCell } from "../src";
 import type { DocsMarkerShape } from "../src/docs";
 import type { DocsSectionId } from "./docs-manifest";
 
@@ -30,6 +31,60 @@ export const NAV_MEMORY_KEY = "uipack-docs-nav";
 
 /** Each section's hue, a role the site's palette sets (site-palette.css). */
 export const sectionHue = (id: DocsSectionId) => `var(--site-hue-${id})`;
+
+/**
+ * The header mark's cell for each section (the spec's "The mark"): the mark's four cells in reading
+ * order are Start, Rules, Build and Check. Reference has no cell: its pages, the Assets tab, the
+ * landing page and a not-found page show the mark as the package draws it, the dot bottom right in
+ * the ink.
+ */
+export const BRAND_CELLS: Partial<Record<DocsSectionId, MarkCell>> = { start: 0, rules: 1, build: 2, check: 3 };
+
+const BRAND_KEY = "uipack-docs-brand";
+const NEUTRAL = "neutral";
+type BrandState = DocsSectionId | typeof NEUTRAL;
+
+/**
+ * Which state the header mark shows: the page's section, or neutral. Every page is its own load, so
+ * the state the reader left is kept for the visit (sessionStorage): the mark is first drawn there,
+ * then set to this page's, and the dot's CSS transition (showcase.css) carries it across. With
+ * reduced motion, or with nothing remembered, it is drawn in place.
+ */
+export function useBrandMark(section: DocsSectionId | undefined): {
+  state: BrandState;
+  live: MarkCell;
+  liveColor: string | undefined;
+} {
+  const now: BrandState = section && section in BRAND_CELLS ? section : NEUTRAL;
+  const [state, setState] = useState<BrandState>(() => {
+    try {
+      const left = sessionStorage.getItem(BRAND_KEY);
+      const known = left === NEUTRAL || (left !== null && left in BRAND_CELLS);
+      if (known && !matchMedia("(prefers-reduced-motion: reduce)").matches) return left as BrandState;
+    } catch {
+      /* no storage: drawn in place */
+    }
+    return now;
+  });
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(BRAND_KEY, now);
+    } catch {
+      /* no storage */
+    }
+    // Two frames, so the state the reader left is painted before the dot moves.
+    let second = 0;
+    const first = requestAnimationFrame(() => {
+      second = requestAnimationFrame(() => setState(now));
+    });
+    return () => {
+      cancelAnimationFrame(first);
+      cancelAnimationFrame(second);
+    };
+  }, [now]);
+  const cell = state === NEUTRAL ? undefined : BRAND_CELLS[state];
+  return { state, live: cell ?? 3, liveColor: cell === undefined ? undefined : sectionHue(state as DocsSectionId) };
+}
 
 /** Each section's icon: 24-unit line drawings, stroked in the section's hue by the docs layout. */
 const ICON_PATHS: Record<DocsSectionId, ReactNode> = {

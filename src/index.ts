@@ -85,7 +85,7 @@ export {
 export { Defs, type DefsProps } from "./Defs";
 export { Token, tokenColor, TOKEN_SHAPE, type TokenKind, type TokenShape, type TokenProps } from "./tokens";
 export { icons, type IconName } from "./icons";
-export { marks, Wordmark, type MarkName } from "./marks";
+export { marks, Wordmark, type MarkCell, type MarkName } from "./marks";
 export {
   anchor,
   route,

@@ -33,6 +33,13 @@ One default changes what a page draws (below), so this is a minor release
   opens a ⌘K / Ctrl-K dialog with results grouped by section. Hand-rolled, no library or WebAssembly:
   `docsSearchEntries`, `packDocsSearchIndex`, `unpackDocsSearchIndex`, `searchDocs`,
   `groupDocsResults` and their types build and rank a static index ([docs layout](docs/docs-layout.md)).
+- **`Wordmark` section states:** `live` (a `MarkCell`, 0 to 3 in reading order) moves the uipack
+  mark's dot to that cell and `liveColor` colours it; without `live` the wordmark's markup is
+  unchanged. The docs site's header puts the dot on the page's section in its hue (Start top left,
+  Rules top right, Build bottom left, Check bottom right; neutral elsewhere), moves it when the
+  section changes, and on the landing page visits the four in turn (still under reduced motion).
+  There the brand is the ink on docs pages too (it took the docs link colour, the accent), and
+  below 360px the whole mark shows on docs pages (its right column was clipped).
 - **The docs site's own spec**, [docs/specs/docs-site.md](docs/specs/docs-site.md) (extends
   Technical): a darker, neutral charcoal dark palette, the five sidebar sections' hues, the location
   marker (`?marker=mark` to compare), the shell's widths, and search. A registry row for
