@@ -361,14 +361,17 @@ export function ContentsRail({
     const t0 = performance.now();
     const step = (now: number) => {
       const t = Math.min(1, (now - t0) / duration);
+      // Aim at the stop as it is now: the rail can re-lay out mid-trip (the current link turns
+      // bold and wraps, fonts arrive), and a target read once would land on the old position.
+      const to = s.stops[index] ?? target;
       if (shape === "mark") {
         const pose = hopPose(t, hops, Math.abs(delta), plan);
-        s.at = from + delta * pose.along;
+        s.at = from + (to - from) * pose.along;
         s.lift = pose.lift + carried * Math.max(0, 1 - (now - t0) / 120);
         s.deg = pose.deg;
         s.sx = pose.sx;
         s.sy = pose.sy;
-      } else s.at = from + delta * easeInOut(t);
+      } else s.at = from + (to - from) * easeInOut(t);
       draw();
       if (t < 1) s.frame = requestAnimationFrame(step);
     };

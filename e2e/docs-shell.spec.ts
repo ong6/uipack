@@ -191,6 +191,26 @@ test.describe("On this page", () => {
     ).toBeLessThan(3);
   });
 
+  test("the marker lands on a picked heading whose link wraps as it turns current", async ({ page }) => {
+    // The current link is bold; where a face's advances run wider (Linux) a heading can wrap to two
+    // lines as it turns current, re-laying out the rail mid-glide. Forced here with letter-spacing.
+    await page.goto("/foundations/style?theme=light");
+    const links = page.getByRole("complementary", { name: "On this page" }).getByRole("link");
+    await expect(links.first()).toBeVisible();
+    await page.addStyleTag({ content: ".uipack-docs__toc-list a[aria-current] { letter-spacing: 0.25em }" });
+    const pick = links.nth(1);
+    const single = (await pick.boundingBox())!.height;
+    await pick.click();
+    await expect(pick).toHaveAttribute("aria-current", "location");
+    expect((await pick.boundingBox())!.height).toBeGreaterThan(single * 1.4);
+    const landed = await settled(page, railMarker);
+    const mid = await pick.evaluate((a) => {
+      const r = a.getBoundingClientRect();
+      return r.top + r.height / 2;
+    });
+    expect(Math.abs(landed - mid)).toBeLessThan(3);
+  });
+
   test("the path steps right for a sub-heading, and the read part is drawn", async ({ page }) => {
     await page.goto("/foundations/style?theme=dark");
     const sub = page.locator('.uipack-docs__toc-list li[data-level="3"] a').first();
