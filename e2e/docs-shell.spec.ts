@@ -2,7 +2,7 @@ import { expect, test, type Page } from "./fixtures";
 import { sidebar } from "./page-audit";
 
 // The docs shell's own behaviour (docs/specs/docs-site.md, "Navigation" and "Layout"): the
-// travelling location marker in "On this page" and in the sidebar, the two marker shapes, the
+// location marker (the uipack mark, hopping) in "On this page" and in the sidebar, the plane, the
 // widths at 1440 and 1920, the drawer and the contents disclosure at 390, search, and reduced
 // motion. Moving between pages and the sidebar's contents are in nav.spec.ts.
 
@@ -31,6 +31,62 @@ async function watchFlight(page: Page) {
   });
 }
 
+interface Pose {
+  x: number;
+  y: number;
+  /** Its vertical scale: under 1 while a landing squashes it. */
+  sy: number;
+  live: string | undefined;
+  trail: boolean;
+}
+type Watched = { __poses?: Record<string, Pose[]> };
+
+/**
+ * Records, from the first script on each page, every pose the two markers are drawn in: where
+ * (their own drawing's units), which cell is the mark's dot, and whether a trail was drawn.
+ */
+async function watchPoses(page: Page) {
+  await page.addInitScript(() => {
+    const w = window as Watched;
+    w.__poses = { nav: [], rail: [] };
+    new MutationObserver((records) => {
+      for (const r of records) {
+        const el = r.target as Element;
+        if (!el.matches(".uipack-docs__marker")) continue;
+        const [x, y] = (el.getAttribute("transform")?.match(/translate\(([-\d.]+) ([-\d.]+)\)/) ?? []).slice(1).map(Number);
+        const where = el.closest(".uipack-docs__sidebar") ? "nav" : el.closest(".uipack-docs__toc") ? "rail" : null;
+        if (!where || x === undefined) continue;
+        w.__poses![where].push({
+          x,
+          y,
+          sy: Number(el.getAttribute("transform")?.match(/scale\([-\d.]+ ([-\d.]+)\)/)?.[1] ?? 1),
+          live: el.querySelector<SVGElement>("[data-live]")?.dataset.cell,
+          trail: !!el.parentElement?.querySelector(".uipack-docs__nav-trail")?.getAttribute("d"),
+        });
+      }
+    }).observe(document, { subtree: true, attributes: true, attributeFilter: ["transform"] });
+  });
+}
+const poses = (page: Page, where: "nav" | "rail") => page.evaluate((k) => (window as Watched).__poses![k], where);
+const clearPoses = (page: Page) => page.evaluate(() => void ((window as Watched).__poses = { nav: [], rail: [] }));
+
+/** The mark's dot as painted in a marker: its cell and its fill. */
+const dotOf = (page: Page, marker: string) =>
+  page
+    .locator(`${marker} rect[data-live]`)
+    .evaluate((r) => ({ cell: (r as SVGElement).dataset.cell, fill: getComputedStyle(r).fill }));
+
+/** A colour value as the docs layout resolves it. */
+const colourOf = (page: Page, value: string) =>
+  page.locator(".uipack-docs").evaluate((el, v) => {
+    const probe = document.createElement("i");
+    probe.style.color = v;
+    el.append(probe);
+    const colour = getComputedStyle(probe).color;
+    probe.remove();
+    return colour;
+  }, value);
+
 /** Waits until a marker's centre stops moving, and returns it. */
 async function settled(page: Page, selector: string) {
   let last = NaN;
@@ -51,16 +107,18 @@ async function settled(page: Page, selector: string) {
 test.describe("On this page", () => {
   test.use({ viewport: { width: 1440, height: 900 } });
 
-  test("the plane glides to the heading picked, then to the heading scrolled to", async ({ page }) => {
+  test("the mark hops to the heading picked, then to the heading scrolled to", async ({ page }) => {
     await page.goto("/foundations/style?theme=light");
     const rail = page.getByRole("complementary", { name: "On this page" });
     const links = rail.getByRole("link");
     await expect(links.first()).toBeVisible();
-    // The plane rests on the first heading before the reader has passed one.
+    // The mark rests on the first heading before the reader has passed one, in the page's state:
+    // a Rules page, so the dot is the top right cell in the accent.
     await expect(page.locator(railMarker)).toHaveAttribute("data-at", /.+/);
-    expect(await page.locator(`${railMarker} .uipack-docs__marker-plane`).count()).toBe(1);
+    expect(await page.locator(`${railMarker} .uipack-docs__marker-mark`).count()).toBe(1);
+    expect(await dotOf(page, railMarker)).toEqual({ cell: "1", fill: await colourOf(page, "var(--ui-accent)") });
 
-    // Pick a heading: it becomes current at once and the plane lands beside it.
+    // Pick a heading: it becomes current at once and the mark lands beside it.
     const pick = links.nth(4);
     const id = (await pick.getAttribute("href"))!.slice(1);
     await pick.click();
@@ -92,6 +150,46 @@ test.describe("On this page", () => {
     expect(Math.abs(y - nowMid)).toBeLessThan(3);
   });
 
+  test("one hop to the next heading; picked twice at once, it goes to the latest", async ({ page }) => {
+    await watchPoses(page);
+    await page.goto("/foundations/style?theme=dark");
+    const links = page.getByRole("complementary", { name: "On this page" }).getByRole("link");
+    await expect(page.locator(railMarker)).toHaveAttribute("data-at", /.+/);
+    await settled(page, railMarker);
+    await clearPoses(page);
+    // The next heading, straight down the path: it rises off the path (to its right), comes down
+    // onto it.
+    await links.nth(1).click();
+    await expect(links.nth(1)).toHaveAttribute("aria-current", "location");
+    await settled(page, railMarker);
+    const hop = await poses(page, "rail");
+    expect(Math.max(...hop.map((p) => p.x)) - hop.at(-1)!.x).toBeGreaterThan(3);
+    // Stretched or squashed on the way (the pose itself is unit-tested), at rest at its own size.
+    expect(hop.some((p) => p.sy !== 1)).toBe(true);
+    expect(hop.at(-1)!.sy).toBe(1);
+    // Two picks, the second before the first hop is over: no queue, it lands on the second.
+    await links.nth(3).click();
+    const pick = links.nth(5);
+    await pick.click();
+    await expect(pick).toHaveAttribute("aria-current", "location");
+    await expect(page.locator(railMarker)).toHaveAttribute("data-at", (await pick.getAttribute("href"))!.slice(1));
+    // Wait on where it is, not on its being still: a busy page can hold it still mid-trip.
+    await expect
+      .poll(async () => {
+        const target = await pick.evaluate((a) => {
+          const r = a.getBoundingClientRect();
+          return r.top + r.height / 2;
+        });
+        return Math.abs((await midY(page, railMarker)) - target);
+      })
+      .toBeLessThan(3);
+    // And there it stays, at rest.
+    const rest = await settled(page, railMarker);
+    expect(
+      Math.abs(rest - (await midY(page, `${railMarker} >> xpath=ancestor::aside//a[@aria-current="location"]`))),
+    ).toBeLessThan(3);
+  });
+
   test("the path steps right for a sub-heading, and the read part is drawn", async ({ page }) => {
     await page.goto("/foundations/style?theme=dark");
     const sub = page.locator('.uipack-docs__toc-list li[data-level="3"] a').first();
@@ -111,14 +209,18 @@ test.describe("On this page", () => {
 test.describe("the sidebar's marker", () => {
   test.use({ viewport: { width: 1440, height: 900 } });
 
-  test("flies from the page left to the one opened, opening its section, and docks beside the link", async ({ page }) => {
+  test("hops from the page left to the one opened, opening its section, and docks beside the link", async ({ page }) => {
     await watchFlight(page);
+    await watchPoses(page);
     await page.goto("/agents?theme=light");
     const nav = sidebar(page);
     // On a fresh visit it docks beside the current page without flying.
     await expect(nav.locator('[aria-current="page"]')).toHaveText("How agents use UiPack");
     await settled(page, navMarker);
     expect(await page.evaluate(() => (window as { __flew?: boolean }).__flew)).toBe(false);
+    // The mark in the page's state: a Start page, the dot top left in the ink.
+    expect(await page.locator(`${navMarker} .uipack-docs__marker-mark`).count()).toBe(1);
+    expect(await dotOf(page, navMarker)).toEqual({ cell: "0", fill: await colourOf(page, "var(--ui-ink)") });
 
     await nav.getByRole("button", { name: "Rules", exact: true }).click();
     await nav.getByRole("link", { name: "Style contract", exact: true }).click();
@@ -148,6 +250,17 @@ test.describe("the sidebar's marker", () => {
     await expect
       .poll(() => page.locator(".uipack-docs__sidebar .uipack-docs__nav-track").evaluate((t) => getComputedStyle(t).color))
       .toBe(colours[1]);
+    // The trip was hops: it rose off the page column (to its right) and landed back on it, with no
+    // trail; it set off as the mark of the page left (Start's cell) and landed as this page's
+    // (Rules: the top right cell, in the accent).
+    const trip = await poses(page, "nav");
+    const column = trip.at(-1)!.x;
+    expect(Math.max(...trip.map((p) => p.x)) - column).toBeGreaterThan(3);
+    expect(trip.some((p) => p.sy !== 1)).toBe(true);
+    expect(trip.at(-1)!.sy).toBe(1);
+    expect(trip.some((p) => p.trail)).toBe(false);
+    expect([...new Set(trip.map((p) => p.live))]).toEqual(["0", "1"]);
+    await expect.poll(() => dotOf(page, navMarker)).toEqual({ cell: "1", fill: colours[1] });
 
     // Crossing into a shut section (the pager's next page is still in Rules; search jumps to Check):
     // the section opens as the marker arrives.
@@ -168,16 +281,43 @@ test.describe("the sidebar's marker", () => {
     expect(Math.abs(landed - target)).toBeLessThan(3);
   });
 
-  test("?marker=mark swaps the plane for the square mark in both places, for the rest of the visit", async ({ page }) => {
-    await page.goto("/agents?theme=dark&marker=mark");
-    await expect(page.locator(`${navMarker} .uipack-docs__marker-mark`)).toHaveCount(1);
-    await expect(page.locator(`${railMarker} .uipack-docs__marker-mark`)).toHaveCount(1);
-    await expect(page.locator(".uipack-docs__marker-plane")).toHaveCount(0);
+  test("on a Reference page the mark is the neutral one: the dot bottom right in the ink", async ({ page }) => {
+    await page.goto("/reference/registry?theme=dark");
+    await settled(page, navMarker);
+    expect(await dotOf(page, navMarker)).toEqual({ cell: "3", fill: await colourOf(page, "var(--ui-ink)") });
+    // Three squares outlined in the ink, on a line that still reads at marker size.
+    const squares = await page
+      .locator(`${navMarker} rect:not([data-live])`)
+      .evaluateAll((rects) => rects.map((r) => [getComputedStyle(r).stroke, parseFloat(getComputedStyle(r).strokeWidth)]));
+    expect(squares).toEqual([0, 1, 2].map(() => [expect.any(String), 1.25]));
+    expect(new Set(squares.map((q) => q[0]))).toEqual(new Set([await colourOf(page, "var(--ui-ink)")]));
+    const box = (await page.locator(navMarker).boundingBox())!;
+    expect(box.width).toBeGreaterThanOrEqual(13);
+    expect(box.width).toBeLessThanOrEqual(16);
+  });
+
+  test("?marker=plane swaps the mark for the paper plane in both places, for the rest of the visit, and it still flies", async ({
+    page,
+  }) => {
+    await watchFlight(page);
+    await watchPoses(page);
+    await page.goto("/agents?theme=dark&marker=plane");
+    await expect(page.locator(`${navMarker} .uipack-docs__marker-plane`)).toHaveCount(1);
+    await expect(page.locator(`${railMarker} .uipack-docs__marker-plane`)).toHaveCount(1);
+    await expect(page.locator(".uipack-docs__marker-mark")).toHaveCount(0);
     await sidebar(page).getByRole("link", { name: "Install and use", exact: true }).click();
     await expect(page).toHaveURL(/\/start\/install/);
-    await expect(page.locator(`${navMarker} .uipack-docs__marker-mark`)).toHaveCount(1);
-    await page.goto("/start/install?marker=plane");
     await expect(page.locator(`${navMarker} .uipack-docs__marker-plane`)).toHaveCount(1);
+    const y = await settled(page, navMarker);
+    const link = await midY(page, '.uipack-docs__sidebar [aria-current="page"]');
+    expect(Math.abs(y - link)).toBeLessThan(3);
+    // A flight, not hops: it kept to the page column, with its dotted trail behind it.
+    expect(await page.evaluate(() => (window as { __flew?: boolean }).__flew)).toBe(true);
+    const trip = await poses(page, "nav");
+    expect(new Set(trip.map((p) => p.x)).size).toBe(1);
+    expect(trip.some((p) => p.trail)).toBe(true);
+    await page.goto("/start/install?marker=mark");
+    await expect(page.locator(`${navMarker} .uipack-docs__marker-mark`)).toHaveCount(1);
   });
 });
 
@@ -431,8 +571,9 @@ test.describe("search", () => {
 test.describe("reduced motion", () => {
   test.use({ viewport: { width: 1440, height: 900 }, reducedMotion: "reduce" });
 
-  test("the markers jump: no flight in the sidebar, the rail and the page land at once", async ({ page }) => {
+  test("the markers jump: no hops in the sidebar, the rail and the page land at once", async ({ page }) => {
     await watchFlight(page);
+    await watchPoses(page);
     await page.goto("/agents");
     await sidebar(page).getByRole("link", { name: "Install and use", exact: true }).click();
     await expect(page).toHaveURL(/\/start\/install/);
@@ -444,6 +585,9 @@ test.describe("reduced motion", () => {
     });
     await expect.poll(() => midY(page, navMarker)).toBeCloseTo(link, 0);
     expect(await page.evaluate(() => (window as { __flew?: boolean }).__flew)).toBe(false);
+    // Drawn in place, as this page's mark, never off the page column.
+    expect(await dotOf(page, navMarker)).toEqual({ cell: "0", fill: await colourOf(page, "var(--ui-ink)") });
+    expect(new Set((await poses(page, "nav")).map((p) => p.x)).size).toBe(1);
     // A heading picked in the rail: the page and the marker are there on the next frame.
     const pick = page.getByRole("complementary", { name: "On this page" }).getByRole("link").nth(2);
     const id = (await pick.getAttribute("href"))!.slice(1);
@@ -462,5 +606,6 @@ test.describe("reduced motion", () => {
       return r.top + r.height / 2;
     });
     expect(Math.abs(marker - target)).toBeLessThan(3);
+    expect(new Set((await poses(page, "rail")).map((p) => p.x)).size).toBe(1);
   });
 });

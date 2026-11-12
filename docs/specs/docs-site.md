@@ -31,7 +31,7 @@ Technical's Prussian blue (the owner, 2026-11-11: "make it darker", "consider ne
 mode"), with neutral surfaces a small step lighter each, a neutral ink ramp, and Technical's gold
 and flow hues re-tuned to sit on charcoal. Nothing large reads as blue in dark: the live demos and
 previews sit on the same charcoal ([Demos and fixed looks](#demos-and-fixed-looks)). The sidebar is how a reader finds their way: five
-sections, each with an icon and a hue, and a paper plane that flies to where the reader is.
+sections, each with an icon and a hue, and the uipack mark, which hops to where the reader is.
 
 ## Role values
 
@@ -241,15 +241,25 @@ or more as a mark on every ground. Generated from `playground/site-palette.css`:
 <!-- /generated -->
 
 **The location marker.** One shape for both places it shows: the sidebar (beside the current page)
-and "On this page" (on the heading being read). `plane` (the default) is a paper plane; `mark` is
-the uipack logo's square mark. The setting is `SITE_MARKER` in `playground/site-settings.tsx`;
-`?marker=mark` or `?marker=plane` overrides it for the rest of a visit, so the two can be compared
-live. In "On this page" the marker glides along a dotted path that steps right for each h3, the
-read part of the path in the accent. In the sidebar, when the page changes, it flies from the page
-the reader left along the sidebar's page column (out to a sub-page's tree line), crossing sections
-if it must, the new section opening as it arrives, a short dotted trail fading behind it, and docks
-facing the link, tinted with the section's hue. With reduced motion it jumps. The current page is
-also marked by weight and a tinted row, so the marker is never the only cue.
+and "On this page" (on the heading being read). The site's is `mark`, the uipack logo's square mark,
+hopping like a game piece (owner, 2026-11-12: "it can also be our logo hopping around"); `plane` is
+the package's paper plane, which flies a dotted path. The setting is `SITE_MARKER` in
+`playground/site-settings.tsx`; `?marker=plane` or `?marker=mark` overrides it for the rest of a
+visit. The marker shows the page's state, as the header's mark does (below): three squares in the
+ink and the dot on the section's cell in its hue, the neutral mark on a Reference page. It is drawn
+for its 14px size: 5px squares on a 1.25px line, not the header's drawing scaled down.
+
+In the sidebar, when the page changes, the mark hops from the page the reader left along the
+page column (out to a sub-page's tree line), crossing sections if it must, the new section
+opening as it arrives. A hop is an arc to the right of the column, 5 to 9px high, ending in a
+squash onto the mark's bottom edge; a trip is one hop for each 40px, none shorter than 220ms and
+five at most, so a neighbouring link is one hop. It takes as long as the plane's flight (420ms plus
+1.1ms a pixel, 1150ms at most) and leaves no trail (a straight dotted line under arcs reads as a
+second path). Across sections it sets off as the mark of the page left and changes its dot's cell
+and hue as its last hop lifts. In "On this page" the mark hops down a dotted path that steps right
+for each h3, the read part in the accent; when headings pass faster than a hop it makes for the
+latest, never a queue. With reduced motion nothing hops: the marker is drawn in place. The current page is also marked by weight and a tinted row, so the
+marker is never the only cue.
 
 **The mark.** The header's uipack mark is the one mark (three outlined squares and one filled dot)
 with its dot on the page's section (owner, 2026-11-12): its four cells in reading order are Start
@@ -258,14 +268,19 @@ them that cell is the dot, filled in the section's hue; the other three are squa
 the name stays in the ink. Reference has no cell: its pages, the Assets tab, the landing page at
 rest and a not-found page show the neutral mark, the dot bottom right in the ink, as the package
 draws it. Each hue holds 3:1 or more as the dot on the header's ground in both themes (the lowest is
-Build in light, 4.6:1). When the page changes section the dot crosses from the cell the reader left
-(kept for the visit in sessionStorage, as the sidebar marker's page is) on the sidebar marker's
-timing, 280ms on the settle curve. On the landing page it visits Start, Rules, Build and Check in
-turn, 2s each, in one 8s CSS loop that never moves the header. With reduced motion the dot is drawn
-in place and the landing page holds the neutral mark. The dot repeats what the breadcrumb chip and
-the sidebar say in words, so it is never the only cue. It is `Wordmark`'s `live` and `liveColor`
-([figure parts API](../figure-api.md)), mapped in `playground/site-settings.tsx` (`BRAND_CELLS`,
-`useBrandMark`) and moved by `playground/showcase.css`; `e2e/brand-mark.spec.ts` holds it.
+Build in light, 4.6:1). When the page changes section the dot hops from the cell the reader left
+(kept for the visit in sessionStorage, as the sidebar marker's page is): the marker's hop, an arc
+6 units above the line between the cells, the dot taking the new hue on the way and squashing as
+it lands, the square it lands on making way and the cell it left redrawing as a square. The hop takes the slow duration role (560ms) and the redraw the base one (320ms). It
+waits 400ms for the page to settle (`--site-mark-wait`), or longer when the sidebar's marker is
+travelling, so the two land together. A change between the neutral mark and Check, which share a
+cell, is a hop in place. On the landing page it visits Start, Rules, Build and Check in turn, 2s
+each, hopping between them over the last 560ms of each state, in one 8s CSS loop that never moves
+the header. With reduced motion the dot is drawn in place and the landing page holds the neutral
+mark. The dot repeats what the breadcrumb chip and the sidebar say in words, so it is never the
+only cue. It is `Wordmark`'s `live` and `liveColor` ([figure parts API](../figure-api.md)), mapped
+in `playground/site-settings.tsx` (`BRAND_CELLS`, `useBrandMark`, and `markerState` for the docs
+layout's marker) and moved by `playground/showcase.css`; `e2e/brand-mark.spec.ts` holds it.
 
 **Search.** A box at the top of the sidebar (and the drawer) and ⌘K / Ctrl-K open one dialog over
 every page's title, headings and text; results are grouped by section with the section's icon in

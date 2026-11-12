@@ -26,7 +26,15 @@ import "../src/docs/docs.css";
 import { editUrl } from "./docs-manifest";
 import { galleryCategoryForPage, galleryHref } from "./gallery-index";
 import { SEARCH_INDEX_PATH } from "./search-index-path";
-import { markerSetting, NAV_MEMORY_KEY, SectionIcon, sectionHue, sectionHueStyle, useBrandMark } from "./site-settings";
+import {
+  markerSetting,
+  markerState,
+  NAV_MEMORY_KEY,
+  SectionIcon,
+  sectionHue,
+  sectionHueStyle,
+  useBrandMark,
+} from "./site-settings";
 import { LANDING_TITLE } from "./landing-index";
 
 type ShowcaseTheme = {
@@ -217,7 +225,10 @@ export function ShowcaseShell({
   const compact = useMediaQuery(hostsPage ? "(max-width: 1439px)" : "(max-width: 899px)");
   const section = notFound ? undefined : sectionOfPage(page);
   // The header mark's dot sits on the section's cell, in its hue (neutral off the four sections).
-  const brand = useBrandMark(section?.id);
+  // On the landing page it loops through the four instead (showcase.css), so nothing hops into place.
+  const brand = useBrandMark(section?.id, { hop: !landing });
+  // The docs layout's marker is the same mark in the same state.
+  const markerMark = markerState(section?.id);
   // Previous and next follow the manifest's reading order, sub-views included.
   const index = pageDefs.findIndex((p) => p.id === page.id);
   const neighbour = (p: PageDef | undefined) => (p && !notFound ? { title: pageHeading(p), href: pageHref(p, theme) } : null);
@@ -239,7 +250,7 @@ export function ShowcaseShell({
             </svg>
           </button>
         )}
-        <a className="showcase-brand" href={`/?theme=${theme}`} aria-label="UIPACK home" data-brand={brand.state}>
+        <a className="showcase-brand" href={`/?theme=${theme}`} aria-label="UIPACK home" {...brand.props}>
           <Wordmark size={22} live={brand.live} liveColor={brand.liveColor} />
         </a>
         {/* The two top-level views: the docs (text first, with samples in the pages) and the Assets gallery. */}
@@ -342,6 +353,9 @@ export function ShowcaseShell({
         sections={sidebarSections(theme)}
         collapsible
         marker={marker}
+        markerLive={markerMark.live}
+        markerColor={markerMark.color}
+        onMarkerTrip={brand.onMarkerTrip}
         markerMemory={NAV_MEMORY_KEY}
         search={search}
         activeHref={notFound ? "" : pageHref(page, theme)}

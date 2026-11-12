@@ -923,7 +923,7 @@
 }
 
 /* The travelling marker (marker="plane" | "mark"): a decorative drawing over the nav's left edge,
-   in the current section's hue, with a short dotted trail while it flies. */
+   in the current section's hue. The plane leaves a short dotted trail while it flies; the mark hops. */
 .uipack-docs__navigation[data-marker] {
   position: relative;
 }
@@ -971,14 +971,28 @@
   stroke-width: 1;
 }
 
+/* The mark at marker size (14px): three 5px squares on a 1.25px line in the ink, which still read as
+   squares there (the logo's own line scaled down would be 1px), and the dot on the live cell in
+   --docs-marker-dot (the host's markerColor), else the track's colour. When the live cell changes
+   (the last hop of a trip between sections) the two cells trade shapes. */
 .uipack-docs__marker-mark rect {
   fill: var(--docs-paper);
-  stroke: currentColor;
-  stroke-width: 1.4;
+  stroke: var(--docs-ink);
+  stroke-width: 1.25;
 }
 
-.uipack-docs__marker-mark circle {
-  fill: currentColor;
+.uipack-docs__marker-mark rect[data-live] {
+  fill: var(--docs-marker-dot, currentColor);
+  stroke: var(--docs-marker-dot, currentColor);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .uipack-docs__marker-mark rect {
+    transition:
+      rx var(--ui-dur-quick, 160ms) ease,
+      fill var(--ui-dur-quick, 160ms) ease,
+      stroke var(--ui-dur-quick, 160ms) ease;
+  }
 }
 
 /* "On this page" with a travelling marker: a dotted path, a step right for each h3, the part read
