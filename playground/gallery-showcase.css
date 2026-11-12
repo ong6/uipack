@@ -5,15 +5,19 @@
   gap: 32px;
   min-width: 0;
 }
+/* The page title, section heading and intro are the site's (showcase.css, the frame's type roles):
+   the docs page title and h2, and the body leading of the landing and not-found intros. */
 .gallery-head h1 {
-  margin: 0 0 8px;
-  font: 600 40px/1.15 var(--show-font-display);
-  letter-spacing: -0.01em;
+  margin: 0 0 12px;
+  font: 600 var(--site-title-size) / var(--site-heading-leading) var(--show-font-display);
+  letter-spacing: var(--site-display-tracking);
   color: var(--show-ink);
 }
 .gallery-head p {
   margin: 0;
   max-width: 68ch;
+  font-size: 16px;
+  line-height: 1.6;
   color: var(--show-muted);
 }
 .gallery-filters {
@@ -31,7 +35,8 @@
   color: var(--show-ink);
   background: transparent;
   border: 1px solid var(--show-rule);
-  border-radius: var(--show-control-radius);
+  /* Square, Technical's role, as the landing page's buttons are. */
+  border-radius: var(--ui-radius);
   cursor: pointer;
 }
 /* The chosen filter: accent edge, weight and an inset bar, so it reads without colour. */
@@ -51,7 +56,8 @@
 }
 .gallery-section h2 {
   margin: 0;
-  font: 600 24px/1.25 var(--show-font-display);
+  font: 600 var(--site-section-size) / var(--site-heading-leading) var(--show-font-display);
+  letter-spacing: var(--site-display-tracking);
   color: var(--show-ink);
 }
 .gallery-group {
@@ -86,7 +92,8 @@
   flex-direction: column;
   min-width: 0;
   border: 1px solid var(--show-rule);
-  border-radius: var(--show-radius);
+  /* Square, Technical's role: a live-preview card here is a landing tile's twin. */
+  border-radius: var(--ui-radius);
   background: var(--ui-surface, var(--show-bg));
   overflow: hidden;
 }
@@ -205,12 +212,6 @@
   }
   .gallery-preview--tile {
     height: 88px;
-  }
-  .gallery-head h1 {
-    font-size: 32px;
-  }
-  .gallery-section h2 {
-    font-size: 22px;
   }
   .gallery-grid,
   .gallery-grid--wide {

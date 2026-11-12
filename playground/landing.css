@@ -176,7 +176,7 @@
   margin-bottom: 20px;
   font-size: clamp(36px, 4.1vw, 58px);
   line-height: 1.05;
-  letter-spacing: -0.035em;
+  letter-spacing: var(--site-display-tracking);
   text-wrap: balance;
 }
 .landing-hero h1 em {
@@ -284,9 +284,10 @@
   align-items: center;
   gap: 12px;
   margin-bottom: 12px;
+  /* The landing archetype's own section size, larger than a docs h2; the site's display tracking. */
   font-size: clamp(28px, 2.6vw, 36px);
   line-height: 1.15;
-  letter-spacing: -0.03em;
+  letter-spacing: var(--site-display-tracking);
 }
 .landing-head__lead {
   max-width: 34ch;
@@ -362,22 +363,15 @@
   height: 50px;
   color: var(--docs-hue);
 }
-.landing-job__chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 4px 8px;
-  border: 1px solid color-mix(in srgb, var(--docs-hue) 32%, transparent);
-  background: color-mix(in srgb, var(--docs-hue) 9%, transparent);
-  color: var(--ui-ink);
-  font: 600 12px/1.2 var(--ui-font-label);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+/* The card's section chip (.landing-job__chip) is the site's one chip: showcase.css, with the
+   docs page bar's. */
+/* Small headings (a card, a band row, a tile) take Technical's display tracking, the role. */
+.uipack-landing :where(h3) {
+  letter-spacing: var(--ui-display-tracking);
 }
 .landing-job h3 {
   font-size: 18px;
   line-height: 1.25;
-  letter-spacing: -0.01em;
 }
 .landing-job p {
   flex: 1;
@@ -630,7 +624,7 @@
 }
 .landing-band code {
   color: var(--ui-band-ink);
-  font-size: 0.88em;
+  font-size: 14px;
 }
 .landing-band :focus-visible {
   outline-color: var(--ui-band-cta);
@@ -651,7 +645,8 @@
 }
 .landing-band__row h3 {
   margin-bottom: 8px;
-  font-size: 17px;
+  font-size: 18px;
+  line-height: 1.25;
 }
 .landing-band__row p {
   margin-bottom: 12px;

@@ -263,7 +263,7 @@ them that cell is the dot, filled in the section's hue; the other three are squa
 the name stays in the ink. Reference has no cell: its pages, the Assets tab, the landing page at
 rest and a not-found page show the neutral mark, the dot bottom right in the ink, as the package
 draws it. Each hue holds 3:1 or more as the dot on the header's ground in both themes (the lowest is
-Build in light, 4.6:1). When the page changes section the mark changes in a portal, from the state the reader left (kept for the visit in sessionStorage, as the sidebar marker's page is): a dashed ring in the new section's hue opens over the mark, the mark turns into it and out of sight, and comes back out with its dot on the new cell; each half takes the base duration role (320ms). It waits 400ms for the page to settle (`--site-mark-wait`), or for the sidebar's marker when that is travelling to its own portal, so the two change together. On the landing page the mark rests as the default logo for 5s, then the dot visits Start, Rules, Build and Check in turn, 2s each, hopping between them over the last 560ms of each state, in one 13s CSS loop that never moves the header. With reduced motion the dot is drawn in place and the landing page holds the neutral
+Build in light, 4.6:1). When the page changes section the mark changes in a portal, from the state the reader left (kept for the visit in sessionStorage, as the sidebar marker's page is): a dashed ring in the new section's hue opens over the mark, the mark turns into it and out of sight, and comes back out with its dot on the new cell; each half takes the base duration role (320ms). It waits 400ms for the page to settle (`--site-mark-wait`), or for the sidebar's marker when that is travelling to its own portal, so the two change together. On the landing page the mark rests as the default logo for 5s, then the dot visits Start, Rules, Build and Check in turn, 2s each, hopping between them over the last 560ms of each state, in one 13s CSS loop that never moves the header. A load enters it 0.4s into the rest, on the default logo. With reduced motion the dot is drawn in place and the landing page holds the neutral
 mark. The dot repeats what the breadcrumb chip and the sidebar say in words, so it is never the
 only cue. It is `Wordmark`'s `live` and `liveColor` ([figure parts API](../figure-api.md)), mapped
 in `playground/site-settings.tsx` (`BRAND_CELLS`, `useBrandMark`, and `markerState` for the docs
@@ -275,10 +275,35 @@ its hue.
 
 ## Type
 
-Technical's, unchanged ([Technical, Type](technical.md#type)): IBM Plex Sans 600 headings, Plex
+Technical's faces, unchanged ([Technical, Type](technical.md#type)): IBM Plex Sans 600 headings, Plex
 Sans text, IBM Plex Mono labels, self-hosted. Sidebar levels: section labels in mono caps 12px
 600 (ink), pages 14px (ink-2), sub-pages 13px (ink-2, on the tree line), captions 12px mono (ink-3); "On
-this page" 13.5px (ink-2), its sub-headings 13px.
+this page" 13px (ink-2) at both levels, a sub-heading set apart by its indent (as a disclosure, 14px and 13px).
+
+One spec per type role on every view (the landing page, a docs page, the Assets tab, a not-found
+page), from the variables on the frame in `playground/showcase.css`:
+
+| Role | This site |
+| --- | --- |
+| Page title | 52px (38px below 760px, 36px below 500px), line height 1.15: a docs page's h1, the Assets title and "Page not found" (`--site-title-size`) |
+| Section heading | 26px (23px below 500px), line height 1.15: a docs h2 and an Assets category (`--site-section-size`) |
+| Landing headline and section heading | The landing archetype's own, larger: 58px and 36px (36px and 28px on a phone) |
+| Small headings | 20px (a docs h3), 18px (a landing card or band row), 15px (a landing tile, an Assets card) |
+| Heading tracking | Two values. A title or section heading (h1, h2: 23px and up) takes the site's display tracking, −0.035em (`--site-display-tracking`), tighter than Technical's role because these are set large. Every smaller heading takes the role, `--ui-display-tracking` (−0.01em) |
+| Intro paragraph | 16px, line height 1.6, on the Assets tab and a not-found page as on the landing page |
+| Inline code | 0.86 of the text around it, rounded to a whole pixel (15px in 18px prose, 12px in a table); 14px in the landing band |
+| Section chip | One drawing, in a docs page's bar and on a landing job card: mono caps 12px 600, tracked 0.06em, square, the section's icon and a tint of its hue |
+
+## Shape
+
+Two radii, each from a variable (`playground/showcase.css`). Technical's role, `--ui-radius` (0,
+square): the landing page, the header's theme toggle, menu button and search box, the section chip,
+and the Assets cards and filters, so a card or a button is drawn one way on every view. And one small
+radius, 4px (`--show-radius`), for a docs page's own furniture: code blocks, inline code, the
+sidebar's rows, section icons and search box (the docs layout's `--docs-radius`, set from it) and the
+shell's controls and cards around a demo. Squaring those would change how a docs page reads, so they
+keep one small radius, where there were four (3, 4, 5 and 6px). Nodes inside a drawing keep the
+Blueprint look's 6px, and a marker dot is a circle.
 
 ## Density and rhythm
 

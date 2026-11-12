@@ -1,10 +1,16 @@
 /* Shell tokens. Controls: one set for every playground control (and the Mechanism page's, through
-   its --font-mono hook): mono 400, 13px on the page and 12px inside a figure or stage frame, a 6px
-   radius. Radius scale: docs/design-direction.md. */
+   its --font-mono hook): mono 400, 13px on the page and 12px inside a figure or stage frame.
+   Corners: the site has two radii (docs/specs/docs-site.md, "Shape"; docs/design-direction.md).
+   Technical's role, var(--ui-radius), square: the header's controls, the section chip, the Assets
+   cards and filters and the whole landing page, so a card or a button is drawn one way on every view.
+   And --show-radius, the one small radius of a docs page's own furniture: code blocks, inline code,
+   the sidebar's rows and icons (the docs layout's --docs-radius, set from it below) and the shell's
+   controls and cards around a demo. It is kept, at one value where there were four (3, 4, 5 and
+   6px), because squaring them would change how a docs page reads; 4px is what most of them had. */
 :root {
-  --show-control-radius: 6px;
+  --show-radius: 4px;
+  --show-control-radius: var(--show-radius);
   --show-eyebrow-tracking: 0.08em;
-  --show-radius: 6px;
 }
 /* The shell is Technical: <body data-ui-style="technical"> (index.html) holds Technical's roles,
    and the shell's colours read them there, and again on the frame, where the docs site's own values
@@ -56,6 +62,31 @@ body {
   --full-col: 1344px;
   /* The sidebar's left inset; the banner's logo starts on it. */
   --side-pad: 14px;
+  /* Type roles every view shares (docs/specs/docs-site.md, "Type"). The page title and the section
+     heading are the docs layout's own sizes, named here so the Assets tab and a page outside the
+     Markdown (not found) set theirs from the same values; the docs layout reads them through its
+     --docs-* hooks. Tracking has one rule: a title or section heading (h1, h2: 23px and up) takes
+     the site's display tracking, tighter than Technical's role because these sizes are set large;
+     every smaller heading (h3 and below, card titles) takes the role, var(--ui-display-tracking). */
+  --site-title-size: clamp(38px, 5vw, 52px);
+  --site-section-size: 26px;
+  --site-heading-leading: 1.15;
+  --site-display-tracking: -0.035em;
+  --docs-title-size: var(--site-title-size);
+  --docs-section-size: var(--site-section-size);
+  --docs-display-tracking: var(--site-display-tracking);
+}
+/* A phone's steps, the docs layout's (src/docs/docs.css, below 500px). */
+@media (max-width: 499px) {
+  .showcase-frame {
+    --site-title-size: 36px;
+    --site-section-size: 23px;
+  }
+}
+/* The docs layout's one radius is the shell's small radius (see the top of this file). */
+.showcase-frame .uipack-docs,
+.showcase-frame .uipack-docs__prose {
+  --docs-radius: var(--show-radius);
 }
 .showcase-frame > .uipack-docs {
   padding: 0;
@@ -273,8 +304,8 @@ html:has(.showcase-frame:not([data-banner="static"])) {
 }
 /* The mark's dot (the spec's "The mark"): the Wordmark draws it on the section's cell in the
    section's hue; these rules only animate it. Between pages the mark changes in a portal (below).
-   On the landing page it visits Start,
-   Rules, Build and Check in turn, 2s each, in one 8s loop, hopping the same way. Reduced motion
+   On the landing page it rests as the default logo, then visits Start,
+   Rules, Build and Check in turn, 2s each, in one 13s loop, hopping the same way. Reduced motion
    gets neither: the dot is drawn in place, and the landing page keeps the neutral mark.
    The squares and the name are the ink on every page: inside the docs layout its link colour (the
    accent) would otherwise reach the brand, and the Rules dot would be lost in an accent mark. */
@@ -364,8 +395,10 @@ html:has(.showcase-frame:not([data-banner="static"])) {
     animation: showcase-brand-portal-out var(--ui-dur-base, 320ms) var(--ui-ease-settle, ease-out) both;
   }
   .showcase-frame[data-mode="landing"] .showcase-brand rect[data-cell] {
-    /* When the dot reaches this cell: after the 5s rest, 2s a state. */
-    --brand-start: calc(5s + var(--brand-turn) * 2s);
+    /* When the dot reaches this cell: after the rest, 2s a state. The loop is entered 0.4s into its
+       5s rest, past the 320ms in which the bottom right cell turns from Check's hue back to the ink,
+       so the first paint is the default logo, already in the ink (the first rest is 4.6s). */
+    --brand-start: calc(4.6s + var(--brand-turn) * 2s);
     animation:
       showcase-brand-turn 13s linear calc(var(--brand-start) - 13s) infinite,
       showcase-brand-turn-lift 13s linear calc(var(--brand-start) - 13s) infinite;
@@ -417,7 +450,8 @@ html:has(.showcase-frame:not([data-banner="static"])) {
    last 560ms of each state (the slow duration role); a cell the dot has left redraws as a square
    over 320ms (the base duration role) and makes way as the dot comes round. Each cell's loop starts
    when the dot reaches it (--brand-start). The bottom right cell is Check's and the default's: its
-   dot turns from Check's hue to the ink and waits out the rest (showcase-brand-turn-home). */
+   dot turns from Check's hue to the ink and waits out the rest (showcase-brand-turn-home). A page
+   load enters the loop 0.4s into the rest, after that turn, so it opens on the logo in the ink. */
 @keyframes showcase-brand-turn {
   0% {
     fill: var(--brand-hue);
@@ -641,8 +675,22 @@ html:has(.showcase-frame:not([data-banner="static"])) {
   border: 1px solid var(--show-rule);
   background: var(--show-surface);
   color: inherit;
-  border-radius: 4px;
+  /* The header's controls are square, Technical's role: they sit over the landing page's buttons. */
+  border-radius: var(--ui-radius);
   cursor: pointer;
+}
+/* The search box takes the corner of where it sits: square in the header (the landing page), the
+   docs radius at the top of the sidebar and the drawer. Its label is the sidebar's page size (14px).
+   Set here, for this site, over the docs layout's own values. */
+.showcase-frame .uipack-docs-search__button {
+  border-radius: var(--show-radius);
+  font-size: 14px;
+}
+.showcase-frame .showcase-header .uipack-docs-search__button {
+  border-radius: var(--ui-radius);
+}
+.showcase-frame .uipack-docs-search__button kbd {
+  border-radius: inherit;
 }
 .showcase-header button.theme:hover {
   border-color: var(--show-ink);
@@ -674,7 +722,7 @@ html:has(.showcase-frame:not([data-banner="static"])) {
   color: var(--show-accent);
 }
 /* The section chip: its icon in the section's hue; the label stays ink. The link is a 44px target on
-   touch around the 26px chip. */
+   touch around the chip. */
 .showcase-frame .showcase-context a.showcase-crumb {
   display: inline-flex;
   align-items: center;
@@ -682,15 +730,24 @@ html:has(.showcase-frame:not([data-banner="static"])) {
   font-weight: 600;
   text-decoration: none;
 }
-.showcase-crumb__chip {
+/* One chip names a section wherever it shows: a docs page's bar (.showcase-crumb__chip) and a
+   landing job card (.landing-job__chip). Technical's label: mono caps, tracked, square, the
+   section's icon and a tint of its hue; the words stay the ink. */
+.showcase-crumb__chip,
+.landing-job__chip {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  min-height: 26px;
-  padding: 0 10px 0 6px;
-  border: 1px solid color-mix(in srgb, var(--docs-hue) 34%, transparent);
-  border-radius: 4px;
-  background: color-mix(in srgb, var(--docs-hue) 10%, transparent);
+  gap: 8px;
+  padding: 4px 8px;
+  border: 1px solid color-mix(in srgb, var(--docs-hue) 32%, transparent);
+  border-radius: var(--ui-radius);
+  background: color-mix(in srgb, var(--docs-hue) 9%, transparent);
+  color: var(--ui-ink);
+  font: 600 12px/1.2 var(--ui-font-label);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.showcase-crumb__chip {
   transition: background-color 140ms ease;
 }
 .showcase-crumb:hover .showcase-crumb__chip {
@@ -726,11 +783,12 @@ html:has(.showcase-frame:not([data-banner="static"])) {
 .showcase-title .showcase-title__name {
   margin: 0;
   color: var(--show-ink);
+  /* The site's page title (the frame's type roles): the docs page title, on a page outside the Markdown. */
   font-family: var(--show-font-display);
   font-weight: 600;
-  font-size: clamp(28px, 4.5vw, 40px);
-  line-height: 1.1;
-  letter-spacing: -0.02em;
+  font-size: var(--site-title-size);
+  line-height: var(--site-heading-leading);
+  letter-spacing: var(--site-display-tracking);
 }
 .showcase-title__view {
   font-weight: 400;
@@ -920,7 +978,7 @@ html:has(.showcase-frame:not([data-banner="static"])) {
   /* The icon's first stroke, not the 44px box, starts on the page's left edge. */
   margin-left: -15px;
   border: 0;
-  border-radius: 4px;
+  border-radius: var(--ui-radius);
   background: transparent;
   color: var(--show-ink);
   cursor: pointer;
