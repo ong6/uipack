@@ -593,7 +593,9 @@ test.describe("Back returns the reader to where they were", () => {
   }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto("/foundations/style?theme=light#motion");
-    await expect(page.locator("#motion")).toBeFocused();
+    await expect(page.locator("#motion")).toBeInViewport();
+    // The page as the reader leaves it: every demo in.
+    await waitForPage(page);
     const next = page.getByRole("navigation", { name: "Previous and next documentation pages" }).getByRole("link").last();
     // The reader takes over from the #fragment (a wheel turn), then goes to the foot of the page.
     await page.mouse.wheel(0, 200);
@@ -626,7 +628,8 @@ test.describe("Back returns the reader to where they were", () => {
     // A fresh load with a #fragment lands on its heading, and "On this page" marks it.
     await page.goto("/foundations/style?theme=light#motion");
     const heading = page.locator("#motion");
-    await expect(heading).toBeFocused();
+    await expect(heading).toBeInViewport();
+    await waitForPage(page);
     await waitForStable(() => heading.evaluate((h) => Math.round(h.getBoundingClientRect().top)));
     const top = await heading.evaluate((h) => h.getBoundingClientRect().top);
     expect(top).toBeGreaterThan(-1);

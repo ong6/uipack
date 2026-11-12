@@ -18,12 +18,15 @@ export const READER_INPUT = ["wheel", "touchstart", "pointerdown", "keydown"] as
 const DEADLINE = 5000;
 /** How long the position is held once reached, while content above it settles, in ms. */
 const HOLD = 2000;
+/** The longest it is held, while the page is not yet as tall as it was, in ms. */
+const LONGEST = 10_000;
 /** A document this long unchanged, still too short, is scrolled as far as it goes, so the lazy parts below mount. */
 const STALL = 400;
 
-/** What is kept for a history entry: the scroll position, and the lazy parts that had mounted. */
+/** What is kept for a history entry: the scroll position, the document's height, and the lazy parts that had mounted. */
 interface Place {
   y: number;
+  height: number;
   parts: string[];
 }
 type Places = Record<string, Place>;
@@ -89,7 +92,12 @@ export function keepScrollPosition(): boolean {
   if (saved && Array.isArray(saved.parts)) left = new Set(saved.parts);
   target = saved && typeof saved.y === "number" && saved.y > 0 ? saved.y : null;
   // Leaving before the restore has finished keeps the position it was making for.
-  const save = () => write(entryKey(), { y: Math.round(target ?? scrollY), parts: [...mounted] });
+  const save = () =>
+    write(entryKey(), {
+      y: Math.round(target ?? scrollY),
+      height: target === null ? document.documentElement.scrollHeight : (saved?.height ?? 0),
+      parts: target === null ? [...mounted] : [...left],
+    });
   addEventListener("pagehide", save);
   // A phone can drop a hidden page without `pagehide`.
   document.addEventListener("visibilitychange", () => document.visibilityState === "hidden" && save());
@@ -118,11 +126,16 @@ export function keepScrollPosition(): boolean {
     const fits = height - innerHeight >= y - 1;
     if (fits && !reached) reached = now;
     const late = now - start > DEADLINE;
+    // A part of the page still says it is loading (the page's chunk, a docs page's file, a demo).
+    const loading = !!document.querySelector(".showcase-loading");
     // Still too short with nothing loading and nothing growing: go as far as there is, so the
     // parts that mount near the viewport do, and carry on from there.
-    const stalled = now - changed > STALL && !document.querySelector(".showcase-loading");
+    const stalled = now - changed > STALL && !loading;
     if ((reached || stalled || late) && Math.abs(scrollY - y) > 1) scrollTo({ top: y, behavior: "instant" });
-    if (reached ? now - reached > HOLD : late) finish();
+    // Held until what is above has had time to settle, and longer while the page is not yet as
+    // tall as the reader left it (a demo or a lazy part is still on its way).
+    const whole = !saved?.height || Math.abs(height - saved.height) <= 2;
+    if (reached ? now - reached > (whole && !loading ? HOLD : LONGEST) : late) finish();
   };
   // Growth is seen as it is laid out (before that frame is painted), and each frame besides.
   const resized = typeof ResizeObserver === "undefined" ? undefined : new ResizeObserver(attempt);
