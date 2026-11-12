@@ -1,5 +1,11 @@
 import { useCallback, useEffect, useId, useRef, useState, type CSSProperties, type MouseEvent, type ReactNode } from "react";
-import { ContentsRail, prefersReducedMotion, type DocsMarkerCell, type DocsMarkerShape } from "./DocsMarkers";
+import {
+  ContentsRail,
+  prefersReducedMotion,
+  type DocsMarkerCell,
+  type DocsMarkerMorph,
+  type DocsMarkerShape,
+} from "./DocsMarkers";
 import { flatItems, SectionNavigation } from "./DocsNavigation";
 import { DocsSearchButton, DocsSearchDialog, useDocsSearchShortcut, type DocsSearchOptions } from "./DocsSearch";
 
@@ -90,6 +96,13 @@ export interface DocsLayoutProps {
    * sidebar and the accent in "On this page". The three squares are the ink.
    */
   markerColor?: string;
+  /**
+   * With `marker="mark"` and `markerMemory`: how the mark changes its dot's cell and colour on a
+   * trip between pages whose marks differ. "none" (default): as its last hop lifts. "pause",
+   * "portal" or "flip": it stops before its last hop and changes there (a crouch and pop, a ring it
+   * turns into and out of, or a coin's turn).
+   */
+  markerMorph?: DocsMarkerMorph;
   /**
    * The sidebar's marker sets off on a trip from the page the reader left and lands in `ms`, so a
    * host can time something of its own to the landing. Not called when it docks in place.
@@ -245,6 +258,7 @@ export function DocsLayout({
   marker = "bar",
   markerLive,
   markerColor,
+  markerMorph,
   onMarkerTrip,
   markerMemory,
   search,
@@ -298,6 +312,7 @@ export function DocsLayout({
     marker,
     live: markerLive,
     dot: markerColor,
+    morph: markerMorph,
     memoryKey: markerMemory,
   };
   const pickHeading = (id: string, event: MouseEvent<HTMLAnchorElement>) => {

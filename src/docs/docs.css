@@ -958,6 +958,16 @@
   transition: opacity 600ms ease;
 }
 
+/* The portal a mark changes in between sections (markerMorph="portal"): a ring in the track's hue,
+   tinted inside, opened and shut by its radius. */
+.uipack-docs__nav-portal {
+  fill: color-mix(in srgb, currentColor 22%, var(--docs-paper));
+  stroke: currentColor;
+  stroke-dasharray: 3 2.5;
+  stroke-linecap: round;
+  stroke-width: 1.5;
+}
+
 .uipack-docs__nav-track[data-flying] .uipack-docs__nav-trail {
   opacity: 0.8;
   transition: none;

@@ -8,7 +8,7 @@ import {
   unpackDocsSearchIndex,
   type DocsSection,
 } from "../src/docs";
-import { hopCount, hopPose, markerTransform } from "../src/docs/DocsMarkers";
+import { hopCount, hopDuration, hopPlan, hopPose, markerTransform, morphPose } from "../src/docs/DocsMarkers";
 
 const page = `---
 spec: x
@@ -178,34 +178,78 @@ describe("DocsLayout sections, markers, drawer and search", () => {
     expect(container.querySelector(".uipack-docs__marker-mark")).toBeNull();
   });
 
-  it("hops by distance: one hop for a neighbouring link, five at most, each an arc that lands with a squash", () => {
-    // A neighbouring link (one 34px row, the plane's 457ms) is one hop; a long trip is five.
-    expect(hopCount(34, 457)).toBe(1);
-    expect(hopCount(68, 495)).toBe(2);
-    expect(hopCount(226, 669)).toBe(3);
-    expect(hopCount(2000, 1150)).toBe(5);
-    // Never a hop shorter than 220ms, whatever the distance.
-    expect(hopCount(400, 500)).toBe(2);
-    // One hop of three over 240px: on the ground at each end, highest half-way through its flight
-    // (5 to 9px off the line), then squashed (wider, shorter) before it rests at its own size.
+  it("hops by distance: small hops close to the trail, one for a neighbouring link, nine at most, each landing with a squash", () => {
+    // A neighbouring link (one 34px row) is one hop; the mark takes its own, slower time, so a
+    // longer trip is more small hops rather than a few long ones.
+    expect(hopCount(34, hopDuration(34))).toBe(1);
+    expect(hopCount(68, hopDuration(68))).toBe(2);
+    expect(hopCount(226, hopDuration(226))).toBe(6);
+    expect(hopCount(2000, hopDuration(2000))).toBe(9);
+    expect(hopDuration(2000)).toBe(1400);
+    // Never a hop shorter than 150ms, whatever the distance.
+    expect(hopCount(400, 500)).toBe(3);
+    // One plain hop of three over 240px: on the ground at each end, highest half-way through its
+    // flight (2.5 to 5px off the line), then squashed (wider, shorter) before it rests at its own size.
     expect(hopPose(0, 3, 240)).toMatchObject({ hop: 0, along: 0, lift: 0, sx: 1, sy: 1 });
-    const apex = hopPose(0.39 / 3, 3, 240);
-    expect(apex.lift).toBeCloseTo(9, 1);
+    const apex = hopPose(0.4 / 3, 3, 240);
+    expect(apex.lift).toBeCloseTo(5, 1);
     expect(apex.along).toBeCloseTo(0.5 / 3, 2);
     expect(apex.sy).toBeGreaterThan(1);
-    const landing = hopPose(0.89 / 3, 3, 240);
+    const landing = hopPose(0.9 / 3, 3, 240);
     expect(landing).toMatchObject({ hop: 0, lift: 0 });
     expect(landing.along).toBeCloseTo(1 / 3, 5);
-    expect(landing.sx).toBeGreaterThan(1.1);
-    expect(landing.sy).toBeLessThan(0.9);
+    expect(landing.sx).toBeGreaterThan(1.05);
+    expect(landing.sy).toBeLessThan(0.95);
     expect(hopPose(0.5, 3, 240).hop).toBe(1);
     const rest = hopPose(1, 3, 240);
-    expect(rest).toMatchObject({ hop: 2, along: 1, lift: 0 });
+    expect(rest).toMatchObject({ hop: 2, along: 1, lift: 0, deg: 0 });
     expect(rest.sx).toBeCloseTo(1, 5);
-    expect(hopPose(0.39, 1, 10).lift).toBeCloseTo(5, 1);
+    expect(hopPose(0.4, 1, 10).lift).toBeCloseTo(2.5, 1);
     // The squash keeps the mark's bottom edge on the ground; at rest the transform is the plane's.
     expect(markerTransform(16, 100, 0)).toBe("translate(16.00 100.00) rotate(0.0)");
     expect(markerTransform(16, 100, 0, 1.16, 0.82)).toBe("translate(16.00 101.22) scale(1.160 0.820)");
+    expect(markerTransform(16, 100, 90, 0.5, 0.5, true)).toBe("translate(16.00 100.00) rotate(90.0) scale(0.500 0.500)");
+  });
+
+  it("varies the hops: a plan from a seed, the same for the same trip, no kind twice running, every hop ending upright on the line", () => {
+    const plan = hopPlan(1234, 9);
+    expect(plan).toEqual(hopPlan(1234, 9));
+    expect(plan).not.toEqual(hopPlan(4321, 9));
+    for (const [i, step] of plan.entries()) {
+      if (i) expect(step.kind).not.toBe(plan[i - 1].kind);
+      expect(step.height).toBeGreaterThanOrEqual(0.75);
+      expect(step.height).toBeLessThanOrEqual(1.25);
+      // Whatever the kind, the hop starts and ends on the line, upright.
+      expect(hopPose((i + 0.9) / 9, 9, 324, plan)).toMatchObject({ lift: 0, deg: 0 });
+      // An arc to the left is lower: there is less room there.
+      const peak = Math.max(...[0.2, 0.3, 0.4, 0.5, 0.6].map((f) => Math.abs(hopPose((i + f) / 9, 9, 324, plan).lift)));
+      expect(peak).toBeLessThanOrEqual(step.side < 0 ? 3.2 : 6.3);
+    }
+    expect(
+      new Set(
+        Array.from({ length: 40 }, (_, seed) =>
+          hopPlan(seed, 4)
+            .map((s) => s.kind + s.side)
+            .join(),
+        ),
+      ).size,
+    ).toBeGreaterThan(20);
+  });
+
+  it("changes between sections in a stop before the last hop: each option starts and ends at rest and has changed by half-way", () => {
+    for (const kind of ["pause", "portal", "flip"] as const) {
+      expect(morphPose(kind, 0)).toMatchObject({ sx: 1, sy: 1, rise: 0, ring: 0, swapped: false });
+      const end = morphPose(kind, 1);
+      expect(end.sx).toBeCloseTo(1, 5);
+      expect(end.sy).toBeCloseTo(1, 5);
+      expect(end.ring).toBeCloseTo(0, 5);
+      expect(Math.abs(end.deg % 360)).toBeCloseTo(0, 5);
+      expect(morphPose(kind, 0.49).swapped).toBe(false);
+      expect(morphPose(kind, 0.5).swapped).toBe(true);
+    }
+    // The portal is open, and the mark gone into it, as it changes; the coin is edge-on.
+    expect(morphPose("portal", 0.5)).toMatchObject({ sx: 0, ring: 1 });
+    expect(morphPose("flip", 0.5).sx).toBeCloseTo(0, 5);
   });
 
   it("keeps the plain list and bar by default", () => {

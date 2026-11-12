@@ -33,8 +33,9 @@ One default changes what a page draws (below), so this is a minor release
   into view and stays current); in the sidebar it docks beside the current page, and with
   `markerMemory` (a sessionStorage key) it travels there from the page the reader left, crossing
   sections and opening the new one as it arrives. The plane flies, with a short dotted trail; the
-  mark hops like a game piece (arcs with a squash on landing, one hop for a neighbouring link, five
-  at most, in the plane's time, with the same trail). `markerLive` and `markerColor` put the mark's dot on any
+  mark hops like a game piece (small arcs with a soft squash on landing, one hop for a neighbouring
+  link, nine at most, each hop its own way, with the same trail; `markerMorph` adds a stop to
+  change cell and colour in: a pause, a portal or a flip). `markerLive` and `markerColor` put the mark's dot on any
   of its four cells in any colour, so the marker can show a state per page (`DocsMarkerCell`), and
   `onMarkerTrip` tells the host how long a trip takes. Reduced motion: it jumps.
 - **`DocsLayout` drawer:** `mobileNavigation="drawer"` with `navigationOpen` and

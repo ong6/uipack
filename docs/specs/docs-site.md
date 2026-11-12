@@ -251,11 +251,7 @@ for its 14px size: 5px squares on a 1.25px line, not the header's drawing scaled
 
 In the sidebar, when the page changes, the mark hops from the page the reader left along the
 page column (out to a sub-page's tree line), crossing sections if it must, the new section
-opening as it arrives. A hop is an arc to the right of the column, 5 to 9px high, ending in a
-squash onto the mark's bottom edge; a trip is one hop for each 40px, none shorter than 220ms and
-five at most, so a neighbouring link is one hop. It takes as long as the plane's flight (420ms plus
-1.1ms a pixel, 1150ms at most) and leaves the plane's short dotted trail on the column behind it. Across sections it sets off as the mark of the page left and changes its dot's cell
-and hue as its last hop lifts. In "On this page" the mark hops down a dotted path that steps right
+opening as it arrives. A hop is a small arc off the column (2.5 to 5px) ending in a soft squash; a trip is one hop for each 36px, nine at most, over 300ms plus 3ms a pixel (1400ms at most), so the mark stays by the short dotted trail it leaves. Each hop is a plain arc, a full turn, a lean or two skips, to either side, picked from the trip's ends. Across sections it changes its dot's cell and hue as its last hop lifts (`?morph=pause`, `portal` or `flip` previews a stop to change in). In "On this page" the mark hops down a dotted path that steps right
 for each h3, the read part in the accent; when headings pass faster than a hop it makes for the
 latest, never a queue. With reduced motion nothing hops: the marker is drawn in place. The current page is also marked by weight and a tinted row, so the
 marker is never the only cue.

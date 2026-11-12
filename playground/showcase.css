@@ -356,11 +356,13 @@ html:has(.showcase-frame:not([data-banner="static"])) {
       showcase-brand-turn-lift 8s linear calc(var(--brand-turn) * 2s - 8s) infinite;
   }
 }
-/* One hop: 78% of it in the air (even travel, a rise on the settle curve and a fall), the rest the
-   landing's squash onto the cell's bottom edge. The docs layout's marker hops to the same shape
+/* One hop: 78% of it in the air (travel eased at both ends, a rise on the settle curve and a fall), the rest the
+   landing's soft squash onto the cell's bottom edge. The docs layout's marker hops to the same shape
    (src/docs/DocsMarkers.tsx, hopPose). */
 @keyframes showcase-brand-hop {
   from {
+    /* It leaves and meets its cell gently: the travel eases at both ends. */
+    animation-timing-function: var(--ui-ease-travel, ease-in-out);
     translate: 0 0;
   }
   78%,
@@ -377,7 +379,7 @@ html:has(.showcase-frame:not([data-banner="static"])) {
   }
   39% {
     animation-timing-function: ease-in;
-    transform: translateY(-6px) scale(0.95, 1.07);
+    transform: translateY(-5px) scale(0.97, 1.04);
   }
   78% {
     animation-timing-function: var(--ui-ease-settle, ease-out);
@@ -385,7 +387,7 @@ html:has(.showcase-frame:not([data-banner="static"])) {
   }
   87% {
     animation-timing-function: var(--ui-ease-settle, ease-out);
-    transform: scale(1.16, 0.82);
+    transform: scale(1.08, 0.9);
   }
   to {
     transform: none;
@@ -418,6 +420,7 @@ html:has(.showcase-frame:not([data-banner="static"])) {
 @keyframes showcase-brand-turn {
   0%,
   18% {
+    animation-timing-function: var(--ui-ease-travel, ease-in-out);
     fill: var(--brand-hue);
     fill-opacity: 1;
     rx: 5px;
@@ -491,7 +494,7 @@ html:has(.showcase-frame:not([data-banner="static"])) {
   }
   20.73% {
     animation-timing-function: ease-in;
-    transform: translateY(-6px) scale(0.95, 1.07);
+    transform: translateY(-5px) scale(0.97, 1.04);
   }
   23.46% {
     animation-timing-function: var(--ui-ease-settle, ease-out);
@@ -499,7 +502,7 @@ html:has(.showcase-frame:not([data-banner="static"])) {
   }
   24.09% {
     animation-timing-function: var(--ui-ease-settle, ease-out);
-    transform: scale(1.16, 0.82);
+    transform: scale(1.08, 0.9);
   }
   25%,
   100% {

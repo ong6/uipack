@@ -13,7 +13,9 @@ import {
   readNavMemory,
   writeNavMemory,
   type DocsMarkerCell,
+  type DocsMarkerMorph,
   type DocsMarkerShape,
+  type NavDraw,
   type Point,
 } from "./DocsMarkers";
 
@@ -85,6 +87,8 @@ export interface SectionNavigationProps {
   memoryKey?: string;
   /** The marker sets off on a trip that lands in `ms` (DocsLayout's `onMarkerTrip`). */
   onTrip?: (ms: number) => void;
+  /** How the mark changes between sections on a trip (DocsLayout's `markerMorph`). */
+  morph?: DocsMarkerMorph;
   /** This copy plays the trip from the remembered page (the sidebar; the drawer and disclosure dock in place). */
   travels: boolean;
 }
@@ -104,12 +108,14 @@ export function SectionNavigation({
   dot,
   memoryKey,
   onTrip,
+  morph = "none",
   travels,
 }: SectionNavigationProps) {
   const uid = useId();
   const navRef = useRef<HTMLElement>(null);
   const glyph = useRef<SVGGElement>(null);
   const trail = useRef<SVGPathElement>(null);
+  const portal = useRef<SVGCircleElement>(null);
   const svg = useRef<SVGSVGElement>(null);
   const activeSection = sections.find((s) => hasHref(s, activeHref));
   const activeKey = activeSection ? keyOf(activeSection) : undefined;
@@ -165,9 +171,15 @@ export function SectionNavigation({
     return { x: a.closest(".uipack-docs__nav-sub") ? NAV_SUB_DOCK_X : NAV_DOCK_X, y: r.top - top + r.height / 2 };
   }, []);
 
-  const draw = useCallback((x: number, y: number, deg: number, path = "", sx = 1, sy = 1) => {
-    glyph.current?.setAttribute("transform", markerTransform(x, y, deg, sx, sy));
+  const draw = useCallback<NavDraw>((x, y, deg, path = "", sx = 1, sy = 1, centred = false, ring = 0) => {
+    glyph.current?.setAttribute("transform", markerTransform(x, y, deg, sx, sy, centred));
     trail.current?.setAttribute("d", path);
+    // The portal's ring opens where the mark stands; shut, it is not drawn.
+    if (portal.current) {
+      portal.current.setAttribute("cx", x.toFixed(2));
+      portal.current.setAttribute("cy", y.toFixed(2));
+      portal.current.setAttribute("r", (11 * ring).toFixed(2));
+    }
   }, []);
 
   /** Sizes the drawing to the nav and docks the marker beside the current link (hidden when its section is shut). */
@@ -184,7 +196,7 @@ export function SectionNavigation({
     const shut = !a || !!a.closest(".uipack-docs__nav-section:not([data-open])");
     svg.current.toggleAttribute("data-hidden", shut);
     const p = dockOf(a);
-    if (p && !shut) draw(p.x, p.y, 0);
+    if (p && !shut) draw(p.x, p.y, 0, "");
   }, [dockOf, draw]);
 
   // Follow the layout: a section folding, wrapping, fonts arriving, the drawer opening.
@@ -253,7 +265,9 @@ export function SectionNavigation({
     svg.current.removeAttribute("data-hidden");
     svg.current.setAttribute("data-flying", "");
     const route = navRoute(from, to);
-    onTrip?.(navTripDuration(route));
+    // The mark stops to change only when this page's mark differs from the one it set off as.
+    const changes = marker === "mark" && (trip.live !== live || trip.dot !== dot) ? morph : "none";
+    onTrip?.(navTripDuration(route, marker, changes));
     // The plane takes on the new section's hue on the way; the mark changes as its last hop lifts.
     const arrive = () => setLeaving(false);
     const hueFrame = marker === "plane" ? requestAnimationFrame(arrive) : 0;
@@ -272,6 +286,7 @@ export function SectionNavigation({
         if (gate !== null && (to.y >= from.y ? y >= gate : y <= gate)) openNow();
       },
       arrive,
+      changes,
     );
     const track = svg.current;
     return () => {
@@ -315,6 +330,7 @@ export function SectionNavigation({
           data-hidden=""
         >
           <path ref={trail} className="uipack-docs__nav-trail" />
+          <circle ref={portal} className="uipack-docs__nav-portal" r="0" />
           <g ref={glyph} className="uipack-docs__marker">
             <MarkerGlyph shape={marker} live={shown ? shown.live : live} />
           </g>

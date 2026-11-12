@@ -10,7 +10,7 @@ import {
   type RefObject,
 } from "react";
 import type { MarkCell } from "../src";
-import { isMarkerShape, type DocsMarkerShape } from "../src/docs/DocsMarkers";
+import { isMarkerMorph, isMarkerShape, type DocsMarkerMorph, type DocsMarkerShape } from "../src/docs/DocsMarkers";
 import type { DocsSectionId } from "./docs-manifest";
 
 /**
@@ -32,6 +32,26 @@ export function markerSetting(search = location.search): DocsMarkerShape {
     return isMarkerShape(kept) ? kept : SITE_MARKER;
   } catch {
     return isMarkerShape(asked) ? asked : SITE_MARKER;
+  }
+}
+
+/**
+ * How the mark changes between sections (the docs layout's `markerMorph`). The site's is "none"
+ * until the owner picks one; `?morph=pause`, `?morph=portal` or `?morph=flip` shows that option for
+ * the rest of the visit, `?morph=none` goes back.
+ */
+export const SITE_MORPH: DocsMarkerMorph = "none";
+
+const MORPH_KEY = "uipack-docs-morph";
+
+export function morphSetting(search = location.search): DocsMarkerMorph {
+  const asked = new URLSearchParams(search).get("morph");
+  try {
+    if (isMarkerMorph(asked)) sessionStorage.setItem(MORPH_KEY, asked);
+    const kept = sessionStorage.getItem(MORPH_KEY);
+    return isMarkerMorph(kept) ? kept : SITE_MORPH;
+  } catch {
+    return isMarkerMorph(asked) ? asked : SITE_MORPH;
   }
 }
 

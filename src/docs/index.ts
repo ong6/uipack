@@ -8,7 +8,7 @@ export {
   type ExtractDocsHeadingsOptions,
   type ExtractedDocsHeading,
 } from "./DocsMarkdown";
-export { type DocsMarkerCell, type DocsMarkerShape } from "./DocsMarkers";
+export { type DocsMarkerCell, type DocsMarkerMorph, type DocsMarkerShape } from "./DocsMarkers";
 export { type DocsSearchOptions } from "./DocsSearch";
 export {
   docsSearchEntries,

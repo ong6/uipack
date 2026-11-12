@@ -163,7 +163,7 @@ test.describe("On this page", () => {
     await expect(links.nth(1)).toHaveAttribute("aria-current", "location");
     await settled(page, railMarker);
     const hop = await poses(page, "rail");
-    expect(Math.max(...hop.map((p) => p.x)) - hop.at(-1)!.x).toBeGreaterThan(3);
+    expect(Math.max(...hop.map((p) => Math.abs(p.x - hop.at(-1)!.x)))).toBeGreaterThan(1);
     // Stretched or squashed on the way (the pose itself is unit-tested), at rest at its own size.
     expect(hop.some((p) => p.sy !== 1)).toBe(true);
     expect(hop.at(-1)!.sy).toBe(1);
@@ -255,7 +255,7 @@ test.describe("the sidebar's marker", () => {
     // (Rules: the top right cell, in the accent).
     const trip = await poses(page, "nav");
     const column = trip.at(-1)!.x;
-    expect(Math.max(...trip.map((p) => p.x)) - column).toBeGreaterThan(3);
+    expect(Math.max(...trip.map((p) => Math.abs(p.x - column)))).toBeGreaterThan(1);
     expect(trip.some((p) => p.sy !== 1)).toBe(true);
     expect(trip.at(-1)!.sy).toBe(1);
     expect(trip.some((p) => p.trail)).toBe(true);
