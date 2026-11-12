@@ -1280,8 +1280,11 @@ html:has(.showcase-frame:not([data-banner="static"])) {
   --landing-gutter: 32px;
   max-width: none;
   padding: 0;
-  /* The docs search (its header box and dialog) reads the docs layout's palette names; the landing
-     page has no docs layout around it, so it names them here, as palette="technical" does. */
+}
+/* The docs search (the header's box and its dialog) reads the docs layout's palette names. The
+   landing page and Assets have no docs layout around them, so their frame names them, as
+   palette="technical" does. */
+.showcase-frame[data-mode] {
   --docs-font-text: var(--ui-font-text);
   --docs-font-heading: var(--ui-font-heading, var(--ui-font-text));
   --docs-font-mono: var(--ui-font-label);
@@ -1302,7 +1305,9 @@ html:has(.showcase-frame:not([data-banner="static"])) {
   margin-inline: auto;
   padding: 0;
 }
-.showcase-frame[data-mode="landing"] .showcase-header .uipack-docs-search__button {
+/* Search in the header, where there is no sidebar to hold it: the landing page, Assets, and a
+   docs page once its sidebar is a drawer (the shell renders the box only then). */
+.showcase-header .uipack-docs-search__button {
   width: clamp(160px, 22vw, 260px);
   height: 40px;
   margin: 0;
@@ -1316,20 +1321,49 @@ html:has(.showcase-frame:not([data-banner="static"])) {
   .showcase-frame[data-mode="landing"] {
     --landing-gutter: 16px;
   }
-  /* A phone keeps the icon and the shortcut's room for the page: the box becomes a 44px icon button. */
-  .showcase-frame[data-mode="landing"] .showcase-header .uipack-docs-search__button {
+}
+/* A phone keeps the icon and the shortcut's room for the page: the box becomes a 44px icon button. */
+@media (max-width: 719px) {
+  .showcase-header .uipack-docs-search__button {
     justify-content: center;
     width: 44px;
     height: 44px;
     padding: 0;
   }
-  .showcase-frame[data-mode="landing"] .showcase-header .uipack-docs-search__button :is(.uipack-docs-search__placeholder, kbd) {
+  .showcase-header .uipack-docs-search__button :is(.uipack-docs-search__placeholder, kbd) {
     position: absolute;
     width: 1px;
     height: 1px;
     overflow: hidden;
     clip-path: inset(50%);
     white-space: nowrap;
+  }
+}
+/* The header's controls keep their size: a row short of room never squeezes a 44px target. */
+.showcase-header__actions > * {
+  flex: none;
+}
+/* A docs page's phone header holds two more 44px buttons than the landing page's (the menu and
+   search), so its brand gives up room first: no margin beyond the row's gap from 520px down, and
+   only its mark below 390px (the rule every view takes below 360px, above), so the tabs, search and
+   the toggle each stay whole on one line down to 320px. */
+@media (max-width: 520px) {
+  .showcase-frame[data-nav="compact"] .showcase-brand {
+    margin-right: 0;
+  }
+}
+@media (max-width: 389px) {
+  .showcase-frame[data-nav="compact"] .showcase-brand {
+    --brand-inset: 12px;
+    box-sizing: content-box;
+    width: 24px;
+    padding: 0 8px 0 12px;
+    margin: 0 -8px 0 -12px;
+    overflow: hidden;
+  }
+  .showcase-frame[data-nav="compact"] .showcase-brand svg {
+    flex: none;
+    clip-path: inset(0 calc(100% - 24px) 0 0);
   }
 }
 .showcase-skip:not(:focus) {

@@ -622,7 +622,55 @@ test.describe("390px", () => {
     await expect(drawer.locator('[aria-current="page"]')).toHaveText("Style contract");
     await expect(drawer.locator(".uipack-docs__nav-track")).not.toHaveAttribute("data-hidden");
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+    // Every row in it is a 44px tap target, a page's sub-pages included (32px rows in the sidebar).
+    const subPages = drawer.locator(".uipack-docs__nav-sub a:visible");
+    await expect(subPages.filter({ hasText: "General rules" })).toBeVisible();
+    const rows = await drawer
+      .locator("a:visible, button:visible")
+      .evaluateAll((els) => els.map((el) => ({ name: el.textContent!.trim(), height: el.getBoundingClientRect().height })));
+    expect(rows.length).toBeGreaterThan(8);
+    expect(rows.filter((r) => r.height < 44)).toEqual([]);
   });
+
+  for (const width of [390, 360, 320])
+    test(`the phone header at ${width}px: a 44px search button on the header's line, every control whole`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 844 });
+      await page.goto("/foundations/style?theme=light");
+      const header = page.locator(".showcase-header");
+      const search = header.getByRole("button", { name: "Search docs" });
+      await expect(search).toBeVisible();
+      const boxes = await header
+        .locator(".showcase-menu-button, .showcase-tabs a, .uipack-docs-search__button, button.theme")
+        .evaluateAll((els) =>
+          els.map((el) => {
+            const r = el.getBoundingClientRect();
+            return { left: r.left, right: r.right, width: r.width, height: r.height, mid: r.top + r.height / 2 };
+          }),
+        );
+      // Menu, Docs, Assets, search, theme: in that order, none squeezed, none over another, all in the window.
+      expect(boxes).toHaveLength(5);
+      for (const b of boxes) {
+        expect(b.height).toBeGreaterThanOrEqual(44);
+        expect(b.width).toBeGreaterThanOrEqual(44);
+        expect(Math.abs(b.mid - boxes[0].mid), "one centre line").toBeLessThanOrEqual(1);
+      }
+      for (let i = 2; i < boxes.length; i++) expect(boxes[i].left).toBeGreaterThanOrEqual(boxes[i - 1].right - 0.5);
+      expect(boxes[4].right).toBeLessThanOrEqual(width);
+      // The brand's mark is whole and clear of the tabs (below 390px the word gives its room up).
+      const mark = await header.locator(".showcase-brand rect[data-cell]").evaluateAll((els) => ({
+        left: Math.min(...els.map((el) => el.getBoundingClientRect().left)),
+        right: Math.max(...els.map((el) => el.getBoundingClientRect().right)),
+      }));
+      expect(mark.left).toBeGreaterThanOrEqual(boxes[0].right - 0.5);
+      expect(mark.right).toBeLessThanOrEqual(boxes[1].left + 0.5);
+      // It opens the same dialog the drawer's box and the shortcut open.
+      await search.tap();
+      const dialog = page.getByRole("dialog", { name: "Search the docs" });
+      await expect(dialog).toBeVisible();
+      await expect(page.getByRole("combobox", { name: "Search the docs" })).toBeFocused();
+      await page.keyboard.press("Escape");
+      await expect(dialog).toBeHidden();
+    });
 
   test("a wide table scrolls in a focusable box whose content fades at each edge with more beyond it", async ({ page }) => {
     await page.goto("/agents?theme=light");
@@ -739,6 +787,85 @@ test.describe("search", () => {
     await expect(page.getByRole("heading", { level: 1 })).toContainText("registry", { ignoreCase: true });
   });
 
+  // The dialog's parts style themselves: the landing page and Assets mount it outside the docs
+  // layout, where a result once fell back to the browser's link (an underlined accent, no padding).
+  for (const theme of ["light", "dark"] as const)
+    for (const width of [1440, 390])
+      test(`the dialog looks the same opened from the landing page, Assets and a docs page (${theme}, ${width}px)`, async ({
+        page,
+      }) => {
+        await page.setViewportSize({ width, height: 900 });
+        const dialog = page.getByRole("dialog", { name: "Search the docs" });
+        const input = page.getByRole("combobox", { name: "Search the docs" });
+        const PARTS = {
+          dialog: "dialog.uipack-docs-search",
+          input: ".uipack-docs-search__bar input",
+          close: ".uipack-docs-search__close",
+          status: ".uipack-docs-search__status",
+          group: ".uipack-docs-search__group-label",
+          selected: '.uipack-docs-search__option[aria-selected="true"]',
+          option: '.uipack-docs-search__option[aria-selected="false"]',
+          where: ".uipack-docs-search__where",
+          snippet: ".uipack-docs-search__snippet",
+          keys: ".uipack-docs-search__keys",
+          key: ".uipack-docs-search__keys kbd",
+        };
+        const look = (selectors: Record<string, string>) =>
+          page.evaluate((selectors) => {
+            const out: Record<string, Record<string, string>> = {};
+            for (const [name, selector] of Object.entries(selectors)) {
+              const s = getComputedStyle(document.querySelector(selector)!);
+              out[name] = {
+                color: s.color,
+                background: s.backgroundColor,
+                decoration: s.textDecorationLine,
+                padding: s.padding,
+                font: `${s.fontWeight} ${s.fontSize}/${s.lineHeight} ${s.fontFamily}`,
+                border: `${s.borderTopWidth} ${s.borderTopColor} ${s.borderLeftWidth} ${s.borderLeftColor}`,
+                radius: s.borderRadius,
+                display: s.display,
+                boxSizing: s.boxSizing,
+              };
+            }
+            return out;
+          }, selectors);
+        const looks: Record<string, { results: unknown; empty: unknown; width: number }> = {};
+        for (const path of ["/foundations/style", "/", "/gallery"]) {
+          await page.goto(`${path}?theme=${theme}`);
+          // ⌘K / Ctrl-K opens it on every view (pressed again until the page's shortcut is listening).
+          await expect(async () => {
+            await page.keyboard.press("ControlOrMeta+k");
+            await expect(dialog).toBeVisible({ timeout: 1_000 });
+          }).toPass({ timeout: 15_000 });
+          await input.fill("grade");
+          await expect(page.getByRole("option").nth(1)).toBeVisible({ timeout: 10_000 });
+          const results = await look(PARTS);
+          await input.fill("zzqqxx");
+          await expect(dialog.getByRole("status")).toContainText("No results");
+          const empty = await look({ status: PARTS.status });
+          looks[path] = { results, empty, width: (await dialog.boundingBox())!.width };
+          await page.keyboard.press("Escape");
+          await expect(dialog).toBeHidden();
+          // Off the docs pages, and on a phone, the header holds the box; it opens the same dialog.
+          if (path !== "/foundations/style" || width < 900) {
+            await page.locator(".showcase-header").getByRole("button", { name: "Search docs" }).click();
+            await expect(dialog).toBeVisible();
+            await page.keyboard.press("Escape");
+            await expect(dialog).toBeHidden();
+          }
+        }
+        const docs = looks["/foundations/style"];
+        // A result is a row, not a link: the ink, no underline, its own padding; the selected one tinted.
+        const selected = (docs.results as Record<string, Record<string, string>>).selected;
+        const input_ = (docs.results as Record<string, Record<string, string>>).input;
+        expect(selected.decoration).toBe("none");
+        expect(selected.padding).toBe("9px 10px 9px 12px");
+        expect(selected.color).toBe(input_.color);
+        expect(selected.background).not.toBe("rgba(0, 0, 0, 0)");
+        expect(looks["/"], "the landing page").toEqual(docs);
+        expect(looks["/gallery"], "Assets").toEqual(docs);
+      });
+
   test("finds body text and a heading, and lands on the heading", async ({ page }) => {
     await page.goto("/");
     await expect(page.locator("main h1")).toBeVisible();
@@ -750,6 +877,81 @@ test.describe("search", () => {
     await page.keyboard.press("Enter");
     await expect(page).toHaveURL(new RegExp(href.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
     await expect(page.getByRole("status").filter({ hasText: "No results" })).toHaveCount(0);
+  });
+});
+
+// docs/specs/docs-site.md, "Theme": ?theme= wins; a bare address takes the reader's last choice,
+// else the system's setting. index.html's first script sets it, before the shell renders.
+test.describe("theme", () => {
+  const themeOf = (page: Page) =>
+    page.evaluate(() => ({
+      root: document.documentElement.dataset.theme,
+      roles: document.documentElement.dataset.uiTheme,
+      frame: document.querySelector<HTMLElement>(".showcase-frame")?.dataset.theme,
+    }));
+  const all = (theme: string) => ({ root: theme, roles: theme, frame: theme });
+
+  for (const scheme of ["dark", "light"] as const)
+    test.describe(`system ${scheme}`, () => {
+      test.use({ colorScheme: scheme });
+
+      test("a bare address follows the system, and ?theme= wins over it", async ({ page }) => {
+        const other = scheme === "dark" ? "light" : "dark";
+        for (const path of ["/agents", "/", "/gallery"]) {
+          await page.goto(path);
+          await expect(page.locator(".showcase-header")).toBeVisible();
+          expect(await themeOf(page), path).toEqual(all(scheme));
+        }
+        // The links the site writes carry the theme the page is in.
+        await expect(page.getByRole("navigation", { name: "Views" }).getByRole("link", { name: "Docs" })).toHaveAttribute(
+          "href",
+          new RegExp(`[?&]theme=${scheme}\\b`),
+        );
+        await page.goto(`/agents?theme=${other}`);
+        await expect(page.locator(".showcase-header")).toBeVisible();
+        expect(await themeOf(page)).toEqual(all(other));
+      });
+    });
+
+  test.describe("a stored choice", () => {
+    test.use({ colorScheme: "light" });
+
+    test("the toggle's choice holds on a bare address, over the system; ?theme= still wins and does not replace it", async ({
+      page,
+    }) => {
+      await page.goto("/agents");
+      await expect(page.locator(".showcase-header")).toBeVisible();
+      expect(await themeOf(page)).toEqual(all("light"));
+      await page.getByRole("button", { name: "dark mode" }).click();
+      await expect(page).toHaveURL(/[?&]theme=dark\b/);
+      expect(await themeOf(page)).toEqual(all("dark"));
+      for (const path of ["/agents", "/", "/gallery"]) {
+        await page.goto(path);
+        await expect(page.locator(".showcase-header")).toBeVisible();
+        expect(await themeOf(page), path).toEqual(all("dark"));
+      }
+      await page.goto("/agents?theme=light");
+      await expect(page.locator(".showcase-header")).toBeVisible();
+      expect(await themeOf(page)).toEqual(all("light"));
+      await page.goto("/agents");
+      await expect(page.locator(".showcase-header")).toBeVisible();
+      expect(await themeOf(page)).toEqual(all("dark"));
+      // Toggled back, the choice is light, whatever the system says.
+      await page.getByRole("button", { name: "light mode" }).click();
+      await page.emulateMedia({ colorScheme: "dark" });
+      await page.goto("/gallery");
+      await expect(page.locator(".showcase-header")).toBeVisible();
+      expect(await themeOf(page)).toEqual(all("light"));
+    });
+
+    test("the theme is set before the page's first paint: by the document's own script, with no shell yet", async ({ page }) => {
+      await page.addInitScript(() => localStorage.setItem("uipack-theme", "dark"));
+      // The page's module never arrives, so only index.html's blocking script has run.
+      await page.route(/\/main\.tsx|\/assets\/.*\.js/, (route) => route.abort());
+      await page.goto("/agents", { waitUntil: "domcontentloaded" });
+      expect(await page.evaluate(() => document.documentElement.dataset.theme)).toBe("dark");
+      expect(await page.evaluate(() => document.querySelector(".showcase-frame"))).toBeNull();
+    });
   });
 });
 

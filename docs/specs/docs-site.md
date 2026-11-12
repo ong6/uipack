@@ -269,9 +269,21 @@ only cue. It is `Wordmark`'s `live` and `liveColor` ([figure parts API](../figur
 in `playground/site-settings.tsx` (`BRAND_CELLS`, `useBrandMark`, and `markerState` for the docs
 layout's marker) and moved by `playground/showcase.css`; `e2e/brand-mark.spec.ts` holds it.
 
-**Search.** A box at the top of the sidebar (and the drawer) and ⌘K / Ctrl-K open one dialog over
-every page's title, headings and text; results are grouped by section with the section's icon in
-its hue.
+### Search and theme
+
+**Search.** One dialog over every page's title, headings and text, with results grouped by
+section, the section's icon in its hue. ⌘K / Ctrl-K opens it on every view: the landing page,
+Assets and each docs page. Its box sits at the top of the sidebar (and the drawer) on a docs page,
+and in the header wherever there is no sidebar: the landing page, Assets, and a docs page below
+900px. In the header it is a box from 720px and a 44px icon button below. The dialog looks the same
+wherever it opens (`e2e/docs-shell.spec.ts`).
+
+**Theme.** `?theme=light` or `?theme=dark` in the address wins, and the links the site writes carry
+it. An address without it takes the reader's last choice (the header's toggle stores it in
+`localStorage`, key `uipack-theme`), and with no stored choice the system's setting
+(`prefers-color-scheme`). A blocking script in `playground/index.html` sets it before the first
+paint, so no page flashes the other theme; `vercel.json`'s Content-Security-Policy allows that
+script by its hash, and the site build fails with the new hash when the script changes.
 
 ## Type
 
@@ -321,7 +333,7 @@ location marker and the section hues are navigation, not ornaments: they are set
 | A page without a rail | Its demos need the width (a figure gallery, charts, 3D): a column up to 1344px, 1176px at 1440, so a 1120-unit figure draws within 1% of its own size |
 | 900–1180px | "On this page" folds into a disclosure above the page |
 | A table wider than the column | Scrolls inside its own focusable box (the arrow keys move it), its content fading out at each edge that has more table beyond it (a mask on the box, so nothing darkens behind the text; the shell marks which edges have more as the box scrolls or resizes); never a page-wide scroll |
-| Below 900px | The sidebar becomes a drawer from the header's menu button; "On this page" is the disclosure; phone type sizes are the docs layout's own |
+| Below 900px | The sidebar becomes a drawer from the header's menu button, every row in it a 44px tap target, sub-pages included; search moves into the header (a 44px icon button below 720px); "On this page" is the disclosure; phone type sizes are the docs layout's own. Below 390px the header's brand keeps only its mark, so the tabs, search and the toggle stay whole on one line |
 
 ## Writing style
 

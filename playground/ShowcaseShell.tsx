@@ -55,13 +55,25 @@ function setDocumentTitle(title: string) {
   document.title = title;
 }
 
-/** The page's theme, held once by main.tsx above the shell and the page: `?theme=` and `data-theme` follow it. */
+/** Where the toggle keeps the reader's choice; index.html's first-paint script reads the same key. */
+export const THEME_STORAGE_KEY = "uipack-theme";
+
+/**
+ * The page's theme, held once by main.tsx above the shell and the page: `?theme=` and `data-theme`
+ * follow it. It starts as index.html's script set it (`?theme=`, else the stored choice, else the
+ * system's setting); the toggle stores the choice, so an address without `?theme=` keeps it.
+ */
 export function ShowcaseThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<"light" | "dark">(document.documentElement.dataset.theme === "dark" ? "dark" : "light");
   const flip = () => {
     const next = theme === "dark" ? "light" : "dark";
     document.documentElement.dataset.theme = next;
     document.documentElement.dataset.uiTheme = next;
+    try {
+      localStorage.setItem(THEME_STORAGE_KEY, next);
+    } catch {
+      // Storage is off (a private window, a blocked site): the address still carries the choice.
+    }
     const url = new URL(location.href);
     url.searchParams.set("theme", next);
     history.replaceState(null, "", url);
@@ -256,9 +268,10 @@ export function ShowcaseShell({
   const missing = notFound ? null : unknownSubView(page, location.search);
   const [menuOpen, setMenuOpen] = useState(false);
   const search = useSiteSearch(theme);
-  // The landing page's own search dialog (a docs page's is DocsLayout's): open from its header or ⌘K.
+  // One search dialog on every view, open from the header's box or ⌘K. Off the docs pages (the
+  // landing page, Assets) the shell renders it; on a docs page DocsLayout does, with this state.
   const [searching, setSearching] = useState(false);
-  useDocsSearchShortcut(landing, setSearching);
+  useDocsSearchShortcut(landing || gallery, setSearching);
   // The marker's shape for this load: the site's, or ?marker= (kept for the visit).
   const [marker] = useState(() => markerSetting());
   // Every page names itself in the tab, /web too: the sample page it hosts publishes the rest of its
@@ -320,8 +333,9 @@ export function ShowcaseShell({
           </a>
         </nav>
         <div className="showcase-header__actions">
-          {/* Off the docs pages (no sidebar), search sits in the header; ⌘K opens it on every page. */}
-          {landing && <DocsSearchButton placeholder="Search docs" onOpen={() => setSearching(true)} />}
+          {/* Where there is no sidebar (the landing page, Assets, a docs page below the drawer's
+              width), search sits in the header: a box, a 44px icon on a phone. ⌘K opens it on every page. */}
+          {(landing || gallery || compact) && <DocsSearchButton placeholder="Search docs" onOpen={() => setSearching(true)} />}
           <button className="theme" type="button" aria-label={`${theme === "dark" ? "light" : "dark"} mode`} onClick={flip}>
             <svg className="theme__icon" viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" focusable="false">
               {theme === "dark" ? (
@@ -357,6 +371,10 @@ export function ShowcaseShell({
     </>
   );
 
+  const searchDialog = (
+    <DocsSearchDialog open={searching} onClose={() => setSearching(false)} options={search} sections={sidebarSections(theme)} />
+  );
+
   // The landing page brings its own <main> and footer (LandingShowcase.tsx), full-bleed, and keeps
   // the docs' search: the header's box and ⌘K open the same dialog over the same index.
   if (landing)
@@ -367,12 +385,7 @@ export function ShowcaseShell({
         </a>
         {header}
         {children}
-        <DocsSearchDialog
-          open={searching}
-          onClose={() => setSearching(false)}
-          options={search}
-          sections={sidebarSections(theme)}
-        />
+        {searchDialog}
       </div>
     );
 
@@ -386,6 +399,7 @@ export function ShowcaseShell({
         <main id="showcase-main" className="showcase-gallery-main" tabIndex={-1} aria-label="Assets">
           {children}
         </main>
+        {searchDialog}
       </div>
     );
 
@@ -416,6 +430,8 @@ export function ShowcaseShell({
         onMarkerTrip={brand.onMarkerTrip}
         markerMemory={NAV_MEMORY_KEY}
         search={search}
+        searchOpen={searching}
+        onSearchOpenChange={setSearching}
         activeHref={notFound ? "" : pageHref(page, theme)}
         onThisPage={markdown && !hostsPage && !page.fullWidth ? toc : []}
         previous={neighbour(pageDefs[index - 1])}

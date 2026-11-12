@@ -23,9 +23,9 @@ import { LANDING_MODULE, LANDING_PATH, LANDING_SECTIONS } from "./landing-index"
 // index.html preloads the current page's chunk alongside this one.
 const pageLoaders = import.meta.glob<{ default: ComponentType }>("./*Showcase.tsx");
 
+// The theme is on <html> before this runs: index.html's blocking script reads ?theme=, then the
+// reader's stored choice, then the system's setting. ShowcaseThemeProvider takes it from there.
 const params = new URLSearchParams(location.search);
-const theme = params.get("theme");
-document.documentElement.dataset.theme = theme === "dark" ? "dark" : "light";
 
 /** An address that names no page says so and lists every page, rather than showing another page. */
 function NotFound() {
