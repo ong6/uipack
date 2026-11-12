@@ -44,7 +44,7 @@ export interface DocsLayoutProps {
   theme?: "light" | "dark";
   /**
    * The colour tokens. "warm" (the default) is the paper-and-blue look hosts already use;
-   * "technical" takes UI Pack's Technical palette (forest/mint accent, green-black dark).
+   * "technical" takes the active style's own palette (in Technical: Prussian ink and an amber accent, a Prussian-blue dark).
    */
   palette?: "warm" | "technical";
   /**
