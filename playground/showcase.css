@@ -10,7 +10,20 @@
 :root {
   --show-radius: 4px;
   --show-control-radius: var(--show-radius);
-  --show-eyebrow-tracking: 0.08em;
+  /* Leading: the site's whole set, four ratios (docs/specs/docs-site.md, "Type"). Display: a title
+     or a section heading. Label: everything set as chrome, one line or a few short ones (controls,
+     labels, navigation, captions, card titles, a section's lead); it is also the natural leading of
+     both Plex faces, so nothing here is left at `normal`. Text: running sentences (intros, card and
+     band copy, tables, code blocks). Prose: a docs page's body, the one extra step. A key cap is a
+     one-line box at 1. Live parts (figures, decks, charts) keep their own. */
+  --site-leading-display: 1.15;
+  --site-leading-label: 1.3;
+  --site-leading-text: 1.6;
+  --site-leading-prose: 1.78;
+  /* Mono caps labels are tracked one way: the section chip, the sidebar's section labels, "On this
+     page", the footer site map's heads, Assets group heads, search groups and the shell eyebrow. */
+  --site-label-tracking: 0.06em;
+  --show-eyebrow-tracking: var(--site-label-tracking);
 }
 /* The shell is Technical: <body data-ui-style="technical"> (index.html) holds Technical's roles,
    and the shell's colours read them there, and again on the frame, where the docs site's own values
@@ -21,11 +34,11 @@ body,
   --show-font-sans: var(--ui-font-text);
   --show-font-display: var(--ui-font-display);
   --show-font-mono: var(--ui-font-label);
-  --show-control-font: 400 13px/1.2 var(--show-font-mono);
-  --show-control-font-sm: 400 12px/1.2 var(--show-font-mono);
+  --show-control-font: 400 13px / var(--site-leading-label) var(--show-font-mono);
+  --show-control-font-sm: 400 12px / var(--site-leading-label) var(--show-font-mono);
   /* The one shell eyebrow (a figure's "Figure 01 · …", a Mechanism plate's corners, a 3D stage's
      edition): tracked mono caps. Slides keep the deck's own eyebrow (deck.css .uipack-deck-eyebrow). */
-  --show-eyebrow-font: 600 12px/1.3 var(--show-font-mono);
+  --show-eyebrow-font: 600 12px / var(--site-leading-label) var(--show-font-mono);
   --show-bg: var(--ui-paper);
   --show-ink: var(--ui-ink);
   --show-muted: var(--ui-ink-2);
@@ -61,7 +74,7 @@ body {
   --rail-gap: clamp(40px, 3vw, 56px);
   --full-col: 1344px;
   /* The sidebar's left inset; the banner's logo starts on it. */
-  --side-pad: 14px;
+  --side-pad: 16px;
   /* Type roles every view shares (docs/specs/docs-site.md, "Type"). The page title and the section
      heading are the docs layout's own sizes, named here so the Assets tab and a page outside the
      Markdown (not found) set theirs from the same values; the docs layout reads them through its
@@ -70,11 +83,26 @@ body {
      every smaller heading (h3 and below, card titles) takes the role, var(--ui-display-tracking). */
   --site-title-size: clamp(38px, 5vw, 52px);
   --site-section-size: 26px;
-  --site-heading-leading: 1.15;
   --site-display-tracking: -0.035em;
+  /* Under a page title, before its intro paragraph, on every view. */
+  --site-title-gap: 24px;
   --docs-title-size: var(--site-title-size);
   --docs-section-size: var(--site-section-size);
   --docs-display-tracking: var(--site-display-tracking);
+  /* The docs layout, its search box and its dialog take the site's leading set and label tracking
+     (src/docs/docs.css reads these hooks, each with its own value as the fallback). */
+  --docs-leading-display: var(--site-leading-display);
+  --docs-leading-label: var(--site-leading-label);
+  --docs-leading-text: var(--site-leading-text);
+  --docs-leading-prose: var(--site-leading-prose);
+  --docs-label-tracking: var(--site-label-tracking);
+  --docs-title-gap: var(--site-title-gap);
+  /* The figure's controls (Open canvas, Pause) take the site's control radius; a card that is
+     square (an Assets card, a landing tile) squares them (docs/specs/docs-site.md, "Shape"). */
+  --uipack-ctl-radius: var(--show-control-radius);
+  /* The site's hairline, resolved here from the site's ink, for a drawing inside a demo or a
+     preview (where the ink is Technical's again) that shows the site's own ground. */
+  --site-line-soft: var(--ui-line-soft);
 }
 /* A phone's steps, the docs layout's (src/docs/docs.css, below 500px). */
 @media (max-width: 499px) {
@@ -119,7 +147,7 @@ body {
 .showcase-frame > .uipack-docs > .uipack-docs__grid > .uipack-docs__article {
   grid-column: 3;
   grid-row: 1;
-  padding: 34px 0 96px;
+  padding: 32px 0 96px;
   scroll-margin-top: var(--header-h);
 }
 /* 5px of padding inside its scroll box is room for a link's focus ring (2px + 3px offset). Its title
@@ -128,9 +156,9 @@ body {
   display: block;
   grid-column: 5;
   grid-row: 1;
-  top: calc(var(--header-h) + 34px);
-  max-height: calc(100vh - var(--header-h) - 55px);
-  margin: 34px -5px 0;
+  top: calc(var(--header-h) + 32px);
+  max-height: calc(100vh - var(--header-h) - 53px);
+  margin: 32px -5px 0;
   padding: 5px;
 }
 .showcase-frame .uipack-docs__toc > p {
@@ -221,6 +249,62 @@ html:has(.showcase-frame:not([data-banner="static"])) {
 .showcase-frame .uipack-docs__table[data-more~="end"] {
   --table-fade-end: 48px;
 }
+/* The canvas backgrounds' stills in dark (the "Backgrounds" tiles on Assets and on Icons & marks).
+   The package's dark stills are static exports in Technical's navy, right for every other site; on
+   this one nothing large is blue in dark, a specimen included (docs/specs/docs-site.md, "Demos and
+   fixed looks"). So in dark the site draws the three tiles itself, over the still and in its box: the
+   site's surface, with the dots and rules in the site's hairline at their real size (1px dots 12px
+   apart, 1px rules 24px apart). Light shows the package's stills, whose values are the site's. */
+.showcase-frame[data-theme="dark"] {
+  --site-ground-plain: var(--ui-surface);
+  --site-ground-dots:
+    radial-gradient(circle at 1px 1px, var(--site-line-soft) 1px, transparent 1.5px) 0 0 / 12px 12px, var(--ui-surface);
+  --site-ground-ruled: linear-gradient(var(--site-line-soft) 1px, transparent 1px) 0 0 / 100% 24px, var(--ui-surface);
+}
+.showcase-frame[data-theme="dark"]
+  :is(
+    .uipack-browser__card[data-kind="background"] .uipack-browser__tile,
+    [data-gallery-item^="asset-background-"] .gallery-preview
+  )
+  img {
+  grid-area: 1 / 1;
+  visibility: hidden;
+}
+.showcase-frame[data-theme="dark"]
+  :is(
+    .uipack-browser__card[data-kind="background"] .uipack-browser__tile,
+    [data-gallery-item^="asset-background-"] .gallery-preview
+  )::after {
+  content: "";
+  grid-area: 1 / 1;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  border: 1px solid var(--ui-line);
+  background: var(--site-ground-plain);
+}
+/* The Assets tile shows the still at 70% of the tile, two to one. */
+.showcase-frame[data-theme="dark"]
+  [data-gallery-item^="asset-background-"]
+  .gallery-preview.gallery-preview--tile.gallery-preview--live::after {
+  width: 70%;
+  height: auto;
+  aspect-ratio: 2 / 1;
+}
+.showcase-frame[data-theme="dark"]
+  :is(
+    .uipack-browser__card[data-id="background-dots"] .uipack-browser__tile,
+    [data-gallery-item="asset-background-dots"] .gallery-preview
+  )::after {
+  background: var(--site-ground-dots);
+}
+.showcase-frame[data-theme="dark"]
+  :is(
+    .uipack-browser__card[data-id="background-ruled"] .uipack-browser__tile,
+    [data-gallery-item="asset-background-ruled"] .gallery-preview
+  )::after {
+  background: var(--site-ground-ruled);
+}
 /* A demo's box only resets the style to Technical (demos.tsx); it takes no space of its own. */
 .showcase-demo {
   display: contents;
@@ -249,7 +333,8 @@ html:has(.showcase-frame:not([data-banner="static"])) {
   border-radius: var(--show-control-radius);
   background: var(--show-surface);
   color: var(--show-ink);
-  font: 600 14px var(--show-font-sans);
+  padding: 12px 16px;
+  font: 600 14px / var(--site-leading-label) var(--show-font-sans);
   outline: 2px solid var(--show-accent);
   outline-offset: 2px;
 }
@@ -269,7 +354,7 @@ html:has(.showcase-frame:not([data-banner="static"])) {
 .showcase-shell .uipack-docs__block[data-block="uipack-demo"] > .showcase-demo > section > h2 {
   font-family: var(--show-font-display);
   font-size: 24px;
-  line-height: 1.25;
+  line-height: var(--site-leading-display);
   font-weight: 600;
   letter-spacing: -0.01em;
   margin: 0 0 8px;
@@ -685,6 +770,20 @@ html:has(.showcase-frame:not([data-banner="static"])) {
 .showcase-frame .uipack-docs-search__button {
   border-radius: var(--show-radius);
   font-size: 14px;
+  /* On the 4px grid: a 40px box, 16px over the first section (38 and 18 in the layout's own). */
+  height: 40px;
+  margin-bottom: 16px;
+  padding: 0 8px 0 12px;
+}
+.showcase-frame .uipack-docs-search__button kbd {
+  padding: 4px;
+}
+/* The open section's list: 4px under its label, 16px above the next one (2 and 14 in the layout's own). */
+.showcase-frame .uipack-docs__nav-inner {
+  padding: 4px 0 16px;
+}
+.showcase-frame .uipack-docs__pagination a {
+  gap: 4px;
 }
 .showcase-frame .showcase-header .uipack-docs-search__button {
   border-radius: var(--ui-radius);
@@ -713,9 +812,9 @@ html:has(.showcase-frame:not([data-banner="static"])) {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 6px 10px;
+  gap: 4px 8px;
   margin: 0;
-  font: 12px var(--show-font-mono);
+  font: 12px / var(--site-leading-label) var(--show-font-mono);
   color: var(--show-muted);
 }
 .showcase-context a {
@@ -743,8 +842,8 @@ html:has(.showcase-frame:not([data-banner="static"])) {
   border-radius: var(--ui-radius);
   background: color-mix(in srgb, var(--docs-hue) 9%, transparent);
   color: var(--ui-ink);
-  font: 600 12px/1.2 var(--ui-font-label);
-  letter-spacing: 0.06em;
+  font: 600 12px / var(--site-leading-label) var(--ui-font-label);
+  letter-spacing: var(--site-label-tracking);
   text-transform: uppercase;
 }
 .showcase-crumb__chip {
@@ -775,8 +874,12 @@ html:has(.showcase-frame:not([data-banner="static"])) {
   stroke-linecap: round;
   stroke-linejoin: round;
 }
+/* A page outside the Markdown (not found): its title starts where the Assets title does, 32px under
+   the banner (the block's own top margin is for a demo between runs of prose). */
+.showcase-frame .showcase-shell.uipack-docs__block {
+  margin-top: 0;
+}
 .showcase-title {
-  margin-top: -8px;
   min-width: 0;
 }
 .showcase-title h1,
@@ -787,7 +890,7 @@ html:has(.showcase-frame:not([data-banner="static"])) {
   font-family: var(--show-font-display);
   font-weight: 600;
   font-size: var(--site-title-size);
-  line-height: var(--site-heading-leading);
+  line-height: var(--site-leading-display);
   letter-spacing: var(--site-display-tracking);
 }
 .showcase-title__view {
@@ -795,17 +898,17 @@ html:has(.showcase-frame:not([data-banner="static"])) {
   color: var(--show-muted);
 }
 .showcase-title p {
-  margin: 12px 0 0;
+  margin: var(--site-title-gap) 0 0;
   max-width: 72ch;
   font-size: 16px;
-  line-height: 1.6;
+  line-height: var(--site-leading-text);
   color: var(--show-muted);
 }
 /* The page's chunk is loading: one quiet status line under the intro (main.tsx), shown only
    if the load takes more than a moment, so a fast load does not flash it. */
 .showcase-loading {
   margin: 32px 0 0;
-  font: 12px/1.5 var(--show-font-mono);
+  font: 12px / var(--site-leading-label) var(--show-font-mono);
   color: var(--show-muted);
   animation: showcase-loading-in 0s 300ms both;
 }
@@ -853,7 +956,7 @@ html:has(.showcase-frame:not([data-banner="static"])) {
 }
 .slides-showcase__tabs button small {
   display: block;
-  margin-top: 6px;
+  margin-top: 4px;
   color: var(--show-muted);
   font-size: 12px;
 }
@@ -877,10 +980,10 @@ html:has(.showcase-frame:not([data-banner="static"])) {
   top: 0;
   bottom: 0;
   left: calc(100% + 16px);
-  padding-left: 6px;
+  padding-left: 8px;
   border-left: 1px dashed var(--show-rule);
   color: var(--show-muted);
-  font: 11px/1 var(--show-font-mono);
+  font: 11px / var(--site-leading-label) var(--show-font-mono);
   pointer-events: none;
 }
 /* Narrower than the page can show beside it: no edge (the frame is the page's own width). */
@@ -895,13 +998,13 @@ html:has(.showcase-frame:not([data-banner="static"])) {
   align-items: center;
   gap: 8px;
   margin: 0 0 12px;
-  font: 12px var(--show-font-mono);
+  font: 12px / var(--site-leading-label) var(--show-font-mono);
   color: var(--show-muted);
 }
 /* Only the widths that fit are offered, so on a phone the label and its buttons share one row. */
 .chart-frame__bar button {
   min-height: 36px;
-  padding: 0 10px;
+  padding: 0 12px;
   font: var(--show-control-font-sm);
 }
 
@@ -912,7 +1015,7 @@ html:has(.showcase-frame:not([data-banner="static"])) {
   max-width: 72ch;
   margin: 0 0 20px;
   font-size: 15px;
-  line-height: 1.6;
+  line-height: var(--site-leading-text);
   color: var(--show-muted);
 }
 /* Line breaks: body copy never ends on a one-word line and short headings and table cells (a few
@@ -941,12 +1044,6 @@ html:has(.showcase-frame:not([data-banner="static"])) {
 .showcase-section-intro a,
 .collection-intro a {
   color: var(--show-accent);
-}
-.showcase-subhead {
-  margin: 0 0 12px;
-  font: 600 13px var(--show-font-mono);
-  letter-spacing: 0.04em;
-  color: var(--show-muted);
 }
 
 /* Compact navigation (data-nav="compact" on the frame, set by ShowcaseShell below 900px, or below
@@ -1045,8 +1142,8 @@ html:has(.showcase-frame:not([data-banner="static"])) {
 }
 /* Touch targets in page chrome. */
 .showcase-context a {
-  padding: 14px 0;
-  margin: -14px 0;
+  padding: 16px 0;
+  margin: -16px 0;
 }
 .chart-frame__bar button {
   min-height: 44px;
@@ -1074,24 +1171,6 @@ html:has(.showcase-frame:not([data-banner="static"])) {
   }
 }
 
-/* The page for an unknown address: every page, by group. */
-.showcase-not-found__groups {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 24px 32px;
-}
-.showcase-not-found ul {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.showcase-not-found li a {
-  display: flex;
-  align-items: center;
-  min-height: 44px;
-  color: var(--show-accent);
-  font-size: 16px;
-}
 @media (max-width: 540px) {
   .showcase-shell > section > h2,
   .showcase-shell .uipack-docs__block[data-block="uipack-demo"] > .showcase-demo > section > h2 {
@@ -1111,7 +1190,7 @@ html:has(.showcase-frame:not([data-banner="static"])) {
 :is(.deck-chapters, .deck-navigation, .chart-frame__bar, .slides-showcase__tabs, .mechanism-poses) button,
 .article-bar a {
   min-height: 44px;
-  padding: 0 14px;
+  padding: 0 16px;
   border: 1px solid var(--show-rule);
   border-radius: var(--show-control-radius);
   background: transparent;
@@ -1190,7 +1269,7 @@ html:has(.showcase-frame:not([data-banner="static"])) {
 :is(.slides-showcase__usage, .web-generated details) > summary {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   min-height: 44px;
   list-style: none;
   font: var(--show-control-font);
@@ -1424,6 +1503,9 @@ html:has(.showcase-frame:not([data-banner="static"])) {
     clip-path: inset(0 calc(100% - 24px) 0 0);
   }
 }
+.showcase-skip {
+  line-height: var(--site-leading-label);
+}
 .showcase-skip:not(:focus) {
   position: absolute;
   width: 1px;
@@ -1441,7 +1523,7 @@ html:has(.showcase-frame:not([data-banner="static"])) {
   top: 8px;
   left: 8px;
   z-index: 1000;
-  padding: 10px 14px;
+  padding: 12px 16px;
   background: var(--show-ink);
   color: var(--show-bg);
   font-weight: 600;

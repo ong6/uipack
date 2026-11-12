@@ -24,7 +24,8 @@ halves of one value set, resolved from the element's `color-scheme`. `test/style
 fails if a style leaves a core role out, and `scripts/check-spec.ts` fails a spec that gives one
 neither a value nor a `TODO:`.
 
-Every colour role below, live from this site's value set (Technical) in its light and dark halves:
+Every colour role below, live from this site's own value set in both halves: Technical's values in
+light, the docs site's charcoal ground and neutral inks in dark ([its spec](../specs/docs-site.md#role-values)):
 
 ```uipack-demo role-swatches wide
 The colour roles as swatches, light and dark side by side, each named by its custom property, with the fonts the style loads.

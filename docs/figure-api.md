@@ -99,6 +99,10 @@ A host may still set the `--uipack-*` aliases on `.uipack` itself (a rule that l
 CSS wins over any theme). That is the pre-0.3.0 bridge; replace it with a theme
 ([upgrade notes](../CHANGELOG.md)), never hex literals in consumer CSS.
 
+The figure's controls (Open canvas, Pause, Replay: `.uipack__ctl`) have a 6px corner. A host with a
+control radius of its own sets `--uipack-ctl-radius` on the figure or an ancestor (the docs site
+does: its 4px in a docs page, square inside its square cards).
+
 ## Presets
 
 Seven figures from a small typed spec, each with wide and narrow drawings, packets on the flows that matter, and hover flows wired. Import from `uipack/presets`; every preset ships a `default…` spec and a `…Parts()` function if you want the drawing without the frame.

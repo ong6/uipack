@@ -13,10 +13,16 @@
   --landing-hero-top: 88px;
   --landing-band-pad: 88px;
   --landing-foot-top: 72px;
+  /* The archetype's 12 columns with 32px gutters (docs/system/layout/landing.md): a split section's
+     first column spans N of them, so every second column starts on a column line. Percentages are
+     of the split's own width, the page column. */
+  --landing-grid-gap: 32px;
+  --landing-span-4: calc((100% - 11 * var(--landing-grid-gap)) * 4 / 12 + 3 * var(--landing-grid-gap));
+  --landing-span-5: calc((100% - 11 * var(--landing-grid-gap)) * 5 / 12 + 4 * var(--landing-grid-gap));
   color: var(--ui-ink);
   font-family: var(--ui-font-text);
   font-size: 16px;
-  line-height: 1.6;
+  line-height: var(--site-leading-text);
 }
 @media (max-width: 1023px) {
   .uipack-landing {
@@ -97,7 +103,7 @@
   padding: 0 20px;
   border: 1px solid transparent;
   border-radius: var(--ui-radius-sm);
-  font: 600 15px/1.2 var(--ui-font-text);
+  font: 600 15px / var(--site-leading-label) var(--ui-font-text);
   text-decoration: none;
   transition:
     box-shadow var(--ui-dur-quick) var(--ui-ease-settle),
@@ -152,8 +158,9 @@
 .landing-hero__grid {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-  gap: 48px;
+  /* Copy on 5 of the 12 columns, the figure on 7. */
+  grid-template-columns: var(--landing-span-5) minmax(0, 1fr);
+  gap: var(--landing-grid-gap);
   /* Top-aligned, as the archetype's split hero and the page's other two-column sections are. */
   align-items: start;
 }
@@ -166,16 +173,16 @@
   border: 1px solid var(--ui-line-soft);
   background: var(--ui-surface-raised);
   color: var(--ui-ink-2);
-  font: 500 12px/1.2 var(--ui-font-label);
+  font: 500 12px / var(--site-leading-label) var(--ui-font-label);
 }
 .landing-eyebrow b {
   color: var(--ui-ink);
   font-weight: 600;
 }
 .landing-hero h1 {
-  margin-bottom: 20px;
+  margin-bottom: var(--site-title-gap);
   font-size: clamp(36px, 4.1vw, 58px);
-  line-height: 1.05;
+  line-height: var(--site-leading-display);
   letter-spacing: var(--site-display-tracking);
   text-wrap: balance;
 }
@@ -191,7 +198,7 @@
   margin-bottom: 28px;
   color: var(--ui-ink-2);
   font-size: clamp(16px, 1.25vw, 18px);
-  line-height: 1.6;
+  line-height: var(--site-leading-text);
   text-wrap: pretty;
 }
 .landing-install {
@@ -201,7 +208,7 @@
   min-height: 48px;
   border: 1px solid var(--ui-line);
   background: var(--ui-surface-raised);
-  font: 400 13px/1.4 var(--ui-font-label);
+  font: 400 13px / var(--site-leading-label) var(--ui-font-label);
 }
 .landing-install__prompt {
   display: grid;
@@ -232,7 +239,7 @@
   border-left: 1px solid var(--ui-line);
   background: var(--ui-surface);
   color: var(--ui-ink);
-  font: 500 12px/1 var(--ui-font-label);
+  font: 500 12px / var(--site-leading-label) var(--ui-font-label);
   cursor: pointer;
   transition: background var(--ui-dur-quick) var(--ui-ease-settle);
 }
@@ -248,7 +255,7 @@
 .landing-install__note {
   margin: 8px 0 28px;
   color: var(--ui-ink-2);
-  font: 400 12px/1.5 var(--ui-font-label);
+  font: 400 12px / var(--site-leading-label) var(--ui-font-label);
 }
 .landing-hero__ctas {
   display: flex;
@@ -274,30 +281,43 @@
 }
 .landing-head {
   display: grid;
+  /* Six and six of the 12 columns. */
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 16px 48px;
+  gap: 16px var(--landing-grid-gap);
   align-items: end;
   margin-bottom: 32px;
 }
+/* The heading's marker dot hangs in the gutter, on the first line's centre, so the heading's text
+   starts on the column's edge with the lead under it. */
 .landing-head h2 {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+  --landing-dot-gap: 12px;
+  position: relative;
   margin-bottom: 12px;
   /* The landing archetype's own section size, larger than a docs h2; the site's display tracking. */
   font-size: clamp(28px, 2.6vw, 36px);
-  line-height: 1.15;
+  line-height: var(--site-leading-display);
   letter-spacing: var(--site-display-tracking);
+}
+.landing-head h2 > .landing-dot {
+  position: absolute;
+  top: calc(var(--site-leading-display) * 0.5em - var(--ui-marker-size) / 2);
+  left: calc(-1 * (var(--ui-marker-size) + var(--landing-dot-gap)));
+}
+/* A phone's 16px gutter holds the dot 4px from the text. */
+@media (max-width: 719px) {
+  .landing-head h2 {
+    --landing-dot-gap: 4px;
+  }
 }
 .landing-head__lead {
   max-width: 34ch;
   color: var(--ui-ink);
   font-size: clamp(18px, 1.5vw, 21px);
-  line-height: 1.45;
+  line-height: var(--site-leading-label);
   text-wrap: balance;
 }
+/* The aside starts on the second column's line (the seventh of 12). */
 .landing-head__aside {
-  justify-self: end;
   max-width: 52ch;
   color: var(--ui-ink-2);
 }
@@ -367,18 +387,18 @@
 }
 .landing-job h3 {
   font-size: 18px;
-  line-height: 1.25;
+  line-height: var(--site-leading-label);
 }
 .landing-job p {
   flex: 1;
   color: var(--ui-ink-2);
   font-size: 15px;
-  line-height: 1.55;
+  line-height: var(--site-leading-text);
 }
 .landing-job__go {
   margin-top: 8px;
   color: var(--ui-accent-ink);
-  font: 500 13px/1.3 var(--ui-font-label);
+  font: 500 13px / var(--site-leading-label) var(--ui-font-label);
 }
 .landing-job:hover .landing-job__go {
   text-decoration: underline;
@@ -390,8 +410,9 @@
    the text column rides beside it (sticky under the 64px banner) while the stack scrolls past. */
 .landing-built {
   display: grid;
-  grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
-  gap: 48px;
+  /* The text on 4 of the 12 columns, the stack on 8. */
+  grid-template-columns: var(--landing-span-4) minmax(0, 1fr);
+  gap: var(--landing-grid-gap);
   align-items: start;
 }
 .landing-built__text {
@@ -423,7 +444,7 @@
   align-items: center;
   justify-content: space-between;
   min-height: 44px;
-  font: 500 14px/1.3 var(--ui-font-label);
+  font: 500 14px / var(--site-leading-label) var(--ui-font-label);
   text-decoration: none;
 }
 .landing-built__next a:hover {
@@ -451,6 +472,8 @@
   display: grid;
   grid-template-rows: minmax(0, 1fr) auto;
   min-width: 0;
+  /* The tile is square, so a figure's controls inside it are. */
+  --uipack-ctl-radius: var(--ui-radius);
   border: 1px solid var(--ui-line-soft);
   background: var(--ui-surface-raised);
   transition: border-color var(--ui-dur-quick) var(--ui-ease-settle);
@@ -478,7 +501,7 @@
 }
 .landing-tile__label h3 {
   font-size: 15px;
-  line-height: 1.3;
+  line-height: var(--site-leading-label);
 }
 .uipack-landing .landing-tile__link {
   display: inline-flex;
@@ -508,7 +531,7 @@
 .landing-tile__label code {
   color: var(--ui-ink-2);
   font-size: 12px;
-  line-height: 1.3;
+  line-height: var(--site-leading-label);
 }
 .landing-preview {
   position: absolute;
@@ -597,8 +620,9 @@
 }
 .landing-band__grid {
   display: grid;
-  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-  gap: 48px;
+  /* The claim on 5 of the 12 columns, the rows on 7. */
+  grid-template-columns: var(--landing-span-5) minmax(0, 1fr);
+  gap: var(--landing-grid-gap);
   align-items: start;
 }
 .landing-band .landing-head {
@@ -642,7 +666,7 @@
 .landing-band__row h3 {
   margin-bottom: 8px;
   font-size: 18px;
-  line-height: 1.25;
+  line-height: var(--site-leading-label);
 }
 .landing-band__row p {
   margin-bottom: 12px;
@@ -657,7 +681,7 @@
   box-sizing: border-box;
   border: 1px solid var(--landing-band-line);
   color: var(--ui-band-ink);
-  font: 400 12px/1.4 var(--ui-font-label);
+  font: 400 12px / var(--site-leading-label) var(--ui-font-label);
   overflow-wrap: anywhere;
   text-decoration: none;
   transition: border-color var(--ui-dur-quick) var(--ui-ease-settle);
@@ -680,25 +704,26 @@
   gap: 8px;
   align-items: start;
   font-size: 15px;
-  line-height: 1.4;
+  line-height: var(--site-leading-label);
   counter-increment: step;
 }
 .landing-steps li::before {
   content: counter(step);
   display: grid;
   place-items: center;
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
+  box-sizing: border-box;
   border: 1px solid var(--ui-band-cta);
   border-radius: 50%;
   color: var(--ui-band-cta);
-  font: 600 12px/1 var(--ui-font-label);
+  font: 600 12px / var(--site-leading-label) var(--ui-font-label);
 }
 .landing-steps small {
   display: block;
   margin-top: 2px;
   color: var(--ui-band-ink-2);
-  font: 400 12px/1.4 var(--ui-font-label);
+  font: 400 12px / var(--site-leading-label) var(--ui-font-label);
 }
 
 /* ---------------------------------------------------------------- footer: site map */
@@ -706,55 +731,8 @@
   padding: var(--landing-foot-top) 0 40px;
   border-top: 1px solid var(--ui-line-soft);
 }
-.landing-map {
-  display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 32px 28px;
-}
-/* Build has the most groups: it takes two columns and sets its groups in them. */
-.landing-map__section[data-section="build"] {
-  grid-column: span 2;
-}
-.landing-map__section[data-section="build"] .landing-map__groups {
-  columns: 2;
-  column-gap: 28px;
-}
-.landing-map__group {
-  break-inside: avoid;
-}
-.landing-map__group + .landing-map__group {
-  margin-top: 12px;
-}
-.landing-map h3 {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
-  font: 600 12px/1.3 var(--ui-font-label);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-.landing-map__caption {
-  margin-bottom: 4px;
-  color: var(--ui-ink-3);
-  font: 500 12px/1.3 var(--ui-font-label);
-}
-.landing-map ul {
-  padding: 0;
-  list-style: none;
-}
-.uipack-landing .landing-map a {
-  display: block;
-  padding: 4px 0;
-  color: var(--ui-ink-2);
-  font-size: 14px;
-  line-height: 1.45;
-  text-decoration: none;
-}
-.uipack-landing .landing-map a:hover {
-  color: var(--ui-ink);
-  text-decoration: underline;
-}
+/* The map itself (.landing-map) is the site's one site map, drawn here and on a not-found page:
+   site-map.css. */
 .landing-foot__base {
   display: flex;
   flex-wrap: wrap;
@@ -765,7 +743,7 @@
   padding-top: 20px;
   border-top: 1px solid var(--ui-line-soft);
   color: var(--ui-ink-2);
-  font: 400 12px/1.5 var(--ui-font-label);
+  font: 400 12px / var(--site-leading-label) var(--ui-font-label);
 }
 .landing-foot__links {
   display: flex;
@@ -780,11 +758,6 @@
 }
 
 /* ---------------------------------------------------------------- narrower screens */
-@media (max-width: 1100px) {
-  .landing-map {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
 @media (max-width: 1023px) {
   .landing-hero__grid,
   .landing-built,
@@ -830,16 +803,9 @@
   .landing-hero__ctas .landing-btn {
     flex: 1 1 auto;
   }
-  .landing-map {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .landing-map__section[data-section="build"] .landing-map__groups {
-    columns: 1;
-  }
 }
 /* Touch: every link in a list or row is a 44px target. */
 @media (pointer: coarse) {
-  .uipack-landing .landing-map a,
   .uipack-landing .landing-foot__links a,
   .uipack-landing .landing-band__url {
     display: flex;

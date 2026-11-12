@@ -8,8 +8,8 @@
 /* The page title, section heading and intro are the site's (showcase.css, the frame's type roles):
    the docs page title and h2, and the body leading of the landing and not-found intros. */
 .gallery-head h1 {
-  margin: 0 0 12px;
-  font: 600 var(--site-title-size) / var(--site-heading-leading) var(--show-font-display);
+  margin: 0 0 var(--site-title-gap);
+  font: 600 var(--site-title-size) / var(--site-leading-display) var(--show-font-display);
   letter-spacing: var(--site-display-tracking);
   color: var(--show-ink);
 }
@@ -17,7 +17,7 @@
   margin: 0;
   max-width: 68ch;
   font-size: 16px;
-  line-height: 1.6;
+  line-height: var(--site-leading-text);
   color: var(--show-muted);
 }
 .gallery-filters {
@@ -30,7 +30,7 @@
   align-items: center;
   gap: 8px;
   min-height: 44px;
-  padding: 0 14px;
+  padding: 0 16px;
   font: var(--show-control-font);
   color: var(--show-ink);
   background: transparent;
@@ -56,7 +56,7 @@
 }
 .gallery-section h2 {
   margin: 0;
-  font: 600 var(--site-section-size) / var(--site-heading-leading) var(--show-font-display);
+  font: 600 var(--site-section-size) / var(--site-leading-display) var(--show-font-display);
   letter-spacing: var(--site-display-tracking);
   color: var(--show-ink);
 }
@@ -91,6 +91,9 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
+  /* The card is square, so a figure's controls inside it are (docs/specs/docs-site.md, "Shape"). */
+  --uipack-ctl-radius: var(--ui-radius);
+  line-height: var(--site-leading-label);
   border: 1px solid var(--show-rule);
   /* Square, Technical's role: a live-preview card here is a landing tile's twin. */
   border-radius: var(--ui-radius);
@@ -146,22 +149,26 @@
 .gallery-card__text {
   display: grid;
   gap: 4px;
-  padding: 10px 12px 12px;
+  /* The landing tile label's 16px inline. */
+  padding: 12px 16px;
 }
 .gallery-card--tile .gallery-card__text {
-  padding: 6px 8px 8px;
+  padding: 8px;
 }
 .gallery-card__link {
   display: inline-block;
   min-height: 24px;
   padding-block: 2px;
   box-sizing: border-box;
-  font: 600 15px/1.3 var(--show-font-sans);
+  /* A card title, the landing tile's: 15px 600 at the role's tracking. */
+  font: 600 15px / var(--site-leading-label) var(--show-font-display);
+  letter-spacing: var(--ui-display-tracking);
   color: var(--show-ink);
   text-decoration: none;
 }
 .gallery-card--tile .gallery-card__link {
   font: var(--show-control-font-sm);
+  letter-spacing: 0;
   overflow-wrap: anywhere;
 }
 /* The title link covers the whole card, so the card is one target and one Tab stop. */

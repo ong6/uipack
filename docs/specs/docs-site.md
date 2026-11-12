@@ -134,7 +134,7 @@ more on every surface in both themes, and every mark 3:1 (`test/site-palette.tes
 | `--ui-band-fill` | `#0b2748` | `#0b0c0e` |
 | `--ui-band-ink` | `#eef3fa` | `#eceef1` |
 | `--ui-band-ink-2` | `#a9bfd9` | `#b3bac2` |
-| `--ui-band-cta` | `#f0c45a` | `#f0c45a` |
+| `--ui-band-cta` | `#f0c45a` | `#f3c05a` |
 | `--ui-on-band-cta` | `#0b2748` | `#111315` |
 | `--ui-band-pattern` | `none` | `none` |
 | `--ui-section-index` | `inline` | `inline` |
@@ -297,14 +297,17 @@ page), from the variables on the frame in `playground/showcase.css`:
 
 | Role | This site |
 | --- | --- |
-| Page title | 52px (38px below 760px, 36px below 500px), line height 1.15: a docs page's h1, the Assets title and "Page not found" (`--site-title-size`) |
+| Page title | 52px (38px below 760px, 36px below 500px), line height 1.15: a docs page's h1, the Assets title and "Page not found" (`--site-title-size`). The Assets title and "Page not found" start 32px under the banner (a docs page has its page bar first), and 24px separates every title from its intro paragraph, the landing headline too (`--site-title-gap`) |
 | Section heading | 26px (23px below 500px), line height 1.15: a docs h2 and an Assets category (`--site-section-size`) |
 | Landing headline and section heading | The landing archetype's own, larger: 58px and 36px (36px and 28px on a phone) |
-| Small headings | 20px (a docs h3), 18px (a landing card or band row), 15px (a landing tile, an Assets card) |
+| Small headings | 20px (a docs h3), 18px (a landing card or band row), 15px (a card title: a landing tile and an Assets card are one spec, 600 at the role's tracking) |
 | Heading tracking | Two values. A title or section heading (h1, h2: 23px and up) takes the site's display tracking, −0.035em (`--site-display-tracking`), tighter than Technical's role because these are set large. Every smaller heading takes the role, `--ui-display-tracking` (−0.01em) |
 | Intro paragraph | 16px, line height 1.6, on the Assets tab and a not-found page as on the landing page |
+| Leading | Four ratios, variables on `:root`. Display 1.15 (`--site-leading-display`): titles and section headings, the landing headline included. Label 1.3 (`--site-leading-label`): everything set as chrome (controls, labels, navigation, captions, card titles, a landing section's lead); it is both Plex faces' natural leading, so nothing is left at `normal`. Text 1.6 (`--site-leading-text`): running sentences, tables and code blocks. Prose 1.78 (`--site-leading-prose`): a docs page's body, at every width. The docs layout takes them through its `--docs-leading-*` hooks. A key cap is a one-line box at 1; live parts (figures, decks, charts) keep their own |
+| Mono caps labels | One tracking, 0.06em (`--site-label-tracking`): the section chip, the sidebar's section labels, "On this page", the site map's heads, Assets group heads, search groups, previous and next, and the shell eyebrow |
 | Inline code | 0.86 of the text around it, rounded to a whole pixel (15px in 18px prose, 12px in a table); 14px in the landing band |
-| Section chip | One drawing, in a docs page's bar and on a landing job card: mono caps 12px 600, tracked 0.06em, square, the section's icon and a tint of its hue |
+| Section chip | One drawing, in a docs page's bar and on a landing job card: mono caps 12px 600, the label tracking, square, the section's icon and a tint of its hue |
+| Site map | One drawing (`playground/SiteMap.tsx`), in the landing page's footer and on a not-found page, which adds the sub-pages: heads in mono caps 12px with the section's icon in its hue, links 14px in ink-2, underlined on hover |
 
 ## Shape
 
@@ -316,6 +319,17 @@ sidebar's rows, section icons and search box (the docs layout's `--docs-radius`,
 shell's controls and cards around a demo. Squaring those would change how a docs page reads, so they
 keep one small radius, where there were four (3, 4, 5 and 6px). Nodes inside a drawing keep the
 Blueprint look's 6px, and a marker dot is a circle.
+
+A figure's own controls (Open canvas, Pause) take the radius of where the figure sits: the small
+radius in a docs page's demo, square inside an Assets card or a landing tile, as the card is. The
+package draws them at 6px and reads `--uipack-ctl-radius`, which the site sets. A chart's marks (a
+span chart's 1px legend swatches and 2px badges) are the chart's own.
+
+Spacing sits on the 4px grid (8 for gaps and padding between parts): cards pad 24px (a landing job
+card, a style card), an Assets card's text 12px by 16px, the sidebar's inset and the banner's logo
+16px, the search box 40px high. Kept off it, each for a reason: 5px around "On this page" (room for
+a 2px focus ring at a 3px offset), the sidebar rows' 6px block padding (the row's height is its 34px
+minimum) and the menu button's −15px (its first stroke sits on the page's edge).
 
 ## Density and rhythm
 
@@ -390,8 +404,11 @@ to changes if needed"). The site sets only the ground a part sits on, the allowa
 [a spec has for a fixed look](../system/spec-settings.md): the paper, the surfaces, node fills,
 solid lines and the closing band, the values below (the same as the page's). A part's ink, accent,
 flow, data and slide hues stay Technical's, so a figure, slide or chart reads as it does on every
-site. Light is Technical's exactly. A 3D scene's own world, once WebGL draws it, is its look's, and
-static exports and stills keep Technical (see Open TODOs). Generated from `playground/site-palette.css`:
+site. Light is Technical's exactly. A 3D scene's own world, once WebGL draws it, is its look's. The
+package's static exports and stills keep Technical; where a dark still's ground is Technical's navy
+(the three canvas backgrounds on Assets and on Icons & marks), the site draws the tile itself on its
+surface, with the dots and rules in its hairline (`playground/showcase.css`). The role swatches on
+the Style contract page show the site's own values whole, in both halves. Generated from `playground/site-palette.css`:
 
 <!-- generated:demo-ground -->
 | Role | Light (Technical's) | Dark (the site's) |
@@ -413,9 +430,13 @@ dark palette and navigation included, says `extends: docs-site`.
 
 ## Open TODOs
 
-- TODO: static SVG export (`uipack/static`), the asset manifest's dark previews and the 3D stills
-  keep Technical's dark values; whether the site's stills should follow its charcoal is open (the
-  owner decides). The diagram themes demo shows Blueprint on the site's charcoal in dark (the owner, 2026-11-12:
-  no blue ground on this site, the specimen included) and the two example themes' own darks; the
-  art directions' WebGL worlds (Cartoon's night sky, Abstract's navy pool) are their
-  looks'.
+- No dark still on the site has a blue ground (the owner, 2026-11-12: no blue ground on this site,
+  the specimen included): the three canvas-background tiles are drawn by the site on its charcoal,
+  the diagram themes demo shows Blueprint on it, and every other dark still the Assets tab and
+  Icons & marks show (icons, marks, motion tokens) has no ground of its own
+  (`e2e/site-consistency.spec.ts` scans them). The files themselves (`docs/assets/dark/`, the
+  manifest's `previewDark`) are the package's and stay Technical's navy for every other site.
+- TODO: static SVG export (`uipack/static`) has no site palette: a figure exported from this site
+  in dark is Technical's. Whether it should take a site's ground is open (the owner decides). The
+  art directions' WebGL worlds (Cartoon's night sky, Abstract's navy pool) are their looks' and
+  stay.

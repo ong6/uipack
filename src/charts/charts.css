@@ -1388,7 +1388,8 @@
   align-items: start;
   column-gap: 8px;
   min-height: var(--ls-target);
-  padding: 11px 12px 11px 10px;
+  /* On the 4px grid; a one-line band is still the 44px target (20px of text and 24 of padding). */
+  padding: 12px;
   list-style: none;
 }
 .uipack-stack summary.uipack-stack__face {
@@ -1680,7 +1681,7 @@
   .uipack-stack .uipack-stack__face {
     grid-template-columns: 20px minmax(0, 1fr) auto auto;
     grid-template-areas: "idx text metric go";
-    padding: 11px 14px 11px 12px;
+    padding: 12px 16px 12px 12px;
   }
   .uipack-stack .uipack-stack__go-text {
     display: block;

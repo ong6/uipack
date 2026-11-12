@@ -22,6 +22,7 @@ import { Scaled, useNearViewport } from "./preview-stage";
 import { BUILD_JOBS, BUILT_NEXT, READ_ORDER, SUPPORT_JOBS, type Job } from "./landing/content";
 import { JOB_ART } from "./landing/job-art";
 import { NAV_MEMORY_KEY, SectionIcon, sectionHueStyle } from "./site-settings";
+import { SiteMap } from "./SiteMap";
 import "./landing.css";
 
 type Theme = "light" | "dark";
@@ -540,48 +541,17 @@ function Agents({ theme }: { theme: Theme }) {
 /* ------------------------------------------------------------------ footer */
 
 /**
- * The site map: the docs' five sections, each with its groups (a caption over each but the first)
- * and their pages, from the docs manifest (sub-pages and deck sub-views stay on their page).
+ * The footer: the site map (SiteMap.tsx: the docs' five sections with their groups and pages, from
+ * the docs manifest), then the base line.
  */
-function SiteMap({ theme }: { theme: Theme }) {
+function SiteFooter({ theme }: { theme: Theme }) {
   return (
     <footer className="landing-foot" id="site-map" aria-labelledby="site-map-title">
       <div className="landing-wrap">
         <h2 id="site-map-title" className="landing-vh">
           Site map
         </h2>
-        <div className="landing-map">
-          {librarySections.map((section) => (
-            <nav
-              key={section.id}
-              aria-labelledby={`map-${section.id}`}
-              className="landing-map__section"
-              data-section={section.id}
-              style={sectionHueStyle(section.id)}
-            >
-              <h3 id={`map-${section.id}`}>
-                <SectionIcon id={section.id} size={15} />
-                {section.label}
-              </h3>
-              <div className="landing-map__groups">
-                {section.groups.map((g) => (
-                  <div key={g.id} className="landing-map__group">
-                    {g.caption && <p className="landing-map__caption">{g.caption}</p>}
-                    <ul>
-                      {pageDefs
-                        .filter((p) => p.group === g.id && !p.parent && (!p.query || p.isDefault))
-                        .map((p) => (
-                          <li key={p.id}>
-                            <a href={pageHref(p, theme)}>{p.query ? (p.title ?? p.label) : p.label}</a>
-                          </li>
-                        ))}
-                    </ul>
-                  </div>
-                ))}
-              </div>
-            </nav>
-          ))}
-        </div>
+        <SiteMap theme={theme} />
         <div className="landing-foot__base">
           <span>Jun Xiong's own design system. Its only consumers are the sites in the registry.</span>
           <span className="landing-foot__links">
@@ -616,7 +586,7 @@ export default function LandingShowcase() {
         <Around theme={theme} />
         <Agents theme={theme} />
       </main>
-      <SiteMap theme={theme} />
+      <SiteFooter theme={theme} />
     </div>
   );
 }

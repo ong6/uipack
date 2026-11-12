@@ -9,12 +9,15 @@
    on every demo, gallery preview and figure canvas dialog (in <body>); and the rest, on the frame
    and every Technical host inside it, stopping at a demo (.showcase-demo) and a gallery preview:
    each sets data-ui-style itself, so the part inside draws in Technical's ink, accent, flow and data
-   hues, on the site's ground. Loaded only by the docs site (playground/main.tsx): the package and
-   every other site keep Technical as it is. */
+   hues, on the site's ground. A specimen of the site's own values inside a demo opts back in with
+   data-site-values (the role swatches on the Style contract page), so it shows one coherent set.
+   Loaded only by the docs site (playground/main.tsx): the package and every other site keep
+   Technical as it is. */
 
 /* The site's values, except the ground. */
 .showcase-frame,
-.showcase-frame [data-ui-style="technical"]:not(:is(.showcase-demo, .gallery-preview), :is(.showcase-demo, .gallery-preview) *) {
+.showcase-frame [data-ui-style="technical"]:not(:is(.showcase-demo, .gallery-preview), :is(.showcase-demo, .gallery-preview) *),
+.showcase-frame [data-site-values][data-ui-style="technical"] {
   /* Ink: a neutral ramp, three levels. */
   --ui-ink: light-dark(#0b2748, #eceef1);
   --ui-ink-2: light-dark(#3d5878, #b3bac2);
@@ -37,6 +40,8 @@
   /* The closing band's ink (its fill is the ground's, below). */
   --ui-band-ink: light-dark(#eef3fa, #eceef1);
   --ui-band-ink-2: light-dark(#a9bfd9, #b3bac2);
+  /* The band's button: Technical's gold in light, the site's one gold (the accent's) in dark. */
+  --ui-band-cta: light-dark(#f0c45a, #f3c05a);
   --ui-on-band-cta: light-dark(#0b2748, #111315);
 
   /* Navigation hues (the spec's "Navigation" section): one per sidebar section, used only on the
