@@ -7,7 +7,7 @@ reviewed point to pin instead of a bare commit.
 
 ## Version numbers
 
-uipack is installed from the tarball attached to its GitHub release (below), never from npm. The
+UiPack is installed from the tarball attached to its GitHub release (below), never from npm. The
 version in `package.json` is the latest release; a tag `vX.Y.Z` on main marks the commit it names.
 Before 1.0 the numbers mean:
 

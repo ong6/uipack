@@ -12,7 +12,7 @@ export const READ_ORDER: readonly { title: string; path: string; icon: IconName;
   { title: "The core rules", path: "docs/system/", icon: "check", long: "The core rules for your medium", note: "docs/system/" },
   {
     title: "The component docs",
-    path: "dist/*.d.ts",
+    path: "docs/*.md",
     icon: "browser",
     long: "The component docs",
     note: "and the entry's dist/*.d.ts",
@@ -67,7 +67,7 @@ export const JOBS: readonly Job[] = [
   },
   {
     title: "Draw a diagram",
-    text: "The Blueprint look, figure labels and captions, then the catalogue.",
+    text: "The Blueprint look, figure labels and captions, then Architecture diagrams.",
     page: "component-diagrams",
     go: "The Blueprint look",
     section: "build",
@@ -75,7 +75,7 @@ export const JOBS: readonly Job[] = [
   },
   {
     title: "Give a site its own spec",
-    text: "Its own look, layout and voice: how to write a spec, and what a spec may set.",
+    text: "How to write a spec for a site's own look, layout and voice, and what a spec may set.",
     page: "styles",
     go: "How to write a spec",
     section: "rules",
@@ -83,7 +83,7 @@ export const JOBS: readonly Job[] = [
   },
   {
     title: "Grade and verify work",
-    text: "Render at 1440 and 390, light and dark, then grade it: how to grade, and the rubric for your page type.",
+    text: "Render at 1440 and 390, light and dark, then grade it with the rubric for your page type.",
     page: "grading",
     go: "How to grade",
     section: "check",
@@ -94,10 +94,10 @@ export const JOBS: readonly Job[] = [
 /** The cards a reader builds from: "Start from your job" shows only these. */
 export const BUILD_JOBS: readonly Job[] = JOBS.filter((job) => job.section === "build");
 
-/** The steps either side of building (a site's own spec, grading): their own later section, "Set the rules, check the work". */
+/** The steps either side of building (a site's own spec, grading): their own later section, "Rules and checks". */
 export const SUPPORT_JOBS: readonly Job[] = JOBS.filter((job) => job.section !== "build");
 
-/** "How it's built": docs/README.md's layer table, bottom to top, as LayerStack data. */
+/** "How it is built": docs/README.md's layer table, bottom to top, as LayerStack data. */
 export const LAYERS: readonly { id: string; label: string; summary: string; page: string; zone: string }[] = [
   {
     id: "core",
@@ -137,7 +137,7 @@ export const LAYERS: readonly { id: string; label: string; summary: string; page
   { id: "components", label: "Components", summary: "The parts, each with its live demo", page: "figures", zone: "parts" },
 ];
 
-/** "How it's built": where to read next, beside the stack: the overview, then the three layers a newcomer opens first (labels as the stack names them). */
+/** "How it is built": where to read next, beside the stack: the overview, then the three layers a newcomer opens first (labels as the stack names them). */
 export const BUILT_NEXT: readonly { label: string; page: string }[] = [
   { label: "What UiPack is", page: "start" },
   ...["core", "specs", "recipes"].map((id) => {

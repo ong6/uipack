@@ -1,6 +1,6 @@
 # Site registry
 
-Every site uipack designs for: where its spec lives, the component looks it picks, the uipack
+Every site UiPack designs for: where its spec lives, the component looks it picks, the uipack
 version it pins, and how that pin stands against the latest release (`package.json`'s version;
 how a release is cut and a site moves to it: [releases](../releases.md)). One spec per site; a site
 that reuses another's look names that spec. The table is generated from `siteRegistry` in

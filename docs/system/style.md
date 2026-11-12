@@ -10,7 +10,7 @@ A style is a **token set keyed to semantic roles**. Layouts and content ask for 
 leaves the questions alone. Light and dark are two value sets *inside* one style. They are not two
 styles. See [the system overview](README.md) for how style fits with writing and layout.
 
-uipack renders a spec's look once its values are one value set in `src/styles`, registered in
+UiPack renders a spec's look once its values are one value set in `src/styles`, registered in
 `uiStyles` and tested ([building a style from a spec](../specs/README.md#building-a-style-from-a-spec)).
 Today that is Technical alone. What a spec may choose, and what holds for every site, is in
 [What a spec may set](spec-settings.md).

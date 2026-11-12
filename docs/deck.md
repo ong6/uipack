@@ -88,7 +88,7 @@ const slides: DeckSlide[] = [
 
 `uiStyle` sets the style the deck is painted in (it sets `data-ui-style`; omitted, the deck
 follows an ancestor's, else Technical). Technical is the one implemented style; another
-site's [spec](specs/README.md) becomes a new value set when uipack needs to render it. A style
+site's [spec](specs/README.md) becomes a new value set when UiPack needs to render it. A style
 changes tokens only: the headline, body and footer keep their regions (and an eyebrow, on a slide
 that has one), and headlines take the style's display face (IBM Plex Sans 600 in Technical).
 Consulting charts read the data roles, so they would follow a new style too; their dense layouts

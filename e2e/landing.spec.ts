@@ -71,7 +71,7 @@ for (const width of [1440, 390])
       for (const id of ["jobs", "built", "parts", "around", "agents", "site-map"])
         await expect(page.locator(`#${id}`)).toBeVisible();
       await mountLazyParts(page);
-      // Exactly one filled primary action in the hero; the gallery is the secondary.
+      // Exactly one filled primary action in the hero; Assets is the secondary.
       await expect(page.locator(".landing-hero .landing-btn--primary")).toHaveCount(1);
       expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
       // The hero figure text stays at the 11px floor at every width (the phone drawing included).
@@ -248,7 +248,7 @@ test("the For agents band: the band fill in light; in dark a raised, ruled charc
 });
 
 for (const width of [1440, 1920])
-  test(`${width}: "How it's built" is balanced: the text column runs most of the stack's height`, async ({ page }) => {
+  test(`${width}: "How it is built" is balanced: the text column runs most of the stack's height`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     await page.goto("/?theme=light");
     await page.locator("#built").scrollIntoViewIfNeeded();

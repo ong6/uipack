@@ -63,7 +63,7 @@ How it resolves: a scope sets private carriers (`--uipack-diagram-<role>`); each
 its carrier first and the page's role second, so the nearest scope wins, a page scope nested in the
 site's overrides it, and a figure outside every scope is unchanged. Each colour is a
 `light-dark()` pair resolved by the figure's own colour scheme, so the host's dark switch flips
-every theme at once: uipack follows `[data-theme="dark"]` on any ancestor and the OS setting; a host
+every theme at once: UiPack follows `[data-theme="dark"]` on any ancestor and the OS setting; a host
 with another switch passes `darkSelector` (and `lightSelector`) to `diagramThemeCss`.
 `DiagramThemeScope mode="dark"` holds one mode for what it wraps. Remove any old `--uipack-*`
 overrides on `.uipack` when adopting a theme: a host rule on the figure root still wins.
@@ -75,7 +75,7 @@ components: { diagrams: blueprint }
 diagram-themes: { default: site-paper, compoze: compoze, trading: trading }
 ```
 
-`default` is the site's theme; every other key is a page or page group with its own. A theme uipack
+`default` is the site's theme; every other key is a page or page group with its own. A theme UiPack
 doesn't ship is described in the spec's `## Component looks` (its name in backticks with its
 values, or the file that defines it). `scripts/check-spec.ts` fails a map without `default`, a name
 that isn't kebab-case, and an undescribed theme. A spec without `diagram-themes` draws `blueprint`.

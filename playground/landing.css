@@ -300,10 +300,6 @@
   max-width: 52ch;
   color: var(--ui-ink-2);
 }
-.landing-head__aside .landing-hue {
-  color: var(--docs-hue);
-  font-weight: 600;
-}
 
 /* ---------------------------------------------------------------- jobs */
 .landing-jobs {
@@ -315,7 +311,7 @@
   padding: 0;
   list-style: none;
 }
-/* "Start from your job": the four build cards in one row. "Set the rules, check the work": two. */
+/* "Start from your job": the four build cards in one row. "Rules and checks": two. */
 .landing-jobs--build {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
@@ -395,7 +391,7 @@
   text-underline-offset: 3px;
 }
 
-/* ---------------------------------------------------------------- how it's built */
+/* ---------------------------------------------------------------- how it is built */
 /* The stack gets two thirds, so most layer summaries take one line and the stack stays short;
    the text column rides beside it (sticky under the 64px banner) while the stack scrolls past. */
 .landing-built {

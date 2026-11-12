@@ -11,7 +11,7 @@ import "../src/web/fonts.css";
 // navigation hues. After technical.css, and unlayered, so they win.
 import "./site-palette.css";
 import "./showcase.css";
-import { libraryGroups, pageDefs, pageHeading, pageHref, resolvePage } from "./catalog";
+import { librarySections, pageDefs, pageHeading, pageHref, resolvePage } from "./catalog";
 import { pageModules, routePath, routes } from "./routes";
 import { figureRows } from "./figure-rows";
 import { ShowcaseShell, ShowcaseThemeProvider, useShowcaseTheme } from "./ShowcaseShell";
@@ -33,14 +33,15 @@ function NotFound() {
   return (
     <section className="showcase-not-found">
       <div className="showcase-not-found__groups">
-        {libraryGroups.map((g) => (
-          <section key={g.id} aria-labelledby={`not-found-${g.id}`}>
-            <h2 id={`not-found-${g.id}`} className="showcase-subhead">
-              {g.label}
+        {/* The sidebar's five sections under their labels, each section's pages in sidebar order. */}
+        {librarySections.map((s) => (
+          <section key={s.id} aria-labelledby={`not-found-${s.id}`}>
+            <h2 id={`not-found-${s.id}`} className="showcase-subhead">
+              {s.label}
             </h2>
             <ul>
-              {pageDefs
-                .filter((p) => p.group === g.id)
+              {s.groups
+                .flatMap((g) => pageDefs.filter((p) => p.group === g.id))
                 .map((p) => (
                   <li key={p.id}>
                     <a href={pageHref(p, theme)}>{p.query && p.title ? `${p.title} · ${p.label}` : p.label}</a>

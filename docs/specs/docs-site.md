@@ -13,7 +13,7 @@ values: playground/site-palette.css
 
 # Docs site: the ui.junxiong.dev spec
 
-The spec of the uipack docs site at [ui.junxiong.dev](https://ui.junxiong.dev): what it sets on top
+The spec of the UiPack docs site at [ui.junxiong.dev](https://ui.junxiong.dev): what it sets on top
 of [Technical](technical.md), the package's default look. Read it before changing the site's dark
 palette, the dark ground its demos sit on, its sidebar sections and their hues, its location marker,
 the docs shell's widths or the landing page; everything else is Technical's and a rule for no other
@@ -31,7 +31,7 @@ Technical's Prussian blue (the owner, 2026-11-11: "make it darker", "consider ne
 mode"), with neutral surfaces a small step lighter each, a neutral ink ramp, and Technical's gold
 and flow hues re-tuned to sit on charcoal. Nothing large reads as blue in dark: the live demos and
 previews sit on the same charcoal ([Demos and fixed looks](#demos-and-fixed-looks)). The sidebar is how a reader finds their way: five
-sections, each with an icon and a hue, and the uipack mark, which hops to where the reader is.
+sections, each with an icon and a hue, and the UiPack mark, which hops to where the reader is.
 
 ## Role values
 
@@ -241,7 +241,7 @@ or more as a mark on every ground. Generated from `playground/site-palette.css`:
 <!-- /generated -->
 
 **The location marker.** One shape for both places it shows: the sidebar (beside the current page)
-and "On this page" (on the heading being read). The site's is `mark`, the uipack logo's square mark,
+and "On this page" (on the heading being read). The site's is `mark`, the UiPack logo's square mark,
 hopping like a game piece (owner, 2026-11-12: "it can also be our logo hopping around"); `plane` is
 the package's paper plane, which flies a dotted path. The setting is `SITE_MARKER` in
 `playground/site-settings.tsx`; `?marker=plane` or `?marker=mark` overrides it for the rest of a
@@ -256,7 +256,7 @@ for each h3, the read part in the accent; when headings pass faster than a hop i
 latest, never a queue. With reduced motion nothing hops: the marker is drawn in place. The current page is also marked by weight and a tinted row, so the
 marker is never the only cue.
 
-**The mark.** The header's uipack mark is the one mark (three outlined squares and one filled dot)
+**The mark.** The header's UiPack mark is the one mark (three outlined squares and one filled dot)
 with its dot on the page's section (owner, 2026-11-12): its four cells in reading order are Start
 (top left), Rules (top right), Build (bottom left) and Check (bottom right), and on a page in one of
 them that cell is the dot, filled in the section's hue; the other three are squares in the ink, and
@@ -302,9 +302,9 @@ location marker and the section hues are navigation, not ornaments: they are set
 | Setting | This site |
 | --- | --- |
 | Banner | The shell's (sticky, 64px, its ground and rule full width); its logo, tabs, search and theme toggle sit on the page's 1120px column, on the sections' edges (`playground/showcase.css`, "The landing view") |
-| Hero | Split: the statement, the install line with a copy button (the release `docs:sync` writes), Read the docs and Open the gallery on 5 columns; the product's real output on 7: the agent read order as a live figure building a real page (the `/web` sample, Tidy: its brand, headline, action, a figure of the product and its result rows), with an authored phone drawing |
-| Section order | Hero, Start from your job (the four Build cards in one row, each tinted with its docs section's hue), How it's built (the layers as a `LayerStack` on two thirds, the text and a read-next list beside it), The parts (live parts in a bento), Set the rules, check the work (the two secondary cards, Rules and Check: most readers only build), For agents (the closing band), then a footer site map generated from the docs manifest's five sections |
-| Goal | Read the docs: the hero's one filled button. The closing band's action is its own (How an agent uses UiPack), in the band's gold |
+| Hero | Split: the statement, the install line with a copy button (the release `docs:sync` writes), Read the docs and Open Assets on 5 columns; the product's real output on 7: the agent read order as a live figure building a real page (the `/web` sample, Tidy: its brand, headline, action, a figure of the product and its result rows), with an authored phone drawing |
+| Section order | Hero, Start from your job (the four Build cards in one row, each tinted with its docs section's hue), How it is built (the layers as a `LayerStack` on two thirds, the text and a read-next list beside it), The parts (live parts in a bento), Rules and checks (the two secondary cards, Rules and Check: most readers only build), For agents (the closing band), then a footer site map generated from the docs manifest's five sections |
+| Goal | Read the docs: the hero's one filled button. The closing band's action is its own (How agents use UiPack), in the band's gold |
 | Loading | The hero figure at once; the layer stack and the parts as they near the viewport; the 3D scene only on screen, with WebGL and motion allowed, a still otherwise |
 
 ### Documentation
@@ -371,7 +371,7 @@ static exports and stills keep Technical (see Open TODOs). Generated from `playg
 
 ## Reuse
 
-Extends `technical`. No other site reuses this spec; a site that wants the uipack docs site's look,
+Extends `technical`. No other site reuses this spec; a site that wants the UiPack docs site's look,
 dark palette and navigation included, says `extends: docs-site`.
 
 ## Open TODOs

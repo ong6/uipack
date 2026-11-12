@@ -360,8 +360,8 @@ thing in the same words.
 
 ## Reuse
 
-Extends `core` only. The uipack docs site extends it ([docs-site](docs-site.md)); another site that
-should look like uipack says `extends: technical`.
+Extends `core` only. The UiPack docs site extends it ([docs-site](docs-site.md)); another site that
+should look like UiPack says `extends: technical`.
 
 ## Open TODOs
 

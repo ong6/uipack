@@ -29,7 +29,7 @@ Shared building blocks, so a new part does not grow its own copy:
 ## A new visual style
 
 Each website has one spec ([how to write one](specs/README.md)); Technical is the package's default look
-(the docs site's own spec extends it) and the one implemented style. uipack renders another site's look by adding one value set in
+(the docs site's own spec extends it) and the one implemented style. UiPack renders another site's look by adding one value set in
 `src/styles`, registering it in `uiStyles`, and testing it. The full recipe, with every file and
 test, is in [Building a style from a spec](specs/README.md#building-a-style-from-a-spec); the contract is
 [docs/system/style.md](system/style.md#the-role-contract). In short:
