@@ -10,13 +10,16 @@ release is cut and how a site moves to it.
 ### Fixed
 
 - **The docs site, one width and one header** (owner, 2026-11-13): every view's content and the
-  header's content sit in one centred column, 1264px at most with 32px gutters (24px below 1024px,
-  16px below 720px): the landing page (its column was 1120px), Assets (its grid ran to 1600px), a
+  header's content sit in one centred column that follows the window: the window less a gutter of
+  32px each side (24px below 1024px, 16px below 720px), up to 1600px (1376px at 1440, 1600px from a
+  1664px window): the landing page (its column was 1120px), Assets (its grid ran to 1600px), a
   not-found page and a docs page's whole layout (the sidebar was docked to the window's edge). The
   logo, tabs, search and theme toggle are at the same x on every view and on each view's content
   edges. Search is the header's box on every view (a docs page had it at the top of the sidebar);
-  the toggle reads "Dark mode" / "Light mode"; one skip link, "Skip to content". A page without a
-  rail is 1024px wide (it was up to 1344px). The site's own CSS only: `DocsLayout` is unchanged.
+  the toggle reads "Dark mode" / "Light mode"; one skip link, "Skip to content". Wide drawings are not
+  caged: a page without a rail gives them its whole width and they scale with it, keeping their own
+  size (and scrolling inside their canvas) only on a page narrower than 1120px. The site's own CSS
+  only: `DocsLayout` is unchanged.
 - **The docs site, small alignments:** the intro paragraph under the Assets and not-found titles is
   18px as on a docs page; a not-found title starts 32px under the banner on a phone, as the Assets
   title does; the read-next links are Mono 13 and run the column on a phone; the site map's group

@@ -2,7 +2,7 @@
    motion value is a Technical role (var(--ui-*)), so the shell's light and dark values apply as they
    change. The page sits in the shell's landing mode (data-mode="landing"): the same header, then a
    full-bleed page in the landing archetype's one column (docs/system/layout/landing.md), which on
-   this site is the site column: the frame's --site-column (showcase.css), 1264px at most, which the
+   this site is the site column: the frame's --site-column (showcase.css), fluid up to 1600px, which the
    header's bar takes too, so the header and every section share edges. */
 
 .uipack-landing {
@@ -463,7 +463,9 @@
 .landing-bento {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  grid-auto-rows: minmax(300px, auto);
+  /* The rows grow with the column (300px in a 1264px one, 380px at the 1600px cap), so a tile keeps
+     about its two-to-one shape and its picture the same crop. */
+  grid-auto-rows: minmax(clamp(300px, 22vw, 380px), auto);
   gap: 16px;
   padding: 0;
   list-style: none;

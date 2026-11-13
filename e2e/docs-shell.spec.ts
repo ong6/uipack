@@ -705,21 +705,20 @@ test.describe("widths", () => {
         const table = document.querySelector(".uipack-docs__prose .uipack-docs__table")?.getBoundingClientRect();
         return { side, main, toc, proseRight, proseWidth, table, vw: innerWidth };
       });
-      // No dead gutter: the rail starts within ~a quarter of the column of the prose's right edge.
-      expect(g.toc.left - g.proseRight).toBeLessThanOrEqual(220);
-      expect(g.toc.left + 5 - g.main.right).toBeGreaterThanOrEqual(38);
-      expect(g.toc.left + 5 - g.main.right).toBeLessThanOrEqual(58);
-      expect(g.main.width).toBeLessThanOrEqual(761);
-      // The three are one block, the site column (1264px), centred: the sidebar's box is 232px and
-      // reaches 16px into the left margin, the page starts 24px after it at its full 760px, and the
-      // rail ends on the column's right edge (its box reaches 5px past its text on each side: room
-      // for a focus ring). The same at 1440 and 1920: the spare width is the outer margins.
-      const margin = (g.vw - 1264) / 2;
+      // The three are one block, the site column (the window less two 32px gutters, 1600px at most),
+      // centred: the sidebar's box is 232px and reaches 16px into the left margin, the page starts
+      // 24px after it and takes the rest, and the rail (208px, 56px from the page) ends on the
+      // column's right edge (its box reaches 5px past its text on each side: room for a focus ring).
+      const column = Math.min(1600, g.vw - 64);
+      const margin = (g.vw - column) / 2;
       expect(g.side.width).toBeCloseTo(232, 0);
       expect(g.side.left).toBeCloseTo(margin - 16, 0);
       expect(g.main.left - g.side.right).toBeCloseTo(24, 0);
-      expect(g.main.width).toBeCloseTo(760, 0);
+      expect(g.main.width).toBeCloseTo(column - 216 - 24 - 56 - 208, 0);
+      expect(g.toc.left + 5 - g.main.right).toBeCloseTo(56, 0);
       expect(g.toc.right - 5).toBeCloseTo(g.vw - margin, 0);
+      // Prose starts on the page's left edge, with the page bar and the title.
+      expect(g.proseRight - g.proseWidth).toBeCloseTo(g.main.left, 0);
       // A table takes the whole column; prose stops short of it.
       expect(g.proseWidth).toBeLessThan(g.main.width);
       expect(Math.abs(g.table!.width - g.main.width)).toBeLessThanOrEqual(1);
@@ -745,8 +744,12 @@ test.describe("widths", () => {
     });
   }
 
-  for (const width of [1440, 2000])
-    test(`${width}: a page without a rail takes the rest of the site column (1024px); a wider drawing keeps its size and scrolls in its canvas`, async ({
+  // Wide drawings are not caged: on a page without a rail they take the page's width and scale with
+  // it. The narrow end has one guard: a drawing never draws below its own size (below 1120px for the
+  // two wider than the grid), where the 11px text floor would push sub-labels out of their boxes;
+  // there it scrolls inside its canvas, never the page.
+  for (const width of [1280, 1440, 2000, 2560])
+    test(`${width}: a page without a rail takes the rest of the site column; its drawings scale with it and scroll in their canvas only when it is too narrow`, async ({
       page,
     }) => {
       await page.setViewportSize({ width, height: 900 });
@@ -768,16 +771,22 @@ test.describe("widths", () => {
         });
         return { main: { width: main.width, right: main.right }, drawings, scrollWidth: document.documentElement.scrollWidth };
       });
-      expect(g.main.width).toBeCloseTo(1024, 0);
+      const page_ = Math.min(1600, width - 64) - 240;
+      expect(g.main.width).toBeCloseTo(page_, 0);
       expect(g.drawings.length).toBeGreaterThan(10);
       for (const d of g.drawings) {
-        // Never smaller than its own size (the 11px text floor would push sub-labels out of their boxes).
-        expect(d.drawn).toBeGreaterThanOrEqual(d.units - 1);
+        expect(d.drawn).toBeGreaterThanOrEqual(Math.min(d.units, 1120) - 1);
         expect(d.canvas).toBeLessThanOrEqual(g.main.right + 1);
         if (d.scrolls) expect(d.overflow).toBe("auto");
       }
-      // The widest drawings (1120 units) do not fit 1024px: they scroll inside the canvas, never the page.
-      expect(g.drawings.some((d) => d.scrolls)).toBe(true);
+      const grid = g.drawings.filter((d) => d.units === 1120);
+      expect(grid.length).toBeGreaterThan(5);
+      // A 1120-unit drawing fits a page of 1120px or more (the canvas gives up its side padding
+      // first): from a 1424px window nothing scrolls, and wider than 1184px the drawing grows.
+      expect(g.drawings.some((d) => d.scrolls)).toBe(page_ < 1120);
+      if (page_ >= 1184)
+        for (const d of grid) expect(d.drawn).toBeCloseTo(page_ - 66, 0); // the canvas's 32px padding and the figure's 1px border
+      else if (page_ >= 1120) for (const d of grid) expect(d.drawn).toBeCloseTo(1120, 0);
       expect(g.scrollWidth).toBeLessThanOrEqual(width);
     });
 
@@ -792,13 +801,13 @@ test.describe("widths", () => {
 });
 
 // The banner's content keeps the edges of the layout under it, and the layout is the site's one
-// column (docs/specs/docs-site.md, "Layout": 1264px at most, centred): the logo (below 900px the
+// column (docs/specs/docs-site.md, "Layout": fluid, 1600px at most, centred): the logo (below 900px the
 // menu icon) starts where the sidebar's rows (the page) start, and the last control ends where "On
 // this page" ends, or the page column on a page with no rail. Within 1px at every width. That these
 // are the same x as on the landing page and Assets is e2e/site-consistency.spec.ts, "one header".
 test.describe("the banner's edges", () => {
   for (const path of ["/agents", "/components/diagrams"])
-    for (const width of [2000, 1920, 1440, 1280, 1100, 1024, 768, 390]) {
+    for (const width of [2560, 2000, 1920, 1440, 1280, 1100, 1024, 768, 390]) {
       test(`${path} at ${width}: the logo and the last control sit on the layout's edges`, async ({ page }) => {
         await page.setViewportSize({ width, height: 900 });
         await page.goto(`${path}?theme=light`);
@@ -826,8 +835,8 @@ test.describe("the banner's edges", () => {
         if (width >= 900) {
           expect(g.menu, "no menu button beside a docked sidebar").toBeNull();
           expect(Math.abs(g.brand.left - g.sidebar!.left), "logo on the sidebar's rows' left edge").toBeLessThanOrEqual(1);
-          // The whole layout is the site column, centred: equal margins, 1264px at most.
-          const column = Math.min(1264, width - 2 * (width >= 1024 ? 32 : 24));
+          // The whole layout is the site column, centred: equal margins, 1600px at most.
+          const column = Math.min(1600, width - 2 * (width >= 1024 ? 32 : 24));
           expect(g.last.right - g.brand.left).toBeCloseTo(column, 0);
           expect(g.brand.left).toBeCloseTo((width - column) / 2, 0);
         } else {

@@ -55,23 +55,25 @@ body {
   background: var(--show-bg);
   color: var(--show-ink);
 }
-/* The site's one width (docs/specs/docs-site.md, "Layout"; owner, 2026-11-13: "one site width"):
-   every view's content and the header's bar sit in one centred column, --site-column, at most
-   --site-width wide with --site-gutter on each side (32px, 24px below 1024px, 16px below 720px). So
+/* The site's one width (docs/specs/docs-site.md, "Layout"; owner, 2026-11-13: "one site width",
+   then "it should depend on the width of the viewer's screen ... what I want is consistency across
+   pages"): every view's content and the header's bar sit in one centred column, --site-column. It is
+   fluid: the window less --site-gutter on each side (32px, 24px below 1024px, 16px below 720px), up
+   to the --site-width cap (1600px, reached at a 1664px window), the same function on every view. So
    the logo and the last control are at the same x on every view and on the content's edges (layout
-   floor 8). Grounds and rules (the header's, the landing hero's, the band's) still run the window.
-   1264px is 12 columns of 76px with 32px gutters (the landing archetype's grid, whole pixels) and
-   the docs layout's three columns at their stated widths: 216 + 24 + 760 + 56 + 208.
+   floor 8), and the column uses the screen. Grounds and rules (the header's, the landing hero's, the
+   band's) still run the window.
    The frame holds the docs layout (src/docs, width="wide") in that column: the sticky banner, then
    the sidebar on the column's start edge (its rows start on the edge, where the logo does; its box
    and focus rings hang --side-pad into the gutter, so the box is 232px), the page, and on a Markdown
-   page "On this page" on the column's end edge. The page column is at most 760px with prose at a 37em
-   measure inside it, 75–88 characters a line (tables, code and figures take the whole column); the
-   rail is 208px, 40–56px from the column. A page with no rail (a gallery of figures, charts, a 3D
-   scene, the /web sample) takes the rest of the site column: 1024px, the width the sample's desktop
-   layout starts at. Main stacks the page bar, the title and the page with one 32px gap. */
+   page "On this page" (208px) on the column's end edge. The sidebar and the rail keep their widths;
+   the page takes the rest. Prose keeps a 37em measure on the page's start edge, 75–88 characters a
+   line; tables, code, figures and demos take the whole page, so the screen's extra width goes to
+   them. A page with no rail (a gallery of figures, charts, a 3D scene, the /web sample) has the
+   rail's share too: 1136px at a 1440px window, 1360px at the cap. Main stacks the page bar, the
+   title and the page with one 32px gap. */
 .showcase-frame {
-  --site-width: 1264px;
+  --site-width: 1600px;
   --site-gutter: 32px;
   /* A percentage here is of the box that uses it: the frame's children, each the window's width. */
   --site-column: min(var(--site-width), 100% - 2 * var(--site-gutter));
@@ -80,8 +82,9 @@ body {
   --side-pad: 16px;
   --side-w: 216px;
   --side-gap: 24px;
-  --col: 760px;
   --rail-w: 208px;
+  /* Between the page and the rail: 40px while the window is short of room, 56px from 1440px. */
+  --rail-gap: 40px;
   /* Type roles every view shares (docs/specs/docs-site.md, "Type"). The page title and the section
      heading are the docs layout's own sizes, named here so the Assets tab and a page outside the
      Markdown (not found) set theirs from the same values; the docs layout reads them through its
@@ -112,6 +115,11 @@ body {
   --site-line-soft: var(--ui-line-soft);
 }
 /* A phone's steps, the docs layout's (src/docs/docs.css, below 500px). */
+@media (min-width: 1440px) {
+  .showcase-frame {
+    --rail-gap: 56px;
+  }
+}
 @media (max-width: 1023px) {
   .showcase-frame {
     --site-gutter: 24px;
@@ -144,7 +152,7 @@ body {
   gap: 0;
 }
 .showcase-frame:not([data-rail="none"]) > .uipack-docs[data-width="wide"] > .uipack-docs__grid {
-  grid-template-columns: var(--side-w) var(--side-gap) minmax(0, var(--col)) minmax(40px, 1fr) var(--rail-w);
+  grid-template-columns: var(--side-w) var(--side-gap) minmax(0, 1fr) var(--rail-gap) var(--rail-w);
 }
 .showcase-frame[data-rail="none"] > .uipack-docs[data-width="wide"] > .uipack-docs__grid {
   grid-template-columns: var(--side-w) var(--side-gap) minmax(0, 1fr);
@@ -332,21 +340,31 @@ html:has(.showcase-frame:not([data-banner="static"])) {
   )::after {
   background: var(--site-ground-ruled);
 }
-/* A figure in a docs page: beside the sidebar the page is 1024px at most, and a 1120-unit drawing
-   (the figure grid's widest) needs 1184px with its canvas. Scaled to fit, the 11px text floor would
-   enlarge its sub-labels past their boxes, so from 900px a wide drawing keeps its own size and
+/* A figure in a docs page takes the width the page gives it and scales with it, up and down. The
+   narrow end has one guard: a 1120-unit drawing (the figure grid's widest) drawn smaller than its own
+   size has its sub-labels enlarged past their boxes by the 11px text floor. So from 900px a wide
+   drawing never draws below its own size: first its canvas gives up its 32px side padding (the
+   drawing has a 40-unit margin inside its own viewBox), which holds from a 1184px page down to a
+   1120px one (a 1424px window on a page without a rail); narrower than that it keeps its size and
    scrolls inside its canvas (AGENTS.md: a dense diagram keeps a readable drawing and scrolls
-   internally); the page never scrolls sideways. Below 900px the package's own narrow rules hold. */
+   internally). The page never scrolls sideways. Below 900px the package's own narrow rules hold. */
 @media (min-width: 900px) {
+  .showcase-frame .uipack-docs__article :is(.uipack, .uipack-drill) > .uipack__canvas {
+    /* A percentage is of the figure's own width, which is the page's. */
+    padding-inline: clamp(0px, (100% - var(--figure-width, 0px)) / 2, 32px);
+  }
   .showcase-frame .uipack-docs__article .uipack > .uipack__canvas > svg.uipack--wide,
   /* The drill-down figure's drawing sits in a stage inside its canvas. */
   .showcase-frame .uipack-docs__article .uipack-drill > .uipack__canvas > .uipack-drill__stage {
-    min-width: var(--figure-width, 0px);
+    /* The two drawings wider than the grid's 1120 units (1200 and 1248) are set larger and may
+       draw down to 1120px, as they did before the site had one width. */
+    min-width: min(var(--figure-width, 0px), 1120px);
   }
 }
 /* The /web sample beside the sidebar: its frame is drawn as an outline, not a border, so the sample's
-   own container is the page column's whole 1024px, the width its desktop layout starts at (a 1px
-   border each side left it 1022px, in its tablet layout). */
+   own container is the page's whole width. Its desktop layout starts at a 1024px container, which
+   is the page at a 1328px window, where the sidebar docks (ShowcaseShell.tsx): a 1px border each
+   side would leave it 1022px there, in its tablet layout. */
 .showcase-frame .web-example {
   border: 0;
   outline: 1px solid var(--show-rule);

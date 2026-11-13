@@ -283,9 +283,9 @@ export function ShowcaseShell({
     [page, gallery, landing],
   );
   // Compact navigation (the header's menu button opens the sidebar as a drawer) below 900px. A page
-  // hosting a whole sample site (/web) keeps it until the site column is whole (1264px plus two 32px
-  // gutters: 1328px), where the page beside the sidebar is 1024px: the sample's own layout switches
-  // to desktop at a 1024px container, so it is never shown squeezed beside the sidebar.
+  // hosting a whole sample site (/web) keeps it below 1328px, where the page beside the sidebar would
+  // be under 1024px (the window, less two 32px gutters and the sidebar's 240px): the sample's own
+  // layout switches to desktop at a 1024px container, so it is never shown squeezed beside the sidebar.
   const compact = useMediaQuery(hostsPage ? "(max-width: 1327px)" : "(max-width: 899px)");
   const section = notFound ? undefined : sectionOfPage(page);
   // The header mark's dot sits on the section's cell, in its hue (neutral off the four sections).

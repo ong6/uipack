@@ -387,34 +387,35 @@ location marker and the section hues are navigation, not ornaments: they are set
 
 ## Layout
 
-**One site width** (owner, 2026-11-13: "one site width"; the header had a different width on each
-view). Every view's content and the header's content sit in one centred column, the site column:
+**One site width, fluid** (owner, 2026-11-13: "one site width"; the header had a different width on
+each view. Then: "it should depend on the width of the viewer's screen ... what I want is consistency
+across pages"). Every view's content and the header's content sit in one centred column, the site column:
 the landing page's sections, the Assets title, filters and grid, a not-found page, and a docs page's
 whole layout (sidebar, page and "On this page" as one block). So the logo, the tabs, search and the
 theme toggle are at the same x on every view, and on each view the header's edges are the content's
 ([layout floor 8](../system/layout/README.md#floors-what-holds-on-every-site)). Variables on the
 frame in `playground/showcase.css`; `e2e/site-consistency.spec.ts` ("one header") holds both at
-2000, 1920, 1440, 1280, 1024, 768 and 390.
+2560, 2000, 1920, 1440, 1280, 1024, 768 and 390.
 
 | Setting | This site |
 | --- | --- |
-| Site width | 1264px at most (`--site-width`), centred. It is the landing grid in whole pixels (12 columns of 76px with 32px gutters) and the docs layout's columns at their widths: 216 + 24 + 760 + 56 + 208 |
+| Site width | Fluid: `min(1600px, 100% - 2 gutters)` (`--site-column`, `--site-width` the cap), centred, the same function on every view. 1376px at 1440, 1600px from 1664, 1600px at 1920 and 2560 (its margins grow). The cap is where a landing hero, a three-column card row and a docs page of prose and a rail still hold together; past it the margins take the width, so no line, card or hero stretches |
 | Gutters | 32px each side; 24px below 1024px; 16px below 720px (`--site-gutter`) |
 | Full width | Only grounds and rules run the window: the header's ground and bottom rule, the landing hero's backdrop, the closing band and the footer's rule. The sidebar's dividing rule runs the sidebar's height |
 | Header | The same on every view at every width: the mark and name, the Docs and Assets tabs, the search box (260px by 40px, narrower below 1180px, a 44px icon button below 720px) and the theme toggle ("Dark mode" or "Light mode", sentence case as every control label; its icon alone below 520px). 64px high, square controls, the current tab underlined in the accent |
-| The one exception | Where the docs sidebar is a drawer (below 900px; on `/web` below 1328px) a docs page's header starts with the menu button, its icon on the content's edge, and the logo follows it; the landing page and Assets have no drawer, so their logo is on the edge |
+| The one exception | Where the docs sidebar is a drawer (below 900px; on `/web` below 1328px, where its page would be under 1024px) a docs page's header starts with the menu button, its icon on the content's edge, and the logo follows it; the landing page and Assets have no drawer, so their logo is on the edge |
 | Skip link | One, first in the tab order on every view: "Skip to content", 16px 600 on the ink, 44px high, square as the header's controls |
 
 ### Landing
 
 `product-landing`, at `/` (`playground/LandingShowcase.tsx`, `playground/landing.css`, its words in
 `playground/landing/content.ts`), in the archetype's one column, which this site widens from 1120px
-to the site width (1264px), with this site's changes:
+to the fluid site width (1376px at 1440, 1600px at most), with this site's changes:
 
 | Setting | This site |
 | --- | --- |
 | Banner | The site's one header (above): sticky, 64px, its ground and rule full width, its content in the site column, on the sections' edges |
-| Grid | 12 columns of 76px with 32px gutters. The hero and the band split 5 and 7 (508px and 724px), "How it is built" 4 and 8 (400px and 832px), a section head 6 and 6; the four job cards are 304px each. Text keeps its measure in `ch` (the hero paragraph 54ch, a lead 34ch, an aside 52ch), so the wider column goes to the figures, cards and tiles, not to longer lines |
+| Grid | 12 columns with 32px gutters, as fractions of the column. The hero and the band split 5 and 7, "How it is built" 4 and 8, a section head 6 and 6; the four job cards share the row. Text keeps its measure in `ch` (the hero paragraph 54ch, a lead 34ch, an aside 52ch), so the extra width goes to the figures, cards and tiles, not to longer lines; the bento's rows grow from 300px to 380px with the window |
 | Hero | Split: the statement, the install line with a copy button (the release `docs:sync` writes), Read the docs and Open Assets on 5 columns; the product's real output on 7: the agent read order as a live figure building a real page (the `/web` sample, Tidy: its brand, headline, action, a figure of the product and its result rows), with an authored phone drawing |
 | Section order | Hero, Start from your job (the four Build cards in one row, each tinted with its docs section's hue), How it is built (the layers as a `LayerStack` on two thirds, the text and a read-next list beside it), The parts (live parts in a bento), Rules and checks (the two secondary cards, Rules and Check: most readers only build), For agents (the closing band), then a footer site map generated from the docs manifest's five sections |
 | Goal | Read the docs: the hero's one filled button. The closing band's action is its own (How agents use UiPack), in the band's gold |
@@ -429,9 +430,9 @@ to the site width (1264px), with this site's changes:
 | Banner | The site's one header (above): sticky, 64px, its ground and rule full width. Its logo starts on the site column's left edge, where the sidebar's rows start (below 900px the menu icon on the page's edge), and its last control ends on the column's right edge: the right edge of "On this page", or of the page column where there is no rail. On Assets both sit on the grid's edges, the same x |
 | Page bar | Where the page sits, and nothing else: its section's chip, then its parent page (a sub-page's page, a deck view's Deck player). To the right, "Style: Technical", See it in Assets (where the gallery has the page's assets), View as Markdown and Edit on GitHub; a phone keeps the location and the style |
 | Sidebar | On the site column's left edge under the banner, scrolling on its own: a 232px box whose rows are 204px wide and start on the column's edge (the box and its focus rings reach 16px into the gutter). No search box: search is the header's. On a screen wider than the site column it has a margin to its left, not the window's edge |
-| Page column | 24px from the sidebar, at most 760px (from 1328px wide; 633px at 1181, where the 17px measure is 629px); prose at a 37em measure inside it (75–88 characters a line, 18px from 1440); tables, code, figures and demos take the whole column |
-| On this page | 208px, on the site column's right edge, 56px from the page column (down to 40px before the column narrows) |
-| A page without a rail | Its demos need the width (a figure gallery, charts, 3D, the `/web` sample): the rest of the site column, 1024px, the width the sample's desktop layout starts at. A drawing wider than that scales to the column or scrolls inside its own frame; the page never scrolls sideways |
+| Page column | 24px from the sidebar, then the rest of the column (the window, less 64px, less the sidebar's 216px, the 24px, the rail's 208px and its 56px gap: 872px at 1440, 1096px at the cap). Prose keeps a 37em measure on the page's left edge, with the page bar and the title (75–88 characters a line, 18px from 1440); tables, code, figures and demos take the whole page, so the screen's width goes to them |
+| On this page | 208px, on the site column's right edge, 56px from the page (40px below 1440px) |
+| A page without a rail | Its demos need the width (a figure gallery, charts, 3D, the `/web` sample): the whole page, no ceiling: 1136px at 1440, 1360px at the cap. A drawing takes the width and scales with it, up and down. One guard at the narrow end: a drawing never draws below its own size (1120 units, or its own if smaller), or the 11px text floor pushes sub-labels out of their boxes, so on a page narrower than 1120px (a window under 1424px) it keeps its size and scrolls inside its canvas; the page never scrolls sideways. A page of 1184px or more gives the drawing its whole width less the canvas's 32px padding |
 | 900–1180px | "On this page" folds into a disclosure above the page, and the page takes the rest of the site column (up to 876px), so its right edge is still the header's |
 | A table wider than the column | Scrolls inside its own focusable box (the arrow keys move it), its content fading out at each edge that has more table beyond it (a mask on the box, so nothing darkens behind the text; the shell marks which edges have more as the box scrolls or resizes); never a page-wide scroll |
 | Below 900px | The sidebar becomes a drawer from the header's menu button, every row in it a 44px tap target, sub-pages included; search stays in the header (a 44px icon button below 720px) and the drawer has a box of its own; "On this page" is the disclosure; phone type sizes are the docs layout's own. Below 390px the header's brand keeps only its mark, so the tabs, search and the toggle stay whole on one line |

@@ -69,8 +69,9 @@ for (const width of [1440, 390])
   });
 
 // One site width and one header (docs/specs/docs-site.md, "Layout"; owner, 2026-11-13): every
-// view's content and the header's bar sit in one centred column, 1264px at most with 32px gutters
-// (24px below 1024px, 16px below 720px). So (a) the header's items are at the same x on every view,
+// view's content and the header's bar sit in one centred column. It is fluid: the window less a 32px
+// gutter on each side (24px below 1024px, 16px below 720px), up to a 1600px cap, the same function on
+// every view. So (a) the header's items are at the same x on every view,
 // and (b) its first and last items sit on that view's content edges (layout floor 8). The one
 // difference between views: where the docs sidebar is a drawer (below 900px) a docs page's header
 // starts with the menu button, on the content's edge, and its logo follows it.
@@ -81,14 +82,28 @@ const HEADER_VIEWS = [
   { name: "assets", path: "/gallery", ready: ".gallery-grid", docs: false },
   { name: "not found", path: "/nope", ready: ".showcase-title h1", docs: true },
 ];
-for (const width of [2000, 1920, 1440, 1280, 1024, 768, 390])
+/** The site column at a window width (playground/showcase.css, --site-column). */
+const siteColumn = (width: number) => Math.min(1600, width - 2 * (width >= 1024 ? 32 : width >= 720 ? 24 : 16));
+test("the site column follows the window: wider at 1920 than at 1440, and capped at 1600px", async ({ page }) => {
+  const measured: Record<number, number> = {};
+  for (const width of [1440, 1920, 2560]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/gallery?theme=light");
+    await expect(page.locator(".gallery-grid").first()).toBeVisible();
+    measured[width] = await page.locator(".showcase-header__bar").evaluate((el) => el.getBoundingClientRect().width);
+  }
+  expect(measured[1440]).toBeCloseTo(1376, 0);
+  expect(measured[1920]).toBeGreaterThan(measured[1440]);
+  expect(measured[1920]).toBeCloseTo(1600, 0);
+  expect(measured[2560]).toBeCloseTo(1600, 0);
+});
+for (const width of [2560, 2000, 1920, 1440, 1280, 1024, 768, 390])
   test(`${width}: one header: the same edges and controls on every view, on each view's content edges`, async ({ page }) => {
     test.setTimeout(90_000);
     await page.setViewportSize({ width, height: 900 });
     // Measured at rest, without the page's entrance.
     await page.emulateMedia({ reducedMotion: "reduce" });
-    const gutter = width >= 1024 ? 32 : width >= 720 ? 24 : 16;
-    const column = Math.min(1264, width - 2 * gutter);
+    const column = siteColumn(width);
     const seen: { name: string; docs: boolean; logo: number; last: number; controls: Record<string, string> }[] = [];
     for (const view of HEADER_VIEWS) {
       await page.goto(`${view.path}?theme=light`);

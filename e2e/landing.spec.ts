@@ -88,11 +88,11 @@ for (const width of [1440, 390])
     });
 
 // Layout floor 8 (docs/system/layout/README.md): the header's content sits on the page column's
-// edges. The column is the site's one width (docs/specs/docs-site.md, "Layout": 1264px, with 32px
+// edges. The column is the site's one width (docs/specs/docs-site.md, "Layout": fluid up to 1600px, with 32px
 // gutters, 24px below 1024px, 16px on a phone); the logo's start edge and the last control's end
 // edge are every section's edges and stay there once the page's own chunk has loaded. That the
 // same edges hold on every other view is e2e/site-consistency.spec.ts, "one header".
-for (const width of [2000, 1920, 1440, 1280, 1024, 768, 390])
+for (const width of [2560, 2000, 1920, 1440, 1280, 1024, 768, 390])
   test(`the header's content edges are the page column's at ${width}`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     await page.goto("/?theme=dark");
@@ -123,7 +123,7 @@ for (const width of [2000, 1920, 1440, 1280, 1024, 768, 390])
     );
     expect(columns).toHaveLength(7);
     const column = columns[0];
-    expect(column.end - column.start).toBeCloseTo(Math.min(1264, width - 2 * (width >= 1024 ? 32 : width >= 720 ? 24 : 16)), 0);
+    expect(column.end - column.start).toBeCloseTo(Math.min(1600, width - 2 * (width >= 1024 ? 32 : width >= 720 ? 24 : 16)), 0);
     expect(column.start).toBeCloseTo(width - column.end, 0);
     for (const other of columns) {
       expect(Math.abs(other.start - column.start)).toBeLessThanOrEqual(1);
