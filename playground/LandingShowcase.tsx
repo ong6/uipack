@@ -216,7 +216,7 @@ function Jobs({ theme }: { theme: Theme }) {
           lead="Each card names what to read first for the thing you are making."
           aside={
             <>
-              Writing a site's own spec and grading the work are <a href="#around">further down</a>.
+              Writing a site's own spec and grading the work are in <a href="#around">Rules and checks</a>.
             </>
           }
         />
@@ -447,7 +447,7 @@ function Parts({ theme }: { theme: Theme }) {
           lead="Each import path loads only what it draws."
           aside={
             <>
-              Most component pages show a live demo, and <a href={galleryHref(theme)}>Assets</a> shows every asset in one place.
+              <a href={galleryHref(theme)}>Assets</a> shows every asset in one place.
             </>
           }
         />
@@ -476,11 +476,11 @@ function Agents({ theme }: { theme: Theme }) {
     <section className="landing-band" id="agents" aria-labelledby="agents-title">
       <div className="landing-wrap landing-band__grid">
         <div>
-          <SectionHead id="agents-title" title="For agents" lead="The same pages, as Markdown, in reading order." />
+          <SectionHead id="agents-title" title="For agents" lead="The same pages as files, in reading order." />
           <p>
-            An agent building a page, deck, figure or copy for one of Jun Xiong's own sites reads these files as Markdown, from{" "}
-            <code>node_modules/uipack/docs/</code> in a site or a clone. Each file opens with what it is for and who should read
-            it, so you can stop after the first paragraph.
+            An agent building a page, deck, figure or copy for one of Jun Xiong's own sites reads these files from{" "}
+            <code>node_modules/uipack/docs/</code> in a site or a clone. Each file opens with what it is for, so the agent can
+            stop after the first paragraph.
           </p>
           <a className="landing-btn landing-btn--band" href={pageHref(page("agents"), theme)}>
             How agents use UiPack <Arrow />
@@ -521,10 +521,7 @@ function Agents({ theme }: { theme: Theme }) {
             </RowIcon>
             <div>
               <h3>View as Markdown</h3>
-              <p>
-                Every docs page renders one Markdown file, which its View as Markdown link opens, and the site serves each file at
-                its repo path.
-              </p>
+              <p>Every docs page renders one Markdown file and links to it, and the site serves each file at its repo path.</p>
               <a className="landing-band__url" href="/docs/agents/README.md">
                 {site}/docs/agents/README.md
               </a>

@@ -33,6 +33,15 @@ export function withSubViewTitle(text: string, page: Pick<PageDef, "title" | "la
   return text.replace(/^# (.+)$/m, (line, h1: string) => (h1.trim() === page.title ? `# ${h1.trim()} · ${page.label}` : line));
 }
 
+/**
+ * A sample file's page is titled by its manifest label ("Spec template"): the file's own `#`, a
+ * placeholder for whoever copies it, follows as an h2. The file is unchanged.
+ */
+export function withSampleTitle(text: string, page: Pick<PageDef, "label" | "sampleFile"> | undefined) {
+  if (!page?.sampleFile) return text;
+  return text.replace(/^# (.+)$/m, (_, h1: string) => `# ${page.label}\n\n## ${h1.trim()}`);
+}
+
 /** The page for this address: the manifest entry whose route it is. */
 function currentPage(): PageDef | undefined {
   const id = routes.get(routePath(location.pathname));
@@ -42,7 +51,7 @@ function currentPage(): PageDef | undefined {
 /**
  * A docs page: the page's Markdown file (docs-manifest.ts `file`) rendered by DocsMarkdown, with its
  * `uipack-demo` blocks as live demos and its links pointed at the site's pages. The file's `#` is
- * the page's one h1; its h2 and h3 headings fill the shell's "On this page".
+ * the page's one h1 (a sample file's page takes the manifest's label, `withSampleTitle`); its h2 and h3 headings fill the shell's "On this page".
  */
 export default function MarkdownShowcase() {
   const { theme } = useShowcaseTheme();
@@ -56,7 +65,7 @@ export default function MarkdownShowcase() {
     if (!load) return;
     let live = true;
     load().then(
-      (text) => live && setSource(withDemos(withSubViewTitle(showFrontmatter(text), page), page?.demos)),
+      (text) => live && setSource(withDemos(withSubViewTitle(showFrontmatter(withSampleTitle(text, page)), page), page?.demos)),
       () => live && setFailed(true),
     );
     return () => {

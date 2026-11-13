@@ -485,7 +485,7 @@ test("the deck's print page and speaker window name themselves: tab title and on
   ] as const) {
     await page.goto(path);
     const deckName = path.includes("bento") ? "Bento" : "Tech talk";
-    await expect(page).toHaveTitle(`${name} · ${deckName} · Deck player · UiPack`);
+    await expect(page).toHaveTitle(`${name} · Deck player · ${deckName} · UiPack`);
     const h1 = page.getByRole("heading", { level: 1 });
     await expect(h1).toHaveCount(1);
     await expect(h1).toHaveText(`${deckName} deck, ${name.toLowerCase()}`);

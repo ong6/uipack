@@ -50,9 +50,8 @@ site keeps: past them a slot stops reading at a glance in any voice. The aims in
 [Technical's](../../specs/technical.md#writing-style) defaults, and another site's spec states its
 own. Every slot's ceiling is in [general.md, Slot budgets](general.md#slot-budgets).
 
-TODO: `lintDeck` reads the code's budgets and takes no per-site budget yet
-(`LintOptions` in `src/deck/storyline/rules.ts`), so a spec's tighter budget is held by review, not
-by the linter.
+`lintDeck` reads the code's budgets and takes no per-site budget (`LintOptions` in
+`src/deck/storyline/rules.ts`), so a spec's tighter budget is held by review, not by the linter.
 
 ## How to use these files
 

@@ -48,7 +48,7 @@ export const JOBS: readonly Job[] = [
   },
   {
     title: "Write docs or an article",
-    text: "The documentation recipe, then the example text page.",
+    text: "The docs page recipe, then the example text page.",
     page: "recipe-documentation",
     go: "Read the recipe",
     section: "build",
@@ -80,7 +80,7 @@ export const JOBS: readonly Job[] = [
   },
   {
     title: "Grade and verify work",
-    text: "Render at 1440 and 390, light and dark, then grade it with the rubric for your page type.",
+    text: "Run the mechanical checks at 1440 and 390, light and dark. The rubrics are for fresh judges, never the builder.",
     page: "grading",
     go: "How to grade",
     section: "check",
@@ -141,13 +141,16 @@ export const LAYERS: readonly { id: string; label: string; summary: string; page
   },
 ];
 
-/** "How it is built": where to read next, beside the stack: the overview, then the three layers a newcomer opens first (labels as the stack names them). */
+/**
+ * "How it is built": where to read next, beside the stack: the overview, then the pages of the three
+ * layers a newcomer opens first (core rules, site specs, recipes). Each label is the title of the
+ * page it opens (test/landing.test.tsx).
+ */
 export const BUILT_NEXT: readonly { label: string; page: string }[] = [
   { label: "What UiPack is", page: "start" },
-  ...["core", "specs", "recipes"].map((id) => {
-    const layer = LAYERS.find((l) => l.id === id)!;
-    return { label: layer.label, page: layer.page };
-  }),
+  { label: "Core rules", page: "foundations" },
+  { label: "How to write a spec", page: "styles" },
+  { label: "Recipes", page: "recipes" },
 ];
 
 export const LAYER_ZONES = [

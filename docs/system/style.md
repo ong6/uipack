@@ -1,7 +1,7 @@
 # Style contract
 
-The role contract: what every site spec must define, what each role means and which entry names read it. This is a
-core rule: it holds no site's values. Each website has one spec that fills it
+The style contract is the role contract every style fills: what every site spec must define, what each role means and
+which entry names read it. This is a core rule: it holds no site's values. Each website has one spec that fills it
 ([how to write a spec](../specs/README.md)); a value shown here as an example is labelled as
 coming from the [Technical spec](../specs/technical.md), the package's default look.
 

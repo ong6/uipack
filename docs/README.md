@@ -20,9 +20,8 @@ The site and the files are one source: each docs page renders one Markdown file,
 each at its repo path (`https://ui.junxiong.dev/llms.txt`,
 `https://ui.junxiong.dev/docs/agents/README.md`).
 
-Each file opens with what it is for and who should read it, so you can stop after the first
-paragraph, and it is headed so you can jump to your part (`scripts/check-agent-docs.ts` checks
-both).
+Each file opens with what it is for, so you can stop after the first paragraph, and it is headed so
+you can jump to your part (`scripts/check-agent-docs.ts` checks both).
 
 ## How it is built
 
@@ -34,7 +33,7 @@ component looks to pick from. A deck is a page of a site, so it reads the same s
 | --- | --- | --- |
 | Core rules | What every site keeps: the role contract (what a spec must define), the layout floors (what no layout may break), the core writing rules and slot ceilings (text length limits) | [Core rules](system/README.md) |
 | Layout archetypes | Named layouts per page type (grid, regions, section order, hero) a spec picks, extends or replaces | [Layout](system/layout/README.md) |
-| Component looks | Each component's named looks, `fixed` (the same on every site, like the diagrams) or `flex` (taking the site's roles) | [Component looks](components/README.md) |
+| Component looks | Each component's named looks, `fixed` (the same on every site, like the Paper worlds 3D scenes) or `flex` (taking the site's roles) | [Component looks](components/README.md) |
 | Site specs | One per website: its roles, a layout per page type, its writing style and the looks it picks; built from a template and checked | [How to write a spec](specs/README.md), [what a spec may set](system/spec-settings.md), [Technical spec](specs/technical.md) |
 | Recipes | One per page type: the parts and the rules it relies on | [Recipes](recipes/README.md) |
 | Components | The parts, most with a live demo | [Architecture diagrams](diagrams.md), [Deck player](deck.md), [Web principles](web-principles.md) |
@@ -81,7 +80,7 @@ Every page of the docs site, by sidebar group, linked to the file it renders. Ge
 - **Build · Component looks:** [Component looks](components/README.md), [Diagram look and themes](components/diagrams.md), [3D looks](components/3d.md), [Mechanism look](components/mechanism.md)
 - **Build · Examples:** [Example landing page](examples/landing-page.md), [Example text page](examples/text-page.md)
 - **Check · Grading:** [How to grade](grading/README.md), [Mechanical checks](grading/tier-1.md), [Pairwise judging](grading/protocol.md), [Calibration anchors](grading/calibration.md), [Regression set](grading/regression.md), [Grading docs for agents](grading/agent-docs.md)
-- **Check · Rubrics:** [Landing rubric](grading/rubrics/landing-v1.md), [Docs rubric](grading/rubrics/docs-v1.md), [Deck rubric](grading/rubrics/deck-slide-v1.md), [Dashboard rubric](grading/rubrics/dashboard-v1.md), [Diagram rubric](grading/rubrics/diagram-v1.md), [Agent docs rubric](grading/rubrics/agent-docs-v1.md)
+- **Check · Rubrics:** [Landing page rubric](grading/rubrics/landing-v1.md), [Docs and article rubric](grading/rubrics/docs-v1.md), [Deck rubric](grading/rubrics/deck-slide-v1.md), [Dashboard rubric](grading/rubrics/dashboard-v1.md), [Diagram rubric](grading/rubrics/diagram-v1.md), [Agent docs rubric](grading/rubrics/agent-docs-v1.md)
 - **Check · Testing:** [Testing](testing.md), [Article verification](article-verification.md), [lintDeck rules](deck-lint-rules.md)
 - **Reference:** [Site registry](specs/registry.md), [Icons and marks](icons-and-marks.md), [Releases](releases.md), [Contributing](contributing.md), [Component-first](component-first.md), [Canvas and selection](interaction.md), [Web discoverability](web-discoverability.md), [Web discoverability: Head and structured data](web-discoverability/head-and-structured-data.md), [Web discoverability: Crawl files](web-discoverability/crawl-files.md), [Web discoverability: Web performance](web-discoverability/performance.md), [Portfolio ideas](portfolio-ideas.md)
 <!-- /generated -->

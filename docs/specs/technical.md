@@ -368,3 +368,6 @@ should look like UiPack says `extends: technical`.
 - TODO: the Blueprint diagram look's values are Technical's today and figures still read them from
   the host's roles; once the look owns them ([Diagrams](../components/diagrams.md)), this spec stops
   listing the flow roles as its own.
+- TODO: `lintDeck` reads the code's budgets (`src/deck/budgets.ts`) and takes no per-site budget
+  (`LintOptions` in `src/deck/storyline/rules.ts`), so a spec's tighter budget is held by review, not
+  by the linter ([Writing](../system/writing/README.md#ceilings-and-technicals-defaults)).

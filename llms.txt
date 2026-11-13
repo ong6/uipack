@@ -92,8 +92,8 @@ Install (ES modules only; not on npm): `npm install https://github.com/ong6/uipa
 
 ## Check · Rubrics
 
-- [Landing rubric](docs/grading/rubrics/landing-v1.md): Version 1 of the frozen judge rubric for landing pages.
-- [Docs rubric](docs/grading/rubrics/docs-v1.md): Version 1 of the frozen judge rubric for documentation and articles.
+- [Landing page rubric](docs/grading/rubrics/landing-v1.md): Version 1 of the frozen judge rubric for landing pages.
+- [Docs and article rubric](docs/grading/rubrics/docs-v1.md): Version 1 of the frozen judge rubric for documentation and articles.
 - [Deck rubric](docs/grading/rubrics/deck-slide-v1.md): Version 1 of the frozen judge rubric for decks.
 - [Dashboard rubric](docs/grading/rubrics/dashboard-v1.md): Version 1 of the frozen judge rubric for dashboards.
 - [Diagram rubric](docs/grading/rubrics/diagram-v1.md): Version 1 of the frozen judge rubric for figures.

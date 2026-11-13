@@ -35,6 +35,11 @@ export interface DocsPageEntry {
   readonly demos?: readonly { readonly id: string; readonly at?: string }[];
   /** The page's demos need the whole content width (a gallery of figures, charts, a 3D scene): no "On this page" column. */
   readonly fullWidth?: boolean;
+  /**
+   * The file is a sample to copy whose own `#` is a placeholder (the spec template): the page's h1
+   * is `label`, and the file's `#` follows as an h2. The file itself is unchanged.
+   */
+  readonly sampleFile?: boolean;
   /** The page hosts a complete sample page with its own h1 (the /web sample). */
   readonly hostsPage?: boolean;
   /**
@@ -313,6 +318,7 @@ export const docsManifest = [
         label: "Spec template",
         path: "/specs/template",
         file: "docs/specs/TEMPLATE.md",
+        sampleFile: true,
         intro:
           "The file a new site spec starts from: the frontmatter (pages, layouts, component looks) and the sections the checker requires.",
       },
@@ -640,14 +646,14 @@ export const docsManifest = [
     pages: [
       {
         id: "rubric-landing",
-        label: "Landing rubric",
+        label: "Landing page rubric",
         path: "/grading/rubrics/landing-v1",
         file: "docs/grading/rubrics/landing-v1.md",
         intro: "Version 1 of the frozen judge rubric for landing pages.",
       },
       {
         id: "rubric-docs",
-        label: "Docs rubric",
+        label: "Docs and article rubric",
         path: "/grading/rubrics/docs-v1",
         file: "docs/grading/rubrics/docs-v1.md",
         intro: "Version 1 of the frozen judge rubric for documentation and articles.",

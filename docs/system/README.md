@@ -13,8 +13,8 @@ first; the layer guides hold the detail:
 | **[Layout](layout/README.md)** | Where does each thing sit, and in what order does it appear? Grids, regions, archetypes, beats, camera stops. | [Floors](layout/README.md#floors-what-holds-on-every-site): reading order, narrow layout, no overflow, tap targets, focus, the 8px unit | Per page type: an [archetype](layout/README.md#archetype-library) picked, extended or defined |
 
 Components sit across the layers: each has a few named [looks](../components/README.md), `fixed`
-(the same on every site, like the diagrams the blog and the main site share) or `flex` (taking the
-site's palette and faces), and a spec picks the ones it uses. The boundary in full is
+(the same on every site, like the Paper worlds 3D scenes) or `flex` (taking the site's palette and
+faces), and a spec picks the ones it uses. The boundary in full is
 [What a spec may set](spec-settings.md). To build a page, start from its
 [recipe](../recipes/README.md): it names the writing and layout files that page relies on.
 
