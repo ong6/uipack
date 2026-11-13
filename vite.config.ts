@@ -58,6 +58,9 @@ function devPageScripts(): Plugin {
     name: "uipack-playground-page-scripts",
     apply: "serve",
     transformIndexHtml(html, ctx) {
+      // Only the site's own document: another HTML file the server hosts (playground/dist-smoke) is
+      // its own page, with no shell and no entry script.
+      if (ctx.filename && ctx.filename !== resolve("playground/index.html")) return html;
       const path = (ctx.originalUrl ?? ctx.path).split(/[?#]/)[0].replace(/(.)\/$/, "$1");
       const { module, file } = pageOf(path);
       return withPageScripts(html, module && `/${module}.tsx`, file ? { file, source: readRepoFile(file) } : undefined);
