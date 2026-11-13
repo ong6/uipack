@@ -1,6 +1,7 @@
 /// <reference types="vite/client" />
 import { lazy, Suspense, StrictMode, useEffect, useState, type ComponentType } from "react";
 import { createRoot } from "react-dom/client";
+import { flushSync } from "react-dom";
 // Only the role layer, Technical's values and the shell's CSS are eager; each page imports its own
 // (theme.css with the figures; the other styles' value sets where a page can switch style), which
 // loads with its chunk.
@@ -20,11 +21,12 @@ import { SiteMap } from "./SiteMap";
 import { LANDING_MODULE, LANDING_PATH, LANDING_SECTIONS } from "./landing-index";
 import { keepScrollPosition, READER_INPUT } from "./scroll-memory";
 import { preloadLinkedPages } from "./link-preload";
+import { readyPage, type PageModule } from "./page-ready";
 
 // Every page module is its own chunk, with its own CSS. The shell (header, h1, intro) is in this
 // entry and renders at once; the page fills in below it when its chunk arrives. In a build,
 // index.html preloads the current page's chunk alongside this one.
-const pageLoaders = import.meta.glob<{ default: ComponentType }>("./*Showcase.tsx");
+const pageLoaders = import.meta.glob<PageModule>("./*Showcase.tsx");
 
 // The theme is on <html> before this runs: index.html's blocking script reads ?theme=, then the
 // reader's stored choice, then the system's setting. ShowcaseThemeProvider takes it from there.
@@ -56,7 +58,7 @@ let hashOpened = false;
 const restoringScroll = keepScrollPosition();
 // A page Chromium prerenders (index.html's speculation rules) is not drawn until the reader follows
 // its link: <html data-prerendering> holds what should play from the first frame they see (the
-// page's entrance, the landing page's loop; showcase.css) until then.
+// landing page's loop; showcase.css) until then.
 if ((document as { prerendering?: boolean }).prerendering) {
   document.documentElement.setAttribute("data-prerendering", "");
   document.addEventListener("prerenderingchange", () => document.documentElement.removeAttribute("data-prerendering"), {
@@ -147,36 +149,56 @@ const module = standalone
       : active && pageModules[active];
 const load = module && pageLoaders[`./${module}.tsx`];
 if ((active || gallery || landing) && !load) throw new Error(`No playground/${module}.tsx for page "${active}"`);
-const Page = load ? lazy(load) : NotFound;
-// While the page's chunk loads, the shell stays and a status line under the intro says so.
-const loading = gallery
-  ? "Loading the assets"
-  : landing
-    ? "Loading UiPack"
-    : active
-      ? `Loading ${pageHeading(resolvePage(active, location.search))}`
-      : "Loading";
-const page = (
-  <Suspense
-    fallback={
-      <p className="showcase-loading" role="status">
-        {loading}…
-      </p>
-    }
-  >
-    <Page />
-    <OpenHashTarget />
-  </Suspense>
-);
+/**
+ * Renders the shell and the page, in one go, before the browser's first paint: index.html loads
+ * this script and the page's module render-blocking, so until this has run the browser keeps
+ * showing the page the reader came from, and the first frame it paints is the whole page. It runs
+ * as a microtask because a build's page chunk imports this one: this module is then evaluated
+ * first, inside the page's script, and the page has said it is ready (page-ready.ts) only once
+ * that script's own body has run.
+ */
+function start() {
+  // The page's module, if the document loaded it ahead of this script, and its text.
+  const ready = module ? readyPage(module) : undefined;
+  const Page: ComponentType = ready ? ready.default : load ? lazy(load) : NotFound;
+  const initialToc = ready?.prepareNow?.();
+  // A module still on its way (an address whose HTML did not name it) arrives under the status
+  // line; showcase.css eases that late content in.
+  if (load && !ready) document.documentElement.setAttribute("data-page-late", "");
+  // While the page's chunk loads, the shell stays and a status line under the intro says so.
+  const loading = gallery
+    ? "Loading the assets"
+    : landing
+      ? "Loading UiPack"
+      : active
+        ? `Loading ${pageHeading(resolvePage(active, location.search))}`
+        : "Loading";
+  const page = (
+    <Suspense
+      fallback={
+        <p className="showcase-loading" role="status">
+          {loading}…
+        </p>
+      }
+    >
+      <Page />
+      <OpenHashTarget />
+    </Suspense>
+  );
 
-createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <ShowcaseThemeProvider>
-      {standalone ? (
-        page
-      ) : (
-        <ShowcaseShell active={gallery ? "gallery" : landing ? "landing" : (active ?? "not-found")}>{page}</ShowcaseShell>
-      )}
-    </ShowcaseThemeProvider>
-  </StrictMode>,
-);
+  const root = createRoot(document.getElementById("root")!);
+  flushSync(() =>
+    root.render(
+      <StrictMode>
+        <ShowcaseThemeProvider initialToc={initialToc}>
+          {standalone ? (
+            page
+          ) : (
+            <ShowcaseShell active={gallery ? "gallery" : landing ? "landing" : (active ?? "not-found")}>{page}</ShowcaseShell>
+          )}
+        </ShowcaseThemeProvider>
+      </StrictMode>,
+    ),
+  );
+}
+queueMicrotask(start);

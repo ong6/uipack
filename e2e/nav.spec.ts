@@ -492,8 +492,20 @@ test("the deck's print page and speaker window name themselves: tab title and on
   }
 });
 
-test("while a page's chunk loads, the shell stays and a status line says what is loading", async ({ page }) => {
-  // Hold the page module until the shell has been checked. Dev serves it as /MarkdownShowcase.tsx; a build as a hashed chunk.
+test("a page whose module was not loaded with the document: the shell stays and a status line says what is loading", async ({
+  page,
+}) => {
+  // The document loads the page's module render-blocking, ahead of the entry, so the first frame is
+  // the whole page. Without that (an address whose HTML does not name its module), the shell is
+  // painted first: take the page's script and its text out of the document, and hold the module
+  // until the shell has been checked. Dev serves it as /MarkdownShowcase.tsx; a build as a hashed chunk.
+  await page.route(/\/docs\?theme=dark$/, async (route) => {
+    const response = await route.fetch();
+    const html = (await response.text())
+      .replace(/<script blocking="render"[^>]*MarkdownShowcase[^>]*><\/script>/, "")
+      .replace(/<script type="application\/json" id="uipack-page-text"[\s\S]*?<\/script>/, "");
+    await route.fulfill({ response, body: html });
+  });
   let release!: () => void;
   const held = new Promise<void>((resolve) => (release = resolve));
   await page.route(/\/(assets\/)?MarkdownShowcase[-.][^/]*$/, async (route) => {
@@ -505,7 +517,8 @@ test("while a page's chunk loads, the shell stays and a status line says what is
   await expect(currentLink(page)).toHaveText("Docs layout");
   const status = page.getByRole("main").getByRole("status");
   await expect(status).toHaveText("Loading Docs layout…");
-  // The page eases in (a short fade and rise): measure once that entrance is over.
+  await expect(page.locator("html")).toHaveAttribute("data-page-late", "");
+  // The late content eases in (a short fade and rise): measure once that is over.
   const entered = () =>
     page.getByRole("main").evaluate((main) => Promise.all(main.getAnimations().map((a) => a.finished.catch(() => null))));
   await entered();
@@ -643,5 +656,160 @@ test.describe("Back returns the reader to where they were", () => {
       "href",
       "#motion",
     );
+  });
+});
+
+// A page change reads as the same shell with its content changing (docs/specs/docs-site.md, "Page
+// changes"): the ground is in the document before any script, the first frame is the whole page,
+// and where the browser has cross-document view transitions the content cross-fades while the
+// header, the sidebar and "On this page" stay put.
+test.describe("a page change never blanks", () => {
+  test.use({ viewport: { width: 1440, height: 900 } });
+  const GROUND = { light: "rgb(243, 246, 249)", dark: "rgb(17, 19, 21)" };
+
+  for (const scheme of ["light", "dark"] as const)
+    test(`the document has its ground before any script runs: system ${scheme}`, async ({ browser }) => {
+      // No script at all: what the document's own bytes paint.
+      const context = await browser.newContext({ javaScriptEnabled: false, colorScheme: scheme });
+      const page = await context.newPage();
+      await page.goto("/foundations/style");
+      const html = await page.locator("html").evaluate((el) => {
+        const s = getComputedStyle(el);
+        return { background: s.backgroundColor, scheme: s.colorScheme };
+      });
+      expect(html).toEqual({ background: GROUND[scheme], scheme });
+      await context.close();
+    });
+
+  test("the reader's stored theme wins over the system's, on the document itself", async ({ browser }) => {
+    const context = await browser.newContext({ colorScheme: "light" });
+    const page = await context.newPage();
+    await page.addInitScript(() => localStorage.setItem("uipack-theme", "dark"));
+    // Before any stylesheet or module: the inline style and the theme script alone.
+    await page.route(/\.(css|tsx?|js)(\?|$)/, (route) => route.abort());
+    await page.goto("/foundations/style", { waitUntil: "commit" });
+    await expect.poll(() => page.locator("html").evaluate((el) => getComputedStyle(el).backgroundColor)).toBe(GROUND.dark);
+    expect(await page.locator("html").evaluate((el) => getComputedStyle(el).colorScheme)).toBe("dark");
+    await context.close();
+  });
+
+  /** Records, from the first script of each page: the first frame's shell, and whether the page was revealed in a view transition. */
+  const watchFirstFrame = (page: Page) =>
+    page.addInitScript(() => {
+      const w = window as { __first?: Record<string, unknown>; __transition?: boolean | null };
+      w.__transition = null;
+      addEventListener("pagereveal", (e) => (w.__transition = !!(e as Event & { viewTransition?: unknown }).viewTransition));
+      requestAnimationFrame(() => {
+        const opacity = (selector: string) => {
+          const el = document.querySelector(selector);
+          return el ? Number(getComputedStyle(el).opacity) : null;
+        };
+        w.__first = {
+          header: opacity(".showcase-header"),
+          sidebar: opacity(".uipack-docs__sidebar"),
+          article: opacity(".uipack-docs__article"),
+          rail: opacity(".uipack-docs__toc"),
+          h1: !!document.querySelector("main h1"),
+          railLinks: document.querySelectorAll(".uipack-docs__toc a").length > 0,
+          // The page's own status line (a demo further down may still say it is loading).
+          loading: !!document.querySelector(".uipack-docs__article > .showcase-loading"),
+          open: !!document.querySelector('.uipack-docs__sidebar a[aria-current="page"]')?.closest("[data-open]"),
+          entrance: document.getAnimations().some((a) => (a as CSSAnimation).animationName === "showcase-page-in"),
+        };
+      });
+    });
+  const firstFrame = (page: Page) => page.evaluate(() => (window as { __first?: Record<string, unknown> }).__first);
+  const whole = {
+    header: 1,
+    sidebar: 1,
+    article: 1,
+    rail: 1,
+    h1: true,
+    railLinks: true,
+    loading: false,
+    open: true,
+    entrance: false,
+  };
+
+  for (const theme of ["light", "dark"])
+    test(`the first frame is the whole page, nothing at opacity 0: a direct load and a click (${theme})`, async ({ page }) => {
+      await watchFirstFrame(page);
+      await page.goto(`/foundations?theme=${theme}`);
+      await expect.poll(() => firstFrame(page)).toEqual(whole);
+      await sidebar(page).getByRole("link", { name: "Style contract", exact: true }).click();
+      await expect(page).toHaveURL(/\/foundations\/style\?/);
+      await expect.poll(() => firstFrame(page)).toEqual(whole);
+      // The page was revealed in a view transition, held on the page left until this one had rendered.
+      expect(await page.evaluate(() => (window as { __transition?: boolean | null }).__transition)).toBe(true);
+    });
+
+  test("the header, the sidebar and On this page are named for the transition, each once, so they stay put", async ({ page }) => {
+    await page.goto("/foundations/style?theme=light");
+    await expect(page.locator(".uipack-docs__toc a").first()).toBeVisible();
+    const names = await page.evaluate(() =>
+      [...document.querySelectorAll("*")]
+        .map((el) => [el.className.toString().split(" ")[0], getComputedStyle(el).viewTransitionName] as const)
+        .filter(([, name]) => name && name !== "none" && name !== "root"),
+    );
+    expect(names.sort()).toEqual([
+      ["showcase-header", "site-header"],
+      ["uipack-docs__sidebar", "site-sidebar"],
+      ["uipack-docs__toc", "site-rail"],
+    ]);
+    // The landing page and Assets have the header alone.
+    for (const path of ["/", "/gallery"]) {
+      await page.goto(`${path}?theme=light`);
+      await expect(page.locator(".showcase-header")).toBeVisible();
+      expect(await page.locator(".showcase-header").evaluate((el) => getComputedStyle(el).viewTransitionName)).toBe(
+        "site-header",
+      );
+    }
+  });
+
+  test("between tabs too: the landing page, a docs page and Assets are each whole on their first frame", async ({ page }) => {
+    await page.addInitScript(() => {
+      const w = window as { __tab?: Record<string, unknown> };
+      requestAnimationFrame(() => {
+        const main = document.querySelector("#showcase-main, .uipack-docs__article");
+        w.__tab = {
+          header: Number(getComputedStyle(document.querySelector(".showcase-header")!).opacity),
+          main: main ? Number(getComputedStyle(main).opacity) : null,
+          h1: !!document.querySelector("h1"),
+          loading: !!document.querySelector(".showcase-loading"),
+        };
+      });
+    });
+    const tab = () => page.evaluate(() => (window as { __tab?: Record<string, unknown> }).__tab);
+    const whole = { header: 1, main: 1, h1: true, loading: false };
+    await page.goto("/?theme=dark");
+    await expect.poll(tab).toEqual(whole);
+    await page.getByRole("navigation", { name: "Views" }).getByRole("link", { name: "Docs" }).click();
+    await expect(page).toHaveURL(/\/what-uipack-is/);
+    await expect.poll(tab).toEqual(whole);
+    await page.getByRole("navigation", { name: "Views" }).getByRole("link", { name: "Assets" }).click();
+    await expect(page).toHaveURL(/\/gallery/);
+    await expect.poll(tab).toEqual(whole);
+  });
+
+  test("with reduced motion there is no transition, and the page is still whole on its first frame", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await watchFirstFrame(page);
+    await page.goto("/foundations?theme=light");
+    await sidebar(page).getByRole("link", { name: "Style contract", exact: true }).click();
+    await expect(page).toHaveURL(/\/foundations\/style\?/);
+    await expect.poll(() => firstFrame(page)).toEqual(whole);
+    expect(await page.evaluate(() => (window as { __transition?: boolean | null }).__transition)).toBe(false);
+  });
+
+  test("the theme toggle and a heading picked in On this page stay in the document: no page transition", async ({ page }) => {
+    await page.goto("/foundations/style?theme=light");
+    await expect(page.locator(".uipack-docs__toc a").first()).toBeVisible();
+    await page.evaluate(() => ((window as { __same?: boolean }).__same = true));
+    await page.getByRole("button", { name: "dark mode" }).click();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+    await expect.poll(() => page.locator("html").evaluate((el) => getComputedStyle(el).backgroundColor)).toBe(GROUND.dark);
+    await page.locator(".uipack-docs__toc a").nth(2).click();
+    await expect(page).toHaveURL(/#/);
+    expect(await page.evaluate(() => (window as { __same?: boolean }).__same)).toBe(true);
   });
 });

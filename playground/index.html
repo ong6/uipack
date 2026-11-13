@@ -3,6 +3,40 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- The ground and the colour scheme from the first byte, before any script or stylesheet: the
+         system's scheme here, then the reader's choice once the theme script below has set
+         data-theme, so no frame is ever white on a dark page (the dev server adds its stylesheets
+         from script, later). The two colours are --show-bg's (site-palette.css);
+         test/site-preload.test.tsx holds them equal. And every page change is a cross-document view
+         transition: the browser keeps the page the reader is leaving on screen until this one has
+         rendered, then cross-fades the content (showcase.css names the header, the sidebar and
+         "On this page", which stay put). Not with reduced motion. -->
+    <meta name="color-scheme" content="light dark" />
+    <style>
+      html {
+        background: #f3f6f9;
+        color-scheme: light;
+      }
+      @media (prefers-color-scheme: dark) {
+        html {
+          background: #111315;
+          color-scheme: dark;
+        }
+      }
+      html[data-theme="light"] {
+        background: #f3f6f9;
+        color-scheme: light;
+      }
+      html[data-theme="dark"] {
+        background: #111315;
+        color-scheme: dark;
+      }
+      @media (prefers-reduced-motion: no-preference) {
+        @view-transition {
+          navigation: auto;
+        }
+      }
+    </style>
     <title>uipack playground</title>
     <!-- The uipack mark (src/marks), inline so the playground makes no favicon request. -->
     <link
@@ -43,7 +77,7 @@
          files. Not prerendered: a file (a page's Markdown, an image, llms.txt), the deck's print
          and speaker windows, a link into this page, and a link that opens elsewhere. A prerendered
          page starts what the reader should see from its start (the sidebar marker's trip, the
-         header mark's portal, the entrance) when it is activated, and reads the visit's
+         header mark's portal, the landing page's loop) when it is activated, and reads the visit's
          sessionStorage then. It is an inline script to the Content-Security-Policy: vercel.json
          names it by its hash, as it does the theme script. -->
     <script type="speculationrules">
@@ -90,9 +124,11 @@
         }
       }
     </script>
+    <!-- The entry holds the first paint until it has rendered the shell and the page (main.tsx):
+         the browser shows the page the reader came from until then, never an empty document. -->
+    <script type="module" blocking="render" src="/main.tsx"></script>
   </head>
   <body data-ui-style="technical">
     <div id="root"></div>
-    <script type="module" src="/main.tsx"></script>
   </body>
 </html>

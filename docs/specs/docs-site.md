@@ -280,19 +280,42 @@ when the reader hovers it for 200ms or presses it (`moderate` eagerness), and fo
 shows that page at once. Left out: files (a page's Markdown, images, `llms.txt`), the deck's print
 and speaker windows, links into the page, the current page's own link and links that open elsewhere.
 A prerendered page starts what the reader should watch from its start (the sidebar marker's trip,
-the header mark's portal, the entrance, the landing page's loop) when it is shown, and reads the
+the header mark's portal, the landing page's loop) when it is shown, and reads the
 visit's `sessionStorage` then. Elsewhere (Safari, Firefox) `playground/link-preload.ts` preloads the
-page's files as the reader points at, presses or focuses its link. Every load preloads the page's
-module, its styles and its Markdown chunk beside the entry (`vite.config.ts`, `routePreloads`); the
-search index loads only when search opens. The rules are an inline script, so `vercel.json`'s
-Content-Security-Policy names them by their hash, as it does the theme script; the host needs
-nothing else.
+page's files as the reader points at, presses or focuses its link. The search index loads only when
+search opens. The rules are an inline script, so `vercel.json`'s Content-Security-Policy names them
+by their hash, as it does the theme script; the host needs nothing else.
 
-The page eases in under the header and sidebar, which stay put: a fade and a 4px rise over the
-quick duration (160ms), once, from the first frame the reader sees; none with reduced motion.
-Everything after that is decoration on a page that is already there, and nothing waits for it: the
-sidebar marker's trip is over within 900ms (1460ms with its portal) and the header mark's portal
-within 800ms.
+**Nothing blanks.** A page change reads as the same shell with its content changing:
+
+- **The ground from the first byte.** An inline `<style>` in `index.html`, before any script, gives
+  `<html>` the site's ground and `color-scheme`: the system's scheme, then the reader's stored theme
+  once the theme script has set `data-theme`. No frame is white on a dark page, on the dev server
+  either, where the stylesheets arrive from script.
+- **The first frame is the whole page.** The entry script is in the `<head>` with
+  `blocking="render"`, and before it the document names the page's own module the same way and
+  carries a docs page's Markdown in a JSON block (`vite.config.ts`, `withPageScripts`: the build
+  writes them into each route's file, the dev server into each response). The entry renders the
+  shell and the page in one go (`playground/main.tsx`, `page-ready.ts`), so the browser shows the
+  page the reader came from until the new one is there with its sections open, its title, its text
+  and "On this page". The "Loading…" line shows only for a page whose module was not named in its
+  document; that late content alone eases in (a fade and a 4px rise, 160ms).
+- **The content cross-fades; the shell stays put.** `index.html` opts into cross-document view
+  transitions (`@view-transition { navigation: auto }`). The header, the sidebar and "On this page"
+  have their own `view-transition-name` (`site-header`, `site-sidebar`, `site-rail`,
+  `playground/showcase.css`): where both pages have one, the new one is simply there, live, from
+  the first frame, so the sidebar marker sets off from the old page's link with no ghost behind it;
+  everything else cross-fades over the quick duration (160ms). Between a docs page and the landing
+  page or Assets, which have no sidebar, the sidebar and rail fade with the content. Nothing starts
+  at opacity 0: a browser without cross-document view transitions (Firefox) shows the new page
+  whole on its first frame, as a plain load.
+- **Not a page change:** the theme toggle and a heading picked in "On this page" stay in the
+  document, so neither runs the transition. With reduced motion there is no transition at all.
+
+Everything after the first frame is decoration on a page that is already there, and nothing waits
+for it: the sidebar marker's trip is over within 900ms (1460ms with its portal) and the header
+mark's portal within 800ms. `e2e/nav.spec.ts` ("a page change never blanks") holds the first frame,
+the ground, the names and reduced motion.
 
 ### Search and theme
 

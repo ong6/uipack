@@ -453,7 +453,7 @@ html:has(.showcase-frame:not([data-banner="static"])) {
    accent) would otherwise reach the brand, and the Rules dot would be lost in an accent mark. */
 .showcase-header .showcase-brand {
   color: inherit;
-  /* How long the mark waits before its portal opens: the page's first paint and its entrance (the
+  /* How long the mark waits before its portal opens: the page's first paint and its cross-fade (the
      quick duration role) are in, so the logo changes on a page that is already there, and is done
      within a second of it. It is also the longest the header waits for a travelling sidebar
      marker's own portal (site-settings.tsx): the header keeps this one clock. */
@@ -1369,21 +1369,58 @@ html:has(.showcase-frame:not([data-banner="static"])) {
   }
 }
 
-/* Every page is its own load, so the page eases in under the header and sidebar, which stay put:
-   a short fade and a 4px rise on the quick duration (160ms), so a change of page is not a cut and
-   the page is readable almost at once. It plays once, from the first frame the reader sees: a
-   prerendered page (index.html's speculation rules) is not drawn until it is activated, and its
-   entrance starts then. Only while it plays (no fill forwards: nothing is left transformed).
-   Reduced motion: no entrance. */
-@media (prefers-reduced-motion: no-preference) {
-  .showcase-frame #showcase-main,
-  .showcase-frame > .uipack-docs > .uipack-docs__grid > .uipack-docs__article {
-    animation: showcase-page-in var(--ui-dur-quick, 160ms) var(--ui-ease-settle, ease-out) backwards;
+/* Every page is its own load, and reads as the same shell with its content changing. The browser
+   holds the page being left until this one has rendered (index.html: the entry is render-blocking
+   and opts into cross-document view transitions), then cross-fades the content over the quick
+   duration (160ms). The header, the sidebar and "On this page" are named, so they are not part of
+   that fade: where both pages have one, the new one is simply there, live, from the first frame
+   (the sidebar marker sets off from the old page's link with no ghost of itself fading behind it).
+   Where only one page has it (the landing page and Assets have no sidebar) it fades with the rest.
+   Nothing starts at opacity 0: a browser without cross-document view transitions shows the new
+   page whole on its first frame. Reduced motion: no transition (index.html). */
+.showcase-header {
+  view-transition-name: site-header;
+}
+.showcase-frame > .uipack-docs > .uipack-docs__grid > .uipack-docs__sidebar {
+  view-transition-name: site-sidebar;
+}
+.showcase-frame > .uipack-docs > .uipack-docs__grid > .uipack-docs__toc {
+  view-transition-name: site-rail;
+}
+::view-transition-group(*),
+::view-transition-old(*),
+::view-transition-new(*) {
+  animation-duration: 160ms;
+}
+::view-transition-old(site-header),
+::view-transition-old(site-sidebar),
+::view-transition-old(site-rail) {
+  display: none;
+}
+::view-transition-new(site-header),
+::view-transition-new(site-sidebar),
+::view-transition-new(site-rail) {
+  animation: none;
+}
+/* Leaving for a page without one (the landing page, Assets), or arriving from one: it fades with the content. */
+::view-transition-old(site-sidebar):only-child,
+::view-transition-old(site-rail):only-child {
+  display: block;
+}
+::view-transition-new(site-sidebar):only-child,
+::view-transition-new(site-rail):only-child {
+  animation: 160ms both showcase-shell-in;
+}
+@keyframes showcase-shell-in {
+  from {
+    opacity: 0;
   }
-  /* Held on its first frame while the page is prerendered (main.tsx), so it plays when the page is shown. */
-  html[data-prerendering] .showcase-frame #showcase-main,
-  html[data-prerendering] .showcase-frame > .uipack-docs > .uipack-docs__grid > .uipack-docs__article {
-    animation-play-state: paused;
+}
+/* A page whose chunk or text took longer than the first paint waits (main.tsx sets data-page-late)
+   arrives under its "Loading…" line: that late content eases in as it mounts. */
+@media (prefers-reduced-motion: no-preference) {
+  html[data-page-late] .showcase-frame .uipack-docs__article > .uipack-docs__flow {
+    animation: showcase-page-in var(--ui-dur-quick, 160ms) var(--ui-ease-settle, ease-out) backwards;
   }
 }
 @keyframes showcase-page-in {

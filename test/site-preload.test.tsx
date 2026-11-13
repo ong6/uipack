@@ -30,12 +30,43 @@ describe("the speculation rules in index.html", () => {
   });
 });
 
+describe("the first paint in index.html", () => {
+  const html = readFileSync(resolve(process.cwd(), "playground/index.html"), "utf8");
+  const head = html.slice(0, html.indexOf("</head>"));
+  const style = /<style>([\s\S]*?)<\/style>/.exec(head)?.[1] ?? "";
+
+  it("has the ground and the colour scheme inline, before any script, in the site's own two colours", () => {
+    const palette = readFileSync(resolve(process.cwd(), "playground/site-palette.css"), "utf8");
+    const [, light, dark] = /--show-bg:\s*light-dark\((#[0-9a-f]{6}),\s*(#[0-9a-f]{6})\)/.exec(palette)!;
+    expect(head.indexOf("<style>")).toBeGreaterThan(0);
+    expect(head.indexOf("<style>")).toBeLessThan(head.indexOf("<script"));
+    expect(head).toContain('<meta name="color-scheme" content="light dark" />');
+    const rules = style.replace(/\s+/g, " ");
+    // The system's scheme first, then the reader's choice (data-theme, set by the theme script).
+    expect(rules).toContain(`html { background: ${light}; color-scheme: light; }`);
+    expect(rules).toContain(`@media (prefers-color-scheme: dark) { html { background: ${dark}; color-scheme: dark; } }`);
+    expect(rules).toContain(`html[data-theme="light"] { background: ${light}; color-scheme: light; }`);
+    expect(rules).toContain(`html[data-theme="dark"] { background: ${dark}; color-scheme: dark; }`);
+  });
+
+  it("opts into cross-document view transitions, but not with reduced motion", () => {
+    expect(style.replace(/\s+/g, " ")).toContain(
+      "@media (prefers-reduced-motion: no-preference) { @view-transition { navigation: auto; } }",
+    );
+    expect(style.match(/@view-transition/g)).toHaveLength(1);
+  });
+
+  it("holds until the entry has rendered: a render-blocking module script in the head", () => {
+    expect(head).toContain('<script type="module" blocking="render" src="/main.tsx"></script>');
+    expect(html.slice(html.indexOf("</head>"))).not.toContain("<script");
+  });
+});
+
 describe("preloadLinkedPages, where there are no speculation rules", () => {
   const table = {
-    a: ["/assets/Page-1.js", "/assets/Page-1.css", "/assets/Landing-2.js", "/assets/style-3.js", "/assets/install-4.js"],
-    m: { MarkdownShowcase: [0, 1], LandingShowcase: [2] },
+    a: ["/assets/Page-1.js", "/assets/Page-1.css", "/assets/Landing-2.js", "/assets/Landing-2.css"],
+    m: { MarkdownShowcase: [0, 1], LandingShowcase: [2, 3] },
     r: { "/": "LandingShowcase", "/foundations/style": "MarkdownShowcase", "/start/install": "MarkdownShowcase" },
-    d: { "/foundations/style": 3, "/start/install": 4 },
   };
   const listeners: [string, EventListener][] = [];
   const setup = (supports: boolean, withTable = true) => {
@@ -68,7 +99,7 @@ describe("preloadLinkedPages, where there are no speculation rules", () => {
   if (!("supports" in HTMLScriptElement))
     (HTMLScriptElement as unknown as { supports: (type: string) => boolean }).supports = () => false;
 
-  it("preloads a linked page's module, styles and Markdown chunk when the reader points at its link, once", () => {
+  it("preloads a linked page's module and styles when the reader points at its link, once", () => {
     setup(false);
     expect(listeners.map(([t]) => t).sort()).toEqual(["focusin", "pointerdown", "pointerover", "touchstart"]);
     // The pointer is on the link's text, not the link itself.
@@ -76,17 +107,15 @@ describe("preloadLinkedPages, where there are no speculation rules", () => {
     expect(links()).toEqual([
       ["modulepreload", "/assets/Page-1.js", null],
       ["preload", "/assets/Page-1.css", "style"],
-      ["modulepreload", "/assets/style-3.js", null],
     ]);
     fire("pointerdown", document.querySelector("#style")!);
-    expect(links()).toHaveLength(3);
-    // Another page of the same kind: only its own Markdown chunk is new.
+    expect(links()).toHaveLength(2);
+    // Another page of the same kind needs nothing more: its text comes in its own HTML.
     fire("focusin", document.querySelector("#install")!);
-    expect(links().at(-1)).toEqual(["modulepreload", "/assets/install-4.js", null]);
-    expect(links()).toHaveLength(4);
+    expect(links()).toHaveLength(2);
     // A file, another site and a link that opens elsewhere preload nothing.
     for (const id of ["file", "out", "tab"]) fire("pointerover", document.querySelector(`#${id}`)!);
-    expect(links()).toHaveLength(4);
+    expect(links()).toHaveLength(2);
   });
 
   it("does nothing where the browser prerenders, or on the dev server, which has no preload table", () => {

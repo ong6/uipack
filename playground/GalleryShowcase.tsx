@@ -5,6 +5,7 @@
  * object scenes, 3D stories, the asset manifest and the docs demos), so a new asset appears here
  * once it is registered there.
  */
+import { pageReady } from "./page-ready";
 import { lazy, useMemo, useState, type ComponentType, type ReactNode } from "react";
 import { PRESETS } from "../src/presets";
 import { SlideThumbnail } from "../src/deck";
@@ -367,3 +368,5 @@ export default function GalleryShowcase() {
     </div>
   );
 }
+
+pageReady("GalleryShowcase", { default: GalleryShowcase });

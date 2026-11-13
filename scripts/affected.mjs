@@ -121,7 +121,7 @@ const AREAS = [
   // The live-preview stage the landing page and the Assets tab share.
   [/^playground\/preview-stage/, ["landing", "assets-gallery"]],
   [
-    /^playground\/(ShowcaseShell|showcase\.css|catalog|figure-rows|routes|nav|main|scroll-memory|link-preload|index\.html|site-palette|site-settings|search-index)/,
+    /^playground\/(ShowcaseShell|showcase\.css|catalog|figure-rows|routes|nav|main|scroll-memory|link-preload|page-ready|index\.html|site-palette|site-settings|search-index)/,
     [...SHELL, "landing"],
   ],
   // The Assets tab: its page, its data and the registries it draws from.

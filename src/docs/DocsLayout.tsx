@@ -155,13 +155,16 @@ function useCurrentSection(ids: string[]) {
   // Keyed by the ids' values, so a fresh array with the same ids does not re-measure.
   const key = ids.join(" ");
   useEffect(() => {
-    const headings = (key ? key.split(" ") : [])
-      .map((id) => document.getElementById(id))
-      .filter((element): element is HTMLElement => element !== null);
-    if (headings.length === 0) return;
+    const wanted = key ? key.split(" ") : [];
+    if (wanted.length === 0) return;
     let frame = 0;
     const update = () => {
       frame = 0;
+      // Looked up each time: a host that renders its page again may replace the heading elements,
+      // and one measured after it has left the document would read as passed (its box is empty).
+      const headings = wanted
+        .map((id) => document.getElementById(id))
+        .filter((element): element is HTMLElement => element !== null);
       const line = window.innerHeight * 0.3;
       const atEnd = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
       let next: string | null = null;
