@@ -338,7 +338,9 @@ html:has(.showcase-frame:not([data-banner="static"])) {
    scrolls inside its canvas (AGENTS.md: a dense diagram keeps a readable drawing and scrolls
    internally); the page never scrolls sideways. Below 900px the package's own narrow rules hold. */
 @media (min-width: 900px) {
-  .showcase-frame .uipack-docs__article .uipack > .uipack__canvas > svg.uipack--wide {
+  .showcase-frame .uipack-docs__article .uipack > .uipack__canvas > svg.uipack--wide,
+  /* The drill-down figure's drawing sits in a stage inside its canvas. */
+  .showcase-frame .uipack-docs__article .uipack-drill > .uipack__canvas > .uipack-drill__stage {
     min-width: var(--figure-width, 0px);
   }
 }
