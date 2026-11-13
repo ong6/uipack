@@ -635,6 +635,8 @@
 /* Presenting, the slide gets the window: the docs sidebar steps aside until the deck leaves the
    present view (DeckShowcase sets data-presenting), and comes back with it. */
 .showcase-frame:has(.deck-showcase[data-presenting]) > .uipack-docs[data-width] > .uipack-docs__grid {
+  /* The window, not the site column: the banner has scrolled away with the page. */
+  width: 100%;
   grid-template-columns: minmax(0, 1fr);
 }
 .showcase-frame:has(.deck-showcase[data-presenting]) .uipack-docs__sidebar {

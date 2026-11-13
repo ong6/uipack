@@ -17,7 +17,7 @@ test("library pages share navigation and preserve theme across routes and reload
   await expect(sidebar.getByRole("link", { name: "Architecture diagrams", exact: true })).toHaveAttribute("aria-current", "page");
   expect(await header.evaluate((el) => el.getBoundingClientRect().width)).toBe(width);
   await sidebar.getByRole("link", { name: "3D animations", exact: true }).click();
-  await page.getByRole("button", { name: "light mode", exact: true }).click();
+  await page.getByRole("button", { name: "Light mode", exact: true }).click();
   await page.reload();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
   await expect(page.locator(".uipack-animation-workspace")).toHaveAttribute("data-theme", "light");

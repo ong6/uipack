@@ -540,7 +540,7 @@ function charactersPerLine() {
 
 test.describe("widths", () => {
   for (const width of [1440, 1920]) {
-    test(`${width}: the column and the rail sit together, prose at 75–88 characters a line, tables the full column`, async ({
+    test(`${width}: the sidebar, the column and the rail fill the site column, prose at 75–88 characters a line, tables the full column`, async ({
       page,
     }) => {
       await page.setViewportSize({ width, height: 1000 });
@@ -563,11 +563,16 @@ test.describe("widths", () => {
       expect(g.toc.left + 5 - g.main.right).toBeGreaterThanOrEqual(38);
       expect(g.toc.left + 5 - g.main.right).toBeLessThanOrEqual(58);
       expect(g.main.width).toBeLessThanOrEqual(761);
-      // The pair is centred in the space right of the sidebar (the rail's box reaches 5px past its
-      // text on each side: room for a focus ring).
-      const leftGap = g.main.left - g.side.right;
-      const rightGap = g.vw - (g.toc.right - 5);
-      expect(Math.abs(leftGap - rightGap)).toBeLessThanOrEqual(2);
+      // The three are one block, the site column (1264px), centred: the sidebar's box is 232px and
+      // reaches 16px into the left margin, the page starts 24px after it at its full 760px, and the
+      // rail ends on the column's right edge (its box reaches 5px past its text on each side: room
+      // for a focus ring). The same at 1440 and 1920: the spare width is the outer margins.
+      const margin = (g.vw - 1264) / 2;
+      expect(g.side.width).toBeCloseTo(232, 0);
+      expect(g.side.left).toBeCloseTo(margin - 16, 0);
+      expect(g.main.left - g.side.right).toBeCloseTo(24, 0);
+      expect(g.main.width).toBeCloseTo(760, 0);
+      expect(g.toc.right - 5).toBeCloseTo(g.vw - margin, 0);
       // A table takes the whole column; prose stops short of it.
       expect(g.proseWidth).toBeLessThan(g.main.width);
       expect(Math.abs(g.table!.width - g.main.width)).toBeLessThanOrEqual(1);
@@ -593,13 +598,41 @@ test.describe("widths", () => {
     });
   }
 
-  test("a page without a rail gives its figures a column within 1% of 1184px at 1440", async ({ page }) => {
-    await page.setViewportSize({ width: 1440, height: 900 });
-    await page.goto("/components/diagrams");
-    const w = await page.locator("main.uipack-docs__article").evaluate((el) => el.getBoundingClientRect().width);
-    expect(w).toBeGreaterThanOrEqual(1172);
-    expect(w).toBeLessThanOrEqual(1184);
-  });
+  for (const width of [1440, 2000])
+    test(`${width}: a page without a rail takes the rest of the site column (1024px); a wider drawing keeps its size and scrolls in its canvas`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto("/components/diagrams");
+      await expect(page.locator("main.uipack-docs__article svg.uipack--wide").first()).toBeVisible();
+      const g = await page.evaluate(() => {
+        const main = document.querySelector("main.uipack-docs__article")!.getBoundingClientRect();
+        const drawings = [
+          ...document.querySelectorAll<SVGSVGElement>("main.uipack-docs__article .uipack__canvas > svg.uipack--wide"),
+        ].map((svg) => {
+          const canvas = svg.parentElement!;
+          return {
+            units: svg.viewBox.baseVal.width,
+            drawn: svg.getBoundingClientRect().width,
+            canvas: canvas.getBoundingClientRect().right,
+            scrolls: canvas.scrollWidth > canvas.clientWidth + 1,
+            overflow: getComputedStyle(canvas).overflowX,
+          };
+        });
+        return { main: { width: main.width, right: main.right }, drawings, scrollWidth: document.documentElement.scrollWidth };
+      });
+      expect(g.main.width).toBeCloseTo(1024, 0);
+      expect(g.drawings.length).toBeGreaterThan(10);
+      for (const d of g.drawings) {
+        // Never smaller than its own size (the 11px text floor would push sub-labels out of their boxes).
+        expect(d.drawn).toBeGreaterThanOrEqual(d.units - 1);
+        expect(d.canvas).toBeLessThanOrEqual(g.main.right + 1);
+        if (d.scrolls) expect(d.overflow).toBe("auto");
+      }
+      // The widest drawings (1120 units) do not fit 1024px: they scroll inside the canvas, never the page.
+      expect(g.drawings.some((d) => d.scrolls)).toBe(true);
+      expect(g.scrollWidth).toBeLessThanOrEqual(width);
+    });
 
   test("between 900 and 1180 the rail folds into the disclosure; the sidebar stays", async ({ page }) => {
     await page.setViewportSize({ width: 1024, height: 900 });
@@ -611,12 +644,14 @@ test.describe("widths", () => {
   });
 });
 
-// The banner's content keeps the edges of the layout under it: the logo (below 900px the menu
-// icon) starts where the sidebar's content (the page) starts, and the last control ends where "On
-// this page" ends, or the page column on a page with no rail. Within 1px at every width.
+// The banner's content keeps the edges of the layout under it, and the layout is the site's one
+// column (docs/specs/docs-site.md, "Layout": 1264px at most, centred): the logo (below 900px the
+// menu icon) starts where the sidebar's rows (the page) start, and the last control ends where "On
+// this page" ends, or the page column on a page with no rail. Within 1px at every width. That these
+// are the same x as on the landing page and Assets is e2e/site-consistency.spec.ts, "one header".
 test.describe("the banner's edges", () => {
   for (const path of ["/agents", "/components/diagrams"])
-    for (const width of [1920, 1440, 1100, 390]) {
+    for (const width of [2000, 1920, 1440, 1280, 1100, 1024, 768, 390]) {
       test(`${path} at ${width}: the logo and the last control sit on the layout's edges`, async ({ page }) => {
         await page.setViewportSize({ width, height: 900 });
         await page.goto(`${path}?theme=light`);
@@ -631,7 +666,10 @@ test.describe("the banner's edges", () => {
             brand: box(".showcase-brand svg")!,
             tab: box(".showcase-tabs a")!,
             last: box(".showcase-header__actions > :last-child")!,
-            search: box(".uipack-docs__sidebar .uipack-docs-search__button"),
+            sidebar: box(".uipack-docs__sidebar .uipack-docs__navigation"),
+            // Search is the header's box on every view; the sidebar draws none of its own.
+            sidebarSearch: box(".uipack-docs__sidebar .uipack-docs-search__button"),
+            headerSearch: box(".showcase-header .uipack-docs-search__button"),
             main: box("main.uipack-docs__article")!,
             // The rail's box reaches 5px past its text on each side (room for a focus ring).
             railTitle: box(".uipack-docs__toc > p"),
@@ -640,11 +678,17 @@ test.describe("the banner's edges", () => {
         });
         if (width >= 900) {
           expect(g.menu, "no menu button beside a docked sidebar").toBeNull();
-          expect(Math.abs(g.brand.left - g.search!.left), "logo on the sidebar's left edge").toBeLessThanOrEqual(1);
+          expect(Math.abs(g.brand.left - g.sidebar!.left), "logo on the sidebar's rows' left edge").toBeLessThanOrEqual(1);
+          // The whole layout is the site column, centred: equal margins, 1264px at most.
+          const column = Math.min(1264, width - 2 * (width >= 1024 ? 32 : 24));
+          expect(g.last.right - g.brand.left).toBeCloseTo(column, 0);
+          expect(g.brand.left).toBeCloseTo((width - column) / 2, 0);
         } else {
-          expect(g.search, "the sidebar is a drawer").toBeNull();
+          expect(g.sidebar, "the sidebar is a drawer").toBeNull();
           expect(Math.abs(g.menu!.left - g.main.left), "menu icon on the page's left edge").toBeLessThanOrEqual(1);
         }
+        expect(g.sidebarSearch, "no search box in the sidebar").toBeNull();
+        expect(g.headerSearch, "search in the header").not.toBeNull();
         const right = g.railTitle ? g.railTitle.right : g.main.right;
         expect(Math.abs(g.last.right - right), "last control on the layout's right edge").toBeLessThanOrEqual(1);
         // One centre line across the bar.
@@ -892,8 +936,8 @@ test.describe("search", () => {
     await page.keyboard.press("ArrowUp");
     await page.keyboard.press("Escape");
     await expect(dialog).toBeHidden();
-    await sidebar(page)
-      .locator("xpath=..")
+    await page
+      .locator(".showcase-header")
       .getByRole("button", { name: /Search docs/ })
       .click();
     await expect(dialog).toBeVisible();
@@ -963,13 +1007,11 @@ test.describe("search", () => {
           looks[path] = { results, empty, width: (await dialog.boundingBox())!.width };
           await page.keyboard.press("Escape");
           await expect(dialog).toBeHidden();
-          // Off the docs pages, and on a phone, the header holds the box; it opens the same dialog.
-          if (path !== "/foundations/style" || width < 900) {
-            await page.locator(".showcase-header").getByRole("button", { name: "Search docs" }).click();
-            await expect(dialog).toBeVisible();
-            await page.keyboard.press("Escape");
-            await expect(dialog).toBeHidden();
-          }
+          // The header holds the box on every view; it opens the same dialog.
+          await page.locator(".showcase-header").getByRole("button", { name: "Search docs" }).click();
+          await expect(dialog).toBeVisible();
+          await page.keyboard.press("Escape");
+          await expect(dialog).toBeHidden();
         }
         const docs = looks["/foundations/style"];
         // A result is a row, not a link: the ink, no underline, its own padding; the selected one tinted.
@@ -1039,7 +1081,7 @@ test.describe("theme", () => {
       await page.goto("/agents");
       await expect(page.locator(".showcase-header")).toBeVisible();
       expect(await themeOf(page)).toEqual(all("light"));
-      await page.getByRole("button", { name: "dark mode" }).click();
+      await page.getByRole("button", { name: "Dark mode" }).click();
       await expect(page).toHaveURL(/[?&]theme=dark\b/);
       expect(await themeOf(page)).toEqual(all("dark"));
       for (const path of ["/agents", "/", "/gallery"]) {
@@ -1054,7 +1096,7 @@ test.describe("theme", () => {
       await expect(page.locator(".showcase-header")).toBeVisible();
       expect(await themeOf(page)).toEqual(all("dark"));
       // Toggled back, the choice is light, whatever the system says.
-      await page.getByRole("button", { name: "light mode" }).click();
+      await page.getByRole("button", { name: "Light mode" }).click();
       await page.emulateMedia({ colorScheme: "dark" });
       await page.goto("/gallery");
       await expect(page.locator(".showcase-header")).toBeVisible();

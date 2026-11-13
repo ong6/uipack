@@ -54,8 +54,9 @@ for (const theme of ["light", "dark"] as const)
     });
   }
 
-// The banner's logo and last control sit on the grid's left and right edges, within 1px.
-for (const width of [1920, 1440, 390])
+// The banner's logo and last control sit on the grid's left and right edges, within 1px; the title
+// and the filters start on the same edge (the site's one column: docs/specs/docs-site.md, "Layout").
+for (const width of [2000, 1920, 1440, 1280, 1024, 768, 390])
   test(`the banner keeps the grid's edges at ${width}`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     await page.goto("/gallery?theme=light");
@@ -63,8 +64,19 @@ for (const width of [1920, 1440, 390])
     const g = await page.evaluate(() => {
       const box = (s: string) => document.querySelector(s)!.getBoundingClientRect();
       const grid = box(".gallery-grid");
-      return { brand: box(".showcase-brand svg").left, last: box(".showcase-header__actions > :last-child").right, grid };
+      return {
+        brand: box(".showcase-brand svg").left,
+        last: box(".showcase-header__actions > :last-child").right,
+        grid,
+        title: box(".gallery-head h1").left,
+        filters: box(".gallery-filters").left,
+        scrollWidth: document.documentElement.scrollWidth,
+      };
     });
+    expect(g.grid.right - g.grid.left).toBeCloseTo(Math.min(1264, width - 2 * (width >= 1024 ? 32 : width >= 720 ? 24 : 16)), 0);
+    expect(Math.abs(g.title - g.grid.left)).toBeLessThanOrEqual(1);
+    expect(Math.abs(g.filters - g.grid.left)).toBeLessThanOrEqual(1);
+    expect(g.scrollWidth).toBeLessThanOrEqual(width);
     expect(Math.abs(g.brand - g.grid.left)).toBeLessThanOrEqual(1);
     expect(Math.abs(g.last - g.grid.right)).toBeLessThanOrEqual(1);
   });

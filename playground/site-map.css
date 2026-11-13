@@ -36,6 +36,8 @@
   margin: 0 0 4px;
   color: var(--ui-ink-3);
   font: 500 12px / var(--site-leading-label) var(--ui-font-label);
+  /* A group caption, as the sidebar's (.uipack-docs__nav-caption): the label role's tracking. */
+  letter-spacing: 0.02em;
 }
 .landing-map ul {
   margin: 0;
@@ -69,11 +71,13 @@
     columns: 1;
   }
 }
-/* Touch: every link is a 44px target. */
-@media (pointer: coarse) {
+/* Touch: every link is a 44px target, on a coarse pointer and on any touch layout (below 720px,
+   whatever pointer it reports). The desktop list keeps its 26px rows. */
+@media (pointer: coarse), (max-width: 719px) {
   .landing-map .landing-map__group a {
     display: flex;
     align-items: center;
+    box-sizing: border-box;
     min-height: 44px;
   }
 }
