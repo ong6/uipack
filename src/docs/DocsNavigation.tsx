@@ -98,8 +98,9 @@ export interface SectionNavigationProps {
 
 /**
  * The sections and their pages. Collapsible, a section's heading is a button with its page count;
- * the current section opens (and, after a page change, any the reader had open). With a travelling
- * marker, a decorative SVG over the left edge draws it and its trail.
+ * the current section is open from the first render (and, after a page change, any the reader had
+ * open): the marker's trip is decoration and nothing waits for it. With a travelling marker, a
+ * decorative SVG over the left edge draws it and its trail.
  */
 export function SectionNavigation({
   sections,
@@ -129,8 +130,7 @@ export function SectionNavigation({
   const trip = memory && memory.href !== activeHref ? memory : null;
   const [open, setOpen] = useState<Set<string>>(() => {
     const set = new Set(memory ? memory.open.filter((k) => keys.includes(k)) : []);
-    // The current section opens now, or, at the end of a trip into it, as the marker arrives.
-    if (activeKey && (!trip || prefersReducedMotion())) set.add(activeKey);
+    if (activeKey) set.add(activeKey);
     return set;
   });
   const openRef = useRef(open);
@@ -213,14 +213,13 @@ export function SectionNavigation({
     return () => observer.disconnect();
   }, [marker, dock, open]);
 
-  // The trip: from the page the reader left to this one, opening this page's section on arrival.
+  // The trip: from the page the reader left to this one, whose section is open already.
   useEffect(() => {
     const nav = navRef.current;
     if (!trip || marker === "bar") return;
     pending.current = false;
-    // No trip to play (hidden sidebar, reduced motion, the old page not in it): open and dock in place.
+    // No trip to play (hidden sidebar, reduced motion, the old page not in it): dock in place.
     const settleInPlace = () => {
-      if (activeKey) setOpen((s) => (s.has(activeKey) ? s : new Set(s).add(activeKey)));
       setLeaving(false);
       dock();
     };
@@ -236,8 +235,7 @@ export function SectionNavigation({
       : dockOf(old);
     const to = dockOf(target);
     if (!from || !to || !svg.current) return settleInPlace();
-    // Bring the destination into view, so the reader sees it land: now, and again once its section
-    // has opened (a shut section is too short to scroll to).
+    // Bring the destination into view, so the reader sees it land.
     const scroller = nav.closest<HTMLElement>(".uipack-docs__sidebar");
     /** Where the sidebar scrolls to so the destination shows, or null when it already does. */
     const revealTop = () => {
@@ -267,20 +265,6 @@ export function SectionNavigation({
       const start = route[0].y;
       reveal(start >= top && start <= top + sr.height ? "smooth" : "instant");
     }
-    let revealTimer = 0;
-    const arriving = activeKey && !openRef.current.has(activeKey) ? activeKey : null;
-    const heading = arriving
-      ? nav.querySelector(`[data-nav-section="${esc(arriving)}"] .uipack-docs__nav-heading`)?.getBoundingClientRect()
-      : null;
-    const navTop = nav.getBoundingClientRect().top;
-    const gate = heading ? (to.y >= from.y ? heading.top - navTop : heading.bottom - navTop) : null;
-    let opened = !arriving;
-    const openNow = () => {
-      if (opened || !arriving) return;
-      opened = true;
-      setOpen((s) => new Set(s).add(arriving));
-      revealTimer = window.setTimeout(reveal, 300);
-    };
     flying.current = true;
     svg.current.removeAttribute("data-hidden");
     svg.current.setAttribute("data-flying", "");
@@ -296,14 +280,11 @@ export function SectionNavigation({
       draw,
       () => {
         flying.current = false;
-        openNow();
         arrive();
         svg.current?.removeAttribute("data-flying");
         dock();
       },
-      (y) => {
-        if (gate !== null && (to.y >= from.y ? y >= gate : y <= gate)) openNow();
-      },
+      undefined,
       arrive,
       changes,
     );
@@ -311,7 +292,6 @@ export function SectionNavigation({
     return () => {
       cancel();
       cancelAnimationFrame(hueFrame);
-      clearTimeout(revealTimer);
       flying.current = false;
       track.removeAttribute("data-flying");
     };

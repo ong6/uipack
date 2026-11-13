@@ -6,8 +6,8 @@
  * is left) and, on a back or forward load, scrolls there as soon as the document is tall enough,
  * then holds it while what is above settles (lazy parts, faces, images), until the reader scrolls,
  * taps or types. A fresh navigation is untouched: it starts at the top, or on its #fragment.
- * `history.scrollRestoration` stays `auto`, so Back between two #fragments of one page is still the
- * browser's.
+ * `history.scrollRestoration` stays `auto`, so Back between two entries of one page (a heading
+ * picked in "On this page" is one) is still the browser's.
  */
 const STORE = "uipack-scroll";
 /** How many entries are kept: the visit's latest. */
@@ -91,14 +91,25 @@ export function keepScrollPosition(): boolean {
   const saved = cameBack() ? read()[entryKey()] : undefined;
   if (saved && Array.isArray(saved.parts)) left = new Set(saved.parts);
   target = saved && typeof saved.y === "number" && saved.y > 0 ? saved.y : null;
-  // Leaving before the restore has finished keeps the position it was making for.
+  // Leaving before the restore has finished keeps the position it was making for. A prerendered
+  // page the reader never saw has no place to keep.
   const save = () =>
+    !(document as { prerendering?: boolean }).prerendering &&
     write(entryKey(), {
       y: Math.round(target ?? scrollY),
       height: target === null ? document.documentElement.scrollHeight : (saved?.height ?? 0),
       parts: target === null ? [...mounted] : [...left],
     });
   addEventListener("pagehide", save);
+  // A heading picked in "On this page" is a new entry of this document (DocsLayout pushes it): the
+  // browser returns the reader to this one's position on Back within the page; kept here too, so a
+  // Back that crosses documents to this entry (from another page, two steps back) finds its place.
+  // With the Navigation API only, whose `navigate` fires while this entry is still the current one.
+  const navigation = (window as { navigation?: EventTarget }).navigation;
+  navigation?.addEventListener("navigate", (event) => {
+    const e = event as Event & { navigationType?: string; destination?: { sameDocument?: boolean } };
+    if (e.navigationType === "push" && e.destination?.sameDocument) save();
+  });
   // A phone can drop a hidden page without `pagehide`.
   document.addEventListener("visibilitychange", () => document.visibilityState === "hidden" && save());
   if (target === null) return false;

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, type MouseEvent } from "react";
+import { useCallback, useEffect, useRef, useSyncExternalStore, type MouseEvent } from "react";
 import { useIsoLayoutEffect } from "../env";
 import type { DocsTocItem } from "./DocsLayout";
 
@@ -96,16 +96,38 @@ const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t 
 export const prefersReducedMotion = () =>
   typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+const subscribeActivation = (change: () => void) => {
+  document.addEventListener("prerenderingchange", change);
+  return () => document.removeEventListener("prerenderingchange", change);
+};
+const isActivated = () => !(document as { prerendering?: boolean }).prerendering;
+
+/**
+ * Whether the reader can see the document: false while the browser prerenders it (a page loaded
+ * ahead of a click, by a speculation rule), true from the moment it is activated, and always true
+ * elsewhere. What a reader should watch from its start (a trip from the page they left) and what
+ * reads the visit's sessionStorage (a prerendered page gets the visit's own only when it is
+ * activated) waits for it.
+ */
+export const useActivated = () => useSyncExternalStore(subscribeActivation, isActivated, () => true);
+
 /**
  * How many hops the mark takes over `length` px in `duration` ms: one per 36px (a neighbouring
- * link is one hop), no hop shorter than 150ms, nine at most. Short hops keep the mark close to the
+ * link is one hop), no hop shorter than 100ms, nine at most. Short hops keep the mark close to the
  * trail it leaves.
  */
 export const hopCount = (length: number, duration: number) =>
-  Math.max(1, Math.min(9, Math.round(length / 36), Math.floor(duration / 150)));
+  Math.max(1, Math.min(9, Math.round(length / 36), Math.floor(duration / 100)));
 
-/** How long the mark takes over `length` px, in ms: slower than the plane, so its hops stay small. */
-export const hopDuration = (length: number, most = 1400) => Math.min(most, 300 + length * 3);
+/**
+ * How long the mark takes over `length` px, in ms: 300ms and 2ms a pixel, 900ms at most. The trip
+ * is decoration on a page that is already there, so it is over within a second.
+ */
+export const hopDuration = (length: number, most = 900) => Math.min(most, 300 + length * 2);
+
+/** The most a hop's arc leaves the line, in px: to the right, and to the left, where there is less room. */
+export const HOP_LIFT = 7;
+export const HOP_LIFT_LEFT = 4.2;
 
 /** The share of a hop spent in the air; the rest is the landing, a squash and its recovery. */
 const HOP_FLIGHT = 0.8;
@@ -165,7 +187,11 @@ export function hopPose(t: number, hops: number, length: number, plan?: readonly
   const hop = Math.min(hops - 1, Math.floor(scaled));
   const u = scaled - hop;
   const step = plan?.[hop] ?? PLAIN_HOP;
-  const height = Math.max(4, Math.min(7, (length / hops) * 0.2)) * step.height * (step.side < 0 ? 0.6 : 1);
+  // 4 to 7px by the hop's length, each hop a little higher or lower, never over the most to its side.
+  const height = Math.min(
+    step.side < 0 ? HOP_LIFT_LEFT : HOP_LIFT,
+    Math.max(4, Math.min(HOP_LIFT, (length / hops) * 0.2)) * step.height * (step.side < 0 ? 0.6 : 1),
+  );
   if (u < HOP_FLIGHT) {
     const f = u / HOP_FLIGHT;
     const eased = smooth(f);
@@ -257,6 +283,9 @@ export function ContentsRail({
     at: null as number | null,
     dir: 1,
     frame: 0,
+    // The path's two columns: the headings' and, when it steps right for sub-headings, theirs.
+    near: 0,
+    far: 0,
     // The mark's hop: how far off the path it is, its turn and its squash.
     lift: 0,
     deg: 0,
@@ -301,6 +330,8 @@ export function ContentsRail({
     const line = polyline(poly);
     const s = state.current;
     s.line = line;
+    s.near = Math.min(...pts.map((pt) => pt.x));
+    s.far = Math.max(...pts.map((pt) => pt.x));
     s.stops = stopAt.map((i) => line.cum[i]);
     const h = Math.ceil(el.getBoundingClientRect().height);
     svg.current.setAttribute("height", String(h));
@@ -342,7 +373,7 @@ export function ContentsRail({
     const delta = target - from;
     if (Math.abs(delta) < 0.5) return rest();
     s.dir = delta > 0 ? 1 : -1;
-    const duration = shape === "mark" ? hopDuration(Math.abs(delta), 1100) : Math.min(950, 320 + Math.abs(delta) * 1.6);
+    const duration = shape === "mark" ? hopDuration(Math.abs(delta), 700) : Math.min(950, 320 + Math.abs(delta) * 1.6);
     const hops = hopCount(Math.abs(delta), duration);
     // Each heading-to-heading trip hops its own way, a fresh pick every time.
     const plan = hopPlan(Math.random() * 1e9, hops);
@@ -357,7 +388,14 @@ export function ContentsRail({
       if (shape === "mark") {
         const pose = hopPose(t, hops, Math.abs(delta), plan);
         s.at = from + (to - from) * pose.along;
-        s.lift = pose.lift + carried * Math.max(0, 1 - (now - t0) / 120);
+        // Where the path has stepped right for a sub-heading, an arc to the right would add to the
+        // step: there it leans back toward the headings' column instead (as far as an arc to the
+        // left goes), turning over as the mark crosses the step. With what an interrupted hop
+        // carried in, it is still never further from the path than one arc.
+        const across = s.far > s.near ? (s.line.at(s.at).x - s.near) / (s.far - s.near) : 0;
+        const lean = pose.lift > 0 ? pose.lift * (1 - (1 + HOP_LIFT_LEFT / HOP_LIFT) * across) : pose.lift;
+        const most = HOP_LIFT * Math.max(0, 1 - across / (HOP_LIFT / (HOP_LIFT + HOP_LIFT_LEFT)));
+        s.lift = Math.max(-HOP_LIFT_LEFT, Math.min(most, lean + carried * Math.max(0, 1 - (now - t0) / 120)));
         s.deg = pose.deg;
         s.sx = pose.sx;
         s.sy = pose.sy;
@@ -505,8 +543,7 @@ export type NavDraw = (
  * face the link it docks beside. The mark hops it (`hopCount` small hops, each its own way:
  * `hopPlan`), the same trail on the route beneath it. `onLastHop` fires when the mark should change
  * to the new page's: as its final hop leaves the ground, or, with a `morph`, halfway through a stop
- * it makes before that hop. `onFrame(y)` fires as it passes each y (the host opens the section it
- * arrives in). Returns a cancel function.
+ * it makes before that hop. `onFrame(y)` fires as it passes each y. Returns a cancel function.
  */
 export function flyNavMarker(
   route: Point[],

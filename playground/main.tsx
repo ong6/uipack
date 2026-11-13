@@ -1,5 +1,5 @@
 /// <reference types="vite/client" />
-import { lazy, Suspense, StrictMode, useEffect, type ComponentType } from "react";
+import { lazy, Suspense, StrictMode, useEffect, useState, type ComponentType } from "react";
 import { createRoot } from "react-dom/client";
 // Only the role layer, Technical's values and the shell's CSS are eager; each page imports its own
 // (theme.css with the figures; the other styles' value sets where a page can switch style), which
@@ -19,6 +19,7 @@ import { GALLERY_PATH } from "./gallery-index";
 import { SiteMap } from "./SiteMap";
 import { LANDING_MODULE, LANDING_PATH, LANDING_SECTIONS } from "./landing-index";
 import { keepScrollPosition, READER_INPUT } from "./scroll-memory";
+import { preloadLinkedPages } from "./link-preload";
 
 // Every page module is its own chunk, with its own CSS. The shell (header, h1, intro) is in this
 // entry and renders at once; the page fills in below it when its chunk arrives. In a build,
@@ -53,7 +54,20 @@ let hashOpened = false;
 // Back and Forward return to where the reader was (scroll-memory.ts); that position then wins
 // over the address's #fragment, as it does in a browser.
 const restoringScroll = keepScrollPosition();
+// A page Chromium prerenders (index.html's speculation rules) is not drawn until the reader follows
+// its link: <html data-prerendering> holds what should play from the first frame they see (the
+// page's entrance, the landing page's loop; showcase.css) until then.
+if ((document as { prerendering?: boolean }).prerendering) {
+  document.documentElement.setAttribute("data-prerendering", "");
+  document.addEventListener("prerenderingchange", () => document.documentElement.removeAttribute("data-prerendering"), {
+    once: true,
+  });
+}
+// Every page is a full load: the next one is loaded ahead of the click. Chromium prerenders it
+// (index.html's speculation rules); elsewhere its files are preloaded as the reader points at its link.
+preloadLinkedPages();
 function OpenHashTarget() {
+  const [activated, setActivated] = useState(false);
   useEffect(() => {
     let id = location.hash.slice(1);
     try {
@@ -62,6 +76,13 @@ function OpenHashTarget() {
       /* keep the raw id */
     }
     if (!id || hashOpened || restoringScroll) return;
+    // A prerendered page (index.html's speculation rules) opens its target when the reader sees it:
+    // the two seconds it stays aligned, and the focus, start then.
+    if ((document as { prerendering?: boolean }).prerendering) {
+      const shown = () => setActivated(true);
+      document.addEventListener("prerenderingchange", shown, { once: true });
+      return () => document.removeEventListener("prerenderingchange", shown);
+    }
     // Once per load, and outliving StrictMode's remount: the alignment ends on its own.
     const open = () => {
       const el = document.getElementById(id);
@@ -94,7 +115,7 @@ function OpenHashTarget() {
       watch.disconnect();
       clearTimeout(stop);
     };
-  }, []);
+  }, [activated]);
   return null;
 }
 

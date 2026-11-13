@@ -180,17 +180,30 @@ test("on the landing page the mark rests as the default logo, then the dot visit
   // The bottom right cell has its own: it is Check's and the default logo's.
   expect(loops).toEqual(
     [0, 1, 2, 3].map((i) => [
-      [i === 3 ? "showcase-brand-turn-home" : "showcase-brand-turn", 13000, "running"],
-      [i === 3 ? "showcase-brand-turn-home-lift" : "showcase-brand-turn-lift", 13000, "running"],
+      [i === 3 ? "showcase-brand-turn-home" : "showcase-brand-turn", 14000, "running"],
+      [i === 3 ? "showcase-brand-turn-home-lift" : "showcase-brand-turn-lift", 14000, "running"],
     ]),
   );
   // The landing page's own styles (its chunk) place the header; measure once they have.
   await expect(page.locator(".landing-hero")).toBeVisible();
   const box = await page.locator(brand).boundingBox();
   // The loop opens on the default logo, from its first frame (0ms: the page enters the loop 0.4s
-  // into the 5s rest, after the bottom right cell has turned from Check's hue to the ink), and holds
-  // it until the hop to Start; the end of the loop (12950ms) is the same logo, resting again.
-  for (const ms of [0, 400, 2500, 3900, 12950]) {
+  // into the 6s rest, after the bottom right cell has turned from Check's hue to the ink), and holds
+  // it, still, for five seconds, until the hop to Start (at 5040ms); the end of the loop (13950ms)
+  // is the same logo, resting again.
+  const still = () =>
+    page.locator(`${brand} rect`).evaluateAll((rects) =>
+      rects.map((rect) => {
+        const s = getComputedStyle(rect);
+        const r = rect.getBoundingClientRect();
+        return [s.translate, s.transform, s.strokeDashoffset, s.strokeOpacity, Math.round(r.x * 100), Math.round(r.y * 100)].join(
+          " ",
+        );
+      }),
+    );
+  await seek(page, { ms: 0 });
+  const atRest = await still();
+  for (const ms of [0, 400, 2500, 5000, 13950]) {
     await seek(page, { ms });
     const ink = await role(page, "currentColor");
     expect(await painted(page), `default logo at ${ms}ms`).toEqual(
@@ -198,11 +211,20 @@ test("on the landing page the mark rests as the default logo, then the dot visit
         i === 3 ? { dot: true, square: false, fill: ink, stroke: ink } : { dot: false, square: true, fill: ink, stroke: ink },
       ),
     );
+    // Still: nothing has moved or is redrawing, from the first frame to the last before the hop.
+    expect(await still(), `still at ${ms}ms`).toEqual(atRest);
   }
+  // On every later pass the rest is the same five seconds: from the turn to the ink (320ms into
+  // the rest, 13920ms on the first pass) to the hop out (5.44s into it).
+  for (const ms of [13920, 13600 + 5440 - 10]) {
+    await seek(page, { ms });
+    expect(await still(), `still at ${ms}ms`).toEqual(atRest);
+  }
+  expect(13600 + 5440 - 13920).toBeGreaterThanOrEqual(5000);
   const hues = ["start", "rules", "build", "check"];
   for (const [turn, hue] of hues.entries()) {
-    // The middle of each state's two seconds, after the rest (4.6s on the first pass).
-    await seek(page, { ms: 4600 + turn * 2000 + 1000 });
+    // The middle of each state's two seconds, after the rest (5.6s on the first pass).
+    await seek(page, { ms: 5600 + turn * 2000 + 1000 });
     const colour = await role(page, `var(--site-hue-${hue})`);
     const ink = await role(page, "currentColor");
     expect(await painted(page), `state ${hue}`).toEqual(
@@ -216,10 +238,10 @@ test("on the landing page the mark rests as the default logo, then the dot visit
   }
   // Between states it hops (the last 560ms of a state's 2s): leaving Start for Rules, the dot is
   // between the two cells and above them, and the header has not moved.
-  await seek(page, { ms: 5600 });
+  await seek(page, { ms: 6600 });
   const from = await centre(page, 0);
   const to = await centre(page, 1);
-  await seek(page, { ms: 6040 + 560 * 0.39 });
+  await seek(page, { ms: 7040 + 560 * 0.39 });
   const mid = await centre(page, 0);
   expect(mid.x).toBeGreaterThan(from.x + 1);
   expect(mid.x).toBeLessThan(to.x - 1);

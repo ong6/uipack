@@ -44,6 +44,36 @@ release is cut and how a site moves to it.
   however far the sidebar's marker has to travel (it waited up to 1.2s for a long trip); it still
   changes with the sidebar's marker when that reaches its portal sooner.
 
+- **`DocsLayout` "On this page" and Back:** a heading picked there is one history entry
+  (`history.pushState`; it replaced the current one), so Back returns the reader to where they were
+  on the page and Forward to the heading, instead of leaving the page. Picking the heading the
+  address already names adds none, and headings passed while scrolling never do.
+- **`DocsLayout` "On this page" marker:** its arcs are the sidebar's: never further from the path
+  than 7px to the right or 4.2px to the left, an interrupted hop's carried lift included, and where
+  the path has stepped right for an h3 an arc leans back toward the h2 column, so a step and an arc
+  no longer add up (the mark swung up to 20px from the h2 column).
+
+### Changed
+
+- **`DocsLayout` marker timing:** a trip takes 300ms plus 2ms a pixel, 900ms at most (it was 3ms a
+  pixel and 1400ms; 700ms at most in "On this page", from 1100ms), with no hop shorter than 100ms
+  (150ms), still one hop for each 36px and nine at most. A hop's arc is 7px at most to the right
+  and 4.2px to the left on every hop (`HOP_LIFT`, `HOP_LIFT_LEFT`; a high hop reached 8.75px).
+- **`DocsLayout` collapsible sidebar:** the current page's section is open from the first render;
+  with `markerMemory` it used to open as the travelling marker arrived, up to 1.4s into the page.
+- **`DocsLayout` and prerendering:** on a page the browser prerenders (the Speculation Rules API)
+  the sidebar docks in place, then mounts again when the page is shown, so the marker's trip and
+  `markerMemory` are read on the first frame the reader sees.
+- **The docs site, page changes:** a link to another page is prerendered when hovered or pressed
+  (speculation rules in `playground/index.html`, allowed by hash in `vercel.json`'s
+  Content-Security-Policy), and shown at once when followed; browsers without the API preload the
+  page's files instead (`playground/link-preload.ts`). Every load preloads the page's Markdown
+  chunk beside its module. The page's entrance is a fade and a 4px rise over 160ms (it was 8px over
+  320ms), and the header mark's portal opens 160ms after the page (`--site-mark-wait`, it was
+  400ms).
+- **The docs site's landing loop:** the default logo is still, in the ink, for a full 5s (5.12s;
+  it was about 4.1s of a 5s slot), in a 14s loop (13s). Each section state is 2s, as before.
+
 ### Added
 
 - **Figure controls:** `.uipack__ctl` (Open canvas, Pause, Replay) reads `--uipack-ctl-radius`, 6px

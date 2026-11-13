@@ -225,6 +225,147 @@ test.describe("On this page", () => {
     expect(markerX - topX).toBeGreaterThan(8);
     expect(await page.locator(".uipack-docs__rail-done").getAttribute("d")).toMatch(/^M/);
   });
+
+  test("on a long jump the mark stays by its path, steps included: 7px to its right at most, less to its left", async ({
+    page,
+  }) => {
+    // Every pose the rail's mark is drawn in, against the dotted path as it is laid out at that
+    // moment (the rail re-lays out when the current link turns bold): how far the mark is from the
+    // path at its own height, to the right (+) or the left (-).
+    await page.addInitScript(() => {
+      const w = window as { __off?: number[]; __markX?: number[]; __columns?: number[] };
+      w.__off = [];
+      w.__markX = [];
+      w.__columns = [];
+      new MutationObserver((records) => {
+        for (const r of records) {
+          const el = r.target as Element;
+          if (!el.matches(".uipack-docs__toc .uipack-docs__marker")) continue;
+          const at = el.getAttribute("transform")?.match(/translate\(([-\d.]+) ([-\d.]+)\)/);
+          const d = el.parentElement?.querySelector(".uipack-docs__rail-base")?.getAttribute("d");
+          if (!at || !d) continue;
+          const pts = [...d.matchAll(/[ML]([-\d.]+) ([-\d.]+)/g)].map((m) => [Number(m[1]), Number(m[2])]);
+          // Where it stands on the path: a stretched or squashed mark is drawn from its foot
+          // (markerTransform: 6.8px below its centre), which moves its centre a little.
+          const sy = Number(el.getAttribute("transform")?.match(/scale\([-\d.]+ ([-\d.]+)\)/)?.[1] ?? 1);
+          const y = Number(at[2]) - (1 - sy) * 6.8;
+          let x = pts[0][0];
+          for (let i = 1; i < pts.length; i++) {
+            const [ax, ay] = pts[i - 1];
+            const [bx, by] = pts[i];
+            if (y > by && i < pts.length - 1) continue;
+            x = by === ay ? bx : ax + (bx - ax) * Math.max(0, Math.min(1, (y - ay) / (by - ay)));
+            break;
+          }
+          w.__off!.push(Number(at[1]) - x);
+          w.__markX!.push(Number(at[1]));
+          for (const [px] of pts) if (!w.__columns!.includes(px)) w.__columns!.push(px);
+        }
+      }).observe(document, { subtree: true, attributes: true, attributeFilter: ["transform"] });
+    });
+    // A page whose rail steps right for sub-headings, several times.
+    await page.goto("/specs/docs-site?theme=light");
+    const links = page.getByRole("complementary", { name: "On this page" }).getByRole("link");
+    await expect(links.first()).toBeVisible();
+    expect(await page.locator('.uipack-docs__toc-list li[data-level="3"]').count()).toBeGreaterThan(1);
+    await settled(page, railMarker);
+    const count = await links.count();
+    await page.evaluate(() => {
+      const w = window as { __off?: number[]; __markX?: number[] };
+      w.__off = [];
+      w.__markX = [];
+    });
+    // The whole rail down, back up, and a jump cut short by another (its lift is carried into the next).
+    for (const pick of [count - 1, 0, count - 2]) {
+      await links.nth(pick).click();
+      await expect(links.nth(pick)).toHaveAttribute("aria-current", "location");
+      await settled(page, railMarker);
+    }
+    await links.nth(1).click();
+    await page.waitForTimeout(140);
+    await links.nth(count - 1).click();
+    await settled(page, railMarker);
+    const off = await page.evaluate(() => (window as { __off?: number[] }).__off!);
+    expect(off.length).toBeGreaterThan(60);
+    // It does leave the path (hops), a little: the sidebar's arcs, 7px to the right and 4.2px to the left.
+    expect(Math.max(...off)).toBeGreaterThan(2);
+    expect(Math.max(...off)).toBeLessThanOrEqual(7.05);
+    expect(Math.min(...off)).toBeGreaterThanOrEqual(-4.25);
+    // Across the steps it leans to the inside: never right of the sub-headings' column, so a
+    // step and an arc never add up.
+    const { markX, columns } = await page.evaluate(() => {
+      const w = window as { __markX?: number[]; __columns?: number[] };
+      return { markX: w.__markX!, columns: w.__columns! };
+    });
+    expect(columns.length).toBe(2);
+    expect(Math.max(...markX)).toBeLessThanOrEqual(Math.max(...columns) + 0.05);
+  });
+
+  test("a picked heading is one history entry: Back returns the reader to where they were on the page, Forward to the heading", async ({
+    page,
+  }) => {
+    const pageY = () => page.evaluate(() => Math.round(scrollY));
+    const entries = () => page.evaluate(() => history.length);
+    await page.goto("/foundations?theme=light");
+    await expect(page.locator("main h1")).toBeVisible();
+    await page.goto("/looks/diagrams?theme=light");
+    const rail = page.getByRole("complementary", { name: "On this page" });
+    const links = rail.getByRole("link");
+    await expect(links.first()).toBeVisible();
+    // The reader is a little way down the page, then picks the last heading: thousands of pixels on.
+    await page.mouse.wheel(0, 300);
+    await waitForStable(pageY);
+    const from = await pageY();
+    expect(from).toBeGreaterThan(100);
+    const before = await entries();
+    const pick = links.last();
+    const id = (await pick.getAttribute("href"))!.slice(1);
+    await pick.click();
+    await expect(page).toHaveURL(new RegExp(`/looks/diagrams\\?theme=light#${id}$`));
+    await expect(pick).toHaveAttribute("aria-current", "location");
+    await waitForStable(pageY, { every: 200 });
+    const landed = await pageY();
+    expect(landed - from).toBeGreaterThan(2000);
+    expect(await entries()).toBe(before + 1);
+
+    // Back stays on the page: where the reader was, the address without the fragment, the pick let go.
+    await page.goBack();
+    await expect(page).toHaveURL(/\/looks\/diagrams\?theme=light$/);
+    await expect.poll(pageY).toBeLessThan(from + 9);
+    await waitForStable(pageY);
+    expect(Math.abs((await pageY()) - from)).toBeLessThanOrEqual(8);
+    await expect(pick).not.toHaveAttribute("aria-current", "location");
+    // Forward goes to the heading again.
+    await page.goForward();
+    await expect(page).toHaveURL(new RegExp(`#${id}$`));
+    await expect.poll(pageY).toBeGreaterThan(landed - 9);
+    await waitForStable(pageY);
+    expect(Math.abs((await pageY()) - landed)).toBeLessThanOrEqual(8);
+
+    // Headings passed while scrolling add nothing, nor does picking the heading the address already names.
+    await page.mouse.wheel(0, -1500);
+    await waitForStable(pageY);
+    await expect(pick).not.toHaveAttribute("aria-current", "location");
+    expect(await entries()).toBe(before + 1);
+    await expect(page).toHaveURL(new RegExp(`#${id}$`));
+    await pick.click();
+    await waitForStable(pageY, { every: 200 });
+    expect(await entries()).toBe(before + 1);
+    // Another heading is one more entry; two Backs and the reader is where they started, a third leaves the page.
+    const other = links.nth(1);
+    await other.click();
+    await expect(page).toHaveURL(new RegExp(`#${(await other.getAttribute("href"))!.slice(1)}$`));
+    await waitForStable(pageY, { every: 200 });
+    expect(await entries()).toBe(before + 2);
+    await page.goBack();
+    await expect(page).toHaveURL(new RegExp(`#${id}$`));
+    await page.goBack();
+    await expect(page).toHaveURL(/\/looks\/diagrams\?theme=light$/);
+    await waitForStable(pageY);
+    expect(Math.abs((await pageY()) - from)).toBeLessThanOrEqual(8);
+    await page.goBack();
+    await expect(page).toHaveURL(/\/foundations\?theme=light$/);
+  });
 });
 
 test.describe("the sidebar's marker", () => {
@@ -290,7 +431,7 @@ test.describe("the sidebar's marker", () => {
     await expect.poll(() => dotOf(page, navMarker)).toEqual({ cell: "1", fill: colours[1] });
 
     // Crossing into a shut section (the pager's next page is still in Rules; search jumps to Check):
-    // the section opens as the marker arrives.
+    // the section is open from the page's first frame, whatever the marker is doing.
     await page.keyboard.press("ControlOrMeta+k");
     await page.getByRole("combobox", { name: "Search the docs" }).fill("calibration anchors");
     await expect(page.getByRole("option").first()).toContainText("Calibration anchors");
@@ -298,14 +439,19 @@ test.describe("the sidebar's marker", () => {
     await expect(page).toHaveURL(/\/grading\/calibration\?theme=light/);
     const check = sidebar(page).getByRole("button", { name: "Check", exact: true });
     await expect(check).toHaveAttribute("aria-expanded", "true");
+    // On where it is again, not on its being still: this trip stops in its portal too.
+    const targetOf = () =>
+      sidebar(page)
+        .locator('[aria-current="page"]')
+        .evaluate((a) => {
+          const r = a.getBoundingClientRect();
+          return r.top + r.height / 2;
+        });
+    await expect
+      .poll(async () => Math.abs((await midY(page, navMarker)) - (await targetOf())), { timeout: 8000 })
+      .toBeLessThan(3);
     const landed = await settled(page, navMarker);
-    const target = await sidebar(page)
-      .locator('[aria-current="page"]')
-      .evaluate((a) => {
-        const r = a.getBoundingClientRect();
-        return r.top + r.height / 2;
-      });
-    expect(Math.abs(landed - target)).toBeLessThan(3);
+    expect(Math.abs(landed - (await targetOf()))).toBeLessThan(3);
   });
 
   test("a long trip starts at the edge of the sidebar's visible part, and the header's mark changes on its own clock", async ({
@@ -412,12 +558,13 @@ test.describe("the sidebar's marker", () => {
     const travelled = trip.frames.at(-1)!.y - first.y;
     expect(travelled).toBeGreaterThan(36);
     expect(travelled).toBeLessThan(first.boxBottom - first.boxTop);
-    // The header's portal waits no longer than the settle (--site-mark-wait), though the sidebar's
-    // marker reaches its own portal later than that on a trip this long: the header changes first.
+    // The header's portal waits no longer than the first paint and the entrance (--site-mark-wait),
+    // though the sidebar's marker reaches its own portal later than that on a trip this long: the
+    // header changes first.
     const settle = await page
       .locator(".showcase-brand")
       .evaluate((el) => parseFloat(getComputedStyle(el).getPropertyValue("--site-mark-wait")));
-    expect(settle).toBe(400);
+    expect(settle).toBe(160);
     expect(trip.brandWait).toBe(settle);
     expect(trip.brandChanged).toBeLessThan(trip.navChanged!);
     await expect.poll(() => dotOf(page, navMarker)).toMatchObject({ cell: "3" });
