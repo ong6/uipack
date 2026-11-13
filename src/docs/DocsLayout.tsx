@@ -2,6 +2,7 @@ import { useCallback, useEffect, useId, useRef, useState, type CSSProperties, ty
 import {
   ContentsRail,
   prefersReducedMotion,
+  useActivated,
   type DocsMarkerCell,
   type DocsMarkerMorph,
   type DocsMarkerShape,
@@ -187,7 +188,10 @@ function useCurrentSection(ids: string[]) {
 
 /**
  * A heading picked in "On this page" stays current while the page scrolls to it and after, until
- * the reader scrolls on (the last headings can never reach the reading line).
+ * the reader scrolls on (the last headings can never reach the reading line). Each pick is one
+ * history entry, as a plain `#fragment` link's is: Back returns the reader to where they were on
+ * the page (the browser keeps each entry's scroll position) and Forward to the heading. Picking the
+ * heading the address already names adds none, and headings passed while scrolling never do.
  */
 function usePickedHeading() {
   const [picked, setPicked] = useState<string | null>(null);
@@ -217,11 +221,21 @@ function usePickedHeading() {
       if (s.scrolling || s.at === null) return;
       if (Math.abs(window.scrollY - s.at) >= 6) setPicked(null);
     };
+    // Back or Forward: the browser puts the reader where they were in that entry. The pick lets go
+    // at once, and a scroll still on its way to the heading is not landed on it afterwards.
+    const onTraverse = () => {
+      clearTimeout(s.timer);
+      s.scrolling = false;
+      s.at = null;
+      setPicked(null);
+    };
     addEventListener("scrollend", done);
     addEventListener("scroll", onScroll, { passive: true });
+    addEventListener("popstate", onTraverse);
     return () => {
       removeEventListener("scrollend", done);
       removeEventListener("scroll", onScroll);
+      removeEventListener("popstate", onTraverse);
     };
   }, [picked, land]);
   const pick = useCallback(
@@ -237,8 +251,17 @@ function usePickedHeading() {
       // No scrollend (Safari before 26, or no scroll at all): land after the longest smooth scroll.
       s.timer = window.setTimeout(land, 1400);
       setPicked(id);
+      // The entry first, while the page is still where the reader was: that is the position the
+      // browser keeps for the entry being left.
+      let named = location.hash.slice(1);
+      try {
+        named = decodeURIComponent(named);
+      } catch {
+        /* keep the raw fragment */
+      }
+      if (named === id) history.replaceState(history.state, "", `#${id}`);
+      else history.pushState(history.state, "", `#${id}`);
       heading.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", block: "start" });
-      history.replaceState(history.state, "", `#${id}`);
     },
     [land],
   );
@@ -286,6 +309,9 @@ export function DocsLayout({
   const spied = useCurrentSection(onThisPage.map((item) => item.id));
   const [picked, pick] = usePickedHeading();
   const travelling = marker !== "bar";
+  // A prerendered page shows its sidebar docked in place; once the reader sees it, the sidebar
+  // mounts again with what the page they left remembered, and the marker travels from there.
+  const activated = useActivated();
   // A travelling marker always rests somewhere: on the first heading until the reader passes one.
   const currentSection = picked ?? spied ?? (travelling ? (onThisPage[0]?.id ?? null) : null);
   const current = flatItems(sections.flatMap((section) => section.items)).find((item) => item.href === activeHref);
@@ -425,7 +451,13 @@ export function DocsLayout({
       <div className="uipack-docs__grid" data-toc={onThisPage.length > 0 ? undefined : "none"}>
         <aside className="uipack-docs__sidebar">
           {searchButton}
-          <SectionNavigation {...navProps} onTrip={onMarkerTrip} travels />
+          <SectionNavigation
+            key={activated ? "shown" : "prerendered"}
+            {...navProps}
+            memoryKey={activated ? markerMemory : undefined}
+            onTrip={onMarkerTrip}
+            travels
+          />
         </aside>
 
         <Article

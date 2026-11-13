@@ -83,6 +83,8 @@ const AREAS = [
   [/^src\/objects\//, ["objects", "art-directions", "contact-directions"]],
   [/^src\/slides\//, ["slides"]],
   [/^src\/browser\/|^assets\//, ["assets"]],
+  // The generator of the header mark's landing loop (its keyframes are in playground/showcase.css).
+  [/^scripts\/brand-loop/, ["brand-mark"]],
   // The marks: the docs site's header draws the wordmark, its dot on the page's section.
   [/^src\/marks\//, ["brand-mark", "assets"]],
   [/^src\/drill\//, ["drill", "geometry"]],
@@ -119,7 +121,7 @@ const AREAS = [
   // The live-preview stage the landing page and the Assets tab share.
   [/^playground\/preview-stage/, ["landing", "assets-gallery"]],
   [
-    /^playground\/(ShowcaseShell|showcase\.css|catalog|figure-rows|routes|nav|main|scroll-memory|index\.html|site-palette|site-settings|search-index)/,
+    /^playground\/(ShowcaseShell|showcase\.css|catalog|figure-rows|routes|nav|main|scroll-memory|link-preload|index\.html|site-palette|site-settings|search-index)/,
     [...SHELL, "landing"],
   ],
   // The Assets tab: its page, its data and the registries it draws from.

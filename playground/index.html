@@ -36,6 +36,34 @@
         d.setAttribute("data-ui-theme", t);
       })();
     </script>
+    <!-- Every page is a full load, so the page a reader is about to open is loaded ahead of the
+         click. Where the browser has the Speculation Rules API (Chromium), a link to another page
+         of the site is prerendered when the reader hovers it for 200ms or presses it ("moderate"),
+         and shown at once when they follow it; elsewhere playground/link-preload.ts preloads its
+         files. Not prerendered: a file (a page's Markdown, an image, llms.txt), the deck's print
+         and speaker windows, a link into this page, and a link that opens elsewhere. A prerendered
+         page starts what the reader should see from its start (the sidebar marker's trip, the
+         header mark's portal, the entrance) when it is activated, and reads the visit's
+         sessionStorage then. It is an inline script to the Content-Security-Policy: vercel.json
+         names it by its hash, as it does the theme script. -->
+    <script type="speculationrules">
+      {
+        "prerender": [
+          {
+            "where": {
+              "and": [
+                { "href_matches": "/*" },
+                { "not": { "href_matches": "/*.*" } },
+                { "not": { "href_matches": "/*\\?*view=print*" } },
+                { "not": { "href_matches": "/*\\?*presenter=1*" } },
+                { "not": { "selector_matches": "[href^='#'], [aria-current='page'], [target='_blank'], [download]" } }
+              ]
+            },
+            "eagerness": "moderate"
+          }
+        ]
+      }
+    </script>
     <!-- /web: preload Technical's display face (uipack/web fontPreloads; uiStyles[].preload), IBM
          Plex Sans 600, the hero headline; text and labels swap in place over metric-matched
          fallbacks. Vite rewrites the href to the built file the CSS uses; media="not all" keeps it

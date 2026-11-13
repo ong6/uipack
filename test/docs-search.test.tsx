@@ -9,6 +9,8 @@ import {
   type DocsSection,
 } from "../src/docs";
 import {
+  HOP_LIFT,
+  HOP_LIFT_LEFT,
   hopCount,
   hopDuration,
   hopPlan,
@@ -190,15 +192,16 @@ describe("DocsLayout sections, markers, drawer and search", () => {
   });
 
   it("hops by distance: small hops close to the trail, one for a neighbouring link, nine at most, each landing with a squash", () => {
-    // A neighbouring link (one 34px row) is one hop; the mark takes its own, slower time, so a
-    // longer trip is more small hops rather than a few long ones.
+    // A neighbouring link (one 34px row) is one hop; a longer trip is more small hops rather than a
+    // few long ones, and over within 900ms: it is decoration on a page that is already there.
     expect(hopCount(34, hopDuration(34))).toBe(1);
     expect(hopCount(68, hopDuration(68))).toBe(2);
     expect(hopCount(226, hopDuration(226))).toBe(6);
     expect(hopCount(2000, hopDuration(2000))).toBe(9);
-    expect(hopDuration(2000)).toBe(1400);
-    // Never a hop shorter than 150ms, whatever the distance.
-    expect(hopCount(400, 500)).toBe(3);
+    expect(hopDuration(34)).toBe(368);
+    expect(hopDuration(2000)).toBe(900);
+    // Never a hop shorter than 100ms, whatever the distance.
+    expect(hopCount(400, 500)).toBe(5);
     // One plain hop of three over 240px: on the ground at each end, highest half-way through its
     // flight (4 to 7px off the line), then squashed (wider, shorter) before it rests at its own size.
     expect(hopPose(0, 3, 240)).toMatchObject({ hop: 0, along: 0, lift: 0, sx: 1, sy: 1 });
@@ -232,9 +235,9 @@ describe("DocsLayout sections, markers, drawer and search", () => {
       expect(step.height).toBeLessThanOrEqual(1.25);
       // Whatever the kind, the hop starts and ends on the line, upright.
       expect(hopPose((i + 0.9) / 9, 9, 324, plan)).toMatchObject({ lift: 0, deg: 0 });
-      // An arc to the left is lower: there is less room there.
+      // Never further off the line than 7px, and an arc to the left is lower: there is less room there.
       const peak = Math.max(...[0.2, 0.3, 0.4, 0.5, 0.6].map((f) => Math.abs(hopPose((i + f) / 9, 9, 324, plan).lift)));
-      expect(peak).toBeLessThanOrEqual(step.side < 0 ? 5.3 : 8.8);
+      expect(peak).toBeLessThanOrEqual(step.side < 0 ? HOP_LIFT_LEFT : HOP_LIFT);
       // Every hop leaves the line.
       expect(peak).toBeGreaterThan(1.4);
     }
@@ -290,8 +293,8 @@ describe("DocsLayout sections, markers, drawer and search", () => {
     // So the trip takes the time of the distance seen, and the mark changes sooner in it.
     const whole = navRoute({ x: 16, y: 100 }, { x: 16, y: 708 });
     const seen = visibleRoute(whole, 600, 1400);
-    expect(navTripDuration(whole, "mark")).toBe(1400);
-    expect(navTripDuration(seen, "mark")).toBe(300 + 108 * 3);
+    expect(navTripDuration(whole, "mark")).toBe(900);
+    expect(navTripDuration(seen, "mark")).toBe(300 + 108 * 2);
     expect(navTripChange(seen)).toBeLessThan(navTripChange(whole));
     // A trip that starts in view, or never comes into view, is left alone.
     const inView = navRoute({ x: 16, y: 700 }, { x: 46, y: 900 });

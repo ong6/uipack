@@ -10,7 +10,7 @@ import {
   type RefObject,
 } from "react";
 import type { MarkCell } from "../src";
-import { isMarkerShape, type DocsMarkerMorph, type DocsMarkerShape } from "../src/docs/DocsMarkers";
+import { isMarkerShape, useActivated, type DocsMarkerMorph, type DocsMarkerShape } from "../src/docs/DocsMarkers";
 import type { DocsSectionId } from "./docs-manifest";
 
 /**
@@ -81,12 +81,13 @@ const PORTAL_HALF = 320;
  * the state the reader left is kept for the visit (sessionStorage): the mark is first drawn there,
  * then changes to this page's in a portal (showcase.css plays it on the anchor `props` go on: the
  * mark turns into a ring, the state changes while it is out of sight, and it comes back out). The
- * portal waits for the page to settle (`--site-mark-wait`, showcase.css), or, when the sidebar
- * marker reaches its own portal sooner (`onMarkerTrip`, the docs layout's prop), for that, so the
- * two change together; it never waits longer than the settle, however far the sidebar's marker has
- * to travel. With reduced
- * motion, with nothing remembered, or with `hop` off (the landing page, whose mark loops), it is
- * drawn in place.
+ * portal opens once the page's first paint is in (`--site-mark-wait`, showcase.css), or, when the
+ * sidebar marker reaches its own portal sooner (`onMarkerTrip`, the docs layout's prop), with that,
+ * so the two change together; it never waits longer than that, however far the sidebar's marker has
+ * to travel. A prerendered page (index.html's speculation rules) starts it when the reader sees the
+ * page, and keeps its state for the visit then: what it writes before that is thrown away. With
+ * reduced motion, with nothing remembered, or with `hop` off (the landing page, whose mark loops),
+ * it is drawn in place.
  */
 export function useBrandMark(
   section: DocsSectionId | undefined,
@@ -116,7 +117,9 @@ export function useBrandMark(
     changeAt.current = at;
   }, []);
   const [portal, setPortal] = useState<{ half: "in" | "out"; wait?: number } | null>(null);
+  const activated = useActivated();
   useEffect(() => {
+    if (!activated) return;
     try {
       sessionStorage.setItem(BRAND_KEY, now);
     } catch {
@@ -124,9 +127,9 @@ export function useBrandMark(
     }
     if (state !== now)
       setPortal({ half: "in", wait: changeAt.current === undefined ? undefined : Math.max(0, changeAt.current - PORTAL_HALF) });
-    // Once per page: the change is fixed by the remembered state and this page's.
+    // Once per page, when the reader sees it: the change is fixed by the remembered state and this page's.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [now]);
+  }, [now, activated]);
   // Each half's end moves it on (`onAnimationEnd`); with nothing to play (no stylesheet, no CSS
   // animations) it changes at once.
   const anchor = useRef<HTMLAnchorElement>(null);

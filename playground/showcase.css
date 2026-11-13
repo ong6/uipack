@@ -394,17 +394,18 @@ html:has(.showcase-frame:not([data-banner="static"])) {
 }
 /* The mark's dot (the spec's "The mark"): the Wordmark draws it on the section's cell in the
    section's hue; these rules only animate it. Between pages the mark changes in a portal (below).
-   On the landing page it rests as the default logo, then visits Start,
-   Rules, Build and Check in turn, 2s each, in one 13s loop, hopping the same way. Reduced motion
+   On the landing page it rests as the default logo, still for 5s, then visits Start,
+   Rules, Build and Check in turn, 2s each, in one 14s loop, hopping the same way. Reduced motion
    gets neither: the dot is drawn in place, and the landing page keeps the neutral mark.
    The squares and the name are the ink on every page: inside the docs layout its link colour (the
    accent) would otherwise reach the brand, and the Rules dot would be lost in an accent mark. */
 .showcase-header .showcase-brand {
   color: inherit;
-  /* How long a page settles before the mark's portal opens: the first paint, the fonts and the
-     sidebar are in. It is also the longest the header waits for a travelling sidebar marker's own
-     portal (site-settings.tsx): the header keeps this one clock. */
-  --site-mark-wait: 400ms;
+  /* How long the mark waits before its portal opens: the page's first paint and its entrance (the
+     quick duration role) are in, so the logo changes on a page that is already there, and is done
+     within a second of it. It is also the longest the header waits for a travelling sidebar
+     marker's own portal (site-settings.tsx): the header keeps this one clock. */
+  --site-mark-wait: 160ms;
 }
 /* The hop rises above the mark's box by a few units; it is paint only (no layout, and the brand's
    own clip on the narrowest phones still holds). */
@@ -486,15 +487,20 @@ html:has(.showcase-frame:not([data-banner="static"])) {
   }
   .showcase-frame[data-mode="landing"] .showcase-brand rect[data-cell] {
     /* When the dot reaches this cell: after the rest, 2s a state. The loop is entered 0.4s into its
-       5s rest, past the 320ms in which the bottom right cell turns from Check's hue back to the ink,
-       so the first paint is the default logo, already in the ink (the first rest is 4.6s). */
-    --brand-start: calc(4.6s + var(--brand-turn) * 2s);
+       6s rest, past the 320ms in which the bottom right cell turns from Check's hue back to the ink,
+       so the first paint is the default logo, already in the ink, and it is still for 5.04s before
+       its first hop (5.12s on every later pass). */
+    --brand-start: calc(5.6s + var(--brand-turn) * 2s);
     animation:
-      showcase-brand-turn 13s linear calc(var(--brand-start) - 13s) infinite,
-      showcase-brand-turn-lift 13s linear calc(var(--brand-start) - 13s) infinite;
+      showcase-brand-turn 14s linear calc(var(--brand-start) - 14s) infinite,
+      showcase-brand-turn-lift 14s linear calc(var(--brand-start) - 14s) infinite;
   }
   .showcase-frame[data-mode="landing"] .showcase-brand rect[data-cell="3"] {
     animation-name: showcase-brand-turn-home, showcase-brand-turn-home-lift;
+  }
+  /* A prerendered landing page (main.tsx) holds the loop where a load enters it, until it is shown. */
+  html[data-prerendering] .showcase-frame[data-mode="landing"] .showcase-brand rect[data-cell] {
+    animation-play-state: paused;
   }
 }
 @keyframes showcase-brand-ring-open {
@@ -535,13 +541,17 @@ html:has(.showcase-frame:not([data-banner="static"])) {
     scale: 0;
   }
 }
-/* The landing loop, 13s: the mark rests as the default logo (the dot bottom right, in the ink) for
-   5s, then the dot visits Start, Rules, Build and Check for 2s each, hopping between them over the
-   last 560ms of each state (the slow duration role); a cell the dot has left redraws as a square
-   over 320ms (the base duration role) and makes way as the dot comes round. Each cell's loop starts
-   when the dot reaches it (--brand-start). The bottom right cell is Check's and the default's: its
-   dot turns from Check's hue to the ink and waits out the rest (showcase-brand-turn-home). A page
-   load enters the loop 0.4s into the rest, after that turn, so it opens on the logo in the ink. */
+/* The landing loop, 14s. The default logo (the dot bottom right, in the ink) has a 6s rest: the
+   bottom right cell turns from Check's hue to the ink over 320ms, the logo is then still for 5.12s,
+   and the dot hops out over the last 560ms. Then the dot visits Start, Rules, Build and Check for 2s
+   each, hopping between them over the last 560ms of each state (the slow duration role); a cell the
+   dot has left redraws as a square over 320ms (the base duration role) and makes way as the dot
+   comes round. Each cell's loop starts when the dot reaches it (--brand-start), so in a cell's own
+   time: 0s the dot arrives, 1.44s it hops out, 2s the cell is a square; the bottom right cell
+   (showcase-brand-turn-home) is Check's dot to 2s, the ink by 2.32s, still to 7.44s, and a square
+   from 8s. A page load enters the loop 0.4s into the rest, after that turn, so it opens on the logo
+   in the ink. The percentages are those times over the 14s period, generated together by
+   scripts/brand-loop.mjs: change a time there, never a percentage here. */
 @keyframes showcase-brand-turn {
   0% {
     fill: var(--brand-hue);
@@ -553,7 +563,7 @@ html:has(.showcase-frame:not([data-banner="static"])) {
     stroke-opacity: 1;
     translate: 0 0;
   }
-  11.077% {
+  10.286% {
     animation-timing-function: var(--ui-ease-travel, ease-in-out);
     fill: var(--brand-hue);
     fill-opacity: 1;
@@ -564,8 +574,8 @@ html:has(.showcase-frame:not([data-banner="static"])) {
     stroke-opacity: 1;
     translate: 0 0;
   }
-  14.437%,
-  15.385% {
+  13.406%,
+  14.286% {
     fill: var(--brand-next-hue);
     fill-opacity: 1;
     rx: 5px;
@@ -575,7 +585,7 @@ html:has(.showcase-frame:not([data-banner="static"])) {
     stroke-opacity: 1;
     translate: calc(var(--brand-next-x) * var(--brand-pitch)) calc(var(--brand-next-y) * var(--brand-pitch));
   }
-  15.392% {
+  14.293% {
     animation-timing-function: var(--ui-ease-settle, ease-out);
     fill: currentColor;
     fill-opacity: 0;
@@ -586,8 +596,8 @@ html:has(.showcase-frame:not([data-banner="static"])) {
     stroke-opacity: 1;
     translate: 0 0;
   }
-  17.846%,
-  97.354% {
+  16.571%,
+  97.543% {
     fill: currentColor;
     fill-opacity: 0;
     rx: 2px;
@@ -598,7 +608,7 @@ html:has(.showcase-frame:not([data-banner="static"])) {
     translate: 0 0;
   }
   /* It makes way for the dot coming round, which lands 123ms before the loop's end. */
-  98.708%,
+  98.8%,
   99.99% {
     fill: currentColor;
     fill-opacity: 0;
@@ -622,7 +632,7 @@ html:has(.showcase-frame:not([data-banner="static"])) {
 }
 @keyframes showcase-brand-turn-home {
   0%,
-  15.385% {
+  14.286% {
     fill: var(--brand-hue);
     fill-opacity: 1;
     rx: 5px;
@@ -632,7 +642,7 @@ html:has(.showcase-frame:not([data-banner="static"])) {
     stroke-opacity: 1;
     translate: 0 0;
   }
-  17.846% {
+  16.571% {
     fill: currentColor;
     fill-opacity: 1;
     rx: 5px;
@@ -642,7 +652,7 @@ html:has(.showcase-frame:not([data-banner="static"])) {
     stroke-opacity: 1;
     translate: 0 0;
   }
-  49.538% {
+  53.143% {
     animation-timing-function: var(--ui-ease-travel, ease-in-out);
     fill: currentColor;
     fill-opacity: 1;
@@ -653,8 +663,8 @@ html:has(.showcase-frame:not([data-banner="static"])) {
     stroke-opacity: 1;
     translate: 0 0;
   }
-  52.898%,
-  53.846% {
+  56.263%,
+  57.143% {
     fill: var(--brand-next-hue);
     fill-opacity: 1;
     rx: 5px;
@@ -664,7 +674,7 @@ html:has(.showcase-frame:not([data-banner="static"])) {
     stroke-opacity: 1;
     translate: calc(var(--brand-next-x) * var(--brand-pitch)) calc(var(--brand-next-y) * var(--brand-pitch));
   }
-  53.854% {
+  57.15% {
     animation-timing-function: var(--ui-ease-settle, ease-out);
     fill: currentColor;
     fill-opacity: 0;
@@ -675,8 +685,8 @@ html:has(.showcase-frame:not([data-banner="static"])) {
     stroke-opacity: 1;
     translate: 0 0;
   }
-  56.308%,
-  97.354% {
+  59.429%,
+  97.543% {
     fill: currentColor;
     fill-opacity: 0;
     rx: 2px;
@@ -687,7 +697,7 @@ html:has(.showcase-frame:not([data-banner="static"])) {
     translate: 0 0;
   }
   /* It makes way for the dot coming round, which lands 123ms before the loop's end. */
-  98.708%,
+  98.8%,
   99.99% {
     fill: currentColor;
     fill-opacity: 0;
@@ -711,46 +721,46 @@ html:has(.showcase-frame:not([data-banner="static"])) {
 }
 @keyframes showcase-brand-turn-lift {
   0%,
-  11.077% {
+  10.286% {
     animation-timing-function: var(--ui-ease-settle, ease-out);
     transform: none;
   }
-  12.757% {
+  11.846% {
     animation-timing-function: ease-in;
     transform: translateY(-5px) scale(0.97, 1.04);
   }
-  14.437% {
+  13.406% {
     animation-timing-function: var(--ui-ease-settle, ease-out);
     transform: none;
   }
-  14.825% {
+  13.766% {
     animation-timing-function: var(--ui-ease-settle, ease-out);
     transform: scale(1.08, 0.9);
   }
-  15.385%,
+  14.286%,
   100% {
     transform: none;
   }
 }
 @keyframes showcase-brand-turn-home-lift {
   0%,
-  49.538% {
+  53.143% {
     animation-timing-function: var(--ui-ease-settle, ease-out);
     transform: none;
   }
-  51.218% {
+  54.703% {
     animation-timing-function: ease-in;
     transform: translateY(-5px) scale(0.97, 1.04);
   }
-  52.898% {
+  56.263% {
     animation-timing-function: var(--ui-ease-settle, ease-out);
     transform: none;
   }
-  53.286% {
+  56.624% {
     animation-timing-function: var(--ui-ease-settle, ease-out);
     transform: scale(1.08, 0.9);
   }
-  53.846%,
+  57.143%,
   100% {
     transform: none;
   }
@@ -1311,18 +1321,26 @@ html:has(.showcase-frame:not([data-banner="static"])) {
 }
 
 /* Every page is its own load, so the page eases in under the header and sidebar, which stay put:
-   a short fade and an 8px rise on the base duration, so a change of page is not a cut. Only while it
-   plays (no fill forwards: nothing is left transformed). Reduced motion: no entrance. */
+   a short fade and a 4px rise on the quick duration (160ms), so a change of page is not a cut and
+   the page is readable almost at once. It plays once, from the first frame the reader sees: a
+   prerendered page (index.html's speculation rules) is not drawn until it is activated, and its
+   entrance starts then. Only while it plays (no fill forwards: nothing is left transformed).
+   Reduced motion: no entrance. */
 @media (prefers-reduced-motion: no-preference) {
   .showcase-frame #showcase-main,
   .showcase-frame > .uipack-docs > .uipack-docs__grid > .uipack-docs__article {
-    animation: showcase-page-in var(--ui-dur-base, 320ms) var(--ui-ease-settle, ease-out) backwards;
+    animation: showcase-page-in var(--ui-dur-quick, 160ms) var(--ui-ease-settle, ease-out) backwards;
+  }
+  /* Held on its first frame while the page is prerendered (main.tsx), so it plays when the page is shown. */
+  html[data-prerendering] .showcase-frame #showcase-main,
+  html[data-prerendering] .showcase-frame > .uipack-docs > .uipack-docs__grid > .uipack-docs__article {
+    animation-play-state: paused;
   }
 }
 @keyframes showcase-page-in {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(4px);
   }
 }
 

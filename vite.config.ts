@@ -5,6 +5,7 @@ import { mkdirSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
 import { dirname, extname, join, resolve } from "node:path";
 import { defineConfig, type Plugin } from "vite";
 import type { OutputBundle, OutputChunk } from "rollup";
+import { pageDefs } from "./playground/catalog";
 import { pageModules, routes } from "./playground/routes";
 import { siteFiles } from "./playground/docs-links";
 import { routeHtml, siteCrawlFiles, siteRoutes, SITE_ORIGIN } from "./playground/site";
@@ -117,7 +118,10 @@ function searchIndex(): Plugin {
  * build this adds an inline script to index.html that, for the path being opened, adds
  * `modulepreload` links for the page's chunk and its imports and `preload` links for its CSS
  * (not stylesheets: the lazy import still applies them, after they load, so nothing shows
- * unstyled). The route table is playground/routes.ts, plus the landing page at "/".
+ * unstyled), and for a docs page's Markdown file, a chunk of its own that the page module asks for
+ * only once it has run: without the link the text waits one more round trip behind it. The route
+ * table is playground/routes.ts, plus the landing page at "/". playground/link-preload.ts reads
+ * the same table to preload the page a link points at, where the browser cannot prerender it.
  */
 function routePreloads(): Plugin {
   let base = "/";
@@ -157,12 +161,23 @@ function routePreloads(): Plugin {
           ...Object.fromEntries([...routes].map(([path, id]) => [path, pageModules[id]])),
           [LANDING_PATH]: LANDING_MODULE,
         };
+        // Each docs path's Markdown chunk (MarkdownShowcase imports the file `?raw`, lazily).
+        const docs: Record<string, number> = {};
+        for (const [path, id] of routes) {
+          const file = pageDefs.find((p) => p.id === id)?.file;
+          if (!file) continue;
+          const chunk = chunks.find(
+            (c) => c.isDynamicEntry && c.moduleIds.some((m) => m.replace(/\?.*$/, "").endsWith(`/${file}`)),
+          );
+          if (!chunk) throw new Error(`route preloads: no chunk for ${file} (${path})`);
+          docs[path] = index(chunk.fileName);
+        }
         // The data is a JSON block, not script, so the script itself never changes and the site's
         // Content-Security-Policy allows it by its hash (vercel.json; checked by siteHtml below).
-        const data = JSON.stringify({ a: files.map((f) => base + f), m: modules, r: paths }).replace(/</g, "\\u003c");
+        const data = JSON.stringify({ a: files.map((f) => base + f), m: modules, r: paths, d: docs }).replace(/</g, "\\u003c");
         const script =
-          `{const{a,m,r}=JSON.parse(document.getElementById("uipack-preloads").textContent);` +
-          `for(const i of m[r[location.pathname.replace(/(.)\\/$/,"$1")]]||[]){const l=document.createElement("link");` +
+          `{const{a,m,r,d}=JSON.parse(document.getElementById("uipack-preloads").textContent),p=location.pathname.replace(/(.)\\/$/,"$1");` +
+          `for(const i of[...(m[r[p]]||[]),...(p in d?[d[p]]:[])]){const l=document.createElement("link");` +
           `l.href=a[i];l.crossOrigin="";if(a[i].endsWith(".css"))l.rel="preload",l.as="style";else l.rel="modulepreload";document.head.append(l)}}`;
         // Straight after <meta charset> (which must stay in the first 1024 bytes), before any
         // stylesheet: an inline script after one waits for it to load.

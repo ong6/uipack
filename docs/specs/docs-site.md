@@ -250,24 +250,49 @@ ink and the dot on the section's cell in its hue, the neutral mark on a Referenc
 for its 14px size: 5px squares on a 1.25px line, not the header's drawing scaled down.
 
 In the sidebar, when the page changes, the mark hops from the page the reader left along the
-page column (out to a sub-page's tree line), crossing sections if it must, the new section
-opening as it arrives. A hop is a small arc off the column (4 to 7px) ending in a soft squash; a trip is one hop for each 36px, nine at most, over 300ms plus 3ms a pixel (1400ms at most), so the mark stays by the short dotted trail it leaves. Each hop is a plain arc, a full turn, a lean, two skips or a pop, to either side, a fresh pick every trip. Across sections it stops before its last hop and changes in a portal: a dashed ring in the new hue opens, the mark turns into it and comes back out with its dot on the new cell (560ms); the header's mark changes in its own portal (below). A trip from a link scrolled out of view starts just inside the sidebar's edge, seen from its first frame, and takes the time of the distance seen. In "On this page" the mark hops down a dotted path that steps right
-for each h3, the read part in the accent; when headings pass faster than a hop it makes for the
-latest, never a queue. With reduced motion nothing hops: the marker is drawn in place. The current page is also marked by weight and a tinted row, so the
+page column (out to a sub-page's tree line), crossing sections if it must; the new page's section
+is open from the first frame and never waits for it. A hop is a small arc off the column (4 to 7px, 4.2px at most to the left) ending in a soft squash; a trip is one hop for each 36px, nine at most, over 300ms plus 2ms a pixel (900ms at most), so the mark stays by the short dotted trail it leaves. Each hop is a plain arc, a full turn, a lean, two skips or a pop, to either side, a fresh pick every trip. Across sections it stops before its last hop and changes in a portal: a dashed ring in the new hue opens, the mark turns into it and comes back out with its dot on the new cell (560ms); the header's mark changes in its own portal (below). A trip from a link scrolled out of view starts just inside the sidebar's edge, seen from its first frame, and takes the time of the distance seen. In "On this page" the mark hops down a dotted path that steps right
+for each h3, the read part in the accent, in the same small arcs: where the path has stepped right an
+arc leans back toward the headings' column, so a step and an arc never add up. When headings pass
+faster than a hop it makes for the latest, never a queue. With reduced motion nothing hops: the marker is drawn in place. The current page is also marked by weight and a tinted row, so the
 marker is never the only cue.
 
-**The mark.** The header's UiPack mark is the one mark (three outlined squares and one filled dot)
+### The mark
+
+The header's UiPack mark is the one mark (three outlined squares and one filled dot)
 with its dot on the page's section (owner, 2026-11-12): its four cells in reading order are Start
 (top left), Rules (top right), Build (bottom left) and Check (bottom right), and on a page in one of
 them that cell is the dot, filled in the section's hue; the other three are squares in the ink, and
 the name stays in the ink. Reference has no cell: its pages, the Assets tab, the landing page at
 rest and a not-found page show the neutral mark, the dot bottom right in the ink, as the package
 draws it. Each hue holds 3:1 or more as the dot on the header's ground in both themes (the lowest is
-Build in light, 4.6:1). When the page changes section the mark changes in a portal, from the state the reader left (kept for the visit in sessionStorage, as the sidebar marker's page is): a dashed ring in the new section's hue opens over the mark, the mark turns into it and out of sight, and comes back out with its dot on the new cell; each half takes the base duration role (320ms). It waits for the sidebar marker's own portal, so the two change together, but at most the page's settle (`--site-mark-wait`, 400ms): past three hops the header changes first. On the landing page the mark rests as the default logo for 5s, then the dot visits Start, Rules, Build and Check in turn, 2s each, hopping between them over the last 560ms of each state, in one 13s CSS loop that never moves the header. A load enters it 0.4s into the rest, on the default logo. With reduced motion the dot is drawn in place and the landing page holds the neutral
+Build in light, 4.6:1). When the page changes section the mark changes in a portal, from the state the reader left (kept for the visit in sessionStorage, as the sidebar marker's page is): a dashed ring in the new section's hue opens over the mark, the mark turns into it and out of sight, and comes back out with its dot on the new cell; each half takes the base duration role (320ms). It waits for the sidebar marker's own portal, so the two change together, but at most 160ms (`--site-mark-wait`: the first paint and the page's entrance are in), so it is over within 800ms of the page: past two hops the header changes first. On the landing page the default logo is still, in the ink, for 5s, then the dot visits Start, Rules, Build and Check in turn, 2s each, hopping between them over the last 560ms of each state, in one 14s CSS loop that never moves the header. The logo's rest is 6s of it: 320ms for the dot to turn from Check's hue to the ink, 5.12s still, and the 560ms hop out. A load enters it 0.4s into the rest, on the default logo, still for 5.04s. With reduced motion the dot is drawn in place and the landing page holds the neutral
 mark. The dot repeats what the breadcrumb chip and the sidebar say in words, so it is never the
 only cue. It is `Wordmark`'s `live` and `liveColor` ([figure parts API](../figure-api.md)), mapped
 in `playground/site-settings.tsx` (`BRAND_CELLS`, `useBrandMark`, and `markerState` for the docs
 layout's marker) and moved by `playground/showcase.css`; `e2e/brand-mark.spec.ts` holds it.
+
+### Page changes
+
+Every page is a full load, and should not feel like one. Where the browser has the Speculation
+Rules API (Chromium), `playground/index.html` has it prerender a link to another page of the site
+when the reader hovers it for 200ms or presses it (`moderate` eagerness), and following the link
+shows that page at once. Left out: files (a page's Markdown, images, `llms.txt`), the deck's print
+and speaker windows, links into the page, the current page's own link and links that open elsewhere.
+A prerendered page starts what the reader should watch from its start (the sidebar marker's trip,
+the header mark's portal, the entrance, the landing page's loop) when it is shown, and reads the
+visit's `sessionStorage` then. Elsewhere (Safari, Firefox) `playground/link-preload.ts` preloads the
+page's files as the reader points at, presses or focuses its link. Every load preloads the page's
+module, its styles and its Markdown chunk beside the entry (`vite.config.ts`, `routePreloads`); the
+search index loads only when search opens. The rules are an inline script, so `vercel.json`'s
+Content-Security-Policy names them by their hash, as it does the theme script; the host needs
+nothing else.
+
+The page eases in under the header and sidebar, which stay put: a fade and a 4px rise over the
+quick duration (160ms), once, from the first frame the reader sees; none with reduced motion.
+Everything after that is decoration on a page that is already there, and nothing waits for it: the
+sidebar marker's trip is over within 900ms (1460ms with its portal) and the header mark's portal
+within 800ms.
 
 ### Search and theme
 
@@ -296,6 +321,11 @@ types. A lazy part that is taller mounted (the landing page's figures) mounts at
 mounted when the reader left, so the same position is the same place. The reader's position wins
 over the address's `#fragment`. A page opened any other way is untouched: a link starts at the
 top, a `#fragment` lands on its heading. `e2e/nav.spec.ts` holds it.
+
+A heading picked in "On this page" is one history entry, as a `#fragment` link's is: Back returns
+the reader to where they were on the page and Forward to the heading (the browser's own restore
+within a page). Picking the heading the address already names adds none, and headings passed while
+scrolling never do. `e2e/docs-shell.spec.ts` holds it.
 
 ## Type
 
