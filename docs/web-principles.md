@@ -9,7 +9,7 @@ The components enforce what they can; the rest is on the page author.
 
 `uipack/web` renders in Technical, the one implemented style (its values in `src/styles/technical.css`,
 its roles in [docs/system/style.md](system/style.md)). Each other website has its own
-[spec](specs/README.md) that fills the same role contract; uipack renders one by adding one value
+[spec](specs/README.md) that fills the same role contract; UiPack renders one by adding one value
 set in `src/styles`, registering it in `uiStyles`, and testing it. `<WebSurface uiStyle="…">`, `<WebPage uiStyle="…" sections={…}>` and `data-ui-style` on
 any ancestor (set before paint by `styleBootScript()`) select a registered style; omitted, it is
 Technical. A style changes tokens and ornament slots only: the same sections in the page's own
@@ -185,7 +185,7 @@ takes the spec's.
     and check 66% text on it. (SMWD-5, SMWD-6)
 17. **Reuse the hero asset down the page.** Carry the star into later sections and let scroll drive a
     small transform (`ScrollTransform`, `useScrollProgress`), rather than adding new decoration. Beams
-    ride grid lines the way UIPACK packets ride connectors: the same idea, rhymed. Keep listeners
+    ride grid lines the way UiPack packets ride connectors: the same idea, rhymed. Keep listeners
     off while the element is off screen; on mobile a still image is fine. (CA, SMWD-6)
 18. **Hover effects are an enhancement, never the message.** Tilt at most 5°, a magnetic pull of at most 6px,
     mouse and pen only. Touch and keyboard get an equivalent still state (focus lift, static

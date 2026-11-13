@@ -1,4 +1,4 @@
-# Recipe: dashboard
+# Build a dashboard
 
 How to build a screen someone checks: headline numbers, one chart, the records to act on, and
 their sources. The order, the parts, and the rules it relies on. No dashboard ships in this repo
@@ -8,8 +8,8 @@ yet, so there is no example page to compare against; check the draft against the
 ## Relies on
 
 - Words: [figure labels and captions](../system/writing/figures.md) for charts and tiles, and the
-  [general rules](../system/writing/general.md) (each number keeps its own words and source).
-- Layout: [dashboard](../system/layout/dashboard.md): regions, equal boxes, the narrow form.
+  [general writing rules](../system/writing/general.md) (each number keeps its own words and source).
+- Layout: [dashboard layout](../system/layout/dashboard.md): regions, equal boxes, the narrow form.
 - Parts: [Web principles](../web-principles.md) for the product-surface parts,
   [Consulting slides](../deck-consulting.md) for the charts, [Charts](../charts.md).
 

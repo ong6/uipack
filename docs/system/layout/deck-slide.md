@@ -1,4 +1,4 @@
-# Layout archetype: slide canvas
+# Deck slide layout
 
 The `slide-canvas` archetype: one slide in a `uipack/deck` deck, with the canvas, the regions every
 slide shares, the slide archetypes, and the transitions between slides. The site's spec picks it for its `deck` page type

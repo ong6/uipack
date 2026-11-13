@@ -1,6 +1,6 @@
-# Adding to UI Pack
+# Contributing
 
-Recipes for the common additions, with every file each one touches. Read [AGENTS.md](../AGENTS.md), [design direction](design-direction.md) and [component-first](component-first.md) first; this page is the file list, not the design rules. Where a list must be kept in step with another, a unit test names the one you missed.
+Recipes for the common additions to uipack, with every file each one touches. Read [AGENTS.md](../AGENTS.md), [design direction](design-direction.md) and [component-first](component-first.md) first; this page is the file list, not the design rules. Where a list must be kept in step with another, a unit test names the one you missed.
 
 ## Built files
 
@@ -29,7 +29,7 @@ Shared building blocks, so a new part does not grow its own copy:
 ## A new visual style
 
 Each website has one spec ([how to write one](specs/README.md)); Technical is the package's default look
-(the docs site's own spec extends it) and the one implemented style. uipack renders another site's look by adding one value set in
+(the docs site's own spec extends it) and the one implemented style. UiPack renders another site's look by adding one value set in
 `src/styles`, registering it in `uiStyles`, and testing it. The full recipe, with every file and
 test, is in [Building a style from a spec](specs/README.md#building-a-style-from-a-spec); the contract is
 [docs/system/style.md](system/style.md#the-role-contract). In short:
@@ -93,7 +93,7 @@ visual follows [component-first](component-first.md) first.
 1. The part: a component in `src/web/` (one file, or beside its family in `Blocks.tsx` or
    `ProductMock.tsx`), reading only `var(--ui-*)` roles and the web tokens; no hex literal
    (`test/no-hex.test.tsx`). Anything a style should draw differently is a treatment role
-   ([style roles](system/style.md), "Treatment roles"), never a new layout per style.
+   ([style contract](system/style.md), "Treatment roles"), never a new layout per style.
 2. Styles in `src/web/web.css`, in the matching family block, scoped under `.uipack-web`, with the
    interaction polish in [design direction](design-direction.md#interaction-polish-the-standard-for-every-new-part-figure-and-page),
    a real 390px layout and 44px targets.

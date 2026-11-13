@@ -61,16 +61,17 @@ for (const width of [1440, 390])
       await page.setViewportSize({ width, height: 900 });
       await page.goto(`/?theme=${theme}`);
       await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
-      await expect(page.getByRole("heading", { level: 1 })).toHaveText("The design manager for every site that installs it.");
-      await expect(page).toHaveTitle(/^UiPack, the design manager/);
+      await expect(page.getByRole("heading", { level: 1 })).toHaveText("The design system for every site that installs it.");
+      await expect(page).toHaveTitle("The design system for every site that installs it · UiPack");
       // The hero's figure is a live uipack figure, with the drawing authored for the width.
       const figure = page.locator(".landing-hero__figure .uipack");
       await expect(figure).toBeVisible();
       await expect(figure.locator(width < 720 ? "svg.uipack--narrow" : "svg.uipack--wide")).toBeVisible();
       // Every section rendered, with its live parts mounted.
-      for (const id of ["jobs", "built", "parts", "agents", "site-map"]) await expect(page.locator(`#${id}`)).toBeVisible();
+      for (const id of ["jobs", "built", "parts", "around", "agents", "site-map"])
+        await expect(page.locator(`#${id}`)).toBeVisible();
       await mountLazyParts(page);
-      // Exactly one filled primary action in the hero; the gallery is the secondary.
+      // Exactly one filled primary action in the hero; Assets is the secondary.
       await expect(page.locator(".landing-hero .landing-btn--primary")).toHaveCount(1);
       expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
       // The hero figure text stays at the 11px floor at every width (the phone drawing included).
@@ -86,6 +87,59 @@ for (const width of [1440, 390])
       expect(errors).toEqual([]);
     });
 
+// Layout floor 8 (docs/system/layout/README.md): the header's content sits on the page column's
+// edges. The column is the site's one width (docs/specs/docs-site.md, "Layout": fluid up to 1600px, with 32px
+// gutters, 24px below 1024px, 16px on a phone); the logo's start edge and the last control's end
+// edge are every section's edges and stay there once the page's own chunk has loaded. That the
+// same edges hold on every other view is e2e/site-consistency.spec.ts, "one header".
+for (const width of [2560, 2000, 1920, 1440, 1280, 1024, 768, 390])
+  test(`the header's content edges are the page column's at ${width}`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/?theme=dark");
+    const header = page.locator(".showcase-header");
+    const edgesOfHeader = async () => {
+      const logo = (await header.locator(".showcase-brand svg").boundingBox())!;
+      const last = (await header.locator(".showcase-header__actions > :last-child").boundingBox())!;
+      return { start: logo.x, end: last.x + last.width, height: (await header.boundingBox())!.height };
+    };
+    // The header is the shell's, drawn before the page's chunk: it must already be in place.
+    await expect(header.locator(".showcase-brand svg")).toBeVisible();
+    const early = await edgesOfHeader();
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    await expect(page.locator(".landing-foot .landing-wrap")).toBeAttached();
+    const now = await edgesOfHeader();
+    expect(now, "the header moved when the page loaded").toEqual(early);
+    // The banner's ground and rule run the window's width, 64px tall plus its rule.
+    const bar = (await header.boundingBox())!;
+    expect(bar.x).toBe(0);
+    expect(bar.width).toBe(width);
+    expect(bar.height).toBe(65);
+    // One column: every section's, the closing band's and the footer's, with equal gutters.
+    const columns = await page.locator(".uipack-landing .landing-wrap").evaluateAll((wraps) =>
+      wraps.map((el) => {
+        const box = el.getBoundingClientRect();
+        return { start: box.left, end: box.right };
+      }),
+    );
+    expect(columns).toHaveLength(7);
+    const column = columns[0];
+    expect(column.end - column.start).toBeCloseTo(Math.min(1600, width - 2 * (width >= 1024 ? 32 : width >= 720 ? 24 : 16)), 0);
+    expect(column.start).toBeCloseTo(width - column.end, 0);
+    for (const other of columns) {
+      expect(Math.abs(other.start - column.start)).toBeLessThanOrEqual(1);
+      expect(Math.abs(other.end - column.end)).toBeLessThanOrEqual(1);
+    }
+    expect(Math.abs(now.start - column.start), `logo at ${now.start}, column starts at ${column.start}`).toBeLessThanOrEqual(1);
+    expect(Math.abs(now.end - column.end), `last control ends at ${now.end}, column ends at ${column.end}`).toBeLessThanOrEqual(
+      1,
+    );
+    // The header's items share one centre line.
+    const centres = await header
+      .locator(".showcase-brand svg, .showcase-tabs a, .showcase-header__actions > button")
+      .evaluateAll((items) => items.map((el) => el.getBoundingClientRect()).map((box) => box.top + box.height / 2));
+    expect(Math.max(...centres) - Math.min(...centres)).toBeLessThanOrEqual(1);
+  });
+
 test("the grader skips only the scaled pictures: each is inert and hidden, and no live part is inside one", async ({ page }) => {
   // src/grade/spec.ts ignores .landing-preview, as it does the Assets tab's previews: pictures of
   // parts graded on their own pages. The live diagram and the 3D tile stay graded.
@@ -99,6 +153,29 @@ test("the grader skips only the scaled pictures: each is inert and hidden, and n
   await expect(page.locator(".landing-preview :is(.landing-live, .landing-scene, .landing-tile__link)")).toHaveCount(0);
   for (const tile of ["deck", "charts", "article"])
     await expect(page.locator(`.landing-tile--${tile} .landing-preview`)).toHaveCount(1);
+});
+
+test("Start from your job holds only the Build cards; the Rules and Check cards sit in their own section after The parts", async ({
+  page,
+}) => {
+  await page.goto("/?theme=light");
+  const sections = (list: string) =>
+    page.locator(`${list} .landing-job`).evaluateAll((cards) => cards.map((card) => card.getAttribute("data-section")));
+  await expect(page.locator(".landing-job")).toHaveCount(6);
+  expect(await sections("#jobs")).toEqual(["build", "build", "build", "build"]);
+  expect(await sections("#around")).toEqual(["rules", "check"]);
+  const order = await page.locator(".uipack-landing section[id]").evaluateAll((all) => all.map((el) => el.id));
+  expect(order.indexOf("around")).toBeGreaterThan(order.indexOf("parts"));
+  expect(order.indexOf("around")).toBeLessThan(order.indexOf("agents"));
+  // The four build cards share one row at desktop width.
+  await page.setViewportSize({ width: 1440, height: 900 });
+  const tops = await page
+    .locator("#jobs .landing-job")
+    .evaluateAll((cards) => cards.map((card) => card.getBoundingClientRect().top));
+  expect(new Set(tops).size).toBe(1);
+  // The head's link reaches the later section.
+  await page.locator('#jobs a[href="#around"]').click();
+  await expect(page.locator("#around")).toBeInViewport();
 });
 
 test("job cards: tinted by section in light; in dark a neutral card with the hue on its top rule and chip", async ({ page }) => {
@@ -172,7 +249,7 @@ test("the For agents band: the band fill in light; in dark a raised, ruled charc
 });
 
 for (const width of [1440, 1920])
-  test(`${width}: "How it's built" is balanced: the text column runs most of the stack's height`, async ({ page }) => {
+  test(`${width}: "How it is built" is balanced: the text column runs most of the stack's height`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     await page.goto("/?theme=light");
     await page.locator("#built").scrollIntoViewIfNeeded();

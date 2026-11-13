@@ -1,6 +1,6 @@
-# Tier 3: regression set and fix ledger
+# Regression set
 
-Rounds are comparable only when the briefs, the rubric version and the capture stay fixed. The
+Tier 3 of [grading](README.md), the regression set and the fix ledger: rounds are comparable only when the briefs, the rubric version and the capture stay fixed. The
 regression set is 3 briefs for each of 5 page types, with frozen facts, reused every round.
 
 ## The set
@@ -12,7 +12,7 @@ regression set is 3 briefs for each of 5 page types, with frozen facts, reused e
 | Deck slide | [1](regression/deck/brief-1.v1.json), [2](regression/deck/brief-2.v1.json), [3](regression/deck/brief-3.v1.json) |
 | Dashboard | [1](regression/dashboard/brief-1.v1.json), [2](regression/dashboard/brief-2.v1.json), [3](regression/dashboard/brief-3.v1.json) |
 | Diagram | [1](regression/diagram/brief-1.v1.json), [2](regression/diagram/brief-2.v1.json), [3](regression/diagram/brief-3.v1.json) |
-| uipack's own docs, read by an agent ([how](agent-docs.md)) | [1](regression/agent-docs/brief-1.v1.json), [2](regression/agent-docs/brief-2.v1.json), [3](regression/agent-docs/brief-3.v1.json), [4](regression/agent-docs/brief-4.v2.json) (v2 since 2026-11-10: dist/ is no longer committed) |
+| UiPack's own docs, read by an agent ([how](agent-docs.md)) | [1](regression/agent-docs/brief-1.v1.json), [2](regression/agent-docs/brief-2.v1.json), [3](regression/agent-docs/brief-3.v1.json), [4](regression/agent-docs/brief-4.v2.json) (v2 since 2026-11-10: dist/ is no longer committed) |
 
 Each brief names its product, audience, task, rubric, the facts to use (and no others), what it
 must include and what is out of scope. The packet builder renders it to `brief.md`. A brief is

@@ -93,7 +93,7 @@ test("switching objects and themes creates a usable renderer every time", async 
     await expect(page.getByRole("button", { name: "Pause motion" })).toBeVisible();
     await expect(page.locator("canvas")).toHaveCount(1);
   }
-  await page.getByRole("button", { name: "dark mode", exact: true }).click();
+  await page.getByRole("button", { name: "Dark mode", exact: true }).click();
   await expect(page.locator(".uipack-object canvas")).toHaveAttribute("data-renderer", "webgl");
   await expect(page.getByRole("button", { name: "Pause motion" })).toBeVisible();
   expect(errors).toEqual([]);
@@ -112,7 +112,7 @@ test("curated look persists through loop, theme and expanded canvas", async ({ p
   await expect(object).toHaveAttribute("data-variant", "3");
   await expect(canvas).toHaveAttribute("data-renderer", "webgl");
   const next = await object.getAttribute("data-variant");
-  await page.getByRole("button", { name: "dark mode", exact: true }).click();
+  await page.getByRole("button", { name: "Dark mode", exact: true }).click();
   // The theme remounts the stage with a new canvas. Until the new stage is up, `canvas` still finds
   // the light one, already "webgl", so wait for the dark stage before reading its renderer.
   await expect(object).toHaveAttribute("data-theme", "dark");

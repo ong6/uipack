@@ -45,7 +45,7 @@ for each finding; the per-page-type rubrics are in `docs/grading/rubrics/`:
 | --- | --- | --- |
 | Style | The site's `STYLE.md` roles; [what a spec may set](../../docs/system/spec-settings.md); the [component looks](../../docs/components/README.md) it picked | Hex or `font-family` literals, a recoloured fixed look (a figure), a look the spec didn't pick, a second accent |
 | Writing | The spec's `## Writing style`; the [core writing rules](../../docs/system/writing/README.md#core-and-site) and general rule 9's checklist | Off the spec's tone or title form, causal "lifted/cut", invented facts, slots over the ceiling or the spec's tighter budget, AI tells |
-| Layout | The spec's `### <Page type>` and its [archetype](../../docs/system/layout/README.md#archetype-library); the [floors](../../docs/system/layout/README.md#floors-what-holds-on-every-site) | Not the spec's layout or order, no narrow form, page overflow, small tap targets, empty hero proof |
+| Layout | The spec's `### <Page type>` and its [archetype](../../docs/system/layout/README.md#archetype-library); the [floors](../../docs/system/layout/README.md#floors-what-holds-on-every-site) | Not the spec's layout or order, no narrow form, page overflow, small tap targets, a header off its content's edges, empty hero proof |
 | Parts | The entry's doc and `dist/*.d.ts` | Invented props, bespoke markup where a part exists |
 
 Report findings by severity with file and line, each with the rule it breaks and the fix. Say

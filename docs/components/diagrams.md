@@ -1,4 +1,4 @@
-# Diagrams: the Blueprint look and diagram themes
+# Diagram look and themes
 
 Diagrams have one look, **Blueprint**, and it is `flex`: the grammar (geometry, type, strokes, what
 each flow means) is the same on every site, and a **diagram theme** supplies its colours, faces and
@@ -63,7 +63,7 @@ How it resolves: a scope sets private carriers (`--uipack-diagram-<role>`); each
 its carrier first and the page's role second, so the nearest scope wins, a page scope nested in the
 site's overrides it, and a figure outside every scope is unchanged. Each colour is a
 `light-dark()` pair resolved by the figure's own colour scheme, so the host's dark switch flips
-every theme at once: uipack follows `[data-theme="dark"]` on any ancestor and the OS setting; a host
+every theme at once: UiPack follows `[data-theme="dark"]` on any ancestor and the OS setting; a host
 with another switch passes `darkSelector` (and `lightSelector`) to `diagramThemeCss`.
 `DiagramThemeScope mode="dark"` holds one mode for what it wraps. Remove any old `--uipack-*`
 overrides on `.uipack` when adopting a theme: a host rule on the figure root still wins.
@@ -75,7 +75,7 @@ components: { diagrams: blueprint }
 diagram-themes: { default: site-paper, compoze: compoze, trading: trading }
 ```
 
-`default` is the site's theme; every other key is a page or page group with its own. A theme uipack
+`default` is the site's theme; every other key is a page or page group with its own. A theme UiPack
 doesn't ship is described in the spec's `## Component looks` (its name in backticks with its
 values, or the file that defines it). `scripts/check-spec.ts` fails a map without `default`, a name
 that isn't kebab-case, and an undescribed theme. A spec without `diagram-themes` draws `blueprint`.
@@ -157,5 +157,5 @@ The [parts](../diagrams.md#parts) figure shows all four.
 ## Related
 
 - [Component looks](README.md): every look and how a spec picks.
-- [Figure API](../figure-api.md): the theme functions and the parts' props.
+- [Figure parts API](../figure-api.md): the theme functions and the parts' props.
 - [Architecture diagrams](../diagrams.md): the catalogue.

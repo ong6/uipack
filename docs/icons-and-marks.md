@@ -2,7 +2,7 @@
 
 Every icon, mark, canvas background and motion token UiPack ships, searchable, each with a
 preview and a copy button for its import line or SVG. Diagrams are coded figures, so they live in
-the [diagram catalogue](diagrams.md) instead.
+[Architecture diagrams](diagrams.md) instead.
 
 ## Using an asset
 

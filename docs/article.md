@@ -293,4 +293,4 @@ They have no React dependency in their logic, so a rehype plugin can import them
 ## Verification
 
 How the parts are tested, the measured section rhythm and the screenshots are in
-[Article parts: verification](article-verification.md).
+[Article verification](article-verification.md).

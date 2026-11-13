@@ -1,4 +1,4 @@
-# Writing: general rules
+# General writing rules
 
 The rules every kind of UiPack text follows on every site (slides, documents, web copy, figure
 labels), with the place each word lives and every slot's text budget. The kind files and a site's

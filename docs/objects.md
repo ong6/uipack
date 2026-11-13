@@ -1,4 +1,4 @@
-# Object scenes
+# 3D object scenes
 
 The reference for `uipack/objects`: the seven lazy 3D scenes, their props, playback and fallbacks, the art directions each subject offers and why, the render budgets and the Blender sources. Pick looks for a site in [3D looks](components/3d.md); come here to place a scene or change one.
 
@@ -124,7 +124,7 @@ The existing SVG remains visible until model loading succeeds, including on an a
 ### Loading the tennis model
 
 Studio tennis fetches the GLB as a file, not as JavaScript: it was a 955 KB base64 chunk (and
-1.08 MB inlined into the CommonJS build uipack shipped until 0.4.0), then 716 KB of binary, now 279 KB that the browser caches like an image.
+1.08 MB inlined into the CommonJS build UiPack shipped until 0.4.0), then 716 KB of binary, now 279 KB that the browser caches like an image.
 The URL comes from `new URL("../assets/objects/tennis-return.glb", import.meta.url)` in
 `src/package-assets.ts`, which Vite, Rollup (with an import-meta-assets plugin), webpack 5 and
 Next recognise: they copy the file into the build and rewrite the URL. Checked from the packed
@@ -242,7 +242,7 @@ The website's default hobby selection is Cartoon AI, Studio Tennis, Studio Tradi
 Paper Travel and Kinetic Reading (see "Directions per subject" for the two that now fall back). Its My picks control
 restores this set after a global style preview.
 
-The website Contact page pins Cartoon (variant 3). Compare the other inbox styles in UI Pack; Contact no longer changes style from URL preview parameters.
+The website Contact page pins Cartoon (variant 3). Compare the other inbox styles in UiPack; Contact no longer changes style from URL preview parameters.
 
 ### Page-integrated artwork
 

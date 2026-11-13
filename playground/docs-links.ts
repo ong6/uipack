@@ -51,7 +51,7 @@ export const ASSET_PREVIEW_BASE = "/";
 
 /**
  * Every raw file the site serves at its repo path: `servedFiles`, the previews in the asset
- * manifest (the Assets gallery and the Icons & marks page load them from ASSET_PREVIEW_BASE), and
+ * manifest (the Assets gallery and the Icons and marks page load them from ASSET_PREVIEW_BASE), and
  * every repo file llms.txt links, so each of its links resolves on the site.
  */
 export function siteFiles(read: (file: string) => string) {

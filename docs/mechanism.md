@@ -1,4 +1,4 @@
-# Mechanism style
+# Mechanism
 
 `uipack/mechanism` (with `uipack/mechanism.css`) draws one real, well-made isometric machine whose working *is* the concept. Its first machine is the **verification gate**, for an agent-harness talk: an agent proposes actions, and a check stands between a proposal and its result.
 
@@ -89,4 +89,4 @@ Put each machine in its own folder under `src/mechanism/`, as `gate/` is for the
 
 ## Credit and licence
 
-The kit in `src/mechanism/kit/` (`iso-kit.ts`, `draw.tsx`, `live.tsx`) is vendored from [Anatomy](https://github.com/wheresryan22/anatomy) at commit `1482e8469b0a9e0d8cc18ea2740a01423d29ae80`, under the MIT licence, Copyright (c) 2026 Ryan. The full notice is in `src/mechanism/kit/LICENSE`, and each file names its source. The only changes are the import path in `draw.tsx` and the dropped `"use client"` directive in `live.tsx`. The drawing rules in `mechanism.css` are adapted from Anatomy's `ISO_CSS`; the machine, its model, `solid3.ts` and the palette mapping are UI Pack's.
+The kit in `src/mechanism/kit/` (`iso-kit.ts`, `draw.tsx`, `live.tsx`) is vendored from [Anatomy](https://github.com/wheresryan22/anatomy) at commit `1482e8469b0a9e0d8cc18ea2740a01423d29ae80`, under the MIT licence, Copyright (c) 2026 Ryan. The full notice is in `src/mechanism/kit/LICENSE`, and each file names its source. The only changes are the import path in `draw.tsx` and the dropped `"use client"` directive in `live.tsx`. The drawing rules in `mechanism.css` are adapted from Anatomy's `ISO_CSS`; the machine, its model, `solid3.ts` and the palette mapping are UiPack's.

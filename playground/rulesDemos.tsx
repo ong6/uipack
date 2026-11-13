@@ -223,10 +223,19 @@ const swatchRoles = [
   ["data-neg", "Data −"],
 ] as const;
 
+/**
+ * One theme's swatches. The docs site's spec extends Technical, so Technical's card shows the site's
+ * own value set whole (`data-site-values`, playground/site-palette.css): Technical's in light, the
+ * site's charcoal and neutral inks in dark, and the head says which.
+ */
 function Swatches({ style, theme }: { style: UiStyleId; theme: "light" | "dark" }) {
+  const site = style === "technical";
   return (
-    <div className="fdn-swatches" data-ui-style={style} data-ui-theme={theme}>
-      <p className="fdn-swatches__head">{theme}</p>
+    <div className="fdn-swatches" data-ui-style={style} data-ui-theme={theme} data-site-values={site ? "" : undefined}>
+      <p className="fdn-swatches__head">
+        {theme}
+        {site && (theme === "light" ? " · Technical's" : " · this site's")}
+      </p>
       <ul>
         {swatchRoles.map(([role, name]) => (
           <li key={role}>

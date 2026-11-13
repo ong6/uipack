@@ -107,9 +107,11 @@ test.describe("asset browser", () => {
     await expect(packet).toHaveCount(1);
     await expect.poll(() => packet.evaluate((i: HTMLImageElement) => i.currentSrc)).toMatch(/dark\/motion-packet-still\.svg$/);
     await page.locator('[data-id="background-plain"]').scrollIntoViewIfNeeded();
+    // In dark the docs site draws the canvas backgrounds itself, on its charcoal, over the package's
+    // navy still (docs/specs/docs-site.md, "Demos and fixed looks"): the edge is that drawing's.
     const edge = await page
-      .locator('[data-id="background-plain"] .uipack-browser__tile img:visible')
-      .evaluate((i) => getComputedStyle(i).borderTopWidth);
+      .locator('[data-id="background-plain"] .uipack-browser__tile')
+      .evaluate((tile) => getComputedStyle(tile, "::after").borderTopWidth);
     expect(edge).toBe("1px");
   });
 

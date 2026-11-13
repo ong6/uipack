@@ -2,12 +2,12 @@
 
 How a uipack version is cut and how each site moves to it: the version rules for this repo, the
 changelog, the tag on main, and the checks a site runs when it bumps its pin. The sites in the
-[registry](specs/registry.md) are the only consumers, so a release exists to give them a named,
+[site registry](specs/registry.md) are the only consumers, so a release exists to give them a named,
 reviewed point to pin instead of a bare commit.
 
 ## Version numbers
 
-uipack is installed from the tarball attached to its GitHub release (below), never from npm. The
+UiPack is installed from the tarball attached to its GitHub release (below), never from npm. The
 version in `package.json` is the latest release; a tag `vX.Y.Z` on main marks the commit it names.
 Before 1.0 the numbers mean:
 
@@ -27,7 +27,7 @@ When in doubt, take the larger bump and say why in the changelog.
 3. In [`CHANGELOG.md`](../CHANGELOG.md), write the version's entry from `git log v<previous>..HEAD`
    (the first release used `683d44b..HEAD`): Added, Changed, Removed, Fixed, one line per change a
    site or agent would notice, and an Upgrading section for anything that breaks.
-4. Run `npm run docs:sync`: the [registry](specs/registry.md) compares each site's pin with the new
+4. Run `npm run docs:sync`: the [site registry](specs/registry.md) compares each site's pin with the new
    version. Then `npm run build` and the checks in
    [AGENTS.md](../AGENTS.md#engineering-and-verification).
 5. Merge to main and wait for CI to pass on it. Then tag it (the owner lets agents tag, 2026-11-08):

@@ -1,4 +1,4 @@
-# Layout archetype: layered long read
+# Article layout
 
 The `layer-article` archetype: a long read or a blog post as one text column and a run of sections,
 each built from the `uipack/article` parts. A site's spec picks it for its `article` page type

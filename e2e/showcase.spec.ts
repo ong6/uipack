@@ -8,7 +8,7 @@ test("library pages share navigation and preserve theme across routes and reload
   const sidebar = page.getByRole("navigation", { name: "Library", exact: true });
   // Shut sections open from their heading and stay open from page to page.
   await sidebar.getByRole("button", { name: "Reference", exact: true }).click();
-  await sidebar.getByRole("link", { name: "Icons & marks", exact: true }).click();
+  await sidebar.getByRole("link", { name: "Icons and marks", exact: true }).click();
   await sidebar.getByRole("button", { name: "Build", exact: true }).click();
   await sidebar.getByRole("link", { name: "3D animations", exact: true }).click();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
@@ -17,7 +17,7 @@ test("library pages share navigation and preserve theme across routes and reload
   await expect(sidebar.getByRole("link", { name: "Architecture diagrams", exact: true })).toHaveAttribute("aria-current", "page");
   expect(await header.evaluate((el) => el.getBoundingClientRect().width)).toBe(width);
   await sidebar.getByRole("link", { name: "3D animations", exact: true }).click();
-  await page.getByRole("button", { name: "light mode", exact: true }).click();
+  await page.getByRole("button", { name: "Light mode", exact: true }).click();
   await page.reload();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
   await expect(page.locator(".uipack-animation-workspace")).toHaveAttribute("data-theme", "light");

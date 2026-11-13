@@ -1,4 +1,4 @@
-// "How it's built": docs/README.md's layers as a LayerStack (uipack/charts), bottom to top, each
+// "How it is built": docs/README.md's layers as a LayerStack (uipack/charts), bottom to top, each
 // band a link to the page that documents the layer.
 import { LayerStack } from "../../src/charts";
 import { pageDefs, pageHref } from "../catalog";

@@ -1,6 +1,6 @@
-# How an agent uses UiPack
+# How agents use UiPack
 
-UiPack is the design manager for every site that installs it. This page is the read order for an
+UiPack is the design system for every site that installs it. This page is the read order for an
 agent: where the rules live, where each site's spec lives, and what is fixed versus set per site.
 The same files ship in the package, so read them from `node_modules/uipack/` in a site, or from a
 uipack clone.
@@ -11,11 +11,11 @@ uipack clone.
    page, draw a diagram, write copy, write a site spec, review and grade). It gives the order of
    work and links to the docs below.
 2. **The site's spec.** The site repo's `STYLE.md`, or its row in the
-   [registry](../specs/registry.md): its look, the layout for your page type (`layouts:` and
+   [site registry](../specs/registry.md): its look, the layout for your page type (`layouts:` and
    `## Layout`), its writing style and the component looks it picks. A deck reads its site's spec.
    No spec yet: a new site writes one first ([starting a new website](new-website.md)); a page
-   inside an existing uipack site uses that site's spec; a one-off with no site behind it (and the
-   uipack playground) uses [Technical](../specs/technical.md) (the
+   inside an existing UiPack site uses that site's spec; a one-off with no site behind it (and the
+   uipack playground) uses the [Technical spec](../specs/technical.md) (the
    [page skill](../../skills/uipack-page/SKILL.md), step 1).
 3. **The core rules for your medium.** [docs/system/README.md](../system/README.md), then only your
    medium's section in [style](../system/style.md), [writing](../system/writing/README.md) and
@@ -23,13 +23,15 @@ uipack clone.
 4. **The component docs** for the parts you use (the site map in [docs/README.md](../README.md)),
    and the entry's `dist/*.d.ts` before you use a prop.
 
-## Four layers
+## Six layers
 
 | Layer | Holds | Where | Who changes it |
 | --- | --- | --- | --- |
 | Core rules | The role contract, motion timings, accessibility, the layout floors, the core writing rules and slot ceilings, component behaviour | [docs/system/](../system/README.md) | uipack, for every site at once |
-| Libraries | Layout archetypes per page type; each component's named looks, `fixed` or `flex` | [Layout](../system/layout/README.md#archetype-library), [docs/components/](../components/README.md) | uipack |
+| Layout archetypes | Named layouts per page type (grid, regions, section order, hero) a spec picks, extends or replaces | [Layout](../system/layout/README.md#archetype-library) | uipack |
+| Component looks | Each component's named looks, `fixed` or `flex` | [docs/components/](../components/README.md) | uipack |
 | Site spec | One site's look (palette, faces, radii, ornaments, density), its layout per page type, its writing style, the looks it picks | The site's `STYLE.md`, or [docs/specs/](../specs/README.md) | The site, through the [template](../specs/TEMPLATE.md) and `scripts/check-spec.ts` |
+| Recipes | One per page type: the parts and the rules it relies on | [docs/recipes/](../recipes/README.md) | uipack |
 | Components | Parts that read roles, never values | `src/`, documented per entry | uipack |
 
 ## Fixed vs per site
@@ -64,7 +66,7 @@ overriding it locally.
 
 ## More in this folder
 
-- [Multi-agent website build](multi-agent-build.md): the lead, the subagents, the hand-off and the
+- [Multi-agent build](multi-agent-build.md): the lead, the subagents, the hand-off and the
   integration pass.
-- [Subagent brief template](subagent-brief.md): the copy-paste brief for one page or section.
+- [Subagent brief](subagent-brief.md): the copy-paste brief for one page or section.
 - [Starting a new website](new-website.md): spec first, register it, then build.

@@ -2,7 +2,7 @@
 
 One recipe per page type: the section order, the parts to build it from (real exports), and the
 writing and layout files it relies on. Pick the recipe for your page, then follow the site's spec
-for the look ([Technical](../specs/technical.md) on this site; [one spec per site](../specs/README.md)).
+for the look ([Technical spec](../specs/technical.md) on this site; [one spec per site](../specs/README.md)).
 
 | Page type | Recipe | Example to compare against |
 | --- | --- | --- |

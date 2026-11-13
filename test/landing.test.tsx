@@ -31,6 +31,10 @@ describe("landing page", () => {
     for (const { page } of [...JOBS, ...LAYERS, ...BUILT_NEXT]) expect(ids, page).toContain(page);
   });
 
+  it("names each read-next link by the title of the page it opens", () => {
+    for (const { label, page } of BUILT_NEXT) expect(label, page).toBe(pageDefs.find((p) => p.id === page)!.label);
+  });
+
   it("shows the install line the docs print for the current release", () => {
     const generated = /<!-- generated:install -->\s*```sh\n(.+)\n```/.exec(readFileSync("README.md", "utf8"))?.[1];
     expect(installLine(version)).toBe(generated);

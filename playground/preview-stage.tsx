@@ -4,6 +4,7 @@
 // hidden from assistive tech unless the caller keeps them live.
 import { Suspense, useEffect, useRef, useState, type ReactNode } from "react";
 import { FigureLayoutWidthContext } from "../src";
+import { partMounted, partWasMounted } from "./scroll-memory";
 
 /**
  * Previews still waiting to mount, in page order. Each mounts when it nears the viewport, or,
@@ -31,13 +32,17 @@ function mountLater(mount: () => void) {
  * Mount children once the box nears the viewport (or in idle time, unless `idle` is false), and
  * keep them. `inert` (the default) makes the box inert, a picture rather than a control. `margin`
  * and `threshold` are the IntersectionObserver's: how near counts, and how much must show.
+ * `restored` is for a box that is taller mounted, and names it (unique on its page): Back or Forward
+ * to a page the reader left with it mounted mounts it at once (scroll-memory.ts), so the page is as
+ * tall as it was and the reader's place in it is the same place.
  */
 export function useNearViewport<T extends HTMLElement>({
   inert = true,
   idle = true,
   margin = "800px 0px",
   threshold = 0,
-}: { inert?: boolean; idle?: boolean; margin?: string; threshold?: number } = {}) {
+  restored,
+}: { inert?: boolean; idle?: boolean; margin?: string; threshold?: number; restored?: string } = {}) {
   const ref = useRef<T>(null);
   const [near, setNear] = useState(() => typeof IntersectionObserver === "undefined");
   useEffect(() => {
@@ -50,6 +55,7 @@ export function useNearViewport<T extends HTMLElement>({
       if (!live) return;
       live = false;
       io.disconnect();
+      if (restored) partMounted(restored);
       setNear(true);
     };
     // A busy page can deliver several entries at once (out of view, in view, out again): any
@@ -59,12 +65,13 @@ export function useNearViewport<T extends HTMLElement>({
       threshold,
     });
     io.observe(el);
-    if (idle) mountLater(mount);
+    if (restored && partWasMounted(restored)) mount();
+    else if (idle) mountLater(mount);
     return () => {
       live = false;
       io.disconnect();
     };
-  }, [inert, idle, margin, threshold]);
+  }, [inert, idle, margin, threshold, restored]);
   return { ref, near };
 }
 

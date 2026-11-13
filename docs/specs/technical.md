@@ -11,7 +11,7 @@ uipack: current
 values: src/styles/technical.css
 ---
 
-# Technical: the package's default look
+# Technical spec
 
 Technical is the package's default look: what a figure, deck or page renders in when nothing else
 is set. Its layout picks and writing style (the aims in `src/deck/budgets.ts` are its defaults)
@@ -360,11 +360,14 @@ thing in the same words.
 
 ## Reuse
 
-Extends `core` only. The uipack docs site extends it ([docs-site](docs-site.md)); another site that
-should look like uipack says `extends: technical`.
+Extends `core` only. The UiPack docs site extends it ([docs-site](docs-site.md)); another site that
+should look like UiPack says `extends: technical`.
 
 ## Open TODOs
 
 - TODO: the Blueprint diagram look's values are Technical's today and figures still read them from
   the host's roles; once the look owns them ([Diagrams](../components/diagrams.md)), this spec stops
   listing the flow roles as its own.
+- TODO: `lintDeck` reads the code's budgets (`src/deck/budgets.ts`) and takes no per-site budget
+  (`LintOptions` in `src/deck/storyline/rules.ts`), so a spec's tighter budget is held by review, not
+  by the linter ([Writing](../system/writing/README.md#ceilings-and-technicals-defaults)).

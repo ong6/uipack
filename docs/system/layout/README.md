@@ -1,4 +1,4 @@
-# Layout: the floors every site keeps, and the archetypes a spec picks
+# Layout
 
 Layout is the structure layer: grid, named regions, which content slot fills each region, the
 reading order and the beat order. Each website has its own layout, set in its
@@ -31,6 +31,13 @@ slot names, never colours, faces or sentences.
 7. **A style never moves a region.** The spec's palette, faces and ornaments paint the layout the
    spec chose; headings may change height between widths or faces, regions and their order do not.
    Long text is fixed in the words, never by shrinking the type.
+8. **A page's header shares its content's edges.** The first item in the header (the logo) starts
+   on the content column's start edge and the last (a button, a toggle) ends on its end edge, with
+   the column's gutters, at every width; the footer too. The header's ground and rule may run the
+   window's width; what aligns is what is inside. In a shell with a sidebar the content's edges are
+   the shell's: the sidebar's start edge and the page area's end edge, wherever the site puts them
+   (docked at the window's edges, or together in a centred column). A site with several page types
+   may go further and give them one width, so the header never moves between pages; its spec says so.
 
 ## How a spec sets layout
 
@@ -126,7 +133,7 @@ The grid, from `FIGURE_GRID` in `uipack`:
 a `viewBox` much wider than its column shrinks every label below the type floor.
 
 **Patterns.** Pick the pattern from the shape of the claim before drawing. The
-[diagram catalogue](../../diagrams.md) shows each one, simplest first:
+[Architecture diagrams](../../diagrams.md) shows each one, simplest first:
 
 <!-- generated:figure-patterns -->
 | Claim shape | Pattern |
@@ -183,7 +190,7 @@ Motion layout is choreography: what moves, in what order, on which clock.
 - **Stepped figures** have one beat per step, from the beat script, with tabs `01 / 02 / 03`.
 - **Loops** longer than 5 seconds get Pause; everything ambient pauses off-screen.
 
-The deck's transition grammar (advance, morph, zoom) is in [Deck slide](deck-slide.md#transitions).
+The deck's transition grammar (advance, morph, zoom) is in [Deck slide layout](deck-slide.md#transitions).
 
 ## 3D
 

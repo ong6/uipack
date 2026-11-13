@@ -86,7 +86,13 @@ function ChartFrame({ children }: { children: React.ReactNode }) {
           </button>
         ))}
       </p>
-      <div className="chart-frame" data-frame={frame} style={{ maxWidth: frame === "full" ? undefined : `${frame}px` }}>
+      <div
+        className="chart-frame"
+        data-frame={frame}
+        // The width label beside the frame needs 56px of the column past the frame's right edge.
+        data-edge={frame !== "full" && room !== null && Number(frame) + 56 <= room ? "" : undefined}
+        style={{ maxWidth: frame === "full" ? undefined : `${frame}px` }}
+      >
         {children}
       </div>
     </>

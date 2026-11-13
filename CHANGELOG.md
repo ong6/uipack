@@ -7,6 +7,97 @@ release is cut and how a site moves to it.
 
 ## [Unreleased]
 
+### Fixed
+
+- **`DocsLayout` "On this page":** the heading being read is found from the headings in the
+  document at that moment. A host that rendered its page again and replaced the heading elements
+  left the last heading marked current (a heading no longer in the document measured as passed).
+- **The docs site, one width and one header** (owner, 2026-11-13): every view's content and the
+  header's content sit in one centred column that follows the window: the window less a gutter of
+  32px each side (24px below 1024px, 16px below 720px), up to 1600px (1376px at 1440, 1600px from a
+  1664px window): the landing page (its column was 1120px), Assets (its grid ran to 1600px), a
+  not-found page and a docs page's whole layout (the sidebar was docked to the window's edge). The
+  logo, tabs, search and theme toggle are at the same x on every view and on each view's content
+  edges. Search is the header's box on every view (a docs page had it at the top of the sidebar);
+  the toggle reads "Dark mode" / "Light mode"; one skip link, "Skip to content". Wide drawings are not
+  caged: a page without a rail gives them its whole width and they scale with it, keeping their own
+  size (and scrolling inside their canvas) only on a page narrower than 1120px. The site's own CSS
+  only: `DocsLayout` is unchanged.
+- **The docs site, small alignments:** the intro paragraph under the Assets and not-found titles is
+  18px as on a docs page; a not-found title starts 32px under the banner on a phone, as the Assets
+  title does; the read-next links are Mono 13 and run the column on a phone; the site map's group
+  captions take the sidebar's tracking; the "Fonts fetched" line sits 16px under its swatches; an
+  Assets component preview is inset 16px; footer and site-map links are 44px targets below 720px.
+- **`LayerStack`:** a band's padding sits on the 4px grid (12px; 16px at its end from 640px). A
+  one-line band keeps its 44px height; a band of two lines is 2px taller.
+- **`DocsLayout` collapsible sidebar:** a section's label starts on its page links' text edge (it
+  sat 2px to their left).
+- **`DocsLayout` "On this page" disclosure:** its label stays on one line on a phone when the
+  current heading beside it wraps.
+- **Docs search outside a `DocsLayout`:** `DocsSearchButton` and `DocsSearchDialog` style
+  themselves wherever they are mounted (a result was a browser-default link when the dialog had no
+  `.uipack-docs` ancestor); they need only the `--docs-*` names on an ancestor.
+- **`DocsLayout` drawer:** a sub-page row is a 44px tap target (it was 40px).
+- **`DocsLayout` sidebar marker:** a trip from a page whose link is scrolled out of the sidebar's
+  view starts just inside the edge it comes in by, so the marker is seen from its first frame (it
+  set off from the hidden link and spent most of a long trip out of sight), and the trip's hops
+  and time are those of the distance seen. `visibleRoute` cuts a route to a box.
+- **The docs site, Back and Forward:** they return the reader to where they were on the landing
+  page, the Assets tab and every docs page (each opened at its top: the content mounts after the
+  browser has tried to restore the position). A page opened by a link still starts at its top, and
+  a `#fragment` still lands on its heading.
+- **The docs site's header mark:** its portal starts within 400ms of the page (`--site-mark-wait`)
+  however far the sidebar's marker has to travel (it waited up to 1.2s for a long trip); it still
+  changes with the sidebar's marker when that reaches its portal sooner.
+
+- **`DocsLayout` "On this page" and Back:** a heading picked there is one history entry
+  (`history.pushState`; it replaced the current one), so Back returns the reader to where they were
+  on the page and Forward to the heading, instead of leaving the page. Picking the heading the
+  address already names adds none, and headings passed while scrolling never do.
+- **`DocsLayout` "On this page" marker:** its arcs are the sidebar's: never further from the path
+  than 7px to the right or 4.2px to the left, an interrupted hop's carried lift included, and where
+  the path has stepped right for an h3 an arc leans back toward the h2 column, so a step and an arc
+  no longer add up (the mark swung up to 20px from the h2 column).
+
+### Changed
+
+- **`DocsLayout` marker timing:** a trip takes 300ms plus 2ms a pixel, 900ms at most (it was 3ms a
+  pixel and 1400ms; 700ms at most in "On this page", from 1100ms), with no hop shorter than 100ms
+  (150ms), still one hop for each 36px and nine at most. A hop's arc is 7px at most to the right
+  and 4.2px to the left on every hop (`HOP_LIFT`, `HOP_LIFT_LEFT`; a high hop reached 8.75px).
+- **`DocsLayout` collapsible sidebar:** the current page's section is open from the first render;
+  with `markerMemory` it used to open as the travelling marker arrived, up to 1.4s into the page.
+- **`DocsLayout` and prerendering:** on a page the browser prerenders (the Speculation Rules API)
+  the sidebar docks in place, then mounts again when the page is shown, so the marker's trip and
+  `markerMemory` are read on the first frame the reader sees.
+- **The docs site, page changes:** a link to another page is prerendered when hovered or pressed
+  (speculation rules in `playground/index.html`, allowed by hash in `vercel.json`'s
+  Content-Security-Policy), and shown at once when followed; browsers without the API preload the
+  page's files instead (`playground/link-preload.ts`). The header mark's portal opens 160ms after
+  the page (`--site-mark-wait`, it was 400ms).
+- **The docs site, no flash between pages:** a page change no longer blanks. The document has its
+  ground and colour scheme inline from the first byte (the dev server painted a white document for
+  200 to 300ms, in dark too); the entry and the page's module are render-blocking and a docs page's
+  Markdown is in its HTML, so the first frame is the whole page (a build painted an empty ground,
+  then the shell without its content for about 50ms, then faded the article in from opacity 0);
+  and page changes are cross-document view transitions in which the header, the sidebar and "On
+  this page" stay put and the content cross-fades over 160ms. The page's entrance from opacity 0
+  is gone; only content that arrives after the first frame eases in. No transition with reduced
+  motion; a browser without cross-document view transitions gets a plain load that is whole on its
+  first frame.
+- **The docs site's landing loop:** the default logo is still, in the ink, for a full 5s (5.12s;
+  it was about 4.1s of a 5s slot), in a 14s loop (13s). Each section state is 2s, as before.
+
+### Added
+
+- **Figure controls:** `.uipack__ctl` (Open canvas, Pause, Replay) reads `--uipack-ctl-radius`, 6px
+  without it, so a host gives the controls its own corner.
+- **`DocsLayout` type hooks:** `--docs-leading-display`, `--docs-leading-label`,
+  `--docs-leading-text`, `--docs-leading-prose`, `--docs-label-tracking` and `--docs-title-gap`,
+  each with the layout's own value as its fallback ([docs layout](docs/docs-layout.md)).
+- **`DocsLayout` `searchOpen` and `onSearchOpenChange`:** a host can open the search dialog from a
+  control of its own, a search button in its header on a phone, say.
+
 ## [0.6.0] - 2026-11-12
 
 The docs shell (`uipack/docs`) gains collapsible sections with navigation hues, a travelling
@@ -22,10 +113,15 @@ One default changes what a page draws (below), so this is a minor release
   and `.hue` (a navigation hue that marks only the heading's icon, the current-page marker and search
   results), and `DocsNavItem.group` (a caption above a group of pages inside a section).
 - **`DocsLayout` marker:** `marker="plane"` or `"mark"` (the uipack square mark) instead of the bar:
-  in "On this page" it glides along a dotted path to the heading being read (a picked heading scrolls
+  in "On this page" it travels a dotted path to the heading being read (a picked heading scrolls
   into view and stays current); in the sidebar it docks beside the current page, and with
-  `markerMemory` (a sessionStorage key) it flies there from the page the reader left, crossing
-  sections and opening the new one as it arrives, with a short dotted trail. Reduced motion: it jumps.
+  `markerMemory` (a sessionStorage key) it travels there from the page the reader left, crossing
+  sections and opening the new one as it arrives. The plane flies, with a short dotted trail; the
+  mark hops like a game piece (small arcs with a soft squash on landing, one hop for a neighbouring
+  link, nine at most, each hop its own way, with the same trail; `markerMorph="portal"` adds a
+  stop to change cell and colour in: a ring the mark turns into and comes back out of). `markerLive` and `markerColor` put the mark's dot on any
+  of its four cells in any colour, so the marker can show a state per page (`DocsMarkerCell`), and
+  `onMarkerTrip` tells the host how long a trip takes. Reduced motion: it jumps.
 - **`DocsLayout` drawer:** `mobileNavigation="drawer"` with `navigationOpen` and
   `onNavigationOpenChange`: below 900px the sidebar is a modal drawer from the left, opened by the
   host's header button.
@@ -35,9 +131,20 @@ One default changes what a page draws (below), so this is a minor release
   opens a ⌘K / Ctrl-K dialog with results grouped by section. Hand-rolled, no library or WebAssembly:
   `docsSearchEntries`, `packDocsSearchIndex`, `unpackDocsSearchIndex`, `searchDocs`,
   `groupDocsResults` and their types build and rank a static index ([docs layout](docs/docs-layout.md)).
+- **`Wordmark` section states:** `live` (a `MarkCell`, 0 to 3 in reading order) moves the uipack
+  mark's dot to that cell and `liveColor` colours it; without `live` the wordmark's markup is
+  unchanged. The docs site's header puts the dot on the page's section in its hue (Start top left,
+  Rules top right, Build bottom left, Check bottom right; neutral elsewhere), changes it in a
+  portal when the section changes (a ring the mark turns into and out of, in time with the sidebar
+  marker's), and on the landing page rests as the default logo for 5s, then visits the four in
+  turn, hopping (still under reduced motion). Each page eases in under the header (a 320ms fade
+  and rise).
+  The site's location marker is that mark in the same state, in the sidebar and "On this page".
+  There the brand is the ink on docs pages too (it took the docs link colour, the accent), and
+  below 360px the whole mark shows on docs pages (its right column was clipped).
 - **The docs site's own spec**, [docs/specs/docs-site.md](docs/specs/docs-site.md) (extends
   Technical): a darker, neutral charcoal dark palette, the five sidebar sections' hues, the location
-  marker (`?marker=mark` to compare), the shell's widths, and search. A registry row for
+  marker (`?marker=plane` to compare), the shell's widths, and search. A registry row for
   ui.junxiong.dev; Technical's row is now the package defaults.
 - `playground/grade.json`: the docs site's tier-1 config, with a 1920 view beside 1440 and 390
   (`e2e/tier1.spec.ts` uses it, on the landing page too).

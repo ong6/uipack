@@ -1,5 +1,12 @@
-import { useCallback, useEffect, useId, useRef, useState, type MouseEvent, type ReactNode } from "react";
-import { ContentsRail, prefersReducedMotion, type DocsMarkerShape } from "./DocsMarkers";
+import { useCallback, useEffect, useId, useRef, useState, type CSSProperties, type MouseEvent, type ReactNode } from "react";
+import {
+  ContentsRail,
+  prefersReducedMotion,
+  useActivated,
+  type DocsMarkerCell,
+  type DocsMarkerMorph,
+  type DocsMarkerShape,
+} from "./DocsMarkers";
 import { flatItems, SectionNavigation } from "./DocsNavigation";
 import { DocsSearchButton, DocsSearchDialog, useDocsSearchShortcut, type DocsSearchOptions } from "./DocsSearch";
 
@@ -75,11 +82,33 @@ export interface DocsLayoutProps {
   collapsible?: boolean;
   /**
    * How the current place is marked, in the sidebar and in "On this page". "bar" (default): a bar
-   * beside the link. "plane" or "mark" (the uipack square mark): a marker that travels a dotted
-   * path to the current heading as the reader scrolls, and in the sidebar from the page the reader
-   * came from to the current one, tinted with the section's hue.
+   * beside the link. "plane" or "mark" (the uipack square mark): a marker that travels to the
+   * current heading as the reader scrolls, and in the sidebar from the page the reader came from to
+   * the current one, tinted with the section's hue. The plane flies a dotted path; the mark hops.
    */
   marker?: "bar" | DocsMarkerShape;
+  /**
+   * With `marker="mark"`: which of the mark's four cells is its dot, 0 to 3 in reading order (top
+   * left, top right, bottom left, bottom right). Default 3, the mark as it is drawn everywhere.
+   */
+  markerLive?: DocsMarkerCell;
+  /**
+   * With `marker="mark"`: the dot's colour, any CSS colour. Default: the section's hue in the
+   * sidebar and the accent in "On this page". The three squares are the ink.
+   */
+  markerColor?: string;
+  /**
+   * With `marker="mark"` and `markerMemory`: how the mark changes its dot's cell and colour on a
+   * trip between pages whose marks differ. "none" (default): as its last hop lifts. "portal": it
+   * stops before its last hop, a ring opens, the mark turns into it and comes back out changed.
+   */
+  markerMorph?: DocsMarkerMorph;
+  /**
+   * The sidebar's marker sets off on a trip from the page the reader left and lands in `ms`, so a
+   * host can time something of its own to the landing; `changeAt` is when (ms into the trip) the
+   * mark changes in its portal, when it does. Not called when it docks in place.
+   */
+  onMarkerTrip?: (ms: number, changeAt?: number) => void;
   /**
    * A sessionStorage key under which the sidebar remembers the page being left, its open sections
    * and its scroll, so the next page's marker travels from there. Default: none (it docks in place).
@@ -87,6 +116,14 @@ export interface DocsLayoutProps {
   markerMemory?: string;
   /** Search: a box at the top of the sidebar and a ⌘K / Ctrl-K dialog over the host's index. */
   search?: DocsSearchOptions;
+  /**
+   * With `search`: whether the dialog is open, for a host that opens it from a control of its own
+   * (a search button in its header). Give it with `onSearchOpenChange`; without it the layout keeps
+   * the state itself.
+   */
+  searchOpen?: boolean;
+  /** With `searchOpen`: the dialog asks to open or close (the sidebar's box, ⌘K, Escape, a result picked). */
+  onSearchOpenChange?: (open: boolean) => void;
   /** The page's Markdown source as plain text ("View as Markdown"), shown above the page. */
   markdownHref?: string;
   /** Where to edit the page's source ("Edit on GitHub"), shown above the page. */
@@ -118,13 +155,16 @@ function useCurrentSection(ids: string[]) {
   // Keyed by the ids' values, so a fresh array with the same ids does not re-measure.
   const key = ids.join(" ");
   useEffect(() => {
-    const headings = (key ? key.split(" ") : [])
-      .map((id) => document.getElementById(id))
-      .filter((element): element is HTMLElement => element !== null);
-    if (headings.length === 0) return;
+    const wanted = key ? key.split(" ") : [];
+    if (wanted.length === 0) return;
     let frame = 0;
     const update = () => {
       frame = 0;
+      // Looked up each time: a host that renders its page again may replace the heading elements,
+      // and one measured after it has left the document would read as passed (its box is empty).
+      const headings = wanted
+        .map((id) => document.getElementById(id))
+        .filter((element): element is HTMLElement => element !== null);
       const line = window.innerHeight * 0.3;
       const atEnd = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
       let next: string | null = null;
@@ -151,7 +191,10 @@ function useCurrentSection(ids: string[]) {
 
 /**
  * A heading picked in "On this page" stays current while the page scrolls to it and after, until
- * the reader scrolls on (the last headings can never reach the reading line).
+ * the reader scrolls on (the last headings can never reach the reading line). Each pick is one
+ * history entry, as a plain `#fragment` link's is: Back returns the reader to where they were on
+ * the page (the browser keeps each entry's scroll position) and Forward to the heading. Picking the
+ * heading the address already names adds none, and headings passed while scrolling never do.
  */
 function usePickedHeading() {
   const [picked, setPicked] = useState<string | null>(null);
@@ -181,11 +224,21 @@ function usePickedHeading() {
       if (s.scrolling || s.at === null) return;
       if (Math.abs(window.scrollY - s.at) >= 6) setPicked(null);
     };
+    // Back or Forward: the browser puts the reader where they were in that entry. The pick lets go
+    // at once, and a scroll still on its way to the heading is not landed on it afterwards.
+    const onTraverse = () => {
+      clearTimeout(s.timer);
+      s.scrolling = false;
+      s.at = null;
+      setPicked(null);
+    };
     addEventListener("scrollend", done);
     addEventListener("scroll", onScroll, { passive: true });
+    addEventListener("popstate", onTraverse);
     return () => {
       removeEventListener("scrollend", done);
       removeEventListener("scroll", onScroll);
+      removeEventListener("popstate", onTraverse);
     };
   }, [picked, land]);
   const pick = useCallback(
@@ -201,8 +254,17 @@ function usePickedHeading() {
       // No scrollend (Safari before 26, or no scroll at all): land after the longest smooth scroll.
       s.timer = window.setTimeout(land, 1400);
       setPicked(id);
+      // The entry first, while the page is still where the reader was: that is the position the
+      // browser keeps for the entry being left.
+      let named = location.hash.slice(1);
+      try {
+        named = decodeURIComponent(named);
+      } catch {
+        /* keep the raw fragment */
+      }
+      if (named === id) history.replaceState(history.state, "", `#${id}`);
+      else history.pushState(history.state, "", `#${id}`);
       heading.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", block: "start" });
-      history.replaceState(history.state, "", `#${id}`);
     },
     [land],
   );
@@ -228,8 +290,14 @@ export function DocsLayout({
   navigationLabel = "Documentation",
   collapsible = false,
   marker = "bar",
+  markerLive,
+  markerColor,
+  markerMorph,
+  onMarkerTrip,
   markerMemory,
   search,
+  searchOpen,
+  onSearchOpenChange,
   markdownHref,
   editHref,
   eyebrow,
@@ -244,6 +312,9 @@ export function DocsLayout({
   const spied = useCurrentSection(onThisPage.map((item) => item.id));
   const [picked, pick] = usePickedHeading();
   const travelling = marker !== "bar";
+  // A prerendered page shows its sidebar docked in place; once the reader sees it, the sidebar
+  // mounts again with what the page they left remembered, and the marker travels from there.
+  const activated = useActivated();
   // A travelling marker always rests somewhere: on the first heading until the reader passes one.
   const currentSection = picked ?? spied ?? (travelling ? (onThisPage[0]?.id ?? null) : null);
   const current = flatItems(sections.flatMap((section) => section.items)).find((item) => item.href === activeHref);
@@ -251,7 +322,10 @@ export function DocsLayout({
   const Article = landmark;
   const drawer = useRef<HTMLDialogElement>(null);
   const contents = useRef<HTMLDetailsElement>(null);
-  const [searching, setSearching] = useState(false);
+  const [ownSearching, setOwnSearching] = useState(false);
+  // The host holds the search dialog's state when it gives it; otherwise it is the layout's own.
+  const searching = searchOpen ?? ownSearching;
+  const setSearching = onSearchOpenChange ?? setOwnSearching;
 
   // The drawer is a modal dialog: focus moves in and stays, Escape and the scrim close it, and the
   // page behind it holds still until it closes.
@@ -272,7 +346,17 @@ export function DocsLayout({
   useDocsSearchShortcut(!!search, setSearching);
 
   const searchButton = search && <DocsSearchButton placeholder={search.placeholder} onOpen={() => setSearching(true)} />;
-  const navProps = { sections, activeHref, label: navigationLabel, collapsible, marker, memoryKey: markerMemory };
+  const navProps = {
+    sections,
+    activeHref,
+    label: navigationLabel,
+    collapsible,
+    marker,
+    live: markerLive,
+    dot: markerColor,
+    morph: markerMorph,
+    memoryKey: markerMemory,
+  };
   const pickHeading = (id: string, event: MouseEvent<HTMLAnchorElement>) => {
     if (contents.current) contents.current.open = false;
     pick(id, event);
@@ -285,6 +369,7 @@ export function DocsLayout({
       data-palette={palette}
       data-width={width === "wide" ? "wide" : undefined}
       data-marker={travelling ? marker : undefined}
+      style={markerColor && travelling ? ({ "--docs-marker-dot": markerColor } as CSSProperties) : undefined}
       data-mobile-navigation={mobileNavigation === "drawer" ? "drawer" : undefined}
     >
       <a className="uipack-docs__skip" href={`#${contentId}`}>
@@ -369,7 +454,13 @@ export function DocsLayout({
       <div className="uipack-docs__grid" data-toc={onThisPage.length > 0 ? undefined : "none"}>
         <aside className="uipack-docs__sidebar">
           {searchButton}
-          <SectionNavigation {...navProps} travels />
+          <SectionNavigation
+            key={activated ? "shown" : "prerendered"}
+            {...navProps}
+            memoryKey={activated ? markerMemory : undefined}
+            onTrip={onMarkerTrip}
+            travels
+          />
         </aside>
 
         <Article
@@ -439,7 +530,7 @@ export function DocsLayout({
           <aside className="uipack-docs__toc" aria-label="On this page">
             <p>On this page</p>
             {travelling ? (
-              <ContentsRail items={onThisPage} current={currentSection} shape={marker} onPick={pick} />
+              <ContentsRail items={onThisPage} current={currentSection} shape={marker} live={markerLive} onPick={pick} />
             ) : (
               <ol>
                 {onThisPage.map((item) => (

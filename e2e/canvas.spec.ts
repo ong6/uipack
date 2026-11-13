@@ -79,8 +79,8 @@ test("catalog filters, style grouping, and presentation composition work on mobi
   const drawer = page.getByRole("dialog", { name: "Library menu" });
   await page.getByRole("button", { name: "Open navigation" }).click();
   await drawer.getByRole("button", { name: "Rules", exact: true }).click();
-  await drawer.getByRole("link", { name: "Technical", exact: true }).click();
-  await expect(page.getByRole("heading", { name: "Technical", exact: true })).toBeVisible();
+  await drawer.getByRole("link", { name: "Technical spec", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Technical spec", exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Open navigation" }).click();
   const build = drawer.getByRole("button", { name: "Build", exact: true });
   if ((await build.getAttribute("aria-expanded")) === "false") await build.click();

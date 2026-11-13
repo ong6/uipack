@@ -4,13 +4,21 @@ import type { DocsNavItem, DocsSection } from "./DocsLayout";
 import {
   flyNavMarker,
   MarkerGlyph,
+  markerTransform,
   NAV_DOCK_X,
   NAV_SUB_DOCK_X,
+  NAV_TRIP_INSET,
   navRoute,
+  navTripChange,
+  navTripDuration,
   prefersReducedMotion,
   readNavMemory,
+  visibleRoute,
   writeNavMemory,
+  type DocsMarkerCell,
+  type DocsMarkerMorph,
   type DocsMarkerShape,
+  type NavDraw,
   type Point,
 } from "./DocsMarkers";
 
@@ -40,6 +48,9 @@ function captionRuns(items: DocsNavItem[]) {
 }
 
 const hueStyle = (hue: string | undefined) => (hue ? ({ "--docs-hue": hue } as CSSProperties) : undefined);
+/** The marker's track: its section's hue and, when the host sets one, the mark's dot colour. */
+const trackStyle = (hue: string | undefined, dot: string | undefined) =>
+  ({ ...(hue ? { "--docs-hue": hue } : {}), ...(dot ? { "--docs-marker-dot": dot } : {}) }) as CSSProperties;
 const inert = (on: boolean) => (on ? ({ inert: "" } as object) : {});
 
 function NavigationItem({ item, activeHref }: { item: DocsNavItem; activeHref: string }) {
@@ -73,15 +84,23 @@ export interface SectionNavigationProps {
   label: string;
   collapsible: boolean;
   marker: "bar" | DocsMarkerShape;
+  /** The mark's live cell and its dot's colour (DocsLayout's `markerLive` and `markerColor`). */
+  live?: DocsMarkerCell;
+  dot?: string;
   memoryKey?: string;
+  /** The marker sets off on a trip that lands in `ms` (DocsLayout's `onMarkerTrip`). */
+  onTrip?: (ms: number, changeAt?: number) => void;
+  /** How the mark changes between sections on a trip (DocsLayout's `markerMorph`). */
+  morph?: DocsMarkerMorph;
   /** This copy plays the trip from the remembered page (the sidebar; the drawer and disclosure dock in place). */
   travels: boolean;
 }
 
 /**
  * The sections and their pages. Collapsible, a section's heading is a button with its page count;
- * the current section opens (and, after a page change, any the reader had open). With a travelling
- * marker, a decorative SVG over the left edge draws it and its trail.
+ * the current section is open from the first render (and, after a page change, any the reader had
+ * open): the marker's trip is decoration and nothing waits for it. With a travelling marker, a
+ * decorative SVG over the left edge draws it and its trail.
  */
 export function SectionNavigation({
   sections,
@@ -89,13 +108,18 @@ export function SectionNavigation({
   label,
   collapsible,
   marker,
+  live,
+  dot,
   memoryKey,
+  onTrip,
+  morph = "none",
   travels,
 }: SectionNavigationProps) {
   const uid = useId();
   const navRef = useRef<HTMLElement>(null);
   const glyph = useRef<SVGGElement>(null);
   const trail = useRef<SVGPathElement>(null);
+  const portal = useRef<SVGCircleElement>(null);
   const svg = useRef<SVGSVGElement>(null);
   const activeSection = sections.find((s) => hasHref(s, activeHref));
   const activeKey = activeSection ? keyOf(activeSection) : undefined;
@@ -106,8 +130,7 @@ export function SectionNavigation({
   const trip = memory && memory.href !== activeHref ? memory : null;
   const [open, setOpen] = useState<Set<string>>(() => {
     const set = new Set(memory ? memory.open.filter((k) => keys.includes(k)) : []);
-    // The current section opens now, or, at the end of a trip into it, as the marker arrives.
-    if (activeKey && (!trip || prefersReducedMotion())) set.add(activeKey);
+    if (activeKey) set.add(activeKey);
     return set;
   });
   const openRef = useRef(open);
@@ -117,11 +140,17 @@ export function SectionNavigation({
   const flying = useRef(false);
   // A trip is about to start: the marker stays hidden until it sets off from the old page's link.
   const pending = useRef(!!trip && marker !== "bar");
+  // Until the trip's last stretch the marker is drawn as it was on the page being left: that
+  // section's hue, and the mark's dot on that page's cell in its colour.
+  const [leaving, setLeaving] = useState(() => !!trip && marker !== "bar" && !prefersReducedMotion());
+  const leftSection = leaving && trip ? sections.find((s) => hasHref(s, trip.href)) : undefined;
+  const shown =
+    leaving && trip ? { hue: leftSection?.hue ?? activeSection?.hue, live: trip.live ?? live, dot: trip.dot ?? dot } : null;
 
   const remember = useCallback(() => {
     const scroller = navRef.current?.closest<HTMLElement>(".uipack-docs__sidebar");
-    writeNavMemory(memoryKey, { href: activeHref, open: [...openRef.current], scroll: scroller?.scrollTop ?? 0 });
-  }, [memoryKey, activeHref]);
+    writeNavMemory(memoryKey, { href: activeHref, open: [...openRef.current], scroll: scroller?.scrollTop ?? 0, live, dot });
+  }, [memoryKey, activeHref, live, dot]);
 
   useEffect(() => {
     if (!memoryKey || !travels) return;
@@ -145,9 +174,15 @@ export function SectionNavigation({
     return { x: a.closest(".uipack-docs__nav-sub") ? NAV_SUB_DOCK_X : NAV_DOCK_X, y: r.top - top + r.height / 2 };
   }, []);
 
-  const draw = useCallback((x: number, y: number, deg: number, path = "") => {
-    glyph.current?.setAttribute("transform", `translate(${x.toFixed(2)} ${y.toFixed(2)}) rotate(${deg.toFixed(1)})`);
+  const draw = useCallback<NavDraw>((x, y, deg, path = "", sx = 1, sy = 1, centred = false, ring = 0) => {
+    glyph.current?.setAttribute("transform", markerTransform(x, y, deg, sx, sy, centred));
     trail.current?.setAttribute("d", path);
+    // The portal's ring opens where the mark stands; shut, it is not drawn.
+    if (portal.current) {
+      portal.current.setAttribute("cx", x.toFixed(2));
+      portal.current.setAttribute("cy", y.toFixed(2));
+      portal.current.setAttribute("r", (11 * ring).toFixed(2));
+    }
   }, []);
 
   /** Sizes the drawing to the nav and docks the marker beside the current link (hidden when its section is shut). */
@@ -164,7 +199,7 @@ export function SectionNavigation({
     const shut = !a || !!a.closest(".uipack-docs__nav-section:not([data-open])");
     svg.current.toggleAttribute("data-hidden", shut);
     const p = dockOf(a);
-    if (p && !shut) draw(p.x, p.y, 0);
+    if (p && !shut) draw(p.x, p.y, 0, "");
   }, [dockOf, draw]);
 
   // Follow the layout: a section folding, wrapping, fonts arriving, the drawer opening.
@@ -178,14 +213,14 @@ export function SectionNavigation({
     return () => observer.disconnect();
   }, [marker, dock, open]);
 
-  // The trip: from the page the reader left to this one, opening this page's section on arrival.
+  // The trip: from the page the reader left to this one, whose section is open already.
   useEffect(() => {
     const nav = navRef.current;
     if (!trip || marker === "bar") return;
     pending.current = false;
-    // No trip to play (hidden sidebar, reduced motion, the old page not in it): open and dock in place.
+    // No trip to play (hidden sidebar, reduced motion, the old page not in it): dock in place.
     const settleInPlace = () => {
-      if (activeKey) setOpen((s) => (s.has(activeKey) ? s : new Set(s).add(activeKey)));
+      setLeaving(false);
       dock();
     };
     if (!nav || !nav.offsetParent || prefersReducedMotion()) return settleInPlace();
@@ -200,65 +235,63 @@ export function SectionNavigation({
       : dockOf(old);
     const to = dockOf(target);
     if (!from || !to || !svg.current) return settleInPlace();
-    // Bring the destination into view, so the reader sees it land: now, and again once its section
-    // has opened (a shut section is too short to scroll to).
+    // Bring the destination into view, so the reader sees it land.
     const scroller = nav.closest<HTMLElement>(".uipack-docs__sidebar");
-    const reveal = () => {
-      if (!scroller || !target) return;
+    /** Where the sidebar scrolls to so the destination shows, or null when it already does. */
+    const revealTop = () => {
+      if (!scroller || !target) return null;
       const sr = scroller.getBoundingClientRect();
       const tr = target.getBoundingClientRect();
-      if (tr.top < sr.top + 24 || tr.bottom > sr.bottom - 24)
-        scroller.scrollTo({
-          top: scroller.scrollTop + tr.top - sr.top - sr.height / 2,
-          behavior: prefersReducedMotion() ? "auto" : "smooth",
-        });
+      if (tr.top >= sr.top + 24 && tr.bottom <= sr.bottom - 24) return null;
+      const most = scroller.scrollHeight - scroller.clientHeight;
+      return Math.max(0, Math.min(most, scroller.scrollTop + tr.top - sr.top - sr.height / 2));
     };
-    reveal();
-    // It leaves in the hue of the section it came from and takes on the new one on the way.
-    const fromHue = old?.closest<HTMLElement>(".uipack-docs__nav-section")?.style.getPropertyValue("--docs-hue");
-    const toHue = activeSection?.hue;
-    if (fromHue && toHue && fromHue !== toHue) {
-      svg.current.style.transition = "none";
-      svg.current.style.setProperty("--docs-hue", fromHue);
-      void svg.current.getBoundingClientRect();
-      svg.current.style.transition = "";
-      requestAnimationFrame(() => svg.current?.style.setProperty("--docs-hue", toHue));
+    const reveal = (behavior: ScrollBehavior = "smooth") => {
+      const top = revealTop();
+      if (top !== null) scroller?.scrollTo({ top, behavior });
+    };
+    // The trip is drawn where the reader will see it: in the part of the sidebar on show once the
+    // destination has scrolled into view. A route that starts outside it (the old page's link is
+    // scrolled away) is cut to start just inside its edge. The sidebar scrolls there smoothly when
+    // that start is on show already; when it is not, the sidebar is there at once, so the marker
+    // is seen from its first frame.
+    const whole = navRoute(from, to);
+    let route = whole;
+    if (scroller) {
+      const sr = scroller.getBoundingClientRect();
+      const top = sr.top - nav.getBoundingClientRect().top;
+      const shift = (revealTop() ?? scroller.scrollTop) - scroller.scrollTop;
+      route = visibleRoute(whole, top + shift + NAV_TRIP_INSET, top + shift + sr.height - NAV_TRIP_INSET);
+      const start = route[0].y;
+      reveal(start >= top && start <= top + sr.height ? "smooth" : "instant");
     }
-    let revealTimer = 0;
-    const arriving = activeKey && !openRef.current.has(activeKey) ? activeKey : null;
-    const heading = arriving
-      ? nav.querySelector(`[data-nav-section="${esc(arriving)}"] .uipack-docs__nav-heading`)?.getBoundingClientRect()
-      : null;
-    const navTop = nav.getBoundingClientRect().top;
-    const gate = heading ? (to.y >= from.y ? heading.top - navTop : heading.bottom - navTop) : null;
-    let opened = !arriving;
-    const openNow = () => {
-      if (opened || !arriving) return;
-      opened = true;
-      setOpen((s) => new Set(s).add(arriving));
-      revealTimer = window.setTimeout(reveal, 300);
-    };
     flying.current = true;
     svg.current.removeAttribute("data-hidden");
     svg.current.setAttribute("data-flying", "");
+    // The mark stops to change only when this page's mark differs from the one it set off as.
+    const changes = marker === "mark" && (trip.live !== live || trip.dot !== dot) ? morph : "none";
+    onTrip?.(navTripDuration(route, marker, changes), changes === "none" ? undefined : navTripChange(route));
+    // The plane takes on the new section's hue on the way; the mark changes as its last hop lifts.
+    const arrive = () => setLeaving(false);
+    const hueFrame = marker === "plane" ? requestAnimationFrame(arrive) : 0;
     const cancel = flyNavMarker(
-      navRoute(from, to),
+      route,
       marker,
       draw,
       () => {
         flying.current = false;
-        openNow();
+        arrive();
         svg.current?.removeAttribute("data-flying");
         dock();
       },
-      (y) => {
-        if (gate !== null && (to.y >= from.y ? y >= gate : y <= gate)) openNow();
-      },
+      undefined,
+      arrive,
+      changes,
     );
     const track = svg.current;
     return () => {
       cancel();
-      clearTimeout(revealTimer);
+      cancelAnimationFrame(hueFrame);
       flying.current = false;
       track.removeAttribute("data-flying");
     };
@@ -292,12 +325,13 @@ export function SectionNavigation({
           className="uipack-docs__nav-track"
           aria-hidden="true"
           focusable="false"
-          style={hueStyle(activeSection?.hue)}
+          style={trackStyle(shown ? shown.hue : activeSection?.hue, shown ? shown.dot : dot)}
           data-hidden=""
         >
           <path ref={trail} className="uipack-docs__nav-trail" />
+          <circle ref={portal} className="uipack-docs__nav-portal" r="0" />
           <g ref={glyph} className="uipack-docs__marker">
-            <MarkerGlyph shape={marker} />
+            <MarkerGlyph shape={marker} live={shown ? shown.live : live} />
           </g>
         </svg>
       )}

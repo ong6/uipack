@@ -1,5 +1,5 @@
 import { figureEntries } from "../playground/catalog";
-import { expect, test, waitForPage, waitForStable } from "./fixtures";
+import { expect, test, waitForPage, waitForStable, type Locator, type Page } from "./fixtures";
 import { ALL, SECTIONS, currentLink, expectPageTitle, outline, sidebar, tabOf, title } from "./page-audit";
 
 // Every page's own outline, tab title, phone header and overflow are checked in page-audit.spec.ts.
@@ -41,7 +41,7 @@ test("previous and next follow the sidebar's order", async ({ page }) => {
     "href",
     "/foundations/style?theme=light",
   );
-  await expect(pager.getByRole("link", { name: /Next.*General rules/ })).toHaveAttribute(
+  await expect(pager.getByRole("link", { name: /Next.*General writing rules/ })).toHaveAttribute(
     "href",
     "/foundations/writing/general?theme=light",
   );
@@ -71,11 +71,11 @@ test("every page links its Markdown source, served as plain text, and its GitHub
 
 test("the theme toggle updates the sidebar links and keeps the page", async ({ page }) => {
   await page.goto("/charts?theme=light");
-  await page.getByRole("button", { name: "dark mode", exact: true }).click();
+  await page.getByRole("button", { name: "Dark mode", exact: true }).click();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
   await expect(sidebar(page).getByRole("link", { name: "Article parts" })).toHaveAttribute("href", "/article?theme=dark");
   await sidebar(page).getByRole("button", { name: "Rules", exact: true }).click();
-  await expect(sidebar(page).getByRole("link", { name: "Overview", exact: true })).toHaveAttribute(
+  await expect(sidebar(page).getByRole("link", { name: "Core rules", exact: true })).toHaveAttribute(
     "href",
     "/foundations?theme=dark",
   );
@@ -159,7 +159,7 @@ test.describe("390px header and drawer", () => {
     const heights = await drawer
       .locator(".uipack-docs__nav-heading button, .uipack-docs__navigation > section[data-open] a")
       .evaluateAll((els) => els.filter((a) => a.getClientRects().length).map((a) => a.getBoundingClientRect().height));
-    expect(Math.min(...heights)).toBeGreaterThanOrEqual(40);
+    expect(Math.min(...heights)).toBeGreaterThanOrEqual(44);
     const current = drawer.locator('[aria-current="page"]');
     await expect(current).toHaveCount(1);
     await expect(current).toHaveText("Charts");
@@ -168,9 +168,9 @@ test.describe("390px header and drawer", () => {
     const hrefs = await drawer.getByRole("link").evaluateAll((els) => els.map((a) => a.getAttribute("href")));
     expect(hrefs.every((h) => h!.includes("theme=dark"))).toBe(true);
     await drawer.getByRole("button", { name: "Reference", exact: true }).click();
-    await drawer.getByRole("link", { name: "Icons & marks" }).click();
+    await drawer.getByRole("link", { name: "Icons and marks" }).click();
     await expect(page).toHaveURL(/\/assets\?theme=dark$/);
-    await expectPageTitle(page, "Icons & marks", "/assets");
+    await expectPageTitle(page, "Icons and marks", "/assets");
     await expect(page.locator(".showcase-crumb")).toHaveText("Reference");
     await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
   });
@@ -244,9 +244,9 @@ test.describe("390px header and drawer", () => {
 
   test("the theme icon button has a name and flips the theme", async ({ page }) => {
     await page.goto("/?theme=light");
-    await page.getByRole("button", { name: "dark mode", exact: true }).click();
+    await page.getByRole("button", { name: "Dark mode", exact: true }).click();
     await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
-    await expect(page.getByRole("button", { name: "light mode", exact: true })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Light mode", exact: true })).toBeVisible();
   });
 });
 
@@ -327,7 +327,7 @@ test.describe("desktop sidebar groups", () => {
     await expect(rules.getByRole("link")).toHaveText(ALL.filter((p) => p.section === "Rules").map((p) => p.label));
     await expect(rules.locator(".uipack-docs__nav-caption")).toHaveText(["Site specs"]);
     await expect(sidebar(page).getByRole("list", { name: "Writing" }).getByRole("link")).toHaveText([
-      "General rules",
+      "General writing rules",
       "Talks and slides",
       "Read-alone documents",
       "Web and landing copy",
@@ -369,7 +369,7 @@ test.describe("landmarks and skip link", () => {
         await expect(page.locator("main header, main nav.uipack-docs__navigation")).toHaveCount(0);
         await expectPageTitle(page, "Charts", "/charts");
         // The skip link is hidden (a clipped 1px box) until it takes focus, as the first Tab stop.
-        const skip = page.getByRole("link", { name: "Skip to documentation content" });
+        const skip = page.getByRole("link", { name: "Skip to content" });
         expect((await skip.boundingBox())!.width).toBeLessThanOrEqual(1);
         const firstFocusable = await page.evaluate(
           () =>
@@ -377,7 +377,7 @@ test.describe("landmarks and skip link", () => {
               "a[href], button, input, select, textarea, summary, [tabindex]:not([tabindex='-1'])",
             )?.textContent,
         );
-        expect(firstFocusable).toBe("Skip to documentation content");
+        expect(firstFocusable).toBe("Skip to content");
         // WebKit's default Tab reaches text fields only, so there the link takes focus directly.
         if (browserName === "webkit") await skip.focus();
         else await page.keyboard.press("Tab");
@@ -399,7 +399,7 @@ test.describe("landmarks and skip link", () => {
 test("an unknown address says so and links to every page", async ({ page }) => {
   await page.goto("/nope?theme=dark");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Page not found");
-  await expect(page).toHaveTitle("Page not found · uipack");
+  await expect(page).toHaveTitle("Page not found · UiPack");
   // Not the diagrams page in disguise.
   await expect(page.locator('section[data-section="pipeline"]')).toHaveCount(0);
   await expect(currentLink(page)).toHaveCount(0);
@@ -485,15 +485,27 @@ test("the deck's print page and speaker window name themselves: tab title and on
   ] as const) {
     await page.goto(path);
     const deckName = path.includes("bento") ? "Bento" : "Tech talk";
-    await expect(page).toHaveTitle(`${name} · ${deckName} · Deck player · uipack`);
+    await expect(page).toHaveTitle(`${name} · Deck player · ${deckName} · UiPack`);
     const h1 = page.getByRole("heading", { level: 1 });
     await expect(h1).toHaveCount(1);
     await expect(h1).toHaveText(`${deckName} deck, ${name.toLowerCase()}`);
   }
 });
 
-test("while a page's chunk loads, the shell stays and a status line says what is loading", async ({ page }) => {
-  // Hold the page module until the shell has been checked. Dev serves it as /MarkdownShowcase.tsx; a build as a hashed chunk.
+test("a page whose module was not loaded with the document: the shell stays and a status line says what is loading", async ({
+  page,
+}) => {
+  // The document loads the page's module render-blocking, ahead of the entry, so the first frame is
+  // the whole page. Without that (an address whose HTML does not name its module), the shell is
+  // painted first: take the page's script and its text out of the document, and hold the module
+  // until the shell has been checked. Dev serves it as /MarkdownShowcase.tsx; a build as a hashed chunk.
+  await page.route(/\/docs\?theme=dark$/, async (route) => {
+    const response = await route.fetch();
+    const html = (await response.text())
+      .replace(/<script blocking="render"[^>]*MarkdownShowcase[^>]*><\/script>/, "")
+      .replace(/<script type="application\/json" id="uipack-page-text"[\s\S]*?<\/script>/, "");
+    await route.fulfill({ response, body: html });
+  });
   let release!: () => void;
   const held = new Promise<void>((resolve) => (release = resolve));
   await page.route(/\/(assets\/)?MarkdownShowcase[-.][^/]*$/, async (route) => {
@@ -505,6 +517,11 @@ test("while a page's chunk loads, the shell stays and a status line says what is
   await expect(currentLink(page)).toHaveText("Docs layout");
   const status = page.getByRole("main").getByRole("status");
   await expect(status).toHaveText("Loading Docs layout…");
+  await expect(page.locator("html")).toHaveAttribute("data-page-late", "");
+  // The late content eases in (a short fade and rise): measure once that is over.
+  const entered = () =>
+    page.getByRole("main").evaluate((main) => Promise.all(main.getAnimations().map((a) => a.finished.catch(() => null))));
+  await entered();
   const context = await page.locator(".showcase-context").boundingBox();
   release();
   await expect(status).toHaveCount(0);
@@ -512,5 +529,287 @@ test("while a page's chunk loads, the shell stays and a status line says what is
   await expect(page.locator('section[data-route="docs"]')).toBeVisible();
   await expect(page.getByRole("banner")).toBeVisible();
   // The page fills in below the context row; nothing above it moves.
+  await entered();
   expect(await page.locator(".showcase-context").boundingBox()).toEqual(context);
+});
+
+// Every page is a full load whose content mounts after the browser has tried to restore the scroll
+// position, so the site keeps and restores it itself (playground/scroll-memory.ts).
+test.describe("Back returns the reader to where they were", () => {
+  const pageY = (page: Page) => page.evaluate(() => Math.round(window.scrollY));
+  const topOf = (link: Locator) => link.evaluate((a) => Math.round(a.getBoundingClientRect().top));
+  /** Scrolls as a reader does, a wheel turn at a time, until `link` is in the upper part of the window. */
+  async function wheelTo(page: Page, link: Locator) {
+    for (let turn = 0; turn < 60 && (await link.evaluate((a) => a.getBoundingClientRect().top > innerHeight * 0.6)); turn++) {
+      const before = await pageY(page);
+      await page.mouse.wheel(0, 400);
+      await expect.poll(() => pageY(page)).not.toBe(before);
+    }
+    await waitForStable(() => pageY(page));
+  }
+  /** Follows `link` with a click of its own, and returns the scroll position and the link's place as the page was left. */
+  const follow = (link: Locator) =>
+    link.evaluate((a) => {
+      const left = { y: Math.round(scrollY), top: Math.round(a.getBoundingClientRect().top) };
+      (a as HTMLElement).click();
+      return left;
+    });
+  /** Back, then the page is where it was left: the scroll position within 8px, `link` in the same place. */
+  async function backTo(page: Page, link: Locator, left: { y: number; top: number }) {
+    await page.goBack();
+    await expect.poll(() => pageY(page), { timeout: 10_000 }).toBeGreaterThan(left.y - 8);
+    await waitForStable(() => pageY(page));
+    expect(Math.abs((await pageY(page)) - left.y)).toBeLessThanOrEqual(8);
+    // The same place, once what is above it has mounted (a docs page's demos arrive after its text).
+    await expect.poll(async () => Math.abs((await topOf(link)) - left.top)).toBeLessThanOrEqual(8);
+    expect(Math.abs((await pageY(page)) - left.y)).toBeLessThanOrEqual(8);
+  }
+
+  for (const [width, height] of [
+    [1440, 900],
+    [390, 844],
+  ] as const) {
+    test(`${width}px: from a docs page to the landing page, scrolled deep past its lazy parts`, async ({ page }) => {
+      await page.setViewportSize({ width, height });
+      await page.goto("/?theme=light");
+      await expect(page.locator(".landing-hero")).toBeVisible();
+      // The Check card ("Grade and verify work") in "Rules and checks", after The parts.
+      const link = page.locator('a.landing-job[data-section="check"]').first();
+      await wheelTo(page, link);
+      const left = await follow(link);
+      expect(left.y).toBeGreaterThan(2000);
+      await expect(page).toHaveURL(/\/grading\?theme=light$/);
+      await waitForPage(page);
+      // A page opened by a link starts at its top.
+      expect(await pageY(page)).toBe(0);
+      await backTo(page, link, left);
+    });
+  }
+
+  test("to the Assets tab: the filter and the place in it", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/gallery?type=slides&theme=light");
+    await expect(page.locator(".gallery-card").first()).toBeVisible();
+    // A card in the grid's third row or lower.
+    const link = page.locator(".gallery-card__link").nth(8);
+    await wheelTo(page, link);
+    const left = await follow(link);
+    expect(left.y).toBeGreaterThan(400);
+    await expect(page).not.toHaveURL(/\/gallery/);
+    await waitForPage(page);
+    await backTo(page, link, left);
+    await expect(page).toHaveURL(/\/gallery\?type=slides/);
+    await expect(page.getByRole("group", { name: "Show" }).getByRole("button", { name: /^Slides/ })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    await expect(page.locator(".gallery-section")).toHaveCount(1);
+  });
+
+  test("to a docs page, whose Markdown and demos mount after the load; the reader's place wins over the address's #fragment", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/foundations/style?theme=light#motion");
+    await expect(page.locator("#motion")).toBeInViewport();
+    // The page as the reader leaves it: every demo in.
+    await waitForPage(page);
+    const next = page.getByRole("navigation", { name: "Previous and next documentation pages" }).getByRole("link").last();
+    // The reader takes over from the #fragment (a wheel turn), then goes to the foot of the page.
+    await page.mouse.wheel(0, 200);
+    await next.evaluate((a) => a.scrollIntoView({ block: "center", behavior: "instant" }));
+    await waitForStable(() => pageY(page));
+    const left = await follow(next);
+    expect(left.y).toBeGreaterThan(3000);
+    await expect(page).not.toHaveURL(/\/foundations\/style\?/);
+    await waitForPage(page);
+    expect(await pageY(page)).toBe(0);
+    await backTo(page, next, left);
+    await expect(page).toHaveURL(/\/foundations\/style\?theme=light#motion$/);
+  });
+
+  test("a page opened afresh is untouched: a link starts at the top, a #fragment lands on its heading", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/?theme=light");
+    await expect(page.locator(".landing-hero")).toBeVisible();
+    const link = page.locator('a.landing-job[data-section="check"]').first();
+    await wheelTo(page, link);
+    expect((await follow(link)).y).toBeGreaterThan(2000);
+    await expect(page).toHaveURL(/\/grading\?theme=light$/);
+    await waitForPage(page);
+    // The landing page again, by its link this time, not Back: its top, though a place in it is kept.
+    await page.locator(".showcase-brand").click();
+    await expect(page.locator(".landing-hero")).toBeVisible();
+    await expect(link).toBeAttached();
+    await waitForStable(() => pageY(page));
+    expect(await pageY(page)).toBe(0);
+    // A fresh load with a #fragment lands on its heading, and "On this page" marks it.
+    await page.goto("/foundations/style?theme=light#motion");
+    const heading = page.locator("#motion");
+    await expect(heading).toBeInViewport();
+    await waitForPage(page);
+    await waitForStable(() => heading.evaluate((h) => Math.round(h.getBoundingClientRect().top)));
+    const top = await heading.evaluate((h) => h.getBoundingClientRect().top);
+    expect(top).toBeGreaterThan(-1);
+    expect(top).toBeLessThan(200);
+    await expect(page.getByRole("complementary", { name: "On this page" }).locator('[aria-current="location"]')).toHaveAttribute(
+      "href",
+      "#motion",
+    );
+  });
+});
+
+// A page change reads as the same shell with its content changing (docs/specs/docs-site.md, "Page
+// changes"): the ground is in the document before any script, the first frame is the whole page,
+// and where the browser has cross-document view transitions the content cross-fades while the
+// header, the sidebar and "On this page" stay put.
+test.describe("a page change never blanks", () => {
+  test.use({ viewport: { width: 1440, height: 900 } });
+  const GROUND = { light: "rgb(243, 246, 249)", dark: "rgb(17, 19, 21)" };
+
+  for (const scheme of ["light", "dark"] as const)
+    test(`the document has its ground before any script runs: system ${scheme}`, async ({ browser }) => {
+      // No script at all: what the document's own bytes paint.
+      const context = await browser.newContext({ javaScriptEnabled: false, colorScheme: scheme });
+      const page = await context.newPage();
+      await page.goto("/foundations/style");
+      const html = await page.locator("html").evaluate((el) => {
+        const s = getComputedStyle(el);
+        return { background: s.backgroundColor, scheme: s.colorScheme };
+      });
+      expect(html).toEqual({ background: GROUND[scheme], scheme });
+      await context.close();
+    });
+
+  test("the reader's stored theme wins over the system's, on the document itself", async ({ browser }) => {
+    const context = await browser.newContext({ colorScheme: "light" });
+    const page = await context.newPage();
+    await page.addInitScript(() => localStorage.setItem("uipack-theme", "dark"));
+    // Before any stylesheet or module: the inline style and the theme script alone.
+    await page.route(/\.(css|tsx?|js)(\?|$)/, (route) => route.abort());
+    await page.goto("/foundations/style", { waitUntil: "commit" });
+    await expect.poll(() => page.locator("html").evaluate((el) => getComputedStyle(el).backgroundColor)).toBe(GROUND.dark);
+    expect(await page.locator("html").evaluate((el) => getComputedStyle(el).colorScheme)).toBe("dark");
+    await context.close();
+  });
+
+  /** Records, from the first script of each page: the first frame's shell, and whether the page was revealed in a view transition. */
+  const watchFirstFrame = (page: Page) =>
+    page.addInitScript(() => {
+      const w = window as { __first?: Record<string, unknown>; __transition?: boolean | null };
+      w.__transition = null;
+      addEventListener("pagereveal", (e) => (w.__transition = !!(e as Event & { viewTransition?: unknown }).viewTransition));
+      requestAnimationFrame(() => {
+        const opacity = (selector: string) => {
+          const el = document.querySelector(selector);
+          return el ? Number(getComputedStyle(el).opacity) : null;
+        };
+        w.__first = {
+          header: opacity(".showcase-header"),
+          sidebar: opacity(".uipack-docs__sidebar"),
+          article: opacity(".uipack-docs__article"),
+          rail: opacity(".uipack-docs__toc"),
+          h1: !!document.querySelector("main h1"),
+          railLinks: document.querySelectorAll(".uipack-docs__toc a").length > 0,
+          // The page's own status line (a demo further down may still say it is loading).
+          loading: !!document.querySelector(".uipack-docs__article > .showcase-loading"),
+          open: !!document.querySelector('.uipack-docs__sidebar a[aria-current="page"]')?.closest("[data-open]"),
+          entrance: document.getAnimations().some((a) => (a as CSSAnimation).animationName === "showcase-page-in"),
+        };
+      });
+    });
+  const firstFrame = (page: Page) => page.evaluate(() => (window as { __first?: Record<string, unknown> }).__first);
+  const whole = {
+    header: 1,
+    sidebar: 1,
+    article: 1,
+    rail: 1,
+    h1: true,
+    railLinks: true,
+    loading: false,
+    open: true,
+    entrance: false,
+  };
+
+  for (const theme of ["light", "dark"])
+    test(`the first frame is the whole page, nothing at opacity 0: a direct load and a click (${theme})`, async ({ page }) => {
+      await watchFirstFrame(page);
+      await page.goto(`/foundations?theme=${theme}`);
+      await expect.poll(() => firstFrame(page)).toEqual(whole);
+      await sidebar(page).getByRole("link", { name: "Style contract", exact: true }).click();
+      await expect(page).toHaveURL(/\/foundations\/style\?/);
+      await expect.poll(() => firstFrame(page)).toEqual(whole);
+      // The page was revealed in a view transition, held on the page left until this one had rendered.
+      expect(await page.evaluate(() => (window as { __transition?: boolean | null }).__transition)).toBe(true);
+    });
+
+  test("the header, the sidebar and On this page are named for the transition, each once, so they stay put", async ({ page }) => {
+    await page.goto("/foundations/style?theme=light");
+    await expect(page.locator(".uipack-docs__toc a").first()).toBeVisible();
+    const names = await page.evaluate(() =>
+      [...document.querySelectorAll("*")]
+        .map((el) => [el.className.toString().split(" ")[0], getComputedStyle(el).viewTransitionName] as const)
+        .filter(([, name]) => name && name !== "none" && name !== "root"),
+    );
+    expect(names.sort()).toEqual([
+      ["showcase-header", "site-header"],
+      ["uipack-docs__sidebar", "site-sidebar"],
+      ["uipack-docs__toc", "site-rail"],
+    ]);
+    // The landing page and Assets have the header alone.
+    for (const path of ["/", "/gallery"]) {
+      await page.goto(`${path}?theme=light`);
+      await expect(page.locator(".showcase-header")).toBeVisible();
+      expect(await page.locator(".showcase-header").evaluate((el) => getComputedStyle(el).viewTransitionName)).toBe(
+        "site-header",
+      );
+    }
+  });
+
+  test("between tabs too: the landing page, a docs page and Assets are each whole on their first frame", async ({ page }) => {
+    await page.addInitScript(() => {
+      const w = window as { __tab?: Record<string, unknown> };
+      requestAnimationFrame(() => {
+        const main = document.querySelector("#showcase-main, .uipack-docs__article");
+        w.__tab = {
+          header: Number(getComputedStyle(document.querySelector(".showcase-header")!).opacity),
+          main: main ? Number(getComputedStyle(main).opacity) : null,
+          h1: !!document.querySelector("h1"),
+          loading: !!document.querySelector(".showcase-loading"),
+        };
+      });
+    });
+    const tab = () => page.evaluate(() => (window as { __tab?: Record<string, unknown> }).__tab);
+    const whole = { header: 1, main: 1, h1: true, loading: false };
+    await page.goto("/?theme=dark");
+    await expect.poll(tab).toEqual(whole);
+    await page.getByRole("navigation", { name: "Views" }).getByRole("link", { name: "Docs" }).click();
+    await expect(page).toHaveURL(/\/what-uipack-is/);
+    await expect.poll(tab).toEqual(whole);
+    await page.getByRole("navigation", { name: "Views" }).getByRole("link", { name: "Assets" }).click();
+    await expect(page).toHaveURL(/\/gallery/);
+    await expect.poll(tab).toEqual(whole);
+  });
+
+  test("with reduced motion there is no transition, and the page is still whole on its first frame", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await watchFirstFrame(page);
+    await page.goto("/foundations?theme=light");
+    await sidebar(page).getByRole("link", { name: "Style contract", exact: true }).click();
+    await expect(page).toHaveURL(/\/foundations\/style\?/);
+    await expect.poll(() => firstFrame(page)).toEqual(whole);
+    expect(await page.evaluate(() => (window as { __transition?: boolean | null }).__transition)).toBe(false);
+  });
+
+  test("the theme toggle and a heading picked in On this page stay in the document: no page transition", async ({ page }) => {
+    await page.goto("/foundations/style?theme=light");
+    await expect(page.locator(".uipack-docs__toc a").first()).toBeVisible();
+    await page.evaluate(() => ((window as { __same?: boolean }).__same = true));
+    await page.getByRole("button", { name: "dark mode" }).click();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+    await expect.poll(() => page.locator("html").evaluate((el) => getComputedStyle(el).backgroundColor)).toBe(GROUND.dark);
+    await page.locator(".uipack-docs__toc a").nth(2).click();
+    await expect(page).toHaveURL(/#/);
+    expect(await page.evaluate(() => (window as { __same?: boolean }).__same)).toBe(true);
+  });
 });

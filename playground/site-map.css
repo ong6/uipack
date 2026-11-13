@@ -1,0 +1,83 @@
+/* The site map: the docs' five sections, each under its label (mono caps, the section's icon in its
+   hue), with its groups and their pages. One drawing, wherever the list shows: the landing page's
+   footer and a not-found page (SiteMap.tsx). Self-contained, so it reads the same inside the landing
+   page and inside the docs layout. */
+.landing-map {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 32px 28px;
+  font-family: var(--ui-font-text);
+}
+/* Build has the most groups: it takes two columns and sets its groups in them. */
+.landing-map__section[data-section="build"] {
+  grid-column: span 2;
+}
+.landing-map__section[data-section="build"] .landing-map__groups {
+  columns: 2;
+  column-gap: 28px;
+}
+.landing-map__group {
+  break-inside: avoid;
+}
+.landing-map__group + .landing-map__group {
+  margin-top: 12px;
+}
+.landing-map .landing-map__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 12px;
+  color: var(--ui-ink);
+  font: 600 12px / var(--site-leading-label) var(--ui-font-label);
+  letter-spacing: var(--site-label-tracking);
+  text-transform: uppercase;
+}
+.landing-map .landing-map__caption {
+  margin: 0 0 4px;
+  color: var(--ui-ink-3);
+  font: 500 12px / var(--site-leading-label) var(--ui-font-label);
+  /* A group caption, as the sidebar's (.uipack-docs__nav-caption): the label role's tracking. */
+  letter-spacing: 0.02em;
+}
+.landing-map ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.landing-map .landing-map__group a {
+  display: block;
+  padding: 4px 0;
+  color: var(--ui-ink-2);
+  font-size: 14px;
+  line-height: var(--site-leading-label);
+  text-decoration: none;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+.landing-map .landing-map__group a:hover {
+  color: var(--ui-ink);
+  text-decoration: underline;
+}
+@media (max-width: 1100px) {
+  .landing-map {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (max-width: 639px) {
+  .landing-map {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .landing-map__section[data-section="build"] .landing-map__groups {
+    columns: 1;
+  }
+}
+/* Touch: every link is a 44px target, on a coarse pointer and on any touch layout (below 720px,
+   whatever pointer it reports). The desktop list keeps its 26px rows. */
+@media (pointer: coarse), (max-width: 719px) {
+  .landing-map .landing-map__group a {
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    min-height: 44px;
+  }
+}

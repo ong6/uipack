@@ -85,6 +85,19 @@ describe("the docs site's palette", () => {
   }
 });
 
+// <body> holds Technical's roles, so the colour it hands down is Technical's ink (blue-tinted in
+// dark). The frame sets its own text to the site's ink, so the header and a view with no docs layout
+// around it (the Assets tab) read as a docs page does (e2e/site-consistency.spec.ts measures it).
+describe("the docs site's base text", () => {
+  it("is the site's ink on the frame, a neutral in dark", () => {
+    expect(css).toMatch(/(^|\})\s*\.showcase-frame\s*\{\s*color:\s*var\(--ui-ink\);\s*\}/);
+    const [r, g, b] = color("ink", "dark");
+    expect(Math.max(r, g, b) - Math.min(r, g, b)).toBeLessThan(8);
+    const [tr, tg, tb] = resolveColor(technical.ink, "dark", technical);
+    expect(Math.max(tr, tg, tb) - Math.min(tr, tg, tb)).toBeGreaterThan(8);
+  });
+});
+
 // Demos, previews and figure dialogs keep Technical's hues and, in dark, sit on the site's ground
 // (docs/specs/docs-site.md, "Demos and fixed looks"): a fixed look's ground is the only value set.
 describe("the docs site's ground under demos and fixed looks", () => {

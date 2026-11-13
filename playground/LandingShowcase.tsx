@@ -10,18 +10,20 @@
  * the layer stack and the bento previews as they near the viewport, and the 3D scene only once it
  * is on screen, with WebGL, and motion allowed (a still of the same scene otherwise).
  */
+import { pageReady } from "./page-ready";
 import { lazy, Suspense, useEffect, useRef, useState, type ReactNode } from "react";
 import { version } from "../package.json";
 import { librarySections, pageDefs, pageHref, type PageDef } from "./catalog";
-import { REPO_URL, type DocsSectionId } from "./docs-manifest";
+import { REPO_URL } from "./docs-manifest";
 import { galleryHref } from "./gallery-index";
 import { installLine } from "./release";
 import { SITE_ORIGIN } from "./site";
 import { useMediaQuery, useShowcaseTheme } from "./ShowcaseShell";
 import { Scaled, useNearViewport } from "./preview-stage";
-import { BUILT_NEXT, JOBS, READ_ORDER, type Job } from "./landing/content";
+import { BUILD_JOBS, BUILT_NEXT, READ_ORDER_ANCHOR, SUPPORT_JOBS, type Job } from "./landing/content";
 import { JOB_ART } from "./landing/job-art";
 import { NAV_MEMORY_KEY, SectionIcon, sectionHueStyle } from "./site-settings";
+import { SiteMap } from "./SiteMap";
 import "./landing.css";
 
 type Theme = "light" | "dark";
@@ -121,22 +123,23 @@ function Hero({ theme }: { theme: Theme }) {
             <b>UiPack</b> v{version} · design system
           </p>
           <h1 id="landing-title">
-            The design manager for <em>every site</em> that installs it.
+            The design system for <em>every site</em> that installs it.
           </h1>
           <p className="landing-hero__sub">
             Diagrams, slides, web pages, motion and 3D, as React and SVG components with the rules for writing and laying them
-            out. Agents read the same files as Markdown.
+            out. Agents read its docs as Markdown.
           </p>
           <InstallCommand />
           <p className="landing-install__note">
-            ES modules only, not on npm: it installs from the tarball attached to each GitHub release.
+            UiPack is made for Jun Xiong's own sites and is not a public product. It installs from the tarball attached to each
+            GitHub release (ES modules only, not on npm).
           </p>
           <div className="landing-hero__ctas">
             <a className="landing-btn landing-btn--primary" href={pageHref(page("start"), theme)}>
               Read the docs <Arrow />
             </a>
             <a className="landing-btn landing-btn--ghost" href={galleryHref(theme)}>
-              Open the gallery
+              Open Assets
             </a>
           </div>
         </div>
@@ -188,13 +191,6 @@ function JobCard({ job, theme }: { job: Job; theme: Theme }) {
   );
 }
 
-/** A section's name in its hue, as the job cards are tinted. */
-const SectionName = ({ id }: { id: DocsSectionId }) => (
-  <span className="landing-hue" style={sectionHueStyle(id)}>
-    {librarySections.find((s) => s.id === id)!.label}
-  </span>
-);
-
 /** A section's head: the plain-name h2 (Technical's web section head), the lead and an aside. */
 function SectionHead({ id, title, lead, aside }: { id: string; title: string; lead: string; aside?: ReactNode }) {
   return (
@@ -218,16 +214,15 @@ function Jobs({ theme }: { theme: Theme }) {
         <SectionHead
           id="jobs-title"
           title="Start from your job"
-          lead="Pick what you are making; each card names what to read first."
+          lead="Each card names what to read first for the thing you are making."
           aside={
             <>
-              Each card is tinted with its section in the docs: <SectionName id="build" />, <SectionName id="rules" /> or{" "}
-              <SectionName id="check" />.
+              Writing a site's own spec and grading the work are in <a href="#around">Rules and checks</a>.
             </>
           }
         />
-        <ul className="landing-jobs">
-          {JOBS.map((job) => (
+        <ul className="landing-jobs landing-jobs--build">
+          {BUILD_JOBS.map((job) => (
             <JobCard key={job.title} job={job} theme={theme} />
           ))}
         </ul>
@@ -236,11 +231,36 @@ function Jobs({ theme }: { theme: Theme }) {
   );
 }
 
-/* ------------------------------------------------------------------ how it's built */
+/** The steps either side of building, kept out of "Start from your job": most readers only build. */
+function Around({ theme }: { theme: Theme }) {
+  return (
+    <section className="landing-block" id="around" aria-labelledby="around-title">
+      <div className="landing-wrap">
+        <SectionHead
+          id="around-title"
+          title="Rules and checks"
+          lead="A site's own spec comes before building, and grading comes after."
+          aside="A page on an existing site uses that site's spec."
+        />
+        <ul className="landing-jobs landing-jobs--around">
+          {SUPPORT_JOBS.map((job) => (
+            <JobCard key={job.title} job={job} theme={theme} />
+          ))}
+        </ul>
+      </div>
+    </section>
+  );
+}
 
-/** Mounts its children once the box nears the viewport; the box keeps a minimum height meanwhile. */
+/* ------------------------------------------------------------------ how it is built */
+
+/**
+ * Mounts its children once the box nears the viewport; the box keeps a minimum height meanwhile.
+ * Back to the page mounts at once what had mounted when the reader left (`restored`, by the box's
+ * class): it is taller mounted, and the reader's place is only the same place at the same heights.
+ */
 function WhenNear({ className, children }: { className: string; children: ReactNode }) {
-  const { ref, near } = useNearViewport<HTMLDivElement>({ inert: false, idle: false, margin: NEAR_MARGIN });
+  const { ref, near } = useNearViewport<HTMLDivElement>({ inert: false, idle: false, margin: NEAR_MARGIN, restored: className });
   return (
     <div ref={ref} className={className}>
       {near && <Suspense fallback={null}>{children}</Suspense>}
@@ -253,9 +273,9 @@ function Built({ theme }: { theme: Theme }) {
     <section className="landing-block" id="built" aria-labelledby="built-title">
       <div className="landing-wrap landing-built">
         <div className="landing-built__text">
-          <SectionHead id="built-title" title="How it's built" lead="Core rules at the bottom, the parts on top." />
+          <SectionHead id="built-title" title="How it is built" lead="Core rules at the bottom, the parts on top." />
           <p>
-            Each website has its own layout, writing style, theme, fonts and design direction, all in its spec; the core rules
+            Each website has its own layout, writing style, theme, fonts and design direction, all in its spec. The core rules
             keep only what must hold everywhere, and the libraries give a spec named layouts and component looks to pick from.
           </p>
           <p>A deck is a page of a site, so it reads the same spec.</p>
@@ -384,7 +404,7 @@ const TILES: Tile[] = [
   },
   {
     id: "3d",
-    title: "3D animations and object scenes",
+    title: "3D object scenes",
     entry: "uipack/objects",
     page: "objects",
     preview: (theme) => <ScenePreview theme={theme} />,
@@ -425,11 +445,10 @@ function Parts({ theme }: { theme: Theme }) {
         <SectionHead
           id="parts-title"
           title="The parts"
-          lead="Each entry loads only what it draws."
+          lead="Each import path loads only what it draws."
           aside={
             <>
-              Every component page shows its live demo; <a href={galleryHref(theme)}>open the gallery</a> for all of them in one
-              place.
+              <a href={galleryHref(theme)}>Assets</a> shows every asset in one place.
             </>
           }
         />
@@ -458,14 +477,14 @@ function Agents({ theme }: { theme: Theme }) {
     <section className="landing-band" id="agents" aria-labelledby="agents-title">
       <div className="landing-wrap landing-band__grid">
         <div>
-          <SectionHead id="agents-title" title="For agents" lead="The same pages, as Markdown, in reading order." />
+          <SectionHead id="agents-title" title="For agents" lead="The same pages as files, in reading order." />
           <p>
-            An agent building a page, deck, figure or copy for one of the owner's sites reads these files as Markdown, from{" "}
-            <code>node_modules/uipack/docs/</code> in a site or a clone. Each file opens with what it is for and who should read
-            it, so you can stop after the first paragraph.
+            An agent building a page, deck, figure or copy for one of Jun Xiong's own sites reads these files from{" "}
+            <code>node_modules/uipack/docs/</code> in a site or a clone. Each file opens with what it is for, so the agent can
+            stop after the first paragraph.
           </p>
           <a className="landing-btn landing-btn--band" href={pageHref(page("agents"), theme)}>
-            How an agent uses UiPack <Arrow />
+            How agents use UiPack <Arrow />
           </a>
         </div>
         <div className="landing-band__rows">
@@ -489,16 +508,11 @@ function Agents({ theme }: { theme: Theme }) {
             </RowIcon>
             <div>
               <h3>Read in this order</h3>
-              <ol className="landing-steps">
-                {READ_ORDER.map((step) => (
-                  <li key={step.title}>
-                    <span>
-                      {step.long}
-                      <small>{step.note}</small>
-                    </span>
-                  </li>
-                ))}
-              </ol>
+              <p>Which file to open first for a job, and what comes after it.</p>
+              <a className="landing-band__url" href={`${pageHref(page("agents"), theme)}#${READ_ORDER_ANCHOR}`}>
+                {site}
+                {page("agents").path}#{READ_ORDER_ANCHOR}
+              </a>
             </div>
           </div>
           <div className="landing-band__row">
@@ -508,7 +522,7 @@ function Agents({ theme }: { theme: Theme }) {
             </RowIcon>
             <div>
               <h3>View as Markdown</h3>
-              <p>Every page renders the Markdown file named under its title, and the site serves each file at its repo path.</p>
+              <p>Every docs page renders one Markdown file and links to it, and the site serves each file at its repo path.</p>
               <a className="landing-band__url" href="/docs/agents/README.md">
                 {site}/docs/agents/README.md
               </a>
@@ -523,50 +537,19 @@ function Agents({ theme }: { theme: Theme }) {
 /* ------------------------------------------------------------------ footer */
 
 /**
- * The site map: the docs' five sections, each with its groups (a caption over each but the first)
- * and their pages, from the docs manifest (sub-pages and deck sub-views stay on their page).
+ * The footer: the site map (SiteMap.tsx: the docs' five sections with their groups and pages, from
+ * the docs manifest), then the base line.
  */
-function SiteMap({ theme }: { theme: Theme }) {
+function SiteFooter({ theme }: { theme: Theme }) {
   return (
     <footer className="landing-foot" id="site-map" aria-labelledby="site-map-title">
       <div className="landing-wrap">
         <h2 id="site-map-title" className="landing-vh">
           Site map
         </h2>
-        <div className="landing-map">
-          {librarySections.map((section) => (
-            <nav
-              key={section.id}
-              aria-labelledby={`map-${section.id}`}
-              className="landing-map__section"
-              data-section={section.id}
-              style={sectionHueStyle(section.id)}
-            >
-              <h3 id={`map-${section.id}`}>
-                <SectionIcon id={section.id} size={15} />
-                {section.label}
-              </h3>
-              <div className="landing-map__groups">
-                {section.groups.map((g) => (
-                  <div key={g.id} className="landing-map__group">
-                    {g.caption && <p className="landing-map__caption">{g.caption}</p>}
-                    <ul>
-                      {pageDefs
-                        .filter((p) => p.group === g.id && !p.parent && (!p.query || p.isDefault))
-                        .map((p) => (
-                          <li key={p.id}>
-                            <a href={pageHref(p, theme)}>{p.query ? (p.title ?? p.label) : p.label}</a>
-                          </li>
-                        ))}
-                    </ul>
-                  </div>
-                ))}
-              </div>
-            </nav>
-          ))}
-        </div>
+        <SiteMap theme={theme} />
         <div className="landing-foot__base">
-          <span>Jun Xiong's own design system. Not a public product: the only consumers are the sites in the registry.</span>
+          <span>Jun Xiong's own design system. Its only consumers are the sites in the registry.</span>
           <span className="landing-foot__links">
             <a href={REPO_URL}>GitHub</a>
             <a href="/llms.txt">llms.txt</a>
@@ -596,9 +579,12 @@ export default function LandingShowcase() {
         <Jobs theme={theme} />
         <Built theme={theme} />
         <Parts theme={theme} />
+        <Around theme={theme} />
         <Agents theme={theme} />
       </main>
-      <SiteMap theme={theme} />
+      <SiteFooter theme={theme} />
     </div>
   );
 }
+
+pageReady("LandingShowcase", { default: LandingShowcase });

@@ -119,7 +119,7 @@ test("the machine is reachable and operable from the keyboard", async ({ page })
   await expect(page.locator(machine)).toBeVisible();
   // Past the sidebar the way a keyboard reader goes: the skip link, then into the page.
   await page.keyboard.press("Tab");
-  await expect(page.getByRole("link", { name: "Skip to documentation content" })).toBeFocused();
+  await expect(page.getByRole("link", { name: "Skip to content" })).toBeFocused();
   await page.keyboard.press("Enter");
   let reached = false;
   for (let step = 0; step < 30 && !reached; step++) {

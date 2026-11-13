@@ -1,4 +1,4 @@
-# Article parts: verification
+# Article verification
 
 How `uipack/article` is tested, the section rhythm measured on a real article, and screenshots of
 the parts at 390 and 896 in both themes. The parts themselves are in [Article parts](article.md).

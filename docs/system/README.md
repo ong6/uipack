@@ -1,6 +1,6 @@
-# The UI Pack design system
+# Core rules
 
-The core rules for anything UI Pack draws (diagrams, slides, web pages, motion and 3D): the
+The core rules for anything UiPack draws (diagrams, slides, web pages, motion and 3D): the
 philosophy, the three independent layers, what every site keeps and what each site's spec sets.
 Each website has its own layout, writing style, theme, fonts and design direction, all in its
 [spec](../specs/README.md); the core rules keep only what must hold everywhere. Read this page
@@ -13,14 +13,14 @@ first; the layer guides hold the detail:
 | **[Layout](layout/README.md)** | Where does each thing sit, and in what order does it appear? Grids, regions, archetypes, beats, camera stops. | [Floors](layout/README.md#floors-what-holds-on-every-site): reading order, narrow layout, no overflow, tap targets, focus, the 8px unit | Per page type: an [archetype](layout/README.md#archetype-library) picked, extended or defined |
 
 Components sit across the layers: each has a few named [looks](../components/README.md), `fixed`
-(the same on every site, like the diagrams the blog and the main site share) or `flex` (taking the
-site's palette and faces), and a spec picks the ones it uses. The boundary in full is
+(the same on every site, like the Paper worlds 3D scenes) or `flex` (taking the site's palette and
+faces), and a spec picks the ones it uses. The boundary in full is
 [What a spec may set](spec-settings.md). To build a page, start from its
 [recipe](../recipes/README.md): it names the writing and layout files that page relies on.
 
 ## Philosophy
 
-UI Pack draws explanations. A visual exists to make one thing understood faster than prose could.
+UiPack draws explanations. A visual exists to make one thing understood faster than prose could.
 
 1. **One claim per unit.** A figure, a slide, a page section and a 3D stop each make one point. If
    you can't write it in one sentence, you don't know what to draw yet. Two claims means two units.
@@ -47,7 +47,7 @@ You can change any layer without touching the other two:
 
 - **Same words and layout, new style.** Each website has one spec that fills the same role
   contract ([how to write one](../specs/README.md)); Technical is the package's default (the docs site extends it). The spec's
-  layout and writing style are separate sections of it, so its values can change without them. uipack renders
+  layout and writing style are separate sections of it, so its values can change without them. UiPack renders
   another spec by adding one value set in `src/styles`, registering it in `uiStyles`, and testing
   it. A deck or page built in Technical then renders in it with its headlines, notes, order and
   regions unchanged: only colours, faces and ornaments differ.
@@ -95,7 +95,7 @@ Four more rules keep the split honest where it would otherwise leak:
 
 This folder ships in the package (installed from GitHub; not published to the npm registry): a consumer reads it at `node_modules/uipack/docs/system/`.
 What exists in code and what is still missing is in
-[Style roles, "Where the code stands"](style.md#where-the-code-stands).
+[Style contract, "Where the code stands"](style.md#where-the-code-stands).
 
 ## What each layer owns, and where it leaks
 
@@ -160,7 +160,7 @@ A deck is an HTML page of a site, so it reads the site's spec like any other pag
 **A talk series with its own look** gets its own spec, like a site: `pages: [deck]`,
 `layouts: { deck: slide-canvas }` (or `custom`), and its own Writing style. If it should look like a
 site with a few changes, it says `extends: <that site's spec>` and lists only what differs. It goes
-in the [registry](../specs/registry.md) under the repo that hosts the decks.
+in the [site registry](../specs/registry.md) under the repo that hosts the decks.
 
 ## Media at a glance
 
@@ -170,7 +170,7 @@ Where each medium's rules live: its entry in the package, then the writing and l
 | --- | --- | --- | --- | --- |
 | Diagrams | `uipack` (`Figure`), `uipack/presets`, `uipack/drill`, `uipack/charts`, `uipack/article` | The [Blueprint look](../components/diagrams.md), fixed | [Figure labels and captions](writing/figures.md) | [Figures](layout/README.md#figures) |
 | Slides | `uipack/deck` (new work), `uipack/presentations` (three starters) | The site's spec (deck tokens); Technical here | [Talks and slides](writing/talks.md), [read-alone decks](writing/documents.md#read-alone-decks) | [Slide canvas](layout/deck-slide.md) |
-| Web | `uipack/web`, `uipack/docs`, `uipack/article` | The site's spec; Technical here | [Web and landing copy](writing/web.md), [documents](writing/documents.md) | [Product landing](layout/landing.md), [docs shell](layout/documentation.md), [article](layout/article.md), [dashboard](layout/dashboard.md) |
+| Web | `uipack/web`, `uipack/docs`, `uipack/article` | The site's spec; Technical here | [Web and landing copy](writing/web.md), [documents](writing/documents.md) | [Product landing](layout/landing.md), [docs shell](layout/documentation.md), [article layout](layout/article.md), [dashboard layout](layout/dashboard.md) |
 | Motion | Packets, entrance, deck transitions, `uipack/web` motion | Inherits the host style's motion tokens | [Motion beats](writing/figures.md#motion-beats) | [Motion](layout/README.md#motion) |
 | 3D | `uipack/slides` (camera stories), `uipack/objects`, `uipack/mechanism` | The [3D looks](../components/3d.md) and [Mechanism](../components/mechanism.md) the spec picks | [3D stops](writing/figures.md#3d-stops) | [3D](layout/README.md#3d) |
 
@@ -183,8 +183,8 @@ values:
 | --- | --- | --- |
 | [`skills/`](../../skills/README.md): `uipack-page`, `uipack-diagram`, `uipack-copy`, `uipack-spec`, `uipack-review` | The job skills, shipped in this package and versioned with it. Each routes to the rules, recipe and spec it needs. | The docs they link |
 | `uipack-design` (ong6/skills) | The entry point: finds uipack and the site's spec, picks the job skill. | [`skills/`](../../skills/README.md) |
-| `system-diagram` (existing) | Executes diagrams. Its taste table defers to [Style roles, diagrams](style.md#diagrams) and [Layout, figures](layout/README.md#figures). | Diagram sections |
-| `3d-design`, `blender-authoring` (existing) | Execute 3D. Art direction comes from [Style roles, 3D](style.md#3d). | 3D sections |
+| `system-diagram` (existing) | Executes diagrams. Its taste table defers to [Style contract, diagrams](style.md#diagrams) and [Layout, figures](layout/README.md#figures). | Diagram sections |
+| `3d-design`, `blender-authoring` (existing) | Execute 3D. Art direction comes from [Style contract, 3D](style.md#3d). | 3D sections |
 | `frontend-design`, `ux-design` | Execute web pages. The site's look, layout and writing style come from its [spec](../specs/README.md). | Web sections, [Web principles](../web-principles.md) |
 | `create-fde-deck` (existing) | Customer field-engineering decks; its evidence ledger is a writing layer of its own and renders through `uipack/deck` layouts. | Slide sections |
 
@@ -194,7 +194,7 @@ values:
   polish and acceptance checks.
 - Per-style guides: [web principles](../web-principles.md), [Mechanism](../mechanism.md),
   [Object scenes and 3D art directions](../objects.md). Site specs: [how to write one](../specs/README.md),
-  [Technical](../specs/technical.md) and the [registry](../specs/registry.md); the
+  [Technical spec](../specs/technical.md) and the [site registry](../specs/registry.md); the
   [component looks](../components/README.md).
 - Medium references: [Deck player](../deck.md), [Deck storytelling](../deck-storytelling.md),
   [Consulting slides](../deck-consulting.md), [Charts](../charts.md), [Article parts](../article.md),

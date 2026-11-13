@@ -1,6 +1,6 @@
-# Tier 2: pairwise judging
+# Pairwise judging
 
-Judges compare; they do not grade in a vacuum. Absolute 1-10 scores drifted about a point between
+Tier 2 of [grading](README.md): judges compare; they do not grade in a vacuum. Absolute 1-10 scores drifted about a point between
 fresh judges on identical images, while their preferences agreed, so the result is the preference
 and the paired difference, read against a calibration anchor.
 

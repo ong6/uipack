@@ -25,11 +25,11 @@ covers it; `tier1.spec.ts` grades it.
 
 The sidebar is the manifest's five sections (Start, Rules, Build, Check, Reference; `docsSections`
 and each group's `section` in `docs-manifest.ts`), collapsible, the current one open, each with its
-icon and hue (`site-settings.tsx`, `site-palette.css`). The location marker (a paper plane, or the
-uipack square mark with `?marker=mark`) flies to the current page in the sidebar and glides to the
-current heading in "On this page"; the sidebar remembers the page being left in sessionStorage so the
+icon and hue (`site-settings.tsx`, `site-palette.css`). The location marker (the uipack mark in the
+page's section state, or the package's paper plane with `?marker=plane`) hops to the current page in
+the sidebar and to the current heading in "On this page"; the sidebar remembers the page being left in sessionStorage so the
 next page's marker travels from it. Below 900px the header's menu button opens the sidebar as a
-drawer and "On this page" folds into a disclosure (it does from 1180px). Search (the sidebar's box,
+drawer and "On this page" folds into a disclosure (it does from 1180px). Search (the header's box,
 ⌘K / Ctrl-K) loads `/search-index.json`, built from every page's Markdown by `search-index.ts`
 (vite.config.ts serves it in dev and emits it in a build). The site's dark palette, hues, marker and
 widths are its own spec, [docs/specs/docs-site.md](../docs/specs/docs-site.md); `site-palette.css`
@@ -65,9 +65,9 @@ A few of the pages and their addresses (the manifest lists every one, with its s
 | Build | Mechanism | `/mechanism` |
 | Build | Example landing page | `/web` |
 | Build | Docs layout | `/docs` |
-| Rules | Overview, Style contract, Writing, Layout, Do and don't | `/foundations`, `/foundations/style`, `/foundations/writing`, `/foundations/layout`, `/foundations/do-and-dont` (alias `/foundations/mix`; `/foundations/recipes` opens Recipes) |
+| Rules | Core rules, Style contract, Writing, Layout, Do and don't | `/foundations`, `/foundations/style`, `/foundations/writing`, `/foundations/layout`, `/foundations/do-and-dont` (alias `/foundations/mix`; `/foundations/recipes` opens Recipes) |
 | Rules | How to write a spec | `/styles` |
-| Reference | Icons & marks | `/assets` |
+| Reference | Icons and marks | `/assets` |
 
 Every page has the same headings: the page bar (the location row, `<Section> › <Parent page>`, the section as a chip in its hue; "Style: <Style>" with the source links), one `h1`, a one-sentence intro, then sentence-case `h2` sections. Figures inside an `h2` keep `headingLevel` 3; inside an `h3` they use 4.
 

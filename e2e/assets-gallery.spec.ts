@@ -14,7 +14,7 @@ for (const theme of ["light", "dark"] as const)
       await page.setViewportSize({ width, height: 900 });
       await page.goto(`/gallery?theme=${theme}`);
       await expect(page.getByRole("heading", { level: 1, name: "Assets" })).toBeVisible();
-      await expect(page).toHaveTitle("Assets · uipack");
+      await expect(page).toHaveTitle("Assets · UiPack");
       await expect(page.getByRole("navigation", { name: "Views" }).getByRole("link", { name: "Assets" })).toHaveAttribute(
         "aria-current",
         "true",
@@ -53,6 +53,40 @@ for (const theme of ["light", "dark"] as const)
       expect(errors).toEqual([]);
     });
   }
+
+// The banner's logo and last control sit on the grid's left and right edges, within 1px; the title
+// and the filters start on the same edge (the site's one column: docs/specs/docs-site.md, "Layout").
+for (const width of [2560, 2000, 1920, 1440, 1280, 1024, 768, 390])
+  test(`the banner keeps the grid's edges at ${width}`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/gallery?theme=light");
+    await expect(page.getByRole("heading", { level: 1, name: "Assets" })).toBeVisible();
+    const g = await page.evaluate(() => {
+      const box = (s: string) => document.querySelector(s)!.getBoundingClientRect();
+      const grid = box(".gallery-grid");
+      return {
+        brand: box(".showcase-brand svg").left,
+        last: box(".showcase-header__actions > :last-child").right,
+        grid,
+        title: box(".gallery-head h1").left,
+        filters: box(".gallery-filters").left,
+        scrollWidth: document.documentElement.scrollWidth,
+      };
+    });
+    expect(g.grid.right - g.grid.left).toBeCloseTo(Math.min(1600, width - 2 * (width >= 1024 ? 32 : width >= 720 ? 24 : 16)), 0);
+    expect(Math.abs(g.title - g.grid.left)).toBeLessThanOrEqual(1);
+    expect(Math.abs(g.filters - g.grid.left)).toBeLessThanOrEqual(1);
+    expect(g.scrollWidth).toBeLessThanOrEqual(width);
+    // More cards a row as the column grows: a wide card is at least 340px, with 16px between.
+    const perRow = await page
+      .locator(".gallery-grid--wide")
+      .first()
+      .evaluate((grid) => getComputedStyle(grid).gridTemplateColumns.split(" ").length);
+    const room = Math.min(1600, width - 2 * (width >= 1024 ? 32 : width >= 720 ? 24 : 16));
+    expect(perRow).toBe(width < 540 ? 1 : Math.floor((room + 16) / 356));
+    expect(Math.abs(g.brand - g.grid.left)).toBeLessThanOrEqual(1);
+    expect(Math.abs(g.last - g.grid.right)).toBeLessThanOrEqual(1);
+  });
 
 test("every card links to a docs page that exists", async ({ page }) => {
   await page.goto("/gallery?theme=light");

@@ -11,10 +11,10 @@ uipack: current
 values: playground/site-palette.css
 ---
 
-# Docs site: the ui.junxiong.dev spec
+# Docs site spec
 
-The spec of the uipack docs site at [ui.junxiong.dev](https://ui.junxiong.dev): what it sets on top
-of [Technical](technical.md), the package's default look. Read it before changing the site's dark
+The spec of the UiPack docs site at [ui.junxiong.dev](https://ui.junxiong.dev): what it sets on top
+of the [Technical spec](technical.md), the package's default look. Read it before changing the site's dark
 palette, the dark ground its demos sit on, its sidebar sections and their hues, its location marker,
 the docs shell's widths or the landing page; everything else is Technical's and a rule for no other
 site.
@@ -31,7 +31,7 @@ Technical's Prussian blue (the owner, 2026-11-11: "make it darker", "consider ne
 mode"), with neutral surfaces a small step lighter each, a neutral ink ramp, and Technical's gold
 and flow hues re-tuned to sit on charcoal. Nothing large reads as blue in dark: the live demos and
 previews sit on the same charcoal ([Demos and fixed looks](#demos-and-fixed-looks)). The sidebar is how a reader finds their way: five
-sections, each with an icon and a hue, and a paper plane that flies to where the reader is.
+sections, each with an icon and a hue, and the UiPack mark, which hops to where the reader is.
 
 ## Role values
 
@@ -134,7 +134,7 @@ more on every surface in both themes, and every mark 3:1 (`test/site-palette.tes
 | `--ui-band-fill` | `#0b2748` | `#0b0c0e` |
 | `--ui-band-ink` | `#eef3fa` | `#eceef1` |
 | `--ui-band-ink-2` | `#a9bfd9` | `#b3bac2` |
-| `--ui-band-cta` | `#f0c45a` | `#f0c45a` |
+| `--ui-band-cta` | `#f0c45a` | `#f3c05a` |
 | `--ui-on-band-cta` | `#0b2748` | `#111315` |
 | `--ui-band-pattern` | `none` | `none` |
 | `--ui-section-index` | `inline` | `inline` |
@@ -224,9 +224,9 @@ component looks, examples), **Check** (grading, rubrics, testing) and **Referenc
 icons, releases, contributing, web reference). The pages in each are `docsManifest` in
 `playground/docs-manifest.ts`.
 
-**Hues.** Each section has a hue, used on exactly three things: the section heading's icon, the
-current-page marker, and the page's breadcrumb chip (and the section's group in search results).
-Never on text, links or status. Start is the ink and Rules the accent; Build, Check and Reference
+**Hues.** Each section has a hue, used on exactly four things: the section heading's icon, the
+current-page marker, the page's breadcrumb chip (and the section's group in search results), and
+the dot of the header's mark (below). Never on text, links or status. Start is the ink and Rules the accent; Build, Check and Reference
 are Technical's request cyan, response green and slate, re-tuned for charcoal in dark. Each is 3:1
 or more as a mark on every ground. Generated from `playground/site-palette.css`:
 
@@ -241,26 +241,160 @@ or more as a mark on every ground. Generated from `playground/site-palette.css`:
 <!-- /generated -->
 
 **The location marker.** One shape for both places it shows: the sidebar (beside the current page)
-and "On this page" (on the heading being read). `plane` (the default) is a paper plane; `mark` is
-the uipack logo's square mark. The setting is `SITE_MARKER` in `playground/site-settings.tsx`;
-`?marker=mark` or `?marker=plane` overrides it for the rest of a visit, so the two can be compared
-live. In "On this page" the marker glides along a dotted path that steps right for each h3, the
-read part of the path in the accent. In the sidebar, when the page changes, it flies from the page
-the reader left along the sidebar's page column (out to a sub-page's tree line), crossing sections
-if it must, the new section opening as it arrives, a short dotted trail fading behind it, and docks
-facing the link, tinted with the section's hue. With reduced motion it jumps. The current page is
-also marked by weight and a tinted row, so the marker is never the only cue.
+and "On this page" (on the heading being read). The site's is `mark`, the UiPack logo's square mark,
+hopping like a game piece (owner, 2026-11-12: "it can also be our logo hopping around"); `plane` is
+the package's paper plane, which flies a dotted path. The setting is `SITE_MARKER` in
+`playground/site-settings.tsx`; `?marker=plane` or `?marker=mark` overrides it for the rest of a
+visit. The marker shows the page's state, as the header's mark does (below): three squares in the
+ink and the dot on the section's cell in its hue, the neutral mark on a Reference page. It is drawn
+for its 14px size: 5px squares on a 1.25px line, not the header's drawing scaled down.
 
-**Search.** A box at the top of the sidebar (and the drawer) and ⌘K / Ctrl-K open one dialog over
-every page's title, headings and text; results are grouped by section with the section's icon in
-its hue.
+In the sidebar, when the page changes, the mark hops from the page the reader left along the
+page column (out to a sub-page's tree line), crossing sections if it must; the new page's section
+is open from the first frame and never waits for it. A hop is a small arc off the column (4 to 7px, 4.2px at most to the left) ending in a soft squash; a trip is one hop for each 36px, nine at most, over 300ms plus 2ms a pixel (900ms at most), so the mark stays by the short dotted trail it leaves. Each hop is a plain arc, a full turn, a lean, two skips or a pop, to either side, a fresh pick every trip. Across sections it stops before its last hop and changes in a portal: a dashed ring in the new hue opens, the mark turns into it and comes back out with its dot on the new cell (560ms); the header's mark changes in its own portal (below). A trip from a link scrolled out of view starts just inside the sidebar's edge, seen from its first frame, and takes the time of the distance seen. In "On this page" the mark hops down a dotted path that steps right
+for each h3, the read part in the accent, in the same small arcs: where the path has stepped right an
+arc leans back toward the headings' column, so a step and an arc never add up. When headings pass
+faster than a hop it makes for the latest, never a queue. With reduced motion nothing hops: the marker is drawn in place. The current page is also marked by weight and a tinted row, so the
+marker is never the only cue.
+
+### The mark
+
+The header's UiPack mark is the one mark (three outlined squares and one filled dot)
+with its dot on the page's section (owner, 2026-11-12): its four cells in reading order are Start
+(top left), Rules (top right), Build (bottom left) and Check (bottom right), and on a page in one of
+them that cell is the dot, filled in the section's hue; the other three are squares in the ink, and
+the name stays in the ink. Reference has no cell: its pages, the Assets tab, the landing page at
+rest and a not-found page show the neutral mark, the dot bottom right in the ink, as the package
+draws it. Each hue holds 3:1 or more as the dot on the header's ground in both themes (the lowest is
+Build in light, 4.6:1). When the page changes section the mark changes in a portal, from the state the reader left (kept for the visit in sessionStorage, as the sidebar marker's page is): a dashed ring in the new section's hue opens over the mark, the mark turns into it and out of sight, and comes back out with its dot on the new cell; each half takes the base duration role (320ms). It waits for the sidebar marker's own portal, so the two change together, but at most 160ms (`--site-mark-wait`: the first paint and the page's entrance are in), so it is over within 800ms of the page: past two hops the header changes first. On the landing page the default logo is still, in the ink, for 5s, then the dot visits Start, Rules, Build and Check in turn, 2s each, hopping between them over the last 560ms of each state, in one 14s CSS loop that never moves the header. The logo's rest is 6s of it: 320ms for the dot to turn from Check's hue to the ink, 5.12s still, and the 560ms hop out. A load enters it 0.4s into the rest, on the default logo, still for 5.04s. With reduced motion the dot is drawn in place and the landing page holds the neutral
+mark. The dot repeats what the breadcrumb chip and the sidebar say in words, so it is never the
+only cue. It is `Wordmark`'s `live` and `liveColor` ([figure parts API](../figure-api.md)), mapped
+in `playground/site-settings.tsx` (`BRAND_CELLS`, `useBrandMark`, and `markerState` for the docs
+layout's marker) and moved by `playground/showcase.css`; `e2e/brand-mark.spec.ts` holds it.
+
+### Page changes
+
+Every page is a full load, and should not feel like one. Where the browser has the Speculation
+Rules API (Chromium), `playground/index.html` has it prerender a link to another page of the site
+when the reader hovers it for 200ms or presses it (`moderate` eagerness), and following the link
+shows that page at once. Left out: files (a page's Markdown, images, `llms.txt`), the deck's print
+and speaker windows, links into the page, the current page's own link and links that open elsewhere.
+A prerendered page starts what the reader should watch from its start (the sidebar marker's trip,
+the header mark's portal, the landing page's loop) when it is shown, and reads the
+visit's `sessionStorage` then. Elsewhere (Safari, Firefox) `playground/link-preload.ts` preloads the
+page's files as the reader points at, presses or focuses its link. The search index loads only when
+search opens. The rules are an inline script, so `vercel.json`'s Content-Security-Policy names them
+by their hash, as it does the theme script; the host needs nothing else.
+
+**Nothing blanks.** A page change reads as the same shell with its content changing:
+
+- **The ground from the first byte.** An inline `<style>` in `index.html`, before any script, gives
+  `<html>` the site's ground and `color-scheme`: the system's scheme, then the reader's stored theme
+  once the theme script has set `data-theme`. No frame is white on a dark page, on the dev server
+  either, where the stylesheets arrive from script.
+- **The first frame is the whole page.** The entry script is in the `<head>` with
+  `blocking="render"`, and before it the document names the page's own module the same way and
+  carries a docs page's Markdown in a JSON block (`vite.config.ts`, `withPageScripts`: the build
+  writes them into each route's file, the dev server into each response). The entry renders the
+  shell and the page in one go (`playground/main.tsx`, `page-ready.ts`), so the browser shows the
+  page the reader came from until the new one is there with its sections open, its title, its text
+  and "On this page". The "Loading…" line shows only for a page whose module was not named in its
+  document; that late content alone eases in (a fade and a 4px rise, 160ms).
+- **The content cross-fades; the shell stays put.** `index.html` opts into cross-document view
+  transitions (`@view-transition { navigation: auto }`). The header, the sidebar and "On this page"
+  have their own `view-transition-name` (`site-header`, `site-sidebar`, `site-rail`,
+  `playground/showcase.css`): where both pages have one, the new one is simply there, live, from
+  the first frame, so the sidebar marker sets off from the old page's link with no ghost behind it;
+  everything else cross-fades over the quick duration (160ms). Between a docs page and the landing
+  page or Assets, which have no sidebar, the sidebar and rail fade with the content. Nothing starts
+  at opacity 0: a browser without cross-document view transitions (Firefox) shows the new page
+  whole on its first frame, as a plain load.
+- **Not a page change:** the theme toggle and a heading picked in "On this page" stay in the
+  document, so neither runs the transition. With reduced motion there is no transition at all.
+
+Everything after the first frame is decoration on a page that is already there, and nothing waits
+for it: the sidebar marker's trip is over within 900ms (1460ms with its portal) and the header
+mark's portal within 800ms. `e2e/nav.spec.ts` ("a page change never blanks") holds the first frame,
+the ground, the names and reduced motion.
+
+### Search and theme
+
+**Search.** One dialog over every page's title, headings and text, with results grouped by
+section, the section's icon in its hue. ⌘K / Ctrl-K opens it on every view: the landing page,
+Assets and each docs page. Its box sits in the header on every view (and in the drawer), never in
+the sidebar: a box from 720px and a 44px icon button below. The dialog looks the same
+wherever it opens (`e2e/docs-shell.spec.ts`).
+
+**Theme.** `?theme=light` or `?theme=dark` in the address wins, and the links the site writes carry
+it. An address without it takes the reader's last choice (the header's toggle stores it in
+`localStorage`, key `uipack-theme`), and with no stored choice the system's setting
+(`prefers-color-scheme`). A blocking script in `playground/index.html` sets it before the first
+paint, so no page flashes the other theme; `vercel.json`'s Content-Security-Policy allows that
+script by its hash, and the site build fails with the new hash when the script changes.
+
+### Back and Forward
+
+Back and Forward return the reader to where they were. Every page is a full load whose content
+mounts after the browser has tried to restore the scroll position, so the site keeps it itself
+(`playground/scroll-memory.ts`): each history entry's position is written to `sessionStorage` as
+the page is left, and a back or forward load scrolls there as soon as the document is tall enough,
+then holds it for two seconds while what is above settles, or until the reader scrolls, taps or
+types. A lazy part that is taller mounted (the landing page's figures) mounts at once if it had
+mounted when the reader left, so the same position is the same place. The reader's position wins
+over the address's `#fragment`. A page opened any other way is untouched: a link starts at the
+top, a `#fragment` lands on its heading. `e2e/nav.spec.ts` holds it.
+
+A heading picked in "On this page" is one history entry, as a `#fragment` link's is: Back returns
+the reader to where they were on the page and Forward to the heading (the browser's own restore
+within a page). Picking the heading the address already names adds none, and headings passed while
+scrolling never do. `e2e/docs-shell.spec.ts` holds it.
 
 ## Type
 
-Technical's, unchanged ([Technical, Type](technical.md#type)): IBM Plex Sans 600 headings, Plex
+Technical's faces, unchanged ([Technical, Type](technical.md#type)): IBM Plex Sans 600 headings, Plex
 Sans text, IBM Plex Mono labels, self-hosted. Sidebar levels: section labels in mono caps 12px
 600 (ink), pages 14px (ink-2), sub-pages 13px (ink-2, on the tree line), captions 12px mono (ink-3); "On
-this page" 13.5px (ink-2), its sub-headings 13px.
+this page" 13px (ink-2) at both levels, a sub-heading set apart by its indent (as a disclosure, 14px and 13px).
+
+One spec per type role on every view (the landing page, a docs page, the Assets tab, a not-found
+page), from the variables on the frame in `playground/showcase.css`:
+
+| Role | This site |
+| --- | --- |
+| Page title | 52px (38px below 760px, 36px below 500px), line height 1.15: a docs page's h1, the Assets title and "Page not found" (`--site-title-size`). The Assets title and "Page not found" start 32px under the banner (a docs page has its page bar first), and 24px separates every title from its intro paragraph, the landing headline too (`--site-title-gap`) |
+| Section heading | 26px (23px below 500px), line height 1.15: a docs h2 and an Assets category (`--site-section-size`) |
+| Landing headline and section heading | The landing archetype's own, larger: 58px and 36px (36px and 28px on a phone) |
+| Small headings | 20px (a docs h3), 18px (a landing card or band row), 15px (a card title: a landing tile and an Assets card are one spec, 600 at the role's tracking) |
+| Heading tracking | Two values. A title or section heading (h1, h2: 23px and up) takes the site's display tracking, −0.035em (`--site-display-tracking`), tighter than Technical's role because these are set large. Every smaller heading takes the role, `--ui-display-tracking` (−0.01em) |
+| Intro paragraph | 18px, line height 1.6, in ink-2, under the title on every view: the Assets tab and a not-found page as a docs page's first paragraph and the landing hero's (17px on a docs page and scaled down on the landing page below 1440) |
+| Leading | Four ratios, variables on `:root`. Display 1.15 (`--site-leading-display`): titles and section headings, the landing headline included. Label 1.3 (`--site-leading-label`): everything set as chrome (controls, labels, navigation, captions, card titles, a landing section's lead); it is both Plex faces' natural leading, so nothing is left at `normal`. Text 1.6 (`--site-leading-text`): running sentences, tables and code blocks. Prose 1.78 (`--site-leading-prose`): a docs page's body, at every width. The docs layout takes them through its `--docs-leading-*` hooks. A key cap is a one-line box at 1; live parts (figures, decks, charts) keep their own |
+| Mono caps labels | One tracking, 0.06em (`--site-label-tracking`): the section chip, the sidebar's section labels, "On this page", the site map's heads, Assets group heads, search groups, previous and next, and the shell eyebrow |
+| Inline code | 0.86 of the text around it, rounded to a whole pixel (15px in 18px prose, 12px in a table); 14px in the landing band |
+| Section chip | One drawing, in a docs page's bar and on a landing job card: mono caps 12px 600, the label tracking, square, the section's icon and a tint of its hue |
+| Site map | One drawing (`playground/SiteMap.tsx`), in the landing page's footer and on a not-found page, which adds the sub-pages: heads in mono caps 12px with the section's icon in its hue, links 14px in ink-2, underlined on hover |
+
+## Shape
+
+Two radii, each from a variable (`playground/showcase.css`). Technical's role, `--ui-radius` (0,
+square): the landing page, the header's theme toggle, menu button and search box, the section chip,
+and the Assets cards and filters, so a card or a button is drawn one way on every view. And one small
+radius, 4px (`--show-radius`), for a docs page's own furniture: code blocks, inline code, the
+sidebar's rows and section icons and the drawer's search box (the docs layout's `--docs-radius`, set from it) and the
+shell's controls and cards around a demo. Squaring those would change how a docs page reads, so they
+keep one small radius, where there were four (3, 4, 5 and 6px). Nodes inside a drawing keep the
+Blueprint look's 6px, and a marker dot is a circle.
+
+A figure's own controls (Open canvas, Pause) take the radius of where the figure sits: the small
+radius in a docs page's demo, square inside an Assets card or a landing tile, as the card is. The
+package draws them at 6px and reads `--uipack-ctl-radius`, which the site sets. A chart's marks (a
+span chart's 1px legend swatches and 2px badges) are the chart's own.
+
+Spacing sits on the 4px grid (8 for gaps and padding between parts): cards pad 24px (a landing job
+card, a style card), an Assets card's text 12px by 16px (a component's preview is inset the same
+16px), the sidebar's inset 16px (outside the site column, so its rows start under the logo), the
+search box 40px high. Kept off it, each for a reason: 5px around "On this page" (room for
+a 2px focus ring at a 3px offset), the sidebar rows' 6px block padding (the row's height is its 34px
+minimum) and the menu button's −15px (its first stroke sits on the page's edge).
 
 ## Density and rhythm
 
@@ -276,16 +410,38 @@ location marker and the section hues are navigation, not ornaments: they are set
 
 ## Layout
 
-### Landing
-
-`product-landing`, at `/` (`playground/LandingShowcase.tsx`, `playground/landing.css`, its words in
-`playground/landing/content.ts`), in the archetype's one 1120px column, with this site's changes:
+**One site width, fluid** (owner, 2026-11-13: "one site width"; the header had a different width on
+each view. Then: "it should depend on the width of the viewer's screen ... what I want is consistency
+across pages"). Every view's content and the header's content sit in one centred column, the site column:
+the landing page's sections, the Assets title, filters and grid, a not-found page, and a docs page's
+whole layout (sidebar, page and "On this page" as one block). So the logo, the tabs, search and the
+theme toggle are at the same x on every view, and on each view the header's edges are the content's
+([layout floor 8](../system/layout/README.md#floors-what-holds-on-every-site)). Variables on the
+frame in `playground/showcase.css`; `e2e/site-consistency.spec.ts` ("one header") holds both at
+2560, 2000, 1920, 1440, 1280, 1024, 768 and 390.
 
 | Setting | This site |
 | --- | --- |
-| Hero | Split: the statement, the install line with a copy button (the release `docs:sync` writes), Read the docs and Open the gallery on 5 columns; the product's real output on 7: the agent read order as a live figure building a real page (the `/web` sample, Tidy: its brand, headline, action, a figure of the product and its result rows), with an authored phone drawing |
-| Section order | Hero, Start from your job (six cards, each tinted with its docs section's hue), How it's built (the layers as a `LayerStack` on two thirds, the text and a read-next list beside it), The parts (live parts in a bento), For agents (the closing band), then a footer site map generated from the docs manifest's five sections |
-| Goal | Read the docs: the hero's one filled button. The closing band's action is its own (How an agent uses UiPack), in the band's gold |
+| Site width | Fluid: `min(1600px, 100% - 2 gutters)` (`--site-column`, `--site-width` the cap), centred, the same function on every view. 1376px at 1440, 1600px from 1664, 1600px at 1920 and 2560 (its margins grow). The cap is where a landing hero, a three-column card row and a docs page of prose and a rail still hold together; past it the margins take the width, so no line, card or hero stretches |
+| Gutters | 32px each side; 24px below 1024px; 16px below 720px (`--site-gutter`) |
+| Full width | Only grounds and rules run the window: the header's ground and bottom rule, the landing hero's backdrop, the closing band and the footer's rule. The sidebar's dividing rule runs the sidebar's height |
+| Header | The same on every view at every width: the mark and name, the Docs and Assets tabs, the search box (260px by 40px, narrower below 1180px, a 44px icon button below 720px) and the theme toggle ("Dark mode" or "Light mode", sentence case as every control label; its icon alone below 520px). 64px high, square controls, the current tab underlined in the accent |
+| The one exception | Where the docs sidebar is a drawer (below 900px; on `/web` below 1328px, where its page would be under 1024px) a docs page's header starts with the menu button, its icon on the content's edge, and the logo follows it; the landing page and Assets have no drawer, so their logo is on the edge |
+| Skip link | One, first in the tab order on every view: "Skip to content", 16px 600 on the ink, 44px high, square as the header's controls |
+
+### Landing
+
+`product-landing`, at `/` (`playground/LandingShowcase.tsx`, `playground/landing.css`, its words in
+`playground/landing/content.ts`), in the archetype's one column, which this site widens from 1120px
+to the fluid site width (1376px at 1440, 1600px at most), with this site's changes:
+
+| Setting | This site |
+| --- | --- |
+| Banner | The site's one header (above): sticky, 64px, its ground and rule full width, its content in the site column, on the sections' edges |
+| Grid | 12 columns with 32px gutters, as fractions of the column. The hero and the band split 5 and 7, "How it is built" 4 and 8, a section head 6 and 6; the four job cards share the row. Text keeps its measure in `ch` (the hero paragraph 54ch, a lead 34ch, an aside 52ch), so the extra width goes to the figures, cards and tiles, not to longer lines; the bento's rows grow from 300px to 380px with the window |
+| Hero | Split: the statement, the install line with a copy button (the release `docs:sync` writes), Read the docs and Open Assets on 5 columns; the product's real output on 7: the agent read order as a live figure building a real page (the `/web` sample, Tidy: its brand, headline, action, a figure of the product and its result rows), with an authored phone drawing |
+| Section order | Hero, Start from your job (the four Build cards in one row, each tinted with its docs section's hue), How it is built (the layers as a `LayerStack` on two thirds, the text and a read-next list beside it), The parts (live parts in a bento), Rules and checks (the two secondary cards, Rules and Check: most readers only build), For agents (the closing band), then a footer site map generated from the docs manifest's five sections |
+| Goal | Read the docs: the hero's one filled button. The closing band's action is its own (How agents use UiPack), in the band's gold |
 | Loading | The hero figure at once; the layer stack and the parts as they near the viewport; the 3D scene only on screen, with WebGL and motion allowed, a still otherwise |
 
 ### Documentation
@@ -294,15 +450,15 @@ location marker and the section hues are navigation, not ornaments: they are set
 
 | Setting | This site |
 | --- | --- |
-| Banner | Sticky, 64px, full width |
+| Banner | The site's one header (above): sticky, 64px, its ground and rule full width. Its logo starts on the site column's left edge, where the sidebar's rows start (below 900px the menu icon on the page's edge), and its last control ends on the column's right edge: the right edge of "On this page", or of the page column where there is no rail. On Assets both sit on the grid's edges, the same x |
 | Page bar | Where the page sits, and nothing else: its section's chip, then its parent page (a sub-page's page, a deck view's Deck player). To the right, "Style: Technical", See it in Assets (where the gallery has the page's assets), View as Markdown and Edit on GitHub; a phone keeps the location and the style |
-| Sidebar | Docked to the left edge under the banner, 232–288px (15vw), scrolling on its own |
-| Page column | At most 760px; prose at a 37em measure inside it (75–88 characters a line, 18px from 1440); tables, code, figures and demos take the whole column |
-| On this page | 204–248px, 40–56px from the column; the column and the rail are centred as a pair, so the spare width goes to the outer margins and there is no dead gutter between the text and the rail at 1440 or 1920 |
-| A page without a rail | Its demos need the width (a figure gallery, charts, 3D): a column up to 1344px, 1176px at 1440, so a 1120-unit figure draws within 1% of its own size |
-| 900–1180px | "On this page" folds into a disclosure above the page |
+| Sidebar | On the site column's left edge under the banner, scrolling on its own: a 232px box whose rows are 204px wide and start on the column's edge (the box and its focus rings reach 16px into the gutter). No search box: search is the header's. On a screen wider than the site column it has a margin to its left, not the window's edge |
+| Page column | 24px from the sidebar, then the rest of the column (the window, less 64px, less the sidebar's 216px, the 24px, the rail's 208px and its 56px gap: 872px at 1440, 1096px at the cap). Prose keeps a 37em measure on the page's left edge, with the page bar and the title (75–88 characters a line, 18px from 1440); tables, code, figures and demos take the whole page, so the screen's width goes to them |
+| On this page | 208px, on the site column's right edge, 56px from the page (40px below 1440px) |
+| A page without a rail | Its demos need the width (a figure gallery, charts, 3D, the `/web` sample): the whole page, no ceiling: 1136px at 1440, 1360px at the cap. A drawing takes the width and scales with it, up and down. One guard at the narrow end: a drawing never draws below its own size (1120 units, or its own if smaller), or the 11px text floor pushes sub-labels out of their boxes, so on a page narrower than 1120px (a window under 1424px) it keeps its size and scrolls inside its canvas; the page never scrolls sideways. A page of 1184px or more gives the drawing its whole width less the canvas's 32px padding |
+| 900–1180px | "On this page" folds into a disclosure above the page, and the page takes the rest of the site column (up to 876px), so its right edge is still the header's |
 | A table wider than the column | Scrolls inside its own focusable box (the arrow keys move it), its content fading out at each edge that has more table beyond it (a mask on the box, so nothing darkens behind the text; the shell marks which edges have more as the box scrolls or resizes); never a page-wide scroll |
-| Below 900px | The sidebar becomes a drawer from the header's menu button; "On this page" is the disclosure; phone type sizes are the docs layout's own |
+| Below 900px | The sidebar becomes a drawer from the header's menu button, every row in it a 44px tap target, sub-pages included; search stays in the header (a 44px icon button below 720px) and the drawer has a box of its own; "On this page" is the disclosure; phone type sizes are the docs layout's own. Below 390px the header's brand keeps only its mark, so the tabs, search and the toggle stay whole on one line |
 
 ## Writing style
 
@@ -334,8 +490,11 @@ to changes if needed"). The site sets only the ground a part sits on, the allowa
 [a spec has for a fixed look](../system/spec-settings.md): the paper, the surfaces, node fills,
 solid lines and the closing band, the values below (the same as the page's). A part's ink, accent,
 flow, data and slide hues stay Technical's, so a figure, slide or chart reads as it does on every
-site. Light is Technical's exactly. A 3D scene's own world, once WebGL draws it, is its look's, and
-static exports and stills keep Technical (see Open TODOs). Generated from `playground/site-palette.css`:
+site. Light is Technical's exactly. A 3D scene's own world, once WebGL draws it, is its look's. The
+package's static exports and stills keep Technical; where a dark still's ground is Technical's navy
+(the three canvas backgrounds on Assets and on Icons & marks), the site draws the tile itself on its
+surface, with the dots and rules in its hairline (`playground/showcase.css`). The role swatches on
+the Style contract page show the site's own values whole, in both halves. Generated from `playground/site-palette.css`:
 
 <!-- generated:demo-ground -->
 | Role | Light (Technical's) | Dark (the site's) |
@@ -352,13 +511,18 @@ static exports and stills keep Technical (see Open TODOs). Generated from `playg
 
 ## Reuse
 
-Extends `technical`. No other site reuses this spec; a site that wants the uipack docs site's look,
+Extends `technical`. No other site reuses this spec; a site that wants the UiPack docs site's look,
 dark palette and navigation included, says `extends: docs-site`.
 
 ## Open TODOs
 
-- TODO: static SVG export (`uipack/static`), the asset manifest's dark previews and the 3D stills
-  keep Technical's dark values; whether the site's stills should follow its charcoal is open (the
-  owner decides). The diagram themes demo shows each theme's own dark, Blueprint's navy included, on
-  purpose; the art directions' WebGL worlds (Cartoon's night sky, Abstract's navy pool) are their
-  looks'.
+- No dark still on the site has a blue ground (the owner, 2026-11-12: no blue ground on this site,
+  the specimen included): the three canvas-background tiles are drawn by the site on its charcoal,
+  the diagram themes demo shows Blueprint on it, and every other dark still the Assets tab and
+  Icons & marks show (icons, marks, motion tokens) has no ground of its own
+  (`e2e/site-consistency.spec.ts` scans them). The files themselves (`docs/assets/dark/`, the
+  manifest's `previewDark`) are the package's and stay Technical's navy for every other site.
+- TODO: static SVG export (`uipack/static`) has no site palette: a figure exported from this site
+  in dark is Technical's. Whether it should take a site's ground is open (the owner decides). The
+  art directions' WebGL worlds (Cartoon's night sky, Abstract's navy pool) are their looks' and
+  stay.

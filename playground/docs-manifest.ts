@@ -35,6 +35,11 @@ export interface DocsPageEntry {
   readonly demos?: readonly { readonly id: string; readonly at?: string }[];
   /** The page's demos need the whole content width (a gallery of figures, charts, a 3D scene): no "On this page" column. */
   readonly fullWidth?: boolean;
+  /**
+   * The file is a sample to copy whose own `#` is a placeholder (the spec template): the page's h1
+   * is `label`, and the file's `#` follows as an h2. The file itself is unchanged.
+   */
+  readonly sampleFile?: boolean;
   /** The page hosts a complete sample page with its own h1 (the /web sample). */
   readonly hostsPage?: boolean;
   /**
@@ -99,7 +104,7 @@ export const docsManifest = [
       },
       {
         id: "install",
-        label: "Install and use",
+        label: "Install and use UiPack",
         path: "/start/install",
         file: "README.md",
         intro: "Install the package, draw a first figure, and the entries for charts, articles, 3D, web pages, decks and docs.",
@@ -147,7 +152,7 @@ export const docsManifest = [
     pages: [
       {
         id: "foundations",
-        label: "Overview",
+        label: "Core rules",
         path: "/foundations",
         file: "docs/system/README.md",
         intro:
@@ -170,7 +175,7 @@ export const docsManifest = [
       {
         id: "writing-general",
         parent: "foundations-writing",
-        label: "General rules",
+        label: "General writing rules",
         path: "/foundations/writing/general",
         file: "docs/system/writing/general.md",
         intro: "The rules every kind of text follows, where each word lives, and every slot's text budget.",
@@ -218,7 +223,7 @@ export const docsManifest = [
       {
         id: "layout-landing",
         parent: "foundations-layout",
-        label: "Landing",
+        label: "Landing layout",
         path: "/foundations/layout/landing",
         file: "docs/system/layout/landing.md",
         intro: "The product landing archetype: its grid, section archetypes, order, and product surfaces at a phone's width.",
@@ -226,7 +231,7 @@ export const docsManifest = [
       {
         id: "layout-documentation",
         parent: "foundations-layout",
-        label: "Documentation",
+        label: "Documentation layout",
         path: "/foundations/layout/documentation",
         file: "docs/system/layout/documentation.md",
         intro: "The docs shell archetype: a reading page's regions and the order inside it.",
@@ -234,7 +239,7 @@ export const docsManifest = [
       {
         id: "layout-article",
         parent: "foundations-layout",
-        label: "Article",
+        label: "Article layout",
         path: "/foundations/layout/article",
         file: "docs/system/layout/article.md",
         intro: "The layered long read archetype: one text column and the parts of each section.",
@@ -242,7 +247,7 @@ export const docsManifest = [
       {
         id: "layout-deck-slide",
         parent: "foundations-layout",
-        label: "Deck slide",
+        label: "Deck slide layout",
         path: "/foundations/layout/deck-slide",
         file: "docs/system/layout/deck-slide.md",
         intro:
@@ -251,7 +256,7 @@ export const docsManifest = [
       {
         id: "layout-dashboard",
         parent: "foundations-layout",
-        label: "Dashboard",
+        label: "Dashboard layout",
         path: "/foundations/layout/dashboard",
         file: "docs/system/layout/dashboard.md",
         intro: "The one-question dashboard archetype: its regions, equal boxes, and the narrow form.",
@@ -313,12 +318,13 @@ export const docsManifest = [
         label: "Spec template",
         path: "/specs/template",
         file: "docs/specs/TEMPLATE.md",
+        sampleFile: true,
         intro:
           "The file a new site spec starts from: the frontmatter (pages, layouts, component looks) and the sections the checker requires.",
       },
       {
         id: "spec-technical",
-        label: "Technical",
+        label: "Technical spec",
         path: "/specs/technical",
         file: "docs/specs/technical.md",
         demos: [
@@ -332,7 +338,7 @@ export const docsManifest = [
       },
       {
         id: "spec-docs-site",
-        label: "Docs site",
+        label: "Docs site spec",
         path: "/specs/docs-site",
         file: "docs/specs/docs-site.md",
         intro:
@@ -347,7 +353,7 @@ export const docsManifest = [
     pages: [
       {
         id: "recipes",
-        label: "Recipes overview",
+        label: "Recipes",
         path: "/recipes",
         file: "docs/recipes/README.md",
         intro: "One recipe per page type: the section order, the parts to use, and the rules each relies on.",
@@ -530,7 +536,7 @@ export const docsManifest = [
     pages: [
       {
         id: "component-looks",
-        label: "Looks overview",
+        label: "Component looks",
         path: "/looks",
         file: "docs/components/README.md",
         intro:
@@ -640,14 +646,14 @@ export const docsManifest = [
     pages: [
       {
         id: "rubric-landing",
-        label: "Landing rubric",
+        label: "Landing page rubric",
         path: "/grading/rubrics/landing-v1",
         file: "docs/grading/rubrics/landing-v1.md",
         intro: "Version 1 of the frozen judge rubric for landing pages.",
       },
       {
         id: "rubric-docs",
-        label: "Docs rubric",
+        label: "Docs and article rubric",
         path: "/grading/rubrics/docs-v1",
         file: "docs/grading/rubrics/docs-v1.md",
         intro: "Version 1 of the frozen judge rubric for documentation and articles.",
@@ -719,7 +725,7 @@ export const docsManifest = [
     pages: [
       {
         id: "spec-registry",
-        label: "Registry",
+        label: "Site registry",
         path: "/specs/registry",
         file: "docs/specs/registry.md",
         intro:
@@ -727,7 +733,7 @@ export const docsManifest = [
       },
       {
         id: "assets",
-        label: "Icons & marks",
+        label: "Icons and marks",
         path: "/assets",
         file: "docs/icons-and-marks.md",
         intro: "Searchable icons, marks, canvas backgrounds and motion tokens, each with a preview and a copy button.",
@@ -786,7 +792,7 @@ export const docsManifest = [
       {
         id: "discoverability-performance",
         parent: "discoverability",
-        label: "Performance",
+        label: "Web performance",
         path: "/reference/discoverability/performance",
         file: "docs/web-discoverability/performance.md",
         intro: "Load and paint numbers measured on the /web demo, the method, and what changed each.",

@@ -1,9 +1,9 @@
-# Grading these docs for agents
+# Grading docs for agents
 
-How to grade uipack's own documentation, whose reader is an agent with a limited context, not a
+How to grade UiPack's own documentation, whose reader is an agent with a limited context, not a
 person on the docs site. Use it after any change to `docs/`, `skills/`, `AGENTS.md`, `README.md`
 or `llms.txt`. The [docs rubric](rubrics/docs-v1.md) is a different job: it grades a documentation
-*page built with uipack* for a human reader.
+*page built with UiPack* for a human reader.
 
 | Tier | What | Run | Gate |
 | --- | --- | --- | --- |

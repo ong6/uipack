@@ -1,6 +1,6 @@
-# uipack
+# Install and use UiPack
 
-Jun Xiong's own design system: the diagrams, decks, web pages, motion and 3D he uses on his sites
+UiPack (the `uipack` package) is Jun Xiong's own design system: the diagrams, decks, web pages, motion and 3D he uses on his sites
 (the [uipack docs site](https://ui.junxiong.dev), [junxiong.dev](https://junxiong.dev), [notes.junxiong.dev](https://notes.junxiong.dev))
 and in work presentations, so they look consistent and explain things the way he likes. It is
 built for agents to read and build from, not as a public product: React and SVG components plus
@@ -80,14 +80,14 @@ optional peers, used only by `uipack/objects` and `uipack/slides`. `react-markdo
 | `uipack/article` + `.css` | Labelled blocks for a long article | [Article parts](docs/article.md) |
 | `uipack/web` + `.css` | Web pages: hero, product surfaces, sections, motion, backgrounds, SEO helpers | [Web parts API](docs/web-api.md), [principles](docs/web-principles.md), [discoverability](docs/web-discoverability.md) |
 | `uipack/deck` + `.css` | The deck player: 1920×1080 slides, transitions, speaker view, `lintDeck` | [Deck player](docs/deck.md), [storytelling](docs/deck-storytelling.md) |
-| `uipack/presentations` + `.css` | Editable SVG slide starters with speaker guides | [Presentation starters](docs/presentations.md) |
+| `uipack/presentations` + `.css` | Editable SVG slide starters with speaker guides | [Slide starters](docs/presentations.md) |
 | `uipack/mechanism` + `.css` | Isometric machines driven by a pose | [Mechanism](docs/mechanism.md) |
-| `uipack/objects` + `.css` | Lazy 3D object scenes and their art directions | [Objects](docs/objects.md) |
+| `uipack/objects` + `.css` | Lazy 3D object scenes and their art directions | [3D object scenes](docs/objects.md) |
 | `uipack/slides` + `.css` | 3D camera stories (`SlidePlayer`). The name is historical and kept for existing imports | [3D stories](docs/slides.md) |
 | `uipack/docs` + `.css` | A documentation shell and Markdown renderer | [Docs layout](docs/docs-layout.md) |
 | `uipack/browser` + `.css` | The asset browser | [Icons and marks](docs/icons-and-marks.md) |
-| `uipack/grade` | Tier-1 page checks, judge packets and tallies (Node only; CLI `npx uipack-grade`) | [Grading](docs/grading/README.md) |
-| `uipack/styles.css` | The role layer alone | [Style roles](docs/system/style.md) |
+| `uipack/grade` | Tier-1 page checks, judge packets and tallies (Node only; CLI `npx uipack-grade`) | [How to grade](docs/grading/README.md) |
+| `uipack/styles.css` | The role layer alone | [Style contract](docs/system/style.md) |
 
 ## Style
 

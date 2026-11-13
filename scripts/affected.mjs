@@ -49,6 +49,8 @@ const SHELL = [
   "docs-shell",
   "page-audit",
   "showcase",
+  "brand-mark",
+  "site-consistency",
   "gallery",
   "assets-gallery",
   "web",
@@ -81,12 +83,19 @@ const AREAS = [
   [/^src\/objects\//, ["objects", "art-directions", "contact-directions"]],
   [/^src\/slides\//, ["slides"]],
   [/^src\/browser\/|^assets\//, ["assets"]],
+  // The generator of the header mark's landing loop (its keyframes are in playground/showcase.css).
+  [/^scripts\/brand-loop/, ["brand-mark"]],
+  // The marks: the docs site's header draws the wordmark, its dot on the page's section.
+  [/^src\/marks\//, ["brand-mark", "assets"]],
   [/^src\/drill\//, ["drill", "geometry"]],
   [/^src\/static\//, ["static"]],
   // The grader: its browser spec runs the checks on a page with planted defects.
   // tier1 runs it on a few docs-site pages.
   [/^src\/grade\/|^scripts\/grade/, ["grade", "tier1"]],
-  [/^src\/docs\/|^playground\/Docs/, ["docs", "docs-shell", "foundations", "nav", "tier1", "charts", "geometry", "canvas"]],
+  [
+    /^src\/docs\/|^playground\/Docs/,
+    ["docs", "docs-shell", "site-consistency", "foundations", "nav", "tier1", "charts", "geometry", "canvas"],
+  ],
   // The docs site: its manifest, the Markdown page, demos, links and generated blocks.
   [
     /^playground\/(docs-manifest|docs-links|demos|MarkdownShowcase)|^scripts\/(docs-sync|check-spec|style-contract|site-model|check-agent-docs)|^docs\/(?!system\/)|^README\.md$|^llms\.txt$/,
@@ -106,17 +115,19 @@ const AREAS = [
     ["foundations", "nav", "page-audit", "showcase-content"],
   ],
   // The landing page (/): its module, words, figures and previews, and the release line it shows.
-  [/^playground\/(LandingShowcase|landing|release)/, ["landing", "tier1"]],
+  [/^playground\/(LandingShowcase|landing|release)/, ["landing", "site-consistency", "tier1"]],
+  // The site map: the landing page's footer and a not-found page.
+  [/^playground\/(SiteMap|site-map)/, ["landing", "site-consistency", "nav"]],
   // The live-preview stage the landing page and the Assets tab share.
   [/^playground\/preview-stage/, ["landing", "assets-gallery"]],
   [
-    /^playground\/(ShowcaseShell|showcase\.css|catalog|figure-rows|routes|nav|main|index\.html|site-palette|site-settings|search-index)/,
+    /^playground\/(ShowcaseShell|showcase\.css|catalog|figure-rows|routes|nav|main|scroll-memory|link-preload|page-ready|index\.html|site-palette|site-settings|search-index)/,
     [...SHELL, "landing"],
   ],
   // The Assets tab: its page, its data and the registries it draws from.
   [
     /^playground\/(GalleryShowcase|gallery-showcase|gallery-index|deckExamples|presentationExamples|figures\/)/,
-    ["assets-gallery"],
+    ["assets-gallery", "site-consistency"],
   ],
   // The deployed site's route files and crawl files: CI's site job crawls the build (npm run check:site);
   // nav covers the routes on the dev server.

@@ -1,7 +1,7 @@
-# Writing: figure labels and captions
+# Figure labels and captions
 
 How to write the words of a diagram, chart, motion beat or 3D stop: the caption, node and arrow
-labels, statistics and the source line. It adds to the [general rules](general.md). How figures
+labels, statistics and the source line. It adds to the [general writing rules](general.md). How figures
 are laid out is in [Layout, figures](../layout/README.md#figures); their look is
 [Blueprint](../../components/diagrams.md), the same on every site, so these rules and lengths hold on
 every site too: a figure reads the same on the blog and the main site.

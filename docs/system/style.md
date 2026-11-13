@@ -1,7 +1,7 @@
-# Style: the role contract
+# Style contract
 
-What every site spec must define, what each role means and which entry names read it. This is a
-core rule: it holds no site's values. Each website has one spec that fills it
+The style contract is the role contract every style fills: what every site spec must define, what each role means and
+which entry names read it. This is a core rule: it holds no site's values. Each website has one spec that fills it
 ([how to write a spec](../specs/README.md)); a value shown here as an example is labelled as
 coming from the [Technical spec](../specs/technical.md), the package's default look.
 
@@ -10,7 +10,7 @@ A style is a **token set keyed to semantic roles**. Layouts and content ask for 
 leaves the questions alone. Light and dark are two value sets *inside* one style. They are not two
 styles. See [the system overview](README.md) for how style fits with writing and layout.
 
-uipack renders a spec's look once its values are one value set in `src/styles`, registered in
+UiPack renders a spec's look once its values are one value set in `src/styles`, registered in
 `uiStyles` and tested ([building a style from a spec](../specs/README.md#building-a-style-from-a-spec)).
 Today that is Technical alone. What a spec may choose, and what holds for every site, is in
 [What a spec may set](spec-settings.md).
@@ -24,7 +24,8 @@ halves of one value set, resolved from the element's `color-scheme`. `test/style
 fails if a style leaves a core role out, and `scripts/check-spec.ts` fails a spec that gives one
 neither a value nor a `TODO:`.
 
-Every colour role below, live from this site's value set (Technical) in its light and dark halves:
+Every colour role below, live from this site's own value set in both halves: Technical's values in
+light, the docs site's charcoal ground and neutral inks in dark ([its spec](../specs/docs-site.md#role-values)):
 
 ```uipack-demo role-swatches wide
 The colour roles as swatches, light and dark side by side, each named by its custom property, with the fonts the style loads.
@@ -139,9 +140,9 @@ is `fixed` or `flex` ([every look](../components/README.md)).
 
 | What | For | Values | Guide |
 | --- | --- | --- | --- |
-| **Site specs** | One per website: its palette, faces, ornaments, voice | `src/styles/<id>.css` once implemented | [Registry](../specs/registry.md), [Technical](../specs/technical.md) |
+| **Site specs** | One per website: its palette, faces, ornaments, voice | `src/styles/<id>.css` once implemented | [Site registry](../specs/registry.md), [Technical spec](../specs/technical.md) |
 | **Mechanism** (`flex`) | One isometric machine whose working is the point | The site's roles mapped to four solid tones (derived; `--tune-mech-*` hooks), one lit part | [Mechanism look](../components/mechanism.md), [Mechanism](../mechanism.md) |
-| **3D art directions** | Object scenes | Studio (`flex`, reads `--tune-object-*`); Paper worlds, Kinetic, Cartoon, Realistic, Abstract (`fixed`) | [3D looks](../components/3d.md), [Object scenes](../objects.md) |
+| **3D art directions** | Object scenes | Studio (`flex`, reads `--tune-object-*`); Paper worlds, Kinetic, Cartoon, Realistic, Abstract (`fixed`) | [3D looks](../components/3d.md), [3D object scenes](../objects.md) |
 
 The `uiStyle` prop (`Figure`, `DeckPlayer`, `SlideStarter`, `WebSurface`, `Section`) and
 `data-ui-style` on any element set the style; the nearest one wins, and with nothing set it is

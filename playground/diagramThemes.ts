@@ -1,7 +1,19 @@
-import { defineDiagramTheme } from "../src";
+import { blueprint, defineDiagramTheme } from "../src";
 
 // Example diagram themes for the docs demos (docs/components/diagrams.md, "Diagram themes"). A site
 // defines its own the same way, in its own repo; uipack ships only `blueprint`.
+
+/**
+ * Blueprint as the docs site shows it: Technical's ink, accent and flow hues, on the site's charcoal
+ * in dark (the surfaces of playground/site-palette.css) instead of Blueprint's own navy. The owner,
+ * 2026-11-12: no blue ground in the site's dark mode, this specimen included.
+ */
+export const siteBlueprint = defineDiagramTheme({
+  name: "blueprint",
+  light: blueprint.light,
+  dark: { ...blueprint.dark, surface: "#16181b", "surface-raised": "#1c1f23", "surface-2": "#22262a" },
+  canvas: "grid",
+});
 
 /** Warm paper with a cobalt accent and a dot grid. Faces stay the page's (the docs site holds to Technical's). */
 export const warmPaper = defineDiagramTheme({

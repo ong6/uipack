@@ -1,10 +1,10 @@
-# UIPACK agent guide
+# UiPack agent guide
 
 | Your task | Read first |
 | --- | --- |
 | Build a page, figure, deck or copy for a site | [`docs/agents/README.md`](docs/agents/README.md), then the job's skill in [`skills/`](skills/README.md); you can stop reading this file |
 | Add or change a part, page, style or entry in uipack | Its recipe in [`docs/contributing.md`](docs/contributing.md), then "Design contract" and "Engineering and verification" below |
-| Change the docs | "Design contract" below (docs bullet), then [grading these docs for agents](docs/grading/agent-docs.md) |
+| Change the docs | "Design contract" below (docs bullet), then [grading docs for agents](docs/grading/agent-docs.md) |
 
 Before any commit to uipack: `npm run build` (writes `dist/`, which is not committed; tests and the typecheck read it), `npm run verify` (format check, typecheck, lint, affected unit tests; `npm run format` fixes formatting), `npm run test:affected -- --e2e`.
 
@@ -18,7 +18,7 @@ The owner's own design system, for his sites (every one is in `docs/specs/regist
 
 ## Design contract
 
-- Reuse `playground/ShowcaseShell.tsx` for every collection. Never create another logo, header, theme toggle, page width, or navigation system.
+- Reuse `playground/ShowcaseShell.tsx` for every collection. Never create another logo, header, theme toggle, page width, or navigation system. The one mark has section states, not variants of its own (owner, 2026-11-12): `Wordmark`'s `live` and `liveColor` move its dot to another cell and colour it, and the docs site's header puts it on the page's section ([docs-site spec, Navigation](docs/specs/docs-site.md#navigation)); without `live` it is the mark every other site draws.
 - Classify content by both type and style. Register catalog metadata in `playground/catalog.ts`. Technical is the one implemented style, for every medium; pages and Foundations show it alone, with no style switcher. Light/dark are colour themes within a style, not new styles.
 - The docs are layered: core rules (`docs/system/`: the role contract, layout floors, core writing rules; no site's values), the libraries a spec picks from (layout archetypes in `docs/system/layout/`, component looks in `docs/components/`, each `fixed` or `flex`; both listed in `scripts/site-model.ts`) and one spec per website (`docs/specs/`, or a site repo's `STYLE.md`, from `docs/specs/TEMPLATE.md`, checked by `scripts/check-spec.ts`), which owns the site's look, its layout per page type, its writing style and the looks it picks; a deck reads its site's spec. Every site is in `docs/specs/registry.md`. A site that should look like another reuses that spec. uipack renders a spec's look by adding one value set in `src/styles`, registering it in `uiStyles`, and testing it ([recipe](docs/specs/README.md#building-a-style-from-a-spec)); build one only when the owner or a brief asks, and it adds components only when it adds a part and never moves a section. Do not recolour Technical without the owner (its Cyanotype values were chosen blind on 2026-11-05) or invent unavailable style choices.
 - Colours, faces, radii and ornaments come from the role layer (`src/styles`, `var(--ui-*)`); never write a hex literal in component CSS or TSX (`test/no-hex.test.tsx`). A style is one value set keyed by `data-ui-style`; components take a `uiStyle` prop (`style` stays React's inline CSS).

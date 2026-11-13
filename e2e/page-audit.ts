@@ -32,6 +32,8 @@ export const isMarkdownPage = (path: string) => !!byPath(path);
 /** A Markdown page's h1, as the file writes it (inline code and link syntax dropped), with a sub-view's name. */
 export function markdownH1(path: string) {
   const page = byPath(path)!;
+  // A sample file (the spec template) keeps its placeholder `#`; its page is titled by its label.
+  if (page.sampleFile) return page.label;
   let line = /^# (.+)$/m.exec(readFileSync(page.file, "utf8"))?.[1] ?? "";
   if (page.query && page.title && line.trim() === page.title) line = `${line.trim()} · ${page.label}`;
   return line
@@ -59,11 +61,8 @@ export const h1Of = (label: string) => {
   const pageTitle = subViewOf(label);
   return pageTitle ? `${pageTitle} · ${label}` : label;
 };
-// The browser tab: the sub-view first. /web too: its sample page keeps the rest of its own head.
-export const tabOf = (label: string) => {
-  const pageTitle = subViewOf(label);
-  return pageTitle ? `${label} · ${pageTitle} · uipack` : `${label} · uipack`;
-};
+// The browser tab: the h1's words in the h1's order, then the site. /web too: its sample page keeps the rest of its own head.
+export const tabOf = (label: string) => `${h1Of(label)} · UiPack`;
 
 /** The sidebar (DocsLayout's navigation, generated from the docs manifest), shown from 900px. */
 export const sidebar = (page: Page) => page.getByRole("navigation", { name: "Library", exact: true });

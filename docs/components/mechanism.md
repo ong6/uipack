@@ -1,4 +1,4 @@
-# Mechanism: the isometric machine look
+# Mechanism look
 
 `uipack/mechanism` draws one real, well-made isometric machine whose working is the concept (the
 first is the verification gate). It has one look, **Isometric machine**, and it is `flex`: the
@@ -33,5 +33,5 @@ A spec picks one look: `components: { mechanism: isometric }`.
 | Card frame | The site's frame border and radius |
 
 TODO: the tone derivation (`--tune-mech-*`) exists for Technical only (see
-[Style roles, Where the code stands](../system/style.md#where-the-code-stands)); a second
+[Style contract, Where the code stands](../system/style.md#where-the-code-stands)); a second
 implemented style needs its own before this look follows it.

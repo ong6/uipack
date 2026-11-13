@@ -66,5 +66,5 @@ offer, two looks for a "picks one" component, and a spec that sets a value a fix
 
 - [What a spec may set](../system/spec-settings.md): looks are one row of the boundary.
 - [How to write a spec](../specs/README.md) and the [template](../specs/TEMPLATE.md).
-- The component references: [diagram catalogue](../diagrams.md), [object scenes](../objects.md),
+- The component references: [Architecture diagrams](../diagrams.md), [3D object scenes](../objects.md),
   [Mechanism](../mechanism.md).

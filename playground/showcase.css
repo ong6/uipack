@@ -1,10 +1,29 @@
 /* Shell tokens. Controls: one set for every playground control (and the Mechanism page's, through
-   its --font-mono hook): mono 400, 13px on the page and 12px inside a figure or stage frame, a 6px
-   radius. Radius scale: docs/design-direction.md. */
+   its --font-mono hook): mono 400, 13px on the page and 12px inside a figure or stage frame.
+   Corners: the site has two radii (docs/specs/docs-site.md, "Shape"; docs/design-direction.md).
+   Technical's role, var(--ui-radius), square: the header's controls, the section chip, the Assets
+   cards and filters and the whole landing page, so a card or a button is drawn one way on every view.
+   And --show-radius, the one small radius of a docs page's own furniture: code blocks, inline code,
+   the sidebar's rows and icons (the docs layout's --docs-radius, set from it below) and the shell's
+   controls and cards around a demo. It is kept, at one value where there were four (3, 4, 5 and
+   6px), because squaring them would change how a docs page reads; 4px is what most of them had. */
 :root {
-  --show-control-radius: 6px;
-  --show-eyebrow-tracking: 0.08em;
-  --show-radius: 6px;
+  --show-radius: 4px;
+  --show-control-radius: var(--show-radius);
+  /* Leading: the site's whole set, four ratios (docs/specs/docs-site.md, "Type"). Display: a title
+     or a section heading. Label: everything set as chrome, one line or a few short ones (controls,
+     labels, navigation, captions, card titles, a section's lead); it is also the natural leading of
+     both Plex faces, so nothing here is left at `normal`. Text: running sentences (intros, card and
+     band copy, tables, code blocks). Prose: a docs page's body, the one extra step. A key cap is a
+     one-line box at 1. Live parts (figures, decks, charts) keep their own. */
+  --site-leading-display: 1.15;
+  --site-leading-label: 1.3;
+  --site-leading-text: 1.6;
+  --site-leading-prose: 1.78;
+  /* Mono caps labels are tracked one way: the section chip, the sidebar's section labels, "On this
+     page", the footer site map's heads, Assets group heads, search groups and the shell eyebrow. */
+  --site-label-tracking: 0.06em;
+  --show-eyebrow-tracking: var(--site-label-tracking);
 }
 /* The shell is Technical: <body data-ui-style="technical"> (index.html) holds Technical's roles,
    and the shell's colours read them there, and again on the frame, where the docs site's own values
@@ -15,11 +34,11 @@ body,
   --show-font-sans: var(--ui-font-text);
   --show-font-display: var(--ui-font-display);
   --show-font-mono: var(--ui-font-label);
-  --show-control-font: 400 13px/1.2 var(--show-font-mono);
-  --show-control-font-sm: 400 12px/1.2 var(--show-font-mono);
+  --show-control-font: 400 13px / var(--site-leading-label) var(--show-font-mono);
+  --show-control-font-sm: 400 12px / var(--site-leading-label) var(--show-font-mono);
   /* The one shell eyebrow (a figure's "Figure 01 · …", a Mechanism plate's corners, a 3D stage's
      edition): tracked mono caps. Slides keep the deck's own eyebrow (deck.css .uipack-deck-eyebrow). */
-  --show-eyebrow-font: 600 12px/1.3 var(--show-font-mono);
+  --show-eyebrow-font: 600 12px / var(--site-leading-label) var(--show-font-mono);
   --show-bg: var(--ui-paper);
   --show-ink: var(--ui-ink);
   --show-muted: var(--ui-ink-2);
@@ -36,37 +55,107 @@ body {
   background: var(--show-bg);
   color: var(--show-ink);
 }
-/* The frame holds the docs layout (src/docs, width="wide"): the sticky banner, then the sidebar
-   docked to the left edge under it, and the page and, on a Markdown page, "On this page" as a pair
-   centred in the rest. The widths (docs/specs/docs-site.md, "Layout"): a 232–288px sidebar; the
-   page column at most 760px with prose at a 37em measure inside it, 75–88 characters a line (tables,
-   code and figures take the whole column); "On this page" 204–248px, 40–56px from the column, so at 1440 and 1920 there
-   is no dead gutter between the text and the rail (the spare width goes to the outer margins). A
-   page with no rail (a gallery of figures, charts, a 3D scene) gets a column up to 1344px: at 1440
-   that is 1176px, so a 1120-unit figure draws within 1% of its own size (its canvas adds 64px) and
-   the 11px text floor never enlarges a subtitle past its box (in a 1132px column subtitles grew 4–5%
-   and, where glyph advances round to whole pixels on Linux, crossed node borders). Main stacks the page bar,
-   the title and the page with one 32px gap. */
+/* The site's one width (docs/specs/docs-site.md, "Layout"; owner, 2026-11-13: "one site width",
+   then "it should depend on the width of the viewer's screen ... what I want is consistency across
+   pages"): every view's content and the header's bar sit in one centred column, --site-column. It is
+   fluid: the window less --site-gutter on each side (32px, 24px below 1024px, 16px below 720px), up
+   to the --site-width cap (1600px, reached at a 1664px window), the same function on every view. So
+   the logo and the last control are at the same x on every view and on the content's edges (layout
+   floor 8), and the column uses the screen. Grounds and rules (the header's, the landing hero's, the
+   band's) still run the window.
+   The frame holds the docs layout (src/docs, width="wide") in that column: the sticky banner, then
+   the sidebar on the column's start edge (its rows start on the edge, where the logo does; its box
+   and focus rings hang --side-pad into the gutter, so the box is 232px), the page, and on a Markdown
+   page "On this page" (208px) on the column's end edge. The sidebar and the rail keep their widths;
+   the page takes the rest. Prose keeps a 37em measure on the page's start edge, 75–88 characters a
+   line; tables, code, figures and demos take the whole page, so the screen's extra width goes to
+   them. A page with no rail (a gallery of figures, charts, a 3D scene, the /web sample) has the
+   rail's share too: 1136px at a 1440px window, 1360px at the cap. Main stacks the page bar, the
+   title and the page with one 32px gap. */
 .showcase-frame {
+  --site-width: 1600px;
+  --site-gutter: 32px;
+  /* A percentage here is of the box that uses it: the frame's children, each the window's width. */
+  --site-column: min(var(--site-width), 100% - 2 * var(--site-gutter));
   --header-h: 64px;
-  --side-w: clamp(232px, 15vw, 288px);
-  --col: 760px;
-  --rail-w: clamp(204px, 13vw, 248px);
-  --rail-gap: clamp(40px, 3vw, 56px);
-  --full-col: 1344px;
+  /* The sidebar's inset, outside the site column; with it the sidebar's box is 232px. */
+  --side-pad: 16px;
+  --side-w: 216px;
+  --side-gap: 24px;
+  --rail-w: 208px;
+  /* Between the page and the rail: 40px while the window is short of room, 56px from 1440px. */
+  --rail-gap: 40px;
+  /* Type roles every view shares (docs/specs/docs-site.md, "Type"). The page title and the section
+     heading are the docs layout's own sizes, named here so the Assets tab and a page outside the
+     Markdown (not found) set theirs from the same values; the docs layout reads them through its
+     --docs-* hooks. Tracking has one rule: a title or section heading (h1, h2: 23px and up) takes
+     the site's display tracking, tighter than Technical's role because these sizes are set large;
+     every smaller heading (h3 and below, card titles) takes the role, var(--ui-display-tracking). */
+  --site-title-size: clamp(38px, 5vw, 52px);
+  --site-section-size: 26px;
+  --site-display-tracking: -0.035em;
+  /* Under a page title, before its intro paragraph, on every view. */
+  --site-title-gap: 24px;
+  --docs-title-size: var(--site-title-size);
+  --docs-section-size: var(--site-section-size);
+  --docs-display-tracking: var(--site-display-tracking);
+  /* The docs layout, its search box and its dialog take the site's leading set and label tracking
+     (src/docs/docs.css reads these hooks, each with its own value as the fallback). */
+  --docs-leading-display: var(--site-leading-display);
+  --docs-leading-label: var(--site-leading-label);
+  --docs-leading-text: var(--site-leading-text);
+  --docs-leading-prose: var(--site-leading-prose);
+  --docs-label-tracking: var(--site-label-tracking);
+  --docs-title-gap: var(--site-title-gap);
+  /* The figure's controls (Open canvas, Pause) take the site's control radius; a card that is
+     square (an Assets card, a landing tile) squares them (docs/specs/docs-site.md, "Shape"). */
+  --uipack-ctl-radius: var(--show-control-radius);
+  /* The site's hairline, resolved here from the site's ink, for a drawing inside a demo or a
+     preview (where the ink is Technical's again) that shows the site's own ground. */
+  --site-line-soft: var(--ui-line-soft);
+}
+/* A phone's steps, the docs layout's (src/docs/docs.css, below 500px). */
+@media (min-width: 1440px) {
+  .showcase-frame {
+    --rail-gap: 56px;
+  }
+}
+@media (max-width: 1023px) {
+  .showcase-frame {
+    --site-gutter: 24px;
+  }
+}
+@media (max-width: 719px) {
+  .showcase-frame {
+    --site-gutter: 16px;
+  }
+}
+@media (max-width: 499px) {
+  .showcase-frame {
+    --site-title-size: 36px;
+    --site-section-size: 23px;
+  }
+}
+/* The docs layout's one radius is the shell's small radius (see the top of this file). */
+.showcase-frame .uipack-docs,
+.showcase-frame .uipack-docs__prose {
+  --docs-radius: var(--show-radius);
 }
 .showcase-frame > .uipack-docs {
   padding: 0;
 }
-.showcase-frame:not([data-rail="none"]) > .uipack-docs[data-width="wide"] > .uipack-docs__grid {
+/* The whole layout is the site column. With a rail, the spare width between the page and the rail
+   is the first to go (56px down to 40), then the page column. */
+.showcase-frame > .uipack-docs[data-width] > .uipack-docs__grid {
+  width: var(--site-column);
+  margin-inline: auto;
   gap: 0;
-  grid-template-columns:
-    var(--side-w) minmax(24px, 1fr) minmax(0, var(--col)) var(--rail-gap) var(--rail-w)
-    minmax(24px, 1fr);
+}
+.showcase-frame:not([data-rail="none"]) > .uipack-docs[data-width="wide"] > .uipack-docs__grid {
+  grid-template-columns: var(--side-w) var(--side-gap) minmax(0, 1fr) var(--rail-gap) var(--rail-w);
 }
 .showcase-frame[data-rail="none"] > .uipack-docs[data-width="wide"] > .uipack-docs__grid {
-  gap: 0;
-  grid-template-columns: var(--side-w) minmax(16px, 1fr) minmax(0, var(--full-col)) minmax(16px, 1fr);
+  grid-template-columns: var(--side-w) var(--side-gap) minmax(0, 1fr);
 }
 .showcase-frame > .uipack-docs > .uipack-docs__grid > .uipack-docs__sidebar {
   grid-column: 1;
@@ -76,8 +165,9 @@ body {
   height: calc(100vh - var(--header-h));
   height: calc(100dvh - var(--header-h));
   max-height: none;
-  margin: 0;
-  padding: 20px 12px 48px 14px;
+  /* Its rows start on the site column's edge; the box reaches --side-pad into the gutter. */
+  margin: 0 0 0 calc(-1 * var(--side-pad));
+  padding: 20px 12px 48px var(--side-pad);
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-width: thin;
@@ -86,21 +176,27 @@ body {
 .showcase-frame > .uipack-docs > .uipack-docs__grid > .uipack-docs__article {
   grid-column: 3;
   grid-row: 1;
-  padding: 34px 0 96px;
+  padding: 32px 0 96px;
   scroll-margin-top: var(--header-h);
 }
-/* 5px of padding inside its scroll box is room for a link's focus ring (2px + 3px offset). */
+/* 5px of padding inside its scroll box is room for a link's focus ring (2px + 3px offset). Its title
+   sits on the centre line of the page's first row (the section chip and the source links). */
 .showcase-frame > .uipack-docs > .uipack-docs__grid > .uipack-docs__toc {
   display: block;
   grid-column: 5;
   grid-row: 1;
-  top: calc(var(--header-h) + 29px);
-  max-height: calc(100vh - var(--header-h) - 50px);
-  margin: 29px -5px 0;
+  top: calc(var(--header-h) + 32px);
+  max-height: calc(100vh - var(--header-h) - 53px);
+  margin: 32px -5px 0;
   padding: 5px;
 }
+/* The title is a row as tall as the page's first row (32px) and level with it, so the two share
+   a centre line exactly; the list starts 4px under it. */
 .showcase-frame .uipack-docs__toc > p {
-  margin: 4px 0 12px;
+  display: flex;
+  align-items: center;
+  min-height: 32px;
+  margin: -5px 0 4px;
 }
 /* Anything scrolled to (a #fragment, a picked heading, a focused control) lands below the sticky
    banner; headings sit 24px under it. */
@@ -138,10 +234,11 @@ html:has(.showcase-frame:not([data-banner="static"])) {
     font-size: 18px;
   }
 }
-/* Between 900 and 1180 the rail folds into the "On this page" disclosure before it squeezes the measure. */
+/* Between 900 and 1180 the rail folds into the "On this page" disclosure before it squeezes the
+   measure, and the page takes the rest of the site column, so its end edge is still the header's. */
 @media (max-width: 1180px) {
   .showcase-frame:not([data-rail="none"]) > .uipack-docs[data-width="wide"] > .uipack-docs__grid {
-    grid-template-columns: var(--side-w) minmax(24px, 1fr) minmax(0, var(--col)) minmax(24px, 1fr);
+    grid-template-columns: var(--side-w) var(--side-gap) minmax(0, 1fr);
   }
   .showcase-frame > .uipack-docs > .uipack-docs__grid > .uipack-docs__toc {
     display: none;
@@ -187,6 +284,92 @@ html:has(.showcase-frame:not([data-banner="static"])) {
 .showcase-frame .uipack-docs__table[data-more~="end"] {
   --table-fade-end: 48px;
 }
+/* The canvas backgrounds' stills in dark (the "Backgrounds" tiles on Assets and on Icons & marks).
+   The package's dark stills are static exports in Technical's navy, right for every other site; on
+   this one nothing large is blue in dark, a specimen included (docs/specs/docs-site.md, "Demos and
+   fixed looks"). So in dark the site draws the three tiles itself, over the still and in its box: the
+   site's surface, with the dots and rules in the site's hairline at their real size (1px dots 12px
+   apart, 1px rules 24px apart). Light shows the package's stills, whose values are the site's. */
+.showcase-frame[data-theme="dark"] {
+  --site-ground-plain: var(--ui-surface);
+  --site-ground-dots:
+    radial-gradient(circle at 1px 1px, var(--site-line-soft) 1px, transparent 1.5px) 0 0 / 12px 12px, var(--ui-surface);
+  --site-ground-ruled: linear-gradient(var(--site-line-soft) 1px, transparent 1px) 0 0 / 100% 24px, var(--ui-surface);
+}
+.showcase-frame[data-theme="dark"]
+  :is(
+    .uipack-browser__card[data-kind="background"] .uipack-browser__tile,
+    [data-gallery-item^="asset-background-"] .gallery-preview
+  )
+  img {
+  grid-area: 1 / 1;
+  visibility: hidden;
+}
+.showcase-frame[data-theme="dark"]
+  :is(
+    .uipack-browser__card[data-kind="background"] .uipack-browser__tile,
+    [data-gallery-item^="asset-background-"] .gallery-preview
+  )::after {
+  content: "";
+  grid-area: 1 / 1;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  border: 1px solid var(--ui-line);
+  background: var(--site-ground-plain);
+}
+/* The Assets tile shows the still at 70% of the tile, two to one. */
+.showcase-frame[data-theme="dark"]
+  [data-gallery-item^="asset-background-"]
+  .gallery-preview.gallery-preview--tile.gallery-preview--live::after {
+  width: 70%;
+  height: auto;
+  aspect-ratio: 2 / 1;
+}
+.showcase-frame[data-theme="dark"]
+  :is(
+    .uipack-browser__card[data-id="background-dots"] .uipack-browser__tile,
+    [data-gallery-item="asset-background-dots"] .gallery-preview
+  )::after {
+  background: var(--site-ground-dots);
+}
+.showcase-frame[data-theme="dark"]
+  :is(
+    .uipack-browser__card[data-id="background-ruled"] .uipack-browser__tile,
+    [data-gallery-item="asset-background-ruled"] .gallery-preview
+  )::after {
+  background: var(--site-ground-ruled);
+}
+/* A figure in a docs page takes the width the page gives it and scales with it, up and down. The
+   narrow end has one guard: a 1120-unit drawing (the figure grid's widest) drawn smaller than its own
+   size has its sub-labels enlarged past their boxes by the 11px text floor. So from 900px a wide
+   drawing never draws below its own size: first its canvas gives up its 32px side padding (the
+   drawing has a 40-unit margin inside its own viewBox), which holds from a 1184px page down to a
+   1120px one (a 1424px window on a page without a rail); narrower than that it keeps its size and
+   scrolls inside its canvas (AGENTS.md: a dense diagram keeps a readable drawing and scrolls
+   internally). The page never scrolls sideways. Below 900px the package's own narrow rules hold. */
+@media (min-width: 900px) {
+  .showcase-frame .uipack-docs__article :is(.uipack, .uipack-drill) > .uipack__canvas {
+    /* A percentage is of the figure's own width, which is the page's. */
+    padding-inline: clamp(0px, (100% - var(--figure-width, 0px)) / 2, 32px);
+  }
+  .showcase-frame .uipack-docs__article .uipack > .uipack__canvas > svg.uipack--wide,
+  /* The drill-down figure's drawing sits in a stage inside its canvas. */
+  .showcase-frame .uipack-docs__article .uipack-drill > .uipack__canvas > .uipack-drill__stage {
+    /* The two drawings wider than the grid's 1120 units (1200 and 1248) are set larger and may
+       draw down to 1120px, as they did before the site had one width. */
+    min-width: min(var(--figure-width, 0px), 1120px);
+  }
+}
+/* The /web sample beside the sidebar: its frame is drawn as an outline, not a border, so the sample's
+   own container is the page's whole width. Its desktop layout starts at a 1024px container, which
+   is the page at a 1328px window, where the sidebar docks (ShowcaseShell.tsx): a 1px border each
+   side would leave it 1022px there, in its tablet layout. */
+.showcase-frame .web-example {
+  border: 0;
+  outline: 1px solid var(--show-rule);
+  outline-offset: -1px;
+}
 /* A demo's box only resets the style to Technical (demos.tsx); it takes no space of its own. */
 .showcase-demo {
   display: contents;
@@ -205,19 +388,9 @@ html:has(.showcase-frame:not([data-banner="static"])) {
 .showcase-frame .showcase-shell > .uipack-docs__pagination {
   margin-top: 32px;
 }
-/* The skip link (DocsLayout's): a button-sized link at the top once it has focus. */
-.showcase-frame a.uipack-docs__skip:focus {
-  display: flex;
-  align-items: center;
-  min-height: 44px;
-  box-sizing: border-box;
-  border: 2px solid var(--show-accent);
-  border-radius: var(--show-control-radius);
-  background: var(--show-surface);
-  color: var(--show-ink);
-  font: 600 14px var(--show-font-sans);
-  outline: 2px solid var(--show-accent);
-  outline-offset: 2px;
+/* The site has one skip link, the shell's (.showcase-skip, below); the docs layout's own is not drawn. */
+.showcase-frame > .uipack-docs > a.uipack-docs__skip {
+  display: none;
 }
 .showcase-shell > section {
   min-width: 0;
@@ -235,7 +408,7 @@ html:has(.showcase-frame:not([data-banner="static"])) {
 .showcase-shell .uipack-docs__block[data-block="uipack-demo"] > .showcase-demo > section > h2 {
   font-family: var(--show-font-display);
   font-size: 24px;
-  line-height: 1.25;
+  line-height: var(--site-leading-display);
   font-weight: 600;
   letter-spacing: -0.01em;
   margin: 0 0 8px;
@@ -257,7 +430,10 @@ html:has(.showcase-frame:not([data-banner="static"])) {
   align-items: center;
   gap: 8px;
   height: var(--header-h, 64px);
-  padding: 0 clamp(16px, 2.2vw, 40px);
+  /* The site column, on every view: the logo starts on its start edge, the last control ends on its
+     end edge (the frame's --site-column, above). */
+  width: var(--site-column);
+  margin-inline: auto;
 }
 .showcase-brand {
   /* The wordmark's SVG text reads the shell mono. */
@@ -267,6 +443,379 @@ html:has(.showcase-frame:not([data-banner="static"])) {
   align-items: center;
   min-height: 44px;
   margin-right: 20px;
+}
+/* The mark's dot (the spec's "The mark"): the Wordmark draws it on the section's cell in the
+   section's hue; these rules only animate it. Between pages the mark changes in a portal (below).
+   On the landing page it rests as the default logo, still for 5s, then visits Start,
+   Rules, Build and Check in turn, 2s each, in one 14s loop, hopping the same way. Reduced motion
+   gets neither: the dot is drawn in place, and the landing page keeps the neutral mark.
+   The squares and the name are the ink on every page: inside the docs layout its link colour (the
+   accent) would otherwise reach the brand, and the Rules dot would be lost in an accent mark. */
+.showcase-header .showcase-brand {
+  color: inherit;
+  /* How long the mark waits before its portal opens: the page's first paint and its cross-fade (the
+     quick duration role) are in, so the logo changes on a page that is already there, and is done
+     within a second of it. It is also the longest the header waits for a travelling sidebar
+     marker's own portal (site-settings.tsx): the header keeps this one clock. */
+  --site-mark-wait: 160ms;
+}
+/* The hop rises above the mark's box by a few units; it is paint only (no layout, and the brand's
+   own clip on the narrowest phones still holds). */
+.showcase-brand svg {
+  overflow: visible;
+}
+/* Each cell: its section's hue, its turn in the landing loop, and the way to the next cell (in cells). */
+.showcase-brand rect[data-cell] {
+  /* The cells sit 14 units apart in the mark's 32-unit drawing. */
+  --brand-pitch: 14px;
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+.showcase-brand rect[data-cell="0"] {
+  --brand-hue: var(--site-hue-start);
+  --brand-next-hue: var(--site-hue-rules);
+  --brand-next-x: 1;
+  --brand-next-y: 0;
+  --brand-turn: 0;
+}
+.showcase-brand rect[data-cell="1"] {
+  --brand-hue: var(--site-hue-rules);
+  --brand-next-hue: var(--site-hue-build);
+  --brand-next-x: -1;
+  --brand-next-y: 1;
+  --brand-turn: 1;
+}
+.showcase-brand rect[data-cell="2"] {
+  --brand-hue: var(--site-hue-build);
+  --brand-next-hue: var(--site-hue-check);
+  --brand-next-x: 1;
+  --brand-next-y: 0;
+  --brand-turn: 2;
+}
+.showcase-brand rect[data-cell="3"] {
+  --brand-hue: var(--site-hue-check);
+  --brand-next-hue: var(--site-hue-start);
+  --brand-next-x: -1;
+  --brand-next-y: -1;
+  --brand-turn: 3;
+}
+/* Between pages the mark changes in a portal, as the sidebar's does: a dashed ring in the new
+   section's hue opens over it, the mark turns into the ring and out of sight, changes there
+   (site-settings.tsx swaps the state as the first half ends), and comes back out; the ring shuts. */
+.showcase-brand {
+  position: relative;
+}
+.showcase-brand svg > g {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .showcase-brand[data-brand-hop]::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: var(--brand-inset, 0px);
+    width: 22px;
+    height: 22px;
+    margin-top: -11px;
+    border: 1.5px dashed var(--brand-hop-hue);
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--brand-hop-hue) 22%, transparent);
+    pointer-events: none;
+  }
+  .showcase-brand[data-brand-hop="in"]::before {
+    animation: showcase-brand-ring-open var(--ui-dur-base, 320ms) var(--ui-ease-settle, ease-out)
+      var(--brand-hop-wait, var(--site-mark-wait)) both;
+  }
+  .showcase-brand[data-brand-hop="in"] svg > g {
+    animation: showcase-brand-portal-in var(--ui-dur-base, 320ms) var(--ui-ease-travel, ease-in)
+      var(--brand-hop-wait, var(--site-mark-wait)) both;
+  }
+  .showcase-brand[data-brand-hop="out"]::before {
+    animation: showcase-brand-ring-shut var(--ui-dur-base, 320ms) var(--ui-ease-travel, ease-in) both;
+  }
+  .showcase-brand[data-brand-hop="out"] svg > g {
+    animation: showcase-brand-portal-out var(--ui-dur-base, 320ms) var(--ui-ease-settle, ease-out) both;
+  }
+  .showcase-frame[data-mode="landing"] .showcase-brand rect[data-cell] {
+    /* When the dot reaches this cell: after the rest, 2s a state. The loop is entered 0.4s into its
+       6s rest, past the 320ms in which the bottom right cell turns from Check's hue back to the ink,
+       so the first paint is the default logo, already in the ink, and it is still for 5.04s before
+       its first hop (5.12s on every later pass). */
+    --brand-start: calc(5.6s + var(--brand-turn) * 2s);
+    animation:
+      showcase-brand-turn 14s linear calc(var(--brand-start) - 14s) infinite,
+      showcase-brand-turn-lift 14s linear calc(var(--brand-start) - 14s) infinite;
+  }
+  .showcase-frame[data-mode="landing"] .showcase-brand rect[data-cell="3"] {
+    animation-name: showcase-brand-turn-home, showcase-brand-turn-home-lift;
+  }
+  /* A prerendered landing page (main.tsx) holds the loop where a load enters it, until it is shown. */
+  html[data-prerendering] .showcase-frame[data-mode="landing"] .showcase-brand rect[data-cell] {
+    animation-play-state: paused;
+  }
+}
+@keyframes showcase-brand-ring-open {
+  from {
+    scale: 0;
+  }
+  60%,
+  to {
+    scale: 1.3;
+  }
+}
+@keyframes showcase-brand-portal-in {
+  from,
+  30% {
+    transform: none;
+  }
+  to {
+    transform: rotate(180deg) scale(0);
+  }
+}
+@keyframes showcase-brand-portal-out {
+  from {
+    transform: rotate(180deg) scale(0);
+  }
+  70% {
+    transform: rotate(350deg) scale(1.1);
+  }
+  to {
+    transform: rotate(360deg) scale(1);
+  }
+}
+@keyframes showcase-brand-ring-shut {
+  from,
+  45% {
+    scale: 1.3;
+  }
+  to {
+    scale: 0;
+  }
+}
+/* The landing loop, 14s. The default logo (the dot bottom right, in the ink) has a 6s rest: the
+   bottom right cell turns from Check's hue to the ink over 320ms, the logo is then still for 5.12s,
+   and the dot hops out over the last 560ms. Then the dot visits Start, Rules, Build and Check for 2s
+   each, hopping between them over the last 560ms of each state (the slow duration role); a cell the
+   dot has left redraws as a square over 320ms (the base duration role) and makes way as the dot
+   comes round. Each cell's loop starts when the dot reaches it (--brand-start), so in a cell's own
+   time: 0s the dot arrives, 1.44s it hops out, 2s the cell is a square; the bottom right cell
+   (showcase-brand-turn-home) is Check's dot to 2s, the ink by 2.32s, still to 7.44s, and a square
+   from 8s. A page load enters the loop 0.4s into the rest, after that turn, so it opens on the logo
+   in the ink. The percentages are those times over the 14s period, generated together by
+   scripts/brand-loop.mjs: change a time there, never a percentage here. */
+@keyframes showcase-brand-turn {
+  0% {
+    fill: var(--brand-hue);
+    fill-opacity: 1;
+    rx: 5px;
+    stroke: var(--brand-hue);
+    stroke-dasharray: 37;
+    stroke-dashoffset: 0;
+    stroke-opacity: 1;
+    translate: 0 0;
+  }
+  10.286% {
+    animation-timing-function: var(--ui-ease-travel, ease-in-out);
+    fill: var(--brand-hue);
+    fill-opacity: 1;
+    rx: 5px;
+    stroke: var(--brand-hue);
+    stroke-dasharray: 37;
+    stroke-dashoffset: 0;
+    stroke-opacity: 1;
+    translate: 0 0;
+  }
+  13.406%,
+  14.286% {
+    fill: var(--brand-next-hue);
+    fill-opacity: 1;
+    rx: 5px;
+    stroke: var(--brand-next-hue);
+    stroke-dasharray: 37;
+    stroke-dashoffset: 0;
+    stroke-opacity: 1;
+    translate: calc(var(--brand-next-x) * var(--brand-pitch)) calc(var(--brand-next-y) * var(--brand-pitch));
+  }
+  14.293% {
+    animation-timing-function: var(--ui-ease-settle, ease-out);
+    fill: currentColor;
+    fill-opacity: 0;
+    rx: 2px;
+    stroke: currentColor;
+    stroke-dasharray: 37;
+    stroke-dashoffset: 37;
+    stroke-opacity: 1;
+    translate: 0 0;
+  }
+  16.571%,
+  97.543% {
+    fill: currentColor;
+    fill-opacity: 0;
+    rx: 2px;
+    stroke: currentColor;
+    stroke-dasharray: 37;
+    stroke-dashoffset: 0;
+    stroke-opacity: 1;
+    translate: 0 0;
+  }
+  /* It makes way for the dot coming round, which lands 123ms before the loop's end. */
+  98.8%,
+  99.99% {
+    fill: currentColor;
+    fill-opacity: 0;
+    rx: 2px;
+    stroke: currentColor;
+    stroke-dasharray: 37;
+    stroke-dashoffset: 0;
+    stroke-opacity: 0;
+    translate: 0 0;
+  }
+  100% {
+    fill: var(--brand-hue);
+    fill-opacity: 1;
+    rx: 5px;
+    stroke: var(--brand-hue);
+    stroke-dasharray: 37;
+    stroke-dashoffset: 0;
+    stroke-opacity: 1;
+    translate: 0 0;
+  }
+}
+@keyframes showcase-brand-turn-home {
+  0%,
+  14.286% {
+    fill: var(--brand-hue);
+    fill-opacity: 1;
+    rx: 5px;
+    stroke: var(--brand-hue);
+    stroke-dasharray: 37;
+    stroke-dashoffset: 0;
+    stroke-opacity: 1;
+    translate: 0 0;
+  }
+  16.571% {
+    fill: currentColor;
+    fill-opacity: 1;
+    rx: 5px;
+    stroke: currentColor;
+    stroke-dasharray: 37;
+    stroke-dashoffset: 0;
+    stroke-opacity: 1;
+    translate: 0 0;
+  }
+  53.143% {
+    animation-timing-function: var(--ui-ease-travel, ease-in-out);
+    fill: currentColor;
+    fill-opacity: 1;
+    rx: 5px;
+    stroke: currentColor;
+    stroke-dasharray: 37;
+    stroke-dashoffset: 0;
+    stroke-opacity: 1;
+    translate: 0 0;
+  }
+  56.263%,
+  57.143% {
+    fill: var(--brand-next-hue);
+    fill-opacity: 1;
+    rx: 5px;
+    stroke: var(--brand-next-hue);
+    stroke-dasharray: 37;
+    stroke-dashoffset: 0;
+    stroke-opacity: 1;
+    translate: calc(var(--brand-next-x) * var(--brand-pitch)) calc(var(--brand-next-y) * var(--brand-pitch));
+  }
+  57.15% {
+    animation-timing-function: var(--ui-ease-settle, ease-out);
+    fill: currentColor;
+    fill-opacity: 0;
+    rx: 2px;
+    stroke: currentColor;
+    stroke-dasharray: 37;
+    stroke-dashoffset: 37;
+    stroke-opacity: 1;
+    translate: 0 0;
+  }
+  59.429%,
+  97.543% {
+    fill: currentColor;
+    fill-opacity: 0;
+    rx: 2px;
+    stroke: currentColor;
+    stroke-dasharray: 37;
+    stroke-dashoffset: 0;
+    stroke-opacity: 1;
+    translate: 0 0;
+  }
+  /* It makes way for the dot coming round, which lands 123ms before the loop's end. */
+  98.8%,
+  99.99% {
+    fill: currentColor;
+    fill-opacity: 0;
+    rx: 2px;
+    stroke: currentColor;
+    stroke-dasharray: 37;
+    stroke-dashoffset: 0;
+    stroke-opacity: 0;
+    translate: 0 0;
+  }
+  100% {
+    fill: var(--brand-hue);
+    fill-opacity: 1;
+    rx: 5px;
+    stroke: var(--brand-hue);
+    stroke-dasharray: 37;
+    stroke-dashoffset: 0;
+    stroke-opacity: 1;
+    translate: 0 0;
+  }
+}
+@keyframes showcase-brand-turn-lift {
+  0%,
+  10.286% {
+    animation-timing-function: var(--ui-ease-settle, ease-out);
+    transform: none;
+  }
+  11.846% {
+    animation-timing-function: ease-in;
+    transform: translateY(-5px) scale(0.97, 1.04);
+  }
+  13.406% {
+    animation-timing-function: var(--ui-ease-settle, ease-out);
+    transform: none;
+  }
+  13.766% {
+    animation-timing-function: var(--ui-ease-settle, ease-out);
+    transform: scale(1.08, 0.9);
+  }
+  14.286%,
+  100% {
+    transform: none;
+  }
+}
+@keyframes showcase-brand-turn-home-lift {
+  0%,
+  53.143% {
+    animation-timing-function: var(--ui-ease-settle, ease-out);
+    transform: none;
+  }
+  54.703% {
+    animation-timing-function: ease-in;
+    transform: translateY(-5px) scale(0.97, 1.04);
+  }
+  56.263% {
+    animation-timing-function: var(--ui-ease-settle, ease-out);
+    transform: none;
+  }
+  56.624% {
+    animation-timing-function: var(--ui-ease-settle, ease-out);
+    transform: scale(1.08, 0.9);
+  }
+  57.143%,
+  100% {
+    transform: none;
+  }
 }
 .showcase-header button.theme {
   display: inline-flex;
@@ -278,8 +827,38 @@ html:has(.showcase-frame:not([data-banner="static"])) {
   border: 1px solid var(--show-rule);
   background: var(--show-surface);
   color: inherit;
-  border-radius: 4px;
+  /* The header's controls are square, Technical's role: they sit over the landing page's buttons. */
+  border-radius: var(--ui-radius);
   cursor: pointer;
+}
+/* The search box takes the corner of where it sits: square in the header, the docs radius at the
+   top of the drawer. Its label is the sidebar's page size (14px). Set here, for this site, over the
+   docs layout's own values. */
+.showcase-frame .uipack-docs-search__button {
+  border-radius: var(--show-radius);
+  font-size: 14px;
+  padding: 0 8px 0 12px;
+}
+/* Search is the header's box on every view (owner, 2026-11-13: one header), so the sidebar's own
+   box is not drawn. The drawer keeps the layout's 44px touch box. */
+.showcase-frame > .uipack-docs > .uipack-docs__grid > .uipack-docs__sidebar > .uipack-docs-search__button {
+  display: none;
+}
+.showcase-frame .uipack-docs-search__button kbd {
+  padding: 4px;
+}
+/* The open section's list: 4px under its label, 16px above the next one (2 and 14 in the layout's own). */
+.showcase-frame .uipack-docs__nav-inner {
+  padding: 4px 0 16px;
+}
+.showcase-frame .uipack-docs__pagination a {
+  gap: 4px;
+}
+.showcase-frame .showcase-header .uipack-docs-search__button {
+  border-radius: var(--ui-radius);
+}
+.showcase-frame .uipack-docs-search__button kbd {
+  border-radius: inherit;
 }
 .showcase-header button.theme:hover {
   border-color: var(--show-ink);
@@ -302,16 +881,16 @@ html:has(.showcase-frame:not([data-banner="static"])) {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 6px 10px;
+  gap: 4px 8px;
   margin: 0;
-  font: 12px var(--show-font-mono);
+  font: 12px / var(--site-leading-label) var(--show-font-mono);
   color: var(--show-muted);
 }
 .showcase-context a {
   color: var(--show-accent);
 }
 /* The section chip: its icon in the section's hue; the label stays ink. The link is a 44px target on
-   touch around the 26px chip. */
+   touch around the chip. */
 .showcase-frame .showcase-context a.showcase-crumb {
   display: inline-flex;
   align-items: center;
@@ -319,15 +898,24 @@ html:has(.showcase-frame:not([data-banner="static"])) {
   font-weight: 600;
   text-decoration: none;
 }
-.showcase-crumb__chip {
+/* One chip names a section wherever it shows: a docs page's bar (.showcase-crumb__chip) and a
+   landing job card (.landing-job__chip). Technical's label: mono caps, tracked, square, the
+   section's icon and a tint of its hue; the words stay the ink. */
+.showcase-crumb__chip,
+.landing-job__chip {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  min-height: 26px;
-  padding: 0 10px 0 6px;
-  border: 1px solid color-mix(in srgb, var(--docs-hue) 34%, transparent);
-  border-radius: 4px;
-  background: color-mix(in srgb, var(--docs-hue) 10%, transparent);
+  gap: 8px;
+  padding: 4px 8px;
+  border: 1px solid color-mix(in srgb, var(--docs-hue) 32%, transparent);
+  border-radius: var(--ui-radius);
+  background: color-mix(in srgb, var(--docs-hue) 9%, transparent);
+  color: var(--ui-ink);
+  font: 600 12px / var(--site-leading-label) var(--ui-font-label);
+  letter-spacing: var(--site-label-tracking);
+  text-transform: uppercase;
+}
+.showcase-crumb__chip {
   transition: background-color 140ms ease;
 }
 .showcase-crumb:hover .showcase-crumb__chip {
@@ -355,36 +943,42 @@ html:has(.showcase-frame:not([data-banner="static"])) {
   stroke-linecap: round;
   stroke-linejoin: round;
 }
+/* A page outside the Markdown (not found): its title starts where the Assets title does, 32px under
+   the banner (the block's own top margin is for a demo between runs of prose). */
+.showcase-frame .showcase-shell.uipack-docs__block {
+  margin-top: 0;
+}
 .showcase-title {
-  margin-top: -8px;
   min-width: 0;
 }
 .showcase-title h1,
 .showcase-title .showcase-title__name {
   margin: 0;
   color: var(--show-ink);
+  /* The site's page title (the frame's type roles): the docs page title, on a page outside the Markdown. */
   font-family: var(--show-font-display);
   font-weight: 600;
-  font-size: clamp(28px, 4.5vw, 40px);
-  line-height: 1.1;
-  letter-spacing: -0.02em;
+  font-size: var(--site-title-size);
+  line-height: var(--site-leading-display);
+  letter-spacing: var(--site-display-tracking);
 }
 .showcase-title__view {
   font-weight: 400;
   color: var(--show-muted);
 }
 .showcase-title p {
-  margin: 12px 0 0;
-  max-width: 72ch;
-  font-size: 16px;
-  line-height: 1.6;
+  margin: var(--site-title-gap) 0 0;
+  max-width: 64ch;
+  /* The site's intro paragraph: 18px on every view, as a docs page's body and the landing hero's. */
+  font-size: 18px;
+  line-height: var(--site-leading-text);
   color: var(--show-muted);
 }
 /* The page's chunk is loading: one quiet status line under the intro (main.tsx), shown only
    if the load takes more than a moment, so a fast load does not flash it. */
 .showcase-loading {
   margin: 32px 0 0;
-  font: 12px/1.5 var(--show-font-mono);
+  font: 12px / var(--site-leading-label) var(--show-font-mono);
   color: var(--show-muted);
   animation: showcase-loading-in 0s 300ms both;
 }
@@ -432,7 +1026,7 @@ html:has(.showcase-frame:not([data-banner="static"])) {
 }
 .slides-showcase__tabs button small {
   display: block;
-  margin-top: 6px;
+  margin-top: 4px;
   color: var(--show-muted);
   font-size: 12px;
 }
@@ -448,16 +1042,18 @@ html:has(.showcase-frame:not([data-banner="static"])) {
   width: 100%;
   --uipack-bg: var(--show-bg);
 }
-.chart-frame:not([data-frame="full"])::after {
+/* Drawn only where the column has room beside the frame (data-edge, FiguresShowcase.tsx): the
+   label never makes the page scroll sideways (a 896px frame in a 836px column at 1100). */
+.chart-frame[data-edge]:not([data-frame="full"])::after {
   content: attr(data-frame) "px";
   position: absolute;
   top: 0;
   bottom: 0;
   left: calc(100% + 16px);
-  padding-left: 6px;
+  padding-left: 8px;
   border-left: 1px dashed var(--show-rule);
   color: var(--show-muted);
-  font: 11px/1 var(--show-font-mono);
+  font: 11px / var(--site-leading-label) var(--show-font-mono);
   pointer-events: none;
 }
 /* Narrower than the page can show beside it: no edge (the frame is the page's own width). */
@@ -472,13 +1068,13 @@ html:has(.showcase-frame:not([data-banner="static"])) {
   align-items: center;
   gap: 8px;
   margin: 0 0 12px;
-  font: 12px var(--show-font-mono);
+  font: 12px / var(--site-leading-label) var(--show-font-mono);
   color: var(--show-muted);
 }
 /* Only the widths that fit are offered, so on a phone the label and its buttons share one row. */
 .chart-frame__bar button {
   min-height: 36px;
-  padding: 0 10px;
+  padding: 0 12px;
   font: var(--show-control-font-sm);
 }
 
@@ -489,7 +1085,7 @@ html:has(.showcase-frame:not([data-banner="static"])) {
   max-width: 72ch;
   margin: 0 0 20px;
   font-size: 15px;
-  line-height: 1.6;
+  line-height: var(--site-leading-text);
   color: var(--show-muted);
 }
 /* Line breaks: body copy never ends on a one-word line and short headings and table cells (a few
@@ -519,12 +1115,6 @@ html:has(.showcase-frame:not([data-banner="static"])) {
 .collection-intro a {
   color: var(--show-accent);
 }
-.showcase-subhead {
-  margin: 0 0 12px;
-  font: 600 13px var(--show-font-mono);
-  letter-spacing: 0.04em;
-  color: var(--show-muted);
-}
 
 /* Compact navigation (data-nav="compact" on the frame, set by ShowcaseShell below 900px, or below
    1440px on a page that hosts a whole sample site): the sidebar steps aside, the header's menu
@@ -552,9 +1142,10 @@ html:has(.showcase-frame:not([data-banner="static"])) {
   flex: none;
   width: 44px;
   height: 44px;
-  margin-left: -10px;
+  /* The icon's first stroke, not the 44px box, starts on the page's left edge. */
+  margin-left: -15px;
   border: 0;
-  border-radius: 4px;
+  border-radius: var(--ui-radius);
   background: transparent;
   color: var(--show-ink);
   cursor: pointer;
@@ -579,11 +1170,15 @@ html:has(.showcase-frame:not([data-banner="static"])) {
 .showcase-frame[data-nav="compact"] > .uipack-docs[data-width] > .uipack-docs__grid[data-toc="none"] {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  padding: 0 20px;
 }
 .showcase-frame[data-nav="compact"] > .uipack-docs > .uipack-docs__grid > .uipack-docs__article {
   grid-column: 1;
   padding: 24px 0 72px;
+}
+/* A page outside the Markdown (not found) has no page bar: its title starts 32px under the banner
+   at every width, as the Assets title does. */
+.showcase-frame[data-nav="compact"] > .uipack-docs > .uipack-docs__grid > .uipack-docs__article.uipack-docs__block {
+  padding-top: 32px;
 }
 .showcase-frame[data-nav="compact"] > .uipack-docs > .uipack-docs__grid > .uipack-docs__toc {
   display: none;
@@ -591,16 +1186,9 @@ html:has(.showcase-frame:not([data-banner="static"])) {
 .showcase-frame[data-nav="compact"] .uipack-docs[data-width="wide"] .uipack-docs__contents {
   display: block;
 }
-/* A phone keeps the 16px side margins the gallery had before the docs shell: a 390px screen gives
-   its charts and figures 358px, the width their phone layouts are tuned to (SpanChart's twelve
-   column codes keep 8px apart there even where advances round to whole pixels; at 24px margins
-   they came to 7.5 on Linux). */
-@media (max-width: 719px) {
-  .showcase-frame[data-nav="compact"] > .uipack-docs[data-width] > .uipack-docs__grid,
-  .showcase-frame[data-nav="compact"] > .uipack-docs[data-width] > .uipack-docs__grid[data-toc="none"] {
-    padding: 0 16px;
-  }
-}
+/* A phone's site gutter is 16px: a 390px screen gives its charts and figures 358px, the width their
+   phone layouts are tuned to (SpanChart's twelve column codes keep 8px apart there even where
+   advances round to whole pixels; at 24px margins they came to 7.5 on Linux). */
 @media (max-width: 520px) {
   .showcase-header button.theme {
     justify-content: center;
@@ -621,8 +1209,8 @@ html:has(.showcase-frame:not([data-banner="static"])) {
 }
 /* Touch targets in page chrome. */
 .showcase-context a {
-  padding: 14px 0;
-  margin: -14px 0;
+  padding: 16px 0;
+  margin: -16px 0;
 }
 .chart-frame__bar button {
   min-height: 44px;
@@ -632,10 +1220,16 @@ html:has(.showcase-frame:not([data-banner="static"])) {
    link stays a 44px target: padding reaches into the page margin and the gap, not the layout. */
 @media (max-width: 359px) {
   .showcase-brand {
+    --brand-inset: 12px;
     width: 24px;
     padding: 0 8px 0 12px;
     margin: 0 -8px 0 -12px;
     overflow: hidden;
+  }
+  /* The docs layout sizes its boxes by their border; the width above is the mark's own, so the whole
+     mark shows there too (the dot may sit in either column). */
+  .showcase-header .showcase-brand {
+    box-sizing: content-box;
   }
   /* Full size, not shrunk to fit: the clip keeps the mark and drops the word. */
   .showcase-brand svg {
@@ -644,24 +1238,6 @@ html:has(.showcase-frame:not([data-banner="static"])) {
   }
 }
 
-/* The page for an unknown address: every page, by group. */
-.showcase-not-found__groups {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 24px 32px;
-}
-.showcase-not-found ul {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.showcase-not-found li a {
-  display: flex;
-  align-items: center;
-  min-height: 44px;
-  color: var(--show-accent);
-  font-size: 16px;
-}
 @media (max-width: 540px) {
   .showcase-shell > section > h2,
   .showcase-shell .uipack-docs__block[data-block="uipack-demo"] > .showcase-demo > section > h2 {
@@ -681,7 +1257,7 @@ html:has(.showcase-frame:not([data-banner="static"])) {
 :is(.deck-chapters, .deck-navigation, .chart-frame__bar, .slides-showcase__tabs, .mechanism-poses) button,
 .article-bar a {
   min-height: 44px;
-  padding: 0 14px;
+  padding: 0 16px;
   border: 1px solid var(--show-rule);
   border-radius: var(--show-control-radius);
   background: transparent;
@@ -760,7 +1336,7 @@ html:has(.showcase-frame:not([data-banner="static"])) {
 :is(.slides-showcase__usage, .web-generated details) > summary {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   min-height: 44px;
   list-style: none;
   font: var(--show-control-font);
@@ -790,6 +1366,67 @@ html:has(.showcase-frame:not([data-banner="static"])) {
 @media (prefers-reduced-motion: reduce) {
   :is(.slides-showcase__usage, .web-generated details) > summary::before {
     transition: none;
+  }
+}
+
+/* Every page is its own load, and reads as the same shell with its content changing. The browser
+   holds the page being left until this one has rendered (index.html: the entry is render-blocking
+   and opts into cross-document view transitions), then cross-fades the content over the quick
+   duration (160ms). The header, the sidebar and "On this page" are named, so they are not part of
+   that fade: where both pages have one, the new one is simply there, live, from the first frame
+   (the sidebar marker sets off from the old page's link with no ghost of itself fading behind it).
+   Where only one page has it (the landing page and Assets have no sidebar) it fades with the rest.
+   Nothing starts at opacity 0: a browser without cross-document view transitions shows the new
+   page whole on its first frame. Reduced motion: no transition (index.html). */
+.showcase-header {
+  view-transition-name: site-header;
+}
+.showcase-frame > .uipack-docs > .uipack-docs__grid > .uipack-docs__sidebar {
+  view-transition-name: site-sidebar;
+}
+.showcase-frame > .uipack-docs > .uipack-docs__grid > .uipack-docs__toc {
+  view-transition-name: site-rail;
+}
+::view-transition-group(*),
+::view-transition-old(*),
+::view-transition-new(*) {
+  animation-duration: 160ms;
+}
+::view-transition-old(site-header),
+::view-transition-old(site-sidebar),
+::view-transition-old(site-rail) {
+  display: none;
+}
+::view-transition-new(site-header),
+::view-transition-new(site-sidebar),
+::view-transition-new(site-rail) {
+  animation: none;
+}
+/* Leaving for a page without one (the landing page, Assets), or arriving from one: it fades with the content. */
+::view-transition-old(site-sidebar):only-child,
+::view-transition-old(site-rail):only-child {
+  display: block;
+}
+::view-transition-new(site-sidebar):only-child,
+::view-transition-new(site-rail):only-child {
+  animation: 160ms both showcase-shell-in;
+}
+@keyframes showcase-shell-in {
+  from {
+    opacity: 0;
+  }
+}
+/* A page whose chunk or text took longer than the first paint waits (main.tsx sets data-page-late)
+   arrives under its "Loading…" line: that late content eases in as it mounts. */
+@media (prefers-reduced-motion: no-preference) {
+  html[data-page-late] .showcase-frame .uipack-docs__article > .uipack-docs__flow {
+    animation: showcase-page-in var(--ui-dur-quick, 160ms) var(--ui-ease-settle, ease-out) backwards;
+  }
+}
+@keyframes showcase-page-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
   }
 }
 
@@ -837,20 +1474,98 @@ html:has(.showcase-frame:not([data-banner="static"])) {
   }
 }
 
-/* The Assets view: the header, then the gallery at the frame's full width. */
+/* The Assets view: the header, then the gallery (title, filters, grid) in the site column. */
 .showcase-gallery-main {
   display: block;
-  max-width: 1600px;
+  width: var(--site-column);
   margin: 0 auto;
-  padding: 32px 24px 64px;
-}
-@media (max-width: 719px) {
-  .showcase-gallery-main {
-    padding-inline: 16px;
-  }
+  padding: 32px 0 64px;
 }
 .showcase-gallery-main:focus {
   outline: none;
+}
+
+/* The landing view (/): the page (landing.css) sits in the site column, which is the landing
+   archetype's one column on this site (docs/system/layout/landing.md; the spec widens it from 1120px).
+   Its hero backdrop, band and rules run the window. The header's rules load with the shell, not with
+   the page's chunk, so the header never moves when the page arrives. */
+.showcase-frame[data-mode="landing"] {
+  max-width: none;
+  padding: 0;
+}
+/* The docs search (the header's box and its dialog) reads the docs layout's palette names. The
+   landing page and Assets have no docs layout around them, so their frame names them, as
+   palette="technical" does. */
+.showcase-frame[data-mode] {
+  --docs-font-text: var(--ui-font-text);
+  --docs-font-heading: var(--ui-font-heading, var(--ui-font-text));
+  --docs-font-mono: var(--ui-font-label);
+  --docs-ink: var(--ui-ink);
+  --docs-muted: var(--ui-ink-2);
+  --docs-faint: var(--ui-ink-3);
+  --docs-rule: var(--ui-line-soft);
+  --docs-rule-strong: var(--ui-line);
+  --docs-surface: var(--ui-surface-2);
+  --docs-surface-strong: var(--ui-surface-2);
+  --docs-accent: var(--ui-accent);
+  --docs-focus: var(--ui-accent);
+  --docs-paper: var(--ui-paper);
+  --docs-raised: var(--ui-surface-raised);
+}
+/* Search in the header, on every view: one box, one size. */
+.showcase-header .uipack-docs-search__button {
+  width: clamp(160px, 22vw, 260px);
+  height: 40px;
+  margin: 0;
+}
+/* A phone keeps the icon and the shortcut's room for the page: the box becomes a 44px icon button. */
+@media (max-width: 719px) {
+  .showcase-header .uipack-docs-search__button {
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+  }
+  .showcase-header .uipack-docs-search__button :is(.uipack-docs-search__placeholder, kbd) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+/* The header's controls keep their size: a row short of room never squeezes a 44px target. */
+.showcase-header__actions > * {
+  flex: none;
+}
+/* A docs page's phone header holds two more 44px buttons than the landing page's (the menu and
+   search), so its brand gives up room first: no margin beyond the row's gap from 520px down, and
+   only its mark below 390px (the rule every view takes below 360px, above), so the tabs, search and
+   the toggle each stay whole on one line down to 320px. */
+@media (max-width: 520px) {
+  .showcase-frame[data-nav="compact"] .showcase-brand {
+    margin-right: 0;
+  }
+}
+@media (max-width: 389px) {
+  .showcase-frame[data-nav="compact"] .showcase-brand {
+    --brand-inset: 12px;
+    box-sizing: content-box;
+    width: 24px;
+    padding: 0 8px 0 12px;
+    margin: 0 -8px 0 -12px;
+    overflow: hidden;
+  }
+  .showcase-frame[data-nav="compact"] .showcase-brand svg {
+    flex: none;
+    clip-path: inset(0 calc(100% - 24px) 0 0);
+  }
+}
+/* The skip link, one on every view: hidden until it has focus, then a button-sized link at the top
+   with the header controls' square corner. */
+.showcase-skip {
+  line-height: var(--site-leading-label);
 }
 .showcase-skip:not(:focus) {
   position: absolute;
@@ -864,14 +1579,19 @@ html:has(.showcase-frame:not([data-banner="static"])) {
   white-space: nowrap;
   border: 0;
 }
-.showcase-skip:focus {
+.showcase-frame a.showcase-skip:focus {
   position: fixed;
   top: 8px;
   left: 8px;
   z-index: 1000;
-  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  box-sizing: border-box;
+  padding: 0 16px;
+  border-radius: var(--ui-radius);
   background: var(--show-ink);
   color: var(--show-bg);
-  font-weight: 600;
+  font: 600 16px / var(--site-leading-label) var(--show-font-sans);
   text-decoration: none;
 }
