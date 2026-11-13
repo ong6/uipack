@@ -1,19 +1,18 @@
 import { routePath } from "./routes";
 
-/** The build's preload table (vite.config.ts, `routePreloads`): every file once, each page module's files, each path's module and its Markdown chunk. */
+/** The build's preload table (vite.config.ts, `routePreloads`): every file once, each page module's files, each path's module. */
 interface Preloads {
   a: string[];
   m: Record<string, number[]>;
   r: Record<string, string>;
-  d: Record<string, number>;
 }
 
 /**
  * The likely next page, loaded ahead of the click, where the browser has no Speculation Rules
  * (Safari, Firefox; in Chromium index.html's rules prerender the whole page instead). When the
  * reader points at, presses or focuses a link to another page of the site, the files that page
- * needs beyond this one's (its module and styles from another kind of page, and always its Markdown
- * chunk) are preloaded, so the load that follows the click finds them in the cache. Built sites
+ * needs beyond this one's (its module and styles, from another kind of page) are preloaded, so the
+ * load that follows the click finds them in the cache; a docs page's text comes in its HTML. Built sites
  * only: the dev server has no preload table, and does nothing here.
  */
 export function preloadLinkedPages() {
@@ -32,7 +31,7 @@ export function preloadLinkedPages() {
     const path = routePath(link.pathname);
     if (seen.has(path)) return;
     seen.add(path);
-    const files = [...(table.m[table.r[path]] ?? []), ...(path in table.d ? [table.d[path]] : [])].map((i) => table.a[i]);
+    const files = (table.m[table.r[path]] ?? []).map((i) => table.a[i]);
     for (const href of files) {
       // What this page loaded itself is in the module map and the cache already.
       if (document.querySelector(`link[href="${href}"]`)) continue;

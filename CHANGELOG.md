@@ -9,6 +9,9 @@ release is cut and how a site moves to it.
 
 ### Fixed
 
+- **`DocsLayout` "On this page":** the heading being read is found from the headings in the
+  document at that moment. A host that rendered its page again and replaced the heading elements
+  left the last heading marked current (a heading no longer in the document measured as passed).
 - **The docs site, one width and one header** (owner, 2026-11-13): every view's content and the
   header's content sit in one centred column, 1264px at most with 32px gutters (24px below 1024px,
   16px below 720px): the landing page (its column was 1120px), Assets (its grid ran to 1600px), a
@@ -67,10 +70,18 @@ release is cut and how a site moves to it.
 - **The docs site, page changes:** a link to another page is prerendered when hovered or pressed
   (speculation rules in `playground/index.html`, allowed by hash in `vercel.json`'s
   Content-Security-Policy), and shown at once when followed; browsers without the API preload the
-  page's files instead (`playground/link-preload.ts`). Every load preloads the page's Markdown
-  chunk beside its module. The page's entrance is a fade and a 4px rise over 160ms (it was 8px over
-  320ms), and the header mark's portal opens 160ms after the page (`--site-mark-wait`, it was
-  400ms).
+  page's files instead (`playground/link-preload.ts`). The header mark's portal opens 160ms after
+  the page (`--site-mark-wait`, it was 400ms).
+- **The docs site, no flash between pages:** a page change no longer blanks. The document has its
+  ground and colour scheme inline from the first byte (the dev server painted a white document for
+  200 to 300ms, in dark too); the entry and the page's module are render-blocking and a docs page's
+  Markdown is in its HTML, so the first frame is the whole page (a build painted an empty ground,
+  then the shell without its content for about 50ms, then faded the article in from opacity 0);
+  and page changes are cross-document view transitions in which the header, the sidebar and "On
+  this page" stay put and the content cross-fades over 160ms. The page's entrance from opacity 0
+  is gone; only content that arrives after the first frame eases in. No transition with reduced
+  motion; a browser without cross-document view transitions gets a plain load that is whole on its
+  first frame.
 - **The docs site's landing loop:** the default logo is still, in the ink, for a full 5s (5.12s;
   it was about 4.1s of a 5s slot), in a 14s loop (13s). Each section state is 2s, as before.
 

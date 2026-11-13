@@ -10,7 +10,16 @@ import {
   type LibraryPage,
   type PageDef,
 } from "./catalog";
-import { createContext, useContext, useEffect, useMemo, useState, useSyncExternalStore, type ReactNode } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  useSyncExternalStore,
+  type ReactNode,
+} from "react";
 import { Wordmark } from "../src";
 import {
   DocsLayout,
@@ -63,7 +72,7 @@ export const THEME_STORAGE_KEY = "uipack-theme";
  * follow it. It starts as index.html's script set it (`?theme=`, else the stored choice, else the
  * system's setting); the toggle stores the choice, so an address without `?theme=` keeps it.
  */
-export function ShowcaseThemeProvider({ children }: { children: ReactNode }) {
+export function ShowcaseThemeProvider({ children, initialToc }: { children: ReactNode; initialToc?: DocsTocItem[] }) {
   const [theme, setTheme] = useState<"light" | "dark">(document.documentElement.dataset.theme === "dark" ? "dark" : "light");
   const flip = () => {
     const next = theme === "dark" ? "light" : "dark";
@@ -80,7 +89,20 @@ export function ShowcaseThemeProvider({ children }: { children: ReactNode }) {
     setTheme(next);
   };
   const [note, setNote] = useState<string | null>(null);
-  const [toc, setToc] = useState<DocsTocItem[]>([]);
+  // A page whose text was ready before the first render brings its headings with it (main.tsx),
+  // so "On this page" is in the first frame.
+  const [toc, setTocState] = useState<DocsTocItem[]>(initialToc ?? []);
+  // The same headings again (the page handing over what the first render already had) change nothing.
+  const setToc = useCallback(
+    (next: DocsTocItem[]) =>
+      setTocState((was) =>
+        was.length === next.length &&
+        was.every((h, i) => h.id === next[i].id && h.title === next[i].title && h.level === next[i].level)
+          ? was
+          : next,
+      ),
+    [],
+  );
   return (
     <ShowcaseThemeContext.Provider value={{ theme, flip, note, setNote, toc, setToc }}>{children}</ShowcaseThemeContext.Provider>
   );

@@ -10,6 +10,7 @@
  * the layer stack and the bento previews as they near the viewport, and the 3D scene only once it
  * is on screen, with WebGL, and motion allowed (a still of the same scene otherwise).
  */
+import { pageReady } from "./page-ready";
 import { lazy, Suspense, useEffect, useRef, useState, type ReactNode } from "react";
 import { version } from "../package.json";
 import { librarySections, pageDefs, pageHref, type PageDef } from "./catalog";
@@ -585,3 +586,5 @@ export default function LandingShowcase() {
     </div>
   );
 }
+
+pageReady("LandingShowcase", { default: LandingShowcase });
