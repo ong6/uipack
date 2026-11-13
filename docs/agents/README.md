@@ -45,7 +45,8 @@ every site.
 | The page types, and a layout for each: grid, regions, section order, hero | Motion timings |
 | Its writing style: tone, title forms, density, house words, tighter budgets | Contrast, keyboard and touch support |
 | The component looks it picks | The core writing rules and slot ceilings |
-| In dark, the ground a fixed look sits on | A fixed look's other values: a figure never takes the site's accent |
+| In dark, the ground a fixed look sits on | A fixed look's other values (a Kinetic scene keeps its brass on every site) |
+| Its diagram themes: a figure's colours, faces and canvas ground | The diagram grammar: geometry, type sizes and the 11px floor, strokes, what each flow kind means |
 
 A request for a fixed value is a core-rule change, not a site setting: say so instead of
 overriding it locally.

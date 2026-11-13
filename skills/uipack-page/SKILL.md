@@ -34,7 +34,8 @@ Paths are relative to the uipack root: `node_modules/uipack/` in a site, or a ui
 2. **Fixed vs per site.** Core rules ([docs/system/](../../docs/system/README.md): the role
    contract, the [layout floors](../../docs/system/layout/README.md#floors-what-holds-on-every-site),
    the core writing rules) hold on every site; a `fixed` [component look](../../docs/components/README.md)
-   (the diagrams' Blueprint) looks the same everywhere; everything
+   (five of the 3D art directions) looks the same everywhere, and a `flex` one (the diagrams'
+   Blueprint, through the site's diagram theme) keeps its drawing and takes the site's colours; everything
    [a spec may set](../../docs/system/spec-settings.md) is the site's.
 3. **The claim.** One sentence the page or deck must make its reader conclude. If you can't write
    it, ask.
@@ -75,7 +76,7 @@ starts from.
 ## Check
 
 Render at 1440 and 390, light and dark, reduced motion, with a headless browser you launch
-yourself (never a tab the user has open), then grade tier 1 with `npx uipack-grade check <url> --spec STYLE.md` (the spec you used in step 1; inside uipack: `npm run grade -- check <url> --spec uipack`) and finish with `uipack-review`. If you can't render, say so;
+yourself (never a tab the user has open), then grade tier 1 with `npx uipack-grade check <url> --spec STYLE.md` (the spec you used in step 1; the repo's grade config, such as `uipack-grade.json`, when it has one; inside uipack: `npm run grade -- check <url> --spec uipack`) and finish with `uipack-review`. If you can't render, say so;
 never report a look you didn't see.
 
 Per page type, before the grader:

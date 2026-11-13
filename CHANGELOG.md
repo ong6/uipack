@@ -7,8 +7,24 @@ release is cut and how a site moves to it.
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-11-13
+
+The docs site holds the basics a multi-page site should: one fluid width with one header on the
+content's edges, no flash or blank frame between pages, and Back and Forward that return the reader
+to where they were. `DocsLayout` and the figure controls gain hooks a host uses to give them its
+own leading and corner, and the grader and the agent docs are corrected. The docs layout's marker
+timing changes what a page draws (below), so this is a minor release
+([version numbers](docs/releases.md#version-numbers)).
+
 ### Fixed
 
+- **`uipack-grade` under `--spec STYLE.md`:** the 11px text floor inside a uipack figure or chart is
+  a default (it was only in the `uipack` harness, so a site graded from its own spec failed
+  `text-size` on every 11px figure label). A site config's own `textFloors` still replace it.
+- **Docs and skills, diagrams:** the spec, page and review skills, the agent read order,
+  `spec-settings` and the README no longer call Blueprint a `fixed` look that a site must not
+  colour. It has been `flex` since 0.3.0: one grammar, coloured by the site's diagram theme.
+  Regression brief `agent-docs/brief-1` is v2 for the same reason.
 - **`DocsLayout` "On this page":** the heading being read is found from the headings in the
   document at that moment. A host that rendered its page again and replaced the heading elements
   left the last heading marked current (a heading no longer in the document measured as passed).
@@ -97,6 +113,21 @@ release is cut and how a site moves to it.
   each with the layout's own value as its fallback ([docs layout](docs/docs-layout.md)).
 - **`DocsLayout` `searchOpen` and `onSearchOpenChange`:** a host can open the search dialog from a
   control of its own, a search button in its header on a phone, say.
+
+### Upgrading
+
+Nothing a site wrote has to change. Optional, for a host with its own type and corner rules:
+
+- Set `--uipack-ctl-radius` where figures sit to give Open canvas, Pause and Replay the site's
+  control radius (6px without it).
+- Set `--docs-leading-display`, `--docs-leading-label`, `--docs-leading-text`,
+  `--docs-leading-prose`, `--docs-label-tracking` and `--docs-title-gap` on the docs layout's
+  root to give a docs page the site's leadings.
+- A site that grades with `--spec STYLE.md` and draws figures no longer needs a grade config just
+  for the 11px figure floor.
+
+**junxiong.dev.** Set `--uipack-ctl-radius: 4px` and `--docs-leading-prose: 1.8` in
+`styles/globals.css`, then the pin.
 
 ## [0.6.0] - 2026-11-12
 
@@ -482,7 +513,8 @@ pinned before that (junxiong.dev at `e6b6ed7`, notes.junxiong.dev at `3886f0d`) 
    dark) and run tier 1 on them (`npx uipack-grade check <url>`), as
    [docs/releases.md](docs/releases.md#moving-a-site-to-a-release) describes.
 
-[Unreleased]: https://github.com/ong6/uipack/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/ong6/uipack/compare/v0.7.0...HEAD
+[0.7.0]: https://github.com/ong6/uipack/compare/v0.6.0...v0.7.0
 [0.4.0]: https://github.com/ong6/uipack/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/ong6/uipack/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/ong6/uipack/compare/683d44b...v0.2.0

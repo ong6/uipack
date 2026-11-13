@@ -132,7 +132,13 @@ export const DEFAULT_SPEC: SiteSpec = {
     "Noto Sans Symbols",
   ],
   minTextPx: 12,
-  textFloors: [],
+  // Core floors, so they hold under `--spec STYLE.md` on any site: a uipack figure's and chart's
+  // labels may be 11px (docs/components/diagrams.md, docs/charts.md). A site config's own
+  // textFloors replace these.
+  textFloors: [
+    { selector: ".uipack svg", px: 11, why: "figure text floor, docs/components/diagrams.md" },
+    { selector: ".uipack-span, .uipack-stack", px: 11, why: "chart labels, docs/charts.md" },
+  ],
   tapTargetPx: { coarse: 44, fine: 24 },
   contrast: { normal: 4.5, large: 3 },
   rowTolerancePx: { cards: 1, paired: 2 },

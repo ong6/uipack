@@ -1,0 +1,19 @@
+{
+  "id": "agent-docs-1",
+  "version": 2,
+  "frozen": "2026-11-13",
+  "pageType": "agent-docs",
+  "rubric": "agent-docs-v1",
+  "product": "The documentation set at the package root",
+  "audience": "A fresh agent with no prior context, starting from README.md and AGENTS.md",
+  "task": "Plan a figure for an article on notes.junxiong.dev: a client calls a service through a cache, and the response comes back. Without writing code, say which import and parts you would use, where the arrowheads go, how the response is drawn, how long node labels may be, and whose rules decide the figure's look on that site.",
+  "facts": ["The site is notes.junxiong.dev", "Three boxes: client, cache, service", "The response returns along the same path"],
+  "mustInclude": [
+    "Figure, Node, Connector and Packet from the root entry (with Defs and route)",
+    "One arrowhead per connector, at the end, in the request direction",
+    "The response is a Packet with reverse riding the same points, not a second arrowed connector",
+    "Node labels of two or three words",
+    "Diagrams use the Blueprint look on every site: its grammar is fixed, and the site's spec names the diagram theme that colours it (no local recolouring)"
+  ],
+  "outOfScope": ["Writing the component code", "Changing the library"]
+}

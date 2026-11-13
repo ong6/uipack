@@ -30,8 +30,9 @@ and its spec are listed in the [site registry](registry.md).
 4. Choose only what a spec [may set](../system/spec-settings.md): the look through the roles, a
    layout per page type (`## Layout`, one `###` each), the writing style (`## Writing style`, the
    five rows) and why each component look fits (`## Component looks`). Everything else is a core
-   rule and holds unchanged. A fixed look's values (a figure's flow colours, strokes, label face) are
-   not the spec's to change; in dark it may set the ground a look sits on (card, canvas, surfaces),
+   rule and holds unchanged. A fixed look's values (a 3D art direction's materials and palette) are
+   not the spec's to change, and a figure's colours come from the spec's
+   [diagram theme](../components/diagrams.md#diagram-themes), never from overrides; in dark it may set the ground a look sits on (card, canvas, surfaces),
    as [the docs site](docs-site.md#demos-and-fixed-looks) does.
 5. Check it: `npx tsx scripts/check-spec.ts <file>` from a uipack checkout (or
    `node_modules/uipack/scripts/check-spec.ts` in a site that installs uipack). It fails on a

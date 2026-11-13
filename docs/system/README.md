@@ -168,7 +168,7 @@ Where each medium's rules live: its entry in the package, then the writing and l
 
 | Medium | Entry | Default style | Writing core | Layout core |
 | --- | --- | --- | --- | --- |
-| Diagrams | `uipack` (`Figure`), `uipack/presets`, `uipack/drill`, `uipack/charts`, `uipack/article` | The [Blueprint look](../components/diagrams.md), fixed | [Figure labels and captions](writing/figures.md) | [Figures](layout/README.md#figures) |
+| Diagrams | `uipack` (`Figure`), `uipack/presets`, `uipack/drill`, `uipack/charts`, `uipack/article` | The [Blueprint look](../components/diagrams.md), `flex`: one grammar, the site's [diagram theme](../components/diagrams.md#diagram-themes) | [Figure labels and captions](writing/figures.md) | [Figures](layout/README.md#figures) |
 | Slides | `uipack/deck` (new work), `uipack/presentations` (three starters) | The site's spec (deck tokens); Technical here | [Talks and slides](writing/talks.md), [read-alone decks](writing/documents.md#read-alone-decks) | [Slide canvas](layout/deck-slide.md) |
 | Web | `uipack/web`, `uipack/docs`, `uipack/article` | The site's spec; Technical here | [Web and landing copy](writing/web.md), [documents](writing/documents.md) | [Product landing](layout/landing.md), [docs shell](layout/documentation.md), [article layout](layout/article.md), [dashboard layout](layout/dashboard.md) |
 | Motion | Packets, entrance, deck transitions, `uipack/web` motion | Inherits the host style's motion tokens | [Motion beats](writing/figures.md#motion-beats) | [Motion](layout/README.md#motion) |
