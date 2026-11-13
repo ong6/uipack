@@ -557,8 +557,8 @@
   font: 13px/1.5 var(--ui-font-label, ui-monospace, monospace);
 }
 
-/* The fonts a style loads, under its swatches. */
-.fdn-style__fonts {
-  margin: 12px 0 0;
+/* The fonts a style loads: 16px under its swatch panels (outranks the card's own paragraph margin). */
+.fdn-style > p.fdn-style__fonts {
+  margin: 16px 0 0;
   font-size: 14px;
 }

@@ -47,10 +47,135 @@ for (const width of [1440, 390])
     await open(page, VIEWS[1], "light", width);
     expect(await type(page, ".gallery-head h1")).toEqual(title);
     expect(await type(page, ".gallery-section h2")).toEqual(section);
-    // The intro under the title has the body leading.
-    expect(await page.locator(".gallery-head p").evaluate((p) => getComputedStyle(p).lineHeight)).toBe("25.6px");
+    // The intro under the title is the site's: 18px at the text leading, in ink-2, as a docs page's
+    // first paragraph is from 1440.
+    const intro = (selector: string) =>
+      page
+        .locator(selector)
+        .first()
+        .evaluate((p) => {
+          const s = getComputedStyle(p);
+          return { size: s.fontSize, leading: s.lineHeight, colour: s.color };
+        });
+    const assetsIntro = await intro(".gallery-head p");
+    expect(assetsIntro).toMatchObject({ size: "18px", leading: "28.8px" });
     await open(page, VIEWS[3], "light", width);
     expect(await type(page, ".showcase-title h1")).toEqual(title);
+    expect(await intro(".showcase-title p")).toEqual(assetsIntro);
+    if (width === 1440) {
+      await open(page, VIEWS[2], "light", width);
+      expect((await intro(".uipack-docs__prose h1 + p")).size).toBe("18px");
+    }
+  });
+
+// One site width and one header (docs/specs/docs-site.md, "Layout"; owner, 2026-11-13): every
+// view's content and the header's bar sit in one centred column, 1264px at most with 32px gutters
+// (24px below 1024px, 16px below 720px). So (a) the header's items are at the same x on every view,
+// and (b) its first and last items sit on that view's content edges (layout floor 8). The one
+// difference between views: where the docs sidebar is a drawer (below 900px) a docs page's header
+// starts with the menu button, on the content's edge, and its logo follows it.
+const HEADER_VIEWS = [
+  { name: "landing", path: "/", ready: ".landing-foot .landing-wrap", docs: false },
+  { name: "docs page with a rail", path: "/agents", ready: ".uipack-docs__prose h1", docs: true },
+  { name: "docs page without a rail", path: "/components/diagrams", ready: ".uipack-docs__prose h1", docs: true },
+  { name: "assets", path: "/gallery", ready: ".gallery-grid", docs: false },
+  { name: "not found", path: "/nope", ready: ".showcase-title h1", docs: true },
+];
+for (const width of [2000, 1920, 1440, 1280, 1024, 768, 390])
+  test(`${width}: one header: the same edges and controls on every view, on each view's content edges`, async ({ page }) => {
+    test.setTimeout(90_000);
+    await page.setViewportSize({ width, height: 900 });
+    // Measured at rest, without the page's entrance.
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    const gutter = width >= 1024 ? 32 : width >= 720 ? 24 : 16;
+    const column = Math.min(1264, width - 2 * gutter);
+    const seen: { name: string; docs: boolean; logo: number; last: number; controls: Record<string, string> }[] = [];
+    for (const view of HEADER_VIEWS) {
+      await page.goto(`${view.path}?theme=light`);
+      await expect(page.locator(view.ready).first()).toBeAttached();
+      await page.evaluate(() => document.fonts.ready);
+      const g = await page.evaluate(() => {
+        const rect = (s: string) => {
+          const r = document.querySelector(s)?.getBoundingClientRect();
+          return r && r.width > 0 ? r : null;
+        };
+        const frame = document.querySelector<HTMLElement>(".showcase-frame")!;
+        const header = rect(".showcase-header")!;
+        // The content's edges: the landing page's column, the Assets grid, or the docs layout (the
+        // sidebar's rows, or the page where the sidebar is a drawer; "On this page"'s text, or the
+        // page where there is no rail).
+        let start: number, end: number;
+        if (frame.dataset.mode === "landing") ({ left: start, right: end } = rect(".landing-wrap")!);
+        else if (frame.dataset.mode === "gallery") ({ left: start, right: end } = rect(".gallery-grid")!);
+        else {
+          const main = rect("main.uipack-docs__article")!;
+          start = (rect(".uipack-docs__sidebar .uipack-docs__navigation") ?? main).left;
+          end = (rect(".uipack-docs__toc > p") ?? main).right;
+        }
+        const items = [...document.querySelectorAll(".showcase-brand svg, .showcase-tabs a, .showcase-header__actions > *")];
+        const mids = items.map((el) => el.getBoundingClientRect()).map((r) => r.top + r.height / 2);
+        const control = (s: string) => {
+          const r = rect(s);
+          const c = getComputedStyle(document.querySelector(s)!);
+          return r
+            ? `${Math.round(r.left)} ${Math.round(r.width)}x${Math.round(r.height)} r${c.borderTopLeftRadius} ${c.fontSize}`
+            : "none";
+        };
+        return {
+          menu: rect(".showcase-menu-button path")?.left ?? null,
+          logo: rect(".showcase-brand svg")!.left,
+          last: rect(".showcase-header__actions > :last-child")!.right,
+          start,
+          end,
+          header: { left: header.left, width: header.width, height: header.height },
+          spread: Math.max(...mids) - Math.min(...mids),
+          labels: items.map((el) => el.getAttribute("aria-label") ?? el.textContent!.trim()).filter(Boolean),
+          controls: {
+            search: control(".showcase-header .uipack-docs-search__button"),
+            theme: control(".showcase-header button.theme"),
+            // A tab's weight differs when it is the current view, so its box is compared by height alone.
+            tabs: `${Math.round(rect(".showcase-tabs a")!.height)} ${getComputedStyle(document.querySelector(".showcase-tabs a")!).fontSize}`,
+          },
+          sidebarSearch: !!rect(".uipack-docs__sidebar .uipack-docs-search__button"),
+          scrollWidth: document.documentElement.scrollWidth,
+        };
+      });
+      const at = `${view.name} at ${width}`;
+      // (b) The header's content edges are this view's content edges, and the content is the site column.
+      expect(g.end - g.start, `${at}: the content is the site column`).toBeCloseTo(column, 0);
+      expect(g.start, `${at}: the column is centred`).toBeCloseTo((width - column) / 2, 0);
+      const first = g.menu ?? g.logo;
+      expect(Math.abs(first - g.start), `${at}: the header starts at ${first}, the content at ${g.start}`).toBeLessThanOrEqual(1);
+      expect(Math.abs(g.last - g.end), `${at}: the header ends at ${g.last}, the content at ${g.end}`).toBeLessThanOrEqual(1);
+      expect(g.menu !== null, `${at}: a menu button only where the docs sidebar is a drawer`).toBe(view.docs && width < 900);
+      // The ground and rule run the window; the items share one centre line; nothing overflows.
+      expect(g.header).toEqual({ left: 0, width, height: 65 });
+      expect(g.spread, `${at}: one centre line`).toBeLessThanOrEqual(1);
+      expect(g.scrollWidth, `${at}: no sideways scroll`).toBeLessThanOrEqual(width);
+      // The same items on every view: the mark, the two tabs, search, the theme toggle.
+      expect(
+        g.labels.map((label) => label.replace(/(⌘K|Ctrl K)$/, "")),
+        at,
+      ).toEqual(["uipack", "Docs", "Assets", "Search docs", "Dark mode"]);
+      expect(g.sidebarSearch, `${at}: search is the header's box`).toBe(false);
+      seen.push({ name: view.name, docs: view.docs, logo: g.logo, last: g.last, controls: g.controls });
+    }
+    // (a) The same x on every view: the last control always; the logo wherever no menu button leads
+    // the bar (every view from 900px, and the views without a drawer below it).
+    for (const view of seen) {
+      expect(
+        Math.abs(view.last - seen[0].last),
+        `${view.name}: last control at ${view.last}, landing at ${seen[0].last}`,
+      ).toBeLessThanOrEqual(1);
+      expect(view.controls, `${view.name}: search, the toggle and the tabs are drawn as on the landing page`).toEqual(
+        seen[0].controls,
+      );
+      const peer = seen.find((v) => width >= 900 || v.docs === view.docs)!;
+      expect(
+        Math.abs(view.logo - peer.logo),
+        `${view.name}: logo at ${view.logo}, ${peer.name} at ${peer.logo}`,
+      ).toBeLessThanOrEqual(1);
+    }
   });
 
 test("landing headings: display tracking on the headline and section heads, the role on card titles; whole-pixel sizes", async ({

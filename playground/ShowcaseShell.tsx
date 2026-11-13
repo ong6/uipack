@@ -239,9 +239,9 @@ function useSiteSearch(theme: string): DocsSearchOptions {
  * The one shell for every page, rendered once by main.tsx around the page (which loads after it):
  * DocsLayout with the Technical palette and the site's own values (site-palette.css), the header
  * (below 900px a menu button that opens the sidebar as a drawer, the brand, the Docs and Assets
- * tabs, the theme toggle) as its banner, the sidebar generated from the docs manifest (five
- * collapsible sections, search at the top, the travelling marker), the page in <main>, and "On this
- * page" for a Markdown page. Above the page: its section's chip, the style its content uses, "View
+ * tabs, search, the theme toggle: the same on every view, in the site's one column) as its banner,
+ * the sidebar generated from the docs manifest (five collapsible sections, the travelling marker),
+ * the page in <main>, and "On this page" for a Markdown page. Above the page: its section's chip, the style its content uses, "View
  * as Markdown" (the page's file, served raw) and "Edit on GitHub". A page still rendered by its showcase module gets the h1 and intro from the manifest;
  * a Markdown page's own `#` is its h1. `active="not-found"` is the page for an unknown address.
  */
@@ -269,7 +269,8 @@ export function ShowcaseShell({
   const [menuOpen, setMenuOpen] = useState(false);
   const search = useSiteSearch(theme);
   // One search dialog on every view, open from the header's box or ⌘K. Off the docs pages (the
-  // landing page, Assets) the shell renders it; on a docs page DocsLayout does, with this state.
+  // landing page, Assets) the shell renders it; on a docs page DocsLayout does, with this state
+  // (searchOpen / onSearchOpenChange), so the header's box drives the layout's dialog.
   const [searching, setSearching] = useState(false);
   useDocsSearchShortcut(landing || gallery, setSearching);
   // The marker's shape for this load: the site's, or ?marker= (kept for the visit).
@@ -282,9 +283,10 @@ export function ShowcaseShell({
     [page, gallery, landing],
   );
   // Compact navigation (the header's menu button opens the sidebar as a drawer) below 900px. A page
-  // hosting a whole sample site (/web) keeps it below 1440px too, so the sample gets a desktop width
-  // (its own layout switches at a 1024px container) on a laptop.
-  const compact = useMediaQuery(hostsPage ? "(max-width: 1439px)" : "(max-width: 899px)");
+  // hosting a whole sample site (/web) keeps it until the site column is whole (1264px plus two 32px
+  // gutters: 1328px), where the page beside the sidebar is 1024px: the sample's own layout switches
+  // to desktop at a 1024px container, so it is never shown squeezed beside the sidebar.
+  const compact = useMediaQuery(hostsPage ? "(max-width: 1327px)" : "(max-width: 899px)");
   const section = notFound ? undefined : sectionOfPage(page);
   // The header mark's dot sits on the section's cell, in its hue (neutral off the four sections).
   // On the landing page it loops through the four instead (showcase.css), so nothing hops into place.
@@ -333,10 +335,9 @@ export function ShowcaseShell({
           </a>
         </nav>
         <div className="showcase-header__actions">
-          {/* Where there is no sidebar (the landing page, Assets, a docs page below the drawer's
-              width), search sits in the header: a box, a 44px icon on a phone. ⌘K opens it on every page. */}
-          {(landing || gallery || compact) && <DocsSearchButton placeholder="Search docs" onOpen={() => setSearching(true)} />}
-          <button className="theme" type="button" aria-label={`${theme === "dark" ? "light" : "dark"} mode`} onClick={flip}>
+          {/* Search sits in the header on every view, the same box: a 44px icon on a phone. ⌘K opens it on every page. */}
+          <DocsSearchButton placeholder="Search docs" onOpen={() => setSearching(true)} />
+          <button className="theme" type="button" aria-label={`${theme === "dark" ? "Light" : "Dark"} mode`} onClick={flip}>
             <svg className="theme__icon" viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" focusable="false">
               {theme === "dark" ? (
                 <>
@@ -348,7 +349,7 @@ export function ShowcaseShell({
               )}
             </svg>
             <span className="theme__text" aria-hidden="true">
-              {theme === "dark" ? "light" : "dark"} mode
+              {theme === "dark" ? "Light" : "Dark"} mode
             </span>
           </button>
         </div>
@@ -371,6 +372,13 @@ export function ShowcaseShell({
     </>
   );
 
+  // One skip link on every view, first in the tab order (the docs layout's own is not drawn: showcase.css).
+  const skip = (
+    <a className="showcase-skip" href="#showcase-main">
+      Skip to content
+    </a>
+  );
+
   const searchDialog = (
     <DocsSearchDialog open={searching} onClose={() => setSearching(false)} options={search} sections={sidebarSections(theme)} />
   );
@@ -380,9 +388,7 @@ export function ShowcaseShell({
   if (landing)
     return (
       <div className="showcase-frame" data-theme={theme} data-style="technical" data-ui-style="technical" data-mode="landing">
-        <a className="showcase-skip" href="#showcase-main">
-          Skip to content
-        </a>
+        {skip}
         {header}
         {children}
         {searchDialog}
@@ -392,9 +398,7 @@ export function ShowcaseShell({
   if (gallery)
     return (
       <div className="showcase-frame" data-theme={theme} data-style="technical" data-ui-style="technical" data-mode="gallery">
-        <a className="showcase-skip" href="#showcase-main">
-          Skip to content
-        </a>
+        {skip}
         {header}
         <main id="showcase-main" className="showcase-gallery-main" tabIndex={-1} aria-label="Assets">
           {children}
@@ -417,6 +421,7 @@ export function ShowcaseShell({
       // demo takes the window (the deck) keeps it whole: on both the banner scrolls away.
       data-banner={hostsPage || page.fullWindow ? "static" : undefined}
     >
+      {skip}
       <DocsLayout
         productTitle="UIPACK"
         productHref={`/?theme=${theme}`}

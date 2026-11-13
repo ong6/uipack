@@ -15,8 +15,9 @@
 }
 .gallery-head p {
   margin: 0;
-  max-width: 68ch;
-  font-size: 16px;
+  max-width: 64ch;
+  /* The site's intro paragraph (docs/specs/docs-site.md, "Type"): 18px at the text leading, ink-2. */
+  font-size: 18px;
   line-height: var(--site-leading-text);
   color: var(--show-muted);
 }
@@ -138,6 +139,17 @@
   left: 0;
   transform-origin: 0 0;
   pointer-events: none;
+}
+/* A component's preview is its docs demo, drawn to the picture's edge: inset it 16px from the card's
+   border, where a figure's own canvas margin puts an Architecture card's drawing. (Scaled fits the
+   stage to the box's content width, so the padding is the inset.) */
+[data-gallery-item^="component-"] .gallery-preview--scaled {
+  box-sizing: border-box;
+  padding: 16px 16px 0;
+}
+[data-gallery-item^="component-"] .gallery-preview__stage {
+  top: 16px;
+  left: 16px;
 }
 .gallery-preview__none {
   display: grid;

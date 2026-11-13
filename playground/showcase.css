@@ -55,26 +55,33 @@ body {
   background: var(--show-bg);
   color: var(--show-ink);
 }
-/* The frame holds the docs layout (src/docs, width="wide"): the sticky banner, then the sidebar
-   docked to the left edge under it, and the page and, on a Markdown page, "On this page" as a pair
-   centred in the rest. The widths (docs/specs/docs-site.md, "Layout"): a 232–288px sidebar; the
-   page column at most 760px with prose at a 37em measure inside it, 75–88 characters a line (tables,
-   code and figures take the whole column); "On this page" 204–248px, 40–56px from the column, so at 1440 and 1920 there
-   is no dead gutter between the text and the rail (the spare width goes to the outer margins). A
-   page with no rail (a gallery of figures, charts, a 3D scene) gets a column up to 1344px: at 1440
-   that is 1176px, so a 1120-unit figure draws within 1% of its own size (its canvas adds 64px) and
-   the 11px text floor never enlarges a subtitle past its box (in a 1132px column subtitles grew 4–5%
-   and, where glyph advances round to whole pixels on Linux, crossed node borders). Main stacks the page bar,
-   the title and the page with one 32px gap. */
+/* The site's one width (docs/specs/docs-site.md, "Layout"; owner, 2026-11-13: "one site width"):
+   every view's content and the header's bar sit in one centred column, --site-column, at most
+   --site-width wide with --site-gutter on each side (32px, 24px below 1024px, 16px below 720px). So
+   the logo and the last control are at the same x on every view and on the content's edges (layout
+   floor 8). Grounds and rules (the header's, the landing hero's, the band's) still run the window.
+   1264px is 12 columns of 76px with 32px gutters (the landing archetype's grid, whole pixels) and
+   the docs layout's three columns at their stated widths: 216 + 24 + 760 + 56 + 208.
+   The frame holds the docs layout (src/docs, width="wide") in that column: the sticky banner, then
+   the sidebar on the column's start edge (its rows start on the edge, where the logo does; its box
+   and focus rings hang --side-pad into the gutter, so the box is 232px), the page, and on a Markdown
+   page "On this page" on the column's end edge. The page column is at most 760px with prose at a 37em
+   measure inside it, 75–88 characters a line (tables, code and figures take the whole column); the
+   rail is 208px, 40–56px from the column. A page with no rail (a gallery of figures, charts, a 3D
+   scene, the /web sample) takes the rest of the site column: 1024px, the width the sample's desktop
+   layout starts at. Main stacks the page bar, the title and the page with one 32px gap. */
 .showcase-frame {
+  --site-width: 1264px;
+  --site-gutter: 32px;
+  /* A percentage here is of the box that uses it: the frame's children, each the window's width. */
+  --site-column: min(var(--site-width), 100% - 2 * var(--site-gutter));
   --header-h: 64px;
-  --side-w: clamp(232px, 15vw, 288px);
-  --col: 760px;
-  --rail-w: clamp(204px, 13vw, 248px);
-  --rail-gap: clamp(40px, 3vw, 56px);
-  --full-col: 1344px;
-  /* The sidebar's left inset; the banner's logo starts on it. */
+  /* The sidebar's inset, outside the site column; with it the sidebar's box is 232px. */
   --side-pad: 16px;
+  --side-w: 216px;
+  --side-gap: 24px;
+  --col: 760px;
+  --rail-w: 208px;
   /* Type roles every view shares (docs/specs/docs-site.md, "Type"). The page title and the section
      heading are the docs layout's own sizes, named here so the Assets tab and a page outside the
      Markdown (not found) set theirs from the same values; the docs layout reads them through its
@@ -105,6 +112,16 @@ body {
   --site-line-soft: var(--ui-line-soft);
 }
 /* A phone's steps, the docs layout's (src/docs/docs.css, below 500px). */
+@media (max-width: 1023px) {
+  .showcase-frame {
+    --site-gutter: 24px;
+  }
+}
+@media (max-width: 719px) {
+  .showcase-frame {
+    --site-gutter: 16px;
+  }
+}
 @media (max-width: 499px) {
   .showcase-frame {
     --site-title-size: 36px;
@@ -119,15 +136,18 @@ body {
 .showcase-frame > .uipack-docs {
   padding: 0;
 }
-.showcase-frame:not([data-rail="none"]) > .uipack-docs[data-width="wide"] > .uipack-docs__grid {
+/* The whole layout is the site column. With a rail, the spare width between the page and the rail
+   is the first to go (56px down to 40), then the page column. */
+.showcase-frame > .uipack-docs[data-width] > .uipack-docs__grid {
+  width: var(--site-column);
+  margin-inline: auto;
   gap: 0;
-  grid-template-columns:
-    var(--side-w) minmax(24px, 1fr) minmax(0, var(--col)) var(--rail-gap) var(--rail-w)
-    minmax(24px, 1fr);
+}
+.showcase-frame:not([data-rail="none"]) > .uipack-docs[data-width="wide"] > .uipack-docs__grid {
+  grid-template-columns: var(--side-w) var(--side-gap) minmax(0, var(--col)) minmax(40px, 1fr) var(--rail-w);
 }
 .showcase-frame[data-rail="none"] > .uipack-docs[data-width="wide"] > .uipack-docs__grid {
-  gap: 0;
-  grid-template-columns: var(--side-w) minmax(16px, 1fr) minmax(0, var(--full-col)) minmax(16px, 1fr);
+  grid-template-columns: var(--side-w) var(--side-gap) minmax(0, 1fr);
 }
 .showcase-frame > .uipack-docs > .uipack-docs__grid > .uipack-docs__sidebar {
   grid-column: 1;
@@ -137,7 +157,8 @@ body {
   height: calc(100vh - var(--header-h));
   height: calc(100dvh - var(--header-h));
   max-height: none;
-  margin: 0;
+  /* Its rows start on the site column's edge; the box reaches --side-pad into the gutter. */
+  margin: 0 0 0 calc(-1 * var(--side-pad));
   padding: 20px 12px 48px var(--side-pad);
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -205,10 +226,11 @@ html:has(.showcase-frame:not([data-banner="static"])) {
     font-size: 18px;
   }
 }
-/* Between 900 and 1180 the rail folds into the "On this page" disclosure before it squeezes the measure. */
+/* Between 900 and 1180 the rail folds into the "On this page" disclosure before it squeezes the
+   measure, and the page takes the rest of the site column, so its end edge is still the header's. */
 @media (max-width: 1180px) {
   .showcase-frame:not([data-rail="none"]) > .uipack-docs[data-width="wide"] > .uipack-docs__grid {
-    grid-template-columns: var(--side-w) minmax(24px, 1fr) minmax(0, var(--col)) minmax(24px, 1fr);
+    grid-template-columns: var(--side-w) var(--side-gap) minmax(0, 1fr);
   }
   .showcase-frame > .uipack-docs > .uipack-docs__grid > .uipack-docs__toc {
     display: none;
@@ -310,6 +332,24 @@ html:has(.showcase-frame:not([data-banner="static"])) {
   )::after {
   background: var(--site-ground-ruled);
 }
+/* A figure in a docs page: beside the sidebar the page is 1024px at most, and a 1120-unit drawing
+   (the figure grid's widest) needs 1184px with its canvas. Scaled to fit, the 11px text floor would
+   enlarge its sub-labels past their boxes, so from 900px a wide drawing keeps its own size and
+   scrolls inside its canvas (AGENTS.md: a dense diagram keeps a readable drawing and scrolls
+   internally); the page never scrolls sideways. Below 900px the package's own narrow rules hold. */
+@media (min-width: 900px) {
+  .showcase-frame .uipack-docs__article .uipack > .uipack__canvas > svg.uipack--wide {
+    min-width: var(--figure-width, 0px);
+  }
+}
+/* The /web sample beside the sidebar: its frame is drawn as an outline, not a border, so the sample's
+   own container is the page column's whole 1024px, the width its desktop layout starts at (a 1px
+   border each side left it 1022px, in its tablet layout). */
+.showcase-frame .web-example {
+  border: 0;
+  outline: 1px solid var(--show-rule);
+  outline-offset: -1px;
+}
 /* A demo's box only resets the style to Technical (demos.tsx); it takes no space of its own. */
 .showcase-demo {
   display: contents;
@@ -328,20 +368,9 @@ html:has(.showcase-frame:not([data-banner="static"])) {
 .showcase-frame .showcase-shell > .uipack-docs__pagination {
   margin-top: 32px;
 }
-/* The skip link (DocsLayout's): a button-sized link at the top once it has focus. */
-.showcase-frame a.uipack-docs__skip:focus {
-  display: flex;
-  align-items: center;
-  min-height: 44px;
-  box-sizing: border-box;
-  border: 2px solid var(--show-accent);
-  border-radius: var(--show-control-radius);
-  background: var(--show-surface);
-  color: var(--show-ink);
-  padding: 12px 16px;
-  font: 600 14px / var(--site-leading-label) var(--show-font-sans);
-  outline: 2px solid var(--show-accent);
-  outline-offset: 2px;
+/* The site has one skip link, the shell's (.showcase-skip, below); the docs layout's own is not drawn. */
+.showcase-frame > .uipack-docs > a.uipack-docs__skip {
+  display: none;
 }
 .showcase-shell > section {
   min-width: 0;
@@ -381,7 +410,10 @@ html:has(.showcase-frame:not([data-banner="static"])) {
   align-items: center;
   gap: 8px;
   height: var(--header-h, 64px);
-  padding: 0 clamp(16px, 2.2vw, 40px);
+  /* The site column, on every view: the logo starts on its start edge, the last control ends on its
+     end edge (the frame's --site-column, above). */
+  width: var(--site-column);
+  margin-inline: auto;
 }
 .showcase-brand {
   /* The wordmark's SVG text reads the shell mono. */
@@ -769,19 +801,18 @@ html:has(.showcase-frame:not([data-banner="static"])) {
   border-radius: var(--ui-radius);
   cursor: pointer;
 }
-/* The search box takes the corner of where it sits: square in the header (the landing page), the
-   docs radius at the top of the sidebar and the drawer. Its label is the sidebar's page size (14px).
-   Set here, for this site, over the docs layout's own values. */
+/* The search box takes the corner of where it sits: square in the header, the docs radius at the
+   top of the drawer. Its label is the sidebar's page size (14px). Set here, for this site, over the
+   docs layout's own values. */
 .showcase-frame .uipack-docs-search__button {
   border-radius: var(--show-radius);
   font-size: 14px;
   padding: 0 8px 0 12px;
 }
-/* In the sidebar, on the 4px grid: a 40px box, 16px over the first section (38 and 18 in the
-   layout's own). The drawer keeps the layout's 44px touch box. */
-.showcase-frame .uipack-docs__sidebar > .uipack-docs-search__button {
-  height: 40px;
-  margin-bottom: 16px;
+/* Search is the header's box on every view (owner, 2026-11-13: one header), so the sidebar's own
+   box is not drawn. The drawer keeps the layout's 44px touch box. */
+.showcase-frame > .uipack-docs > .uipack-docs__grid > .uipack-docs__sidebar > .uipack-docs-search__button {
+  display: none;
 }
 .showcase-frame .uipack-docs-search__button kbd {
   padding: 4px;
@@ -907,8 +938,9 @@ html:has(.showcase-frame:not([data-banner="static"])) {
 }
 .showcase-title p {
   margin: var(--site-title-gap) 0 0;
-  max-width: 72ch;
-  font-size: 16px;
+  max-width: 64ch;
+  /* The site's intro paragraph: 18px on every view, as a docs page's body and the landing hero's. */
+  font-size: 18px;
   line-height: var(--site-leading-text);
   color: var(--show-muted);
 }
@@ -1108,11 +1140,15 @@ html:has(.showcase-frame:not([data-banner="static"])) {
 .showcase-frame[data-nav="compact"] > .uipack-docs[data-width] > .uipack-docs__grid[data-toc="none"] {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  padding: 0 20px;
 }
 .showcase-frame[data-nav="compact"] > .uipack-docs > .uipack-docs__grid > .uipack-docs__article {
   grid-column: 1;
   padding: 24px 0 72px;
+}
+/* A page outside the Markdown (not found) has no page bar: its title starts 32px under the banner
+   at every width, as the Assets title does. */
+.showcase-frame[data-nav="compact"] > .uipack-docs > .uipack-docs__grid > .uipack-docs__article.uipack-docs__block {
+  padding-top: 32px;
 }
 .showcase-frame[data-nav="compact"] > .uipack-docs > .uipack-docs__grid > .uipack-docs__toc {
   display: none;
@@ -1120,16 +1156,9 @@ html:has(.showcase-frame:not([data-banner="static"])) {
 .showcase-frame[data-nav="compact"] .uipack-docs[data-width="wide"] .uipack-docs__contents {
   display: block;
 }
-/* A phone keeps the 16px side margins the gallery had before the docs shell: a 390px screen gives
-   its charts and figures 358px, the width their phone layouts are tuned to (SpanChart's twelve
-   column codes keep 8px apart there even where advances round to whole pixels; at 24px margins
-   they came to 7.5 on Linux). */
-@media (max-width: 719px) {
-  .showcase-frame[data-nav="compact"] > .uipack-docs[data-width] > .uipack-docs__grid,
-  .showcase-frame[data-nav="compact"] > .uipack-docs[data-width] > .uipack-docs__grid[data-toc="none"] {
-    padding: 0 16px;
-  }
-}
+/* A phone's site gutter is 16px: a 390px screen gives its charts and figures 358px, the width their
+   phone layouts are tuned to (SpanChart's twelve column codes keep 8px apart there even where
+   advances round to whole pixels; at 24px margins they came to 7.5 on Linux). */
 @media (max-width: 520px) {
   .showcase-header button.theme {
     justify-content: center;
@@ -1370,59 +1399,22 @@ html:has(.showcase-frame:not([data-banner="static"])) {
   }
 }
 
-/* The Assets view: the header, then the gallery at the frame's full width. */
+/* The Assets view: the header, then the gallery (title, filters, grid) in the site column. */
 .showcase-gallery-main {
   display: block;
-  max-width: 1600px;
+  width: var(--site-column);
   margin: 0 auto;
-  padding: 32px 24px 64px;
-}
-@media (max-width: 719px) {
-  .showcase-gallery-main {
-    padding-inline: 16px;
-  }
-}
-/* The banner's content keeps the edges of what is under it (e2e/docs-shell.spec.ts, e2e/assets-gallery.spec.ts):
-   on a docs page the logo starts on the sidebar's inset and the last control ends on the right edge
-   of "On this page" (of the page column where there is no rail); on Assets both sit on the grid's
-   edges. Percentages are of the banner's width, the width the layout under it divides. */
-.showcase-frame:not([data-mode]) .showcase-header__bar {
-  padding-left: var(--side-pad);
-  padding-right: max(24px, calc((100% - var(--side-w) - var(--col) - var(--rail-gap) - var(--rail-w)) / 2));
-}
-@media (max-width: 1180px) {
-  .showcase-frame:not([data-mode]) .showcase-header__bar {
-    padding-right: max(24px, calc((100% - var(--side-w) - var(--col)) / 2));
-  }
-}
-.showcase-frame[data-rail="none"]:not([data-mode]) .showcase-header__bar {
-  padding-right: max(16px, calc((100% - var(--side-w) - var(--full-col)) / 2));
-}
-.showcase-frame[data-nav="compact"]:not([data-mode]) .showcase-header__bar {
-  padding-inline: 20px;
-}
-.showcase-frame[data-mode="gallery"] .showcase-header__bar {
-  padding-inline: max(24px, calc((100% - 1600px) / 2));
-}
-@media (max-width: 719px) {
-  .showcase-frame[data-nav="compact"]:not([data-mode]) .showcase-header__bar,
-  .showcase-frame[data-mode="gallery"] .showcase-header__bar {
-    padding-inline: 16px;
-  }
+  padding: 32px 0 64px;
 }
 .showcase-gallery-main:focus {
   outline: none;
 }
 
-/* The landing view (/): the frame goes full-bleed and the page (landing.css) sits in the landing
-   archetype's one column (docs/system/layout/landing.md): 1120px, with 32px gutters, 24px below
-   1024px and 16px on a phone. The banner stays the shell's (sticky, 64px, its ground and rule full
-   width); its bar takes the same column, so the logo's start edge and the last control's end edge
-   are the sections' edges at every width (docs/system/layout/README.md, floor 8). These rules load
-   with the shell, not with the page's chunk, so the header never moves when the page arrives. */
+/* The landing view (/): the page (landing.css) sits in the site column, which is the landing
+   archetype's one column on this site (docs/system/layout/landing.md; the spec widens it from 1120px).
+   Its hero backdrop, band and rules run the window. The header's rules load with the shell, not with
+   the page's chunk, so the header never moves when the page arrives. */
 .showcase-frame[data-mode="landing"] {
-  --landing-column: 1120px;
-  --landing-gutter: 32px;
   max-width: none;
   padding: 0;
 }
@@ -1445,27 +1437,11 @@ html:has(.showcase-frame:not([data-banner="static"])) {
   --docs-paper: var(--ui-paper);
   --docs-raised: var(--ui-surface-raised);
 }
-.showcase-frame[data-mode="landing"] .showcase-header__bar {
-  width: min(var(--landing-column), 100% - 2 * var(--landing-gutter));
-  margin-inline: auto;
-  padding: 0;
-}
-/* Search in the header, where there is no sidebar to hold it: the landing page, Assets, and a
-   docs page once its sidebar is a drawer (the shell renders the box only then). */
+/* Search in the header, on every view: one box, one size. */
 .showcase-header .uipack-docs-search__button {
   width: clamp(160px, 22vw, 260px);
   height: 40px;
   margin: 0;
-}
-@media (max-width: 1023px) {
-  .showcase-frame[data-mode="landing"] {
-    --landing-gutter: 24px;
-  }
-}
-@media (max-width: 719px) {
-  .showcase-frame[data-mode="landing"] {
-    --landing-gutter: 16px;
-  }
 }
 /* A phone keeps the icon and the shortcut's room for the page: the box becomes a 44px icon button. */
 @media (max-width: 719px) {
@@ -1511,6 +1487,8 @@ html:has(.showcase-frame:not([data-banner="static"])) {
     clip-path: inset(0 calc(100% - 24px) 0 0);
   }
 }
+/* The skip link, one on every view: hidden until it has focus, then a button-sized link at the top
+   with the header controls' square corner. */
 .showcase-skip {
   line-height: var(--site-leading-label);
 }
@@ -1526,14 +1504,19 @@ html:has(.showcase-frame:not([data-banner="static"])) {
   white-space: nowrap;
   border: 0;
 }
-.showcase-skip:focus {
+.showcase-frame a.showcase-skip:focus {
   position: fixed;
   top: 8px;
   left: 8px;
   z-index: 1000;
-  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  box-sizing: border-box;
+  padding: 0 16px;
+  border-radius: var(--ui-radius);
   background: var(--show-ink);
   color: var(--show-bg);
-  font-weight: 600;
+  font: 600 16px / var(--site-leading-label) var(--show-font-sans);
   text-decoration: none;
 }

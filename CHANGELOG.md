@@ -9,6 +9,19 @@ release is cut and how a site moves to it.
 
 ### Fixed
 
+- **The docs site, one width and one header** (owner, 2026-11-13): every view's content and the
+  header's content sit in one centred column, 1264px at most with 32px gutters (24px below 1024px,
+  16px below 720px): the landing page (its column was 1120px), Assets (its grid ran to 1600px), a
+  not-found page and a docs page's whole layout (the sidebar was docked to the window's edge). The
+  logo, tabs, search and theme toggle are at the same x on every view and on each view's content
+  edges. Search is the header's box on every view (a docs page had it at the top of the sidebar);
+  the toggle reads "Dark mode" / "Light mode"; one skip link, "Skip to content". A page without a
+  rail is 1024px wide (it was up to 1344px). The site's own CSS only: `DocsLayout` is unchanged.
+- **The docs site, small alignments:** the intro paragraph under the Assets and not-found titles is
+  18px as on a docs page; a not-found title starts 32px under the banner on a phone, as the Assets
+  title does; the read-next links are Mono 13 and run the column on a phone; the site map's group
+  captions take the sidebar's tracking; the "Fonts fetched" line sits 16px under its swatches; an
+  Assets component preview is inset 16px; footer and site-map links are 44px targets below 720px.
 - **`LayerStack`:** a band's padding sits on the 4px grid (12px; 16px at its end from 640px). A
   one-line band keeps its 44px height; a band of two lines is 2px taller.
 - **`DocsLayout` collapsible sidebar:** a section's label starts on its page links' text edge (it

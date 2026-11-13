@@ -34,8 +34,10 @@ slot names, never colours, faces or sentences.
 8. **A page's header shares its content's edges.** The first item in the header (the logo) starts
    on the content column's start edge and the last (a button, a toggle) ends on its end edge, with
    the column's gutters, at every width; the footer too. The header's ground and rule may run the
-   window's width; what aligns is what is inside. In a shell with a docked sidebar the content's
-   edges are the shell's: the sidebar's start edge and the page area's end edge.
+   window's width; what aligns is what is inside. In a shell with a sidebar the content's edges are
+   the shell's: the sidebar's start edge and the page area's end edge, wherever the site puts them
+   (docked at the window's edges, or together in a centred column). A site with several page types
+   may go further and give them one width, so the header never moves between pages; its spec says so.
 
 ## How a spec sets layout
 

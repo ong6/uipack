@@ -70,7 +70,7 @@ test("reduced motion lands immediately and light mode rebuilds exactly one rende
   await page.getByRole("button", { name: "Go to Open the harness.", exact: true }).click();
   await expect(page.locator(scene)).toHaveAttribute("data-settled-stop", "inside");
   await expect(page.locator(scene)).toHaveAttribute("data-transitioning", "false");
-  await page.getByRole("button", { name: "dark mode", exact: true }).click();
+  await page.getByRole("button", { name: "Dark mode", exact: true }).click();
   await expect(page.locator(player)).toHaveAttribute("data-theme", "dark");
   await expect(page.locator(scene)).not.toHaveAttribute("data-renderer", "loading");
   expect(await page.locator("canvas[data-slide-canvas]").count()).toBeLessThanOrEqual(1);

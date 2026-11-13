@@ -29,7 +29,7 @@ icon and hue (`site-settings.tsx`, `site-palette.css`). The location marker (the
 page's section state, or the package's paper plane with `?marker=plane`) hops to the current page in
 the sidebar and to the current heading in "On this page"; the sidebar remembers the page being left in sessionStorage so the
 next page's marker travels from it. Below 900px the header's menu button opens the sidebar as a
-drawer and "On this page" folds into a disclosure (it does from 1180px). Search (the sidebar's box,
+drawer and "On this page" folds into a disclosure (it does from 1180px). Search (the header's box,
 ⌘K / Ctrl-K) loads `/search-index.json`, built from every page's Markdown by `search-index.ts`
 (vite.config.ts serves it in dev and emits it in a build). The site's dark palette, hues, marker and
 widths are its own spec, [docs/specs/docs-site.md](../docs/specs/docs-site.md); `site-palette.css`

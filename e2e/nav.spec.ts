@@ -71,7 +71,7 @@ test("every page links its Markdown source, served as plain text, and its GitHub
 
 test("the theme toggle updates the sidebar links and keeps the page", async ({ page }) => {
   await page.goto("/charts?theme=light");
-  await page.getByRole("button", { name: "dark mode", exact: true }).click();
+  await page.getByRole("button", { name: "Dark mode", exact: true }).click();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
   await expect(sidebar(page).getByRole("link", { name: "Article parts" })).toHaveAttribute("href", "/article?theme=dark");
   await sidebar(page).getByRole("button", { name: "Rules", exact: true }).click();
@@ -244,9 +244,9 @@ test.describe("390px header and drawer", () => {
 
   test("the theme icon button has a name and flips the theme", async ({ page }) => {
     await page.goto("/?theme=light");
-    await page.getByRole("button", { name: "dark mode", exact: true }).click();
+    await page.getByRole("button", { name: "Dark mode", exact: true }).click();
     await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
-    await expect(page.getByRole("button", { name: "light mode", exact: true })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Light mode", exact: true })).toBeVisible();
   });
 });
 
@@ -369,7 +369,7 @@ test.describe("landmarks and skip link", () => {
         await expect(page.locator("main header, main nav.uipack-docs__navigation")).toHaveCount(0);
         await expectPageTitle(page, "Charts", "/charts");
         // The skip link is hidden (a clipped 1px box) until it takes focus, as the first Tab stop.
-        const skip = page.getByRole("link", { name: "Skip to documentation content" });
+        const skip = page.getByRole("link", { name: "Skip to content" });
         expect((await skip.boundingBox())!.width).toBeLessThanOrEqual(1);
         const firstFocusable = await page.evaluate(
           () =>
@@ -377,7 +377,7 @@ test.describe("landmarks and skip link", () => {
               "a[href], button, input, select, textarea, summary, [tabindex]:not([tabindex='-1'])",
             )?.textContent,
         );
-        expect(firstFocusable).toBe("Skip to documentation content");
+        expect(firstFocusable).toBe("Skip to content");
         // WebKit's default Tab reaches text fields only, so there the link takes focus directly.
         if (browserName === "webkit") await skip.focus();
         else await page.keyboard.press("Tab");

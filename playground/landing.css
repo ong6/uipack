@@ -1,9 +1,9 @@
 /* The landing page (/, LandingShowcase.tsx), scoped under .uipack-landing. Every colour, face and
    motion value is a Technical role (var(--ui-*)), so the shell's light and dark values apply as they
    change. The page sits in the shell's landing mode (data-mode="landing"): the same header, then a
-   full-bleed page in the landing archetype's one 1120px column (docs/system/layout/landing.md). The
-   column and its gutters are the frame's --landing-column and --landing-gutter (showcase.css, "The
-   landing view"), which the header's bar reads too, so the header and every section share edges. */
+   full-bleed page in the landing archetype's one column (docs/system/layout/landing.md), which on
+   this site is the site column: the frame's --site-column (showcase.css), 1264px at most, which the
+   header's bar takes too, so the header and every section share edges. */
 
 .uipack-landing {
   --landing-band-line: color-mix(in srgb, var(--ui-band-ink) 20%, transparent);
@@ -73,7 +73,7 @@
   white-space: nowrap;
 }
 .landing-wrap {
-  width: min(var(--landing-column), 100% - 2 * var(--landing-gutter));
+  width: var(--site-column);
   margin-inline: auto;
 }
 .landing-arrow {
@@ -444,7 +444,8 @@
   align-items: center;
   justify-content: space-between;
   min-height: 44px;
-  font: 500 14px / var(--site-leading-label) var(--ui-font-label);
+  /* A mono link label, as a job card's (.landing-job__go). */
+  font: 500 13px / var(--site-leading-label) var(--ui-font-label);
   text-decoration: none;
 }
 .landing-built__next a:hover {
@@ -765,6 +766,21 @@
   .landing-hero__ctas .landing-btn {
     flex: 1 1 auto;
   }
+  /* One column: the read-next list runs to the column's edge, as everything around it does. */
+  .landing-built__next {
+    max-width: none;
+  }
+}
+/* A touch layout (a phone or a small tablet, whatever pointer it reports): the footer's links are
+   44px targets. The desktop row keeps its 24px links. */
+@media (max-width: 719px) {
+  .uipack-landing .landing-foot__links a {
+    min-width: 44px;
+    min-height: 44px;
+  }
+  .landing-foot__links {
+    gap: 0 16px;
+  }
 }
 /* Touch: every link in a list or row is a 44px target. */
 @media (pointer: coarse) {
@@ -798,13 +814,19 @@
   mask: linear-gradient(to bottom, black calc(100% - 40px), transparent);
 }
 /* The deck: the slide alone (no controls or phone hint), drawn 1.25 times the picture's width and
-   cropped to its top left, where the title and the points are. */
+   cropped to its top left, where the title and the points are. In the two-up bento from 1024px the
+   picture is wider (592px in a 1264px column), so 1.1 times draws the slide the same size (650px). */
 .landing-tile--deck .uipack-deck > :not(.uipack-deck-stage) {
   display: none;
 }
 .landing-tile--deck .uipack-deck-stage {
   width: 125%;
   max-width: none;
+}
+@media (min-width: 1024px) {
+  .landing-tile--deck .uipack-deck-stage {
+    width: 110%;
+  }
 }
 /* The chart: its rows, without the filter drawer and key above them (its own page has those). */
 .landing-tile--charts .uipack-span .uipack-span__head {
