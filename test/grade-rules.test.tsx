@@ -105,6 +105,11 @@ describe("spec", () => {
     expect(spec.tapTargetPx).toEqual({ coarse: 44, fine: 24 });
     expect(spec.contrast).toEqual({ normal: 4.5, large: 3 });
     expect(spec.minTextPx).toBe(12);
+    // The figure and chart floors are core, so a site graded from its STYLE.md gets them too.
+    expect(spec.textFloors.map((f) => [f.selector, f.px])).toEqual([
+      [".uipack svg", 11],
+      [".uipack-span, .uipack-stack", 11],
+    ]);
     expect(spec.rowTolerancePx).toEqual({ cards: 1, paired: 2 });
     expect(spec.viewports.map((v) => v.name)).toEqual(["1440", "390"]);
   });

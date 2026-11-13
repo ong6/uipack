@@ -53,10 +53,12 @@ declare. When nothing differs, `summary.md` notes that the dark theme did not ap
 The faces come from the site's style spec, read with the same parser as `scripts/check-spec.ts`:
 the first family of each `--ui-font-*` row in its Role values table, or the faces in its Type
 table. `--spec docs/specs/technical.md` or `--spec STYLE.md` (a site's own repo) is enough. The
-minimums are core rules every spec extends, so they are the defaults.
+minimums are core rules every spec extends, so they are the defaults, the 11px floor inside a
+uipack figure or chart included. A site with a grade config of its own (below) passes that
+instead of its `STYLE.md`.
 
 `--spec uipack` adds the playground's harness: the `?theme=` switch, the ready condition, the 11px
-floors in figures and charts, and Technical's faces from `docs/specs/technical.md`.
+floor on every `svg`, and Technical's faces from `docs/specs/technical.md`.
 
 The docs site's own config is [`playground/grade.json`](../../playground/grade.json): the uipack
 harness, the faces from [its spec](../specs/docs-site.md), and a 1920 view beside 1440 and 390

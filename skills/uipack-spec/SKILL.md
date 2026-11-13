@@ -6,7 +6,7 @@ description: >-
   template, checked by check-spec and listed in the registry. Use for "start a new site", "write
   the style spec", "make site B look like site A", "change our accent", "our own layout", "our
   voice", "a spec for this talk series", "add a site to the registry". Not for building pages
-  (uipack-page), a fixed component look (docs/components/), or core rules every site shares.
+  (uipack-page), changing a component look itself (docs/components/), or core rules every site shares.
 ---
 
 # Write or update a site spec
@@ -40,10 +40,12 @@ layout archetypes and component looks → site spec → components) and every st
    values as a suggestion in your reply, never as the spec's value.
 6. **Stay in bounds.** Set only what [a spec may set](../../docs/system/spec-settings.md). Two
    traps:
-   - **The flow colours** (`--ui-flow-*`, which figures read: see the "Reads today" column of
-     [docs/components/diagrams.md](../../docs/components/diagrams.md)): the Blueprint look is
-     `fixed`, so figures look the same on every site; never brand them. Copy Technical's flow values and say why; never write that figures
-     take the site's palette.
+   - **Figure colours go in a diagram theme, not in the roles.** The Blueprint look is `flex`
+     ([docs/components/diagrams.md](../../docs/components/diagrams.md#diagram-themes)): its
+     grammar is the same on every site and its colours, faces and canvas ground come from a theme
+     the spec names (`diagram-themes: { default: … }`, one row per theme under `## Component
+     looks`). A site with no theme of its own uses the built-in `blueprint`. Never restyle figures
+     through `--ui-flow-*` or `--uipack-*` overrides in site CSS.
    - **"Fixed by core rules"** applies only to what the right-hand column of spec-settings lists
      (timings, the layout floors, contrast, the core writing rules and slot ceilings). Settings it puts in a spec's hands (density, type
      ratio, measure, easing, radii, ornaments) are the site's choice: `TODO:` until chosen.

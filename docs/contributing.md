@@ -58,6 +58,13 @@ test, is in [Building a style from a spec](specs/README.md#building-a-style-from
 4. The table in `playground/README.md`. The nav and page-audit tests read their page lists from the catalog, so the page is covered once it is registered.
 5. Run `e2e/nav.spec.ts` and `e2e/page-audit.spec.ts` (one test per page: heading outline and scale, control faces, card and control alignment, the phone header, focus rings and overflow; the checks live in `e2e/page-audit.ts`).
 
+## The docs site's pages
+
+What holds for the pages of the docs site itself (`playground/`), beyond a docs page's Markdown.
+
+- Two pages sit outside the docs manifest, each a mode of the shell without the sidebar. The Assets tab (`/gallery`, `playground/GalleryShowcase.tsx`): a live grid of every registered asset with no prose, generated from the same registries the docs render; each card links to its docs page. A new kind of asset gets a block there; a new instance of an existing kind appears by itself. The landing page (`/`, `playground/LandingShowcase.tsx`, built to the landing recipe): its words are data in `playground/landing/content.ts`, each from the doc it links (pages by manifest id), its install line is the release's (`playground/release.ts`), its site map is the manifest, and its figures and previews are live uipack parts loaded as they near the viewport. "What UiPack is" (`docs/README.md`), which `/` used to show, is the first docs page, at `/what-uipack-is`.
+- Every docs-site page renders its Markdown file (`playground/docs-manifest.ts`); live demos are `uipack-demo` blocks registered in `playground/demos.tsx`, and the demo modules show, never explain: rules, tables and budgets live in the Markdown. Every number or sequence a Rules, recipe or example page states comes from code through a generated block (`npm run docs:sync`; `test/foundations-drift.test.tsx` fails on a word budget written outside one). The `/web` sample's copy is owned by the front-end showcase work (`playground/WebShowcase.tsx`, `playground/tidyFacts.ts`); when a new part needs to appear there, add it with words and numbers from `tidyFacts.ts` (a new claim or section is an edit there) and keep `e2e/showcase-content.spec.ts` green. A gallery demo that shows the sample product's words carries `data-sample`.
+
 ## Which slide system
 
 Three entries draw slides. New slide work goes in `uipack/deck`; the other two are kept so existing imports and links keep working.

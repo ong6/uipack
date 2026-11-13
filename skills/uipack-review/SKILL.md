@@ -20,7 +20,7 @@ tier 3 regression briefs and the fix ledger). Read it; it is the source for anyt
 Serve the page, then run the grader on every page you changed with the site's spec:
 
 ```text
-npx uipack-grade check <url> --spec STYLE.md --out <run dir>     # in a site (needs playwright)
+npx uipack-grade check <url> --spec STYLE.md --out <run dir>     # in a site (needs playwright); its grade config (uipack-grade.json) when it has one
 npm run grade -- check <url> --spec uipack --out <run dir>        # in a uipack checkout
 ```
 
