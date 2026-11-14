@@ -890,7 +890,7 @@ export const siteRegistry: readonly SiteEntry[] = [
     spec: "junxiong-notes:STYLE.md",
     specStatus: "written",
     components: ["diagrams: blueprint (theme: the blog's own, one for every post)"],
-    pins: "v0.5.0",
+    pins: "v0.6.0",
     notes:
       "STYLE.md on the site's main (passes check-spec). Decided 2026-11-07: diagrams follow the blog's one theme, so UI diagrams in posts match. Still to do (the site-ui-2 attempt was deleted unmerged): replace the THEMES palette in content/figures/_shared.tsx with one defineDiagramTheme passed to renderStatic with mode (CHANGELOG 0.3.0); declare diagram-themes in STYLE.md. Open owner decision: self-hosting its serif",
   },
