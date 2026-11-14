@@ -879,10 +879,10 @@ export const siteRegistry: readonly SiteEntry[] = [
     repo: "ong6/junxiong-homepage",
     spec: "junxiong-homepage:STYLE.md",
     specStatus: "written",
-    components: ["diagrams: blueprint (themes: site default; compoze and trading pages may have their own)"],
-    pins: "v0.5.0",
+    components: ["diagrams: blueprint (theme: site-paper)"],
+    pins: "v0.7.0",
     notes:
-      "STYLE.md on the site's main (passes check-spec). Decided 2026-11-07: diagrams follow a theme, the site's default plus optional per-page themes (Compoze, Trading Engine). Still to do: replace the --uipack-* overrides in globals.css with one diagramThemeCss and the site-local userflow.js / sequence.js with uipack's parts (CHANGELOG 0.3.0); declare diagram-themes in STYLE.md",
+      "STYLE.md on the site's main (passes check-spec). Since 2026-11-14 figures draw the site's `site-paper` diagram theme (diagramThemeCss on :root, declared in STYLE.md) and the user-flow figure imports uipack's parts; one theme site-wide, no per-page themes. Still site-local: sequence.js",
   },
   {
     site: "notes.junxiong.dev",
