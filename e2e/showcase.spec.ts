@@ -39,12 +39,11 @@ test.describe("3D animations library", () => {
     await expect(library.getByRole("navigation", { name: "Example stories" }).getByRole("button")).not.toHaveCount(0);
   });
 
-  test("an unknown story or variant says what it shows instead", async ({ page }) => {
+  test("an unknown story says what it shows instead", async ({ page }) => {
+    // `variant` is an address from before the one 3D style: it is ignored, not reported.
     await page.goto("/animations?story=bogus&variant=99");
     const note = page.locator(".showcase-title__note");
-    await expect(note).toHaveText(
-      "Story “bogus” not found, showing Agent session. Variant “99” not found, showing Kinetic sculptures.",
-    );
+    await expect(note).toHaveText("Story “bogus” not found, showing Agent session.");
     await expect(page.locator(".uipack-animation-heading h3")).toHaveText("Agent session");
     // Choosing a story rewrites the address, and the note goes.
     await page
