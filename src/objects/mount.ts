@@ -110,7 +110,9 @@ function buildTurn(flags: ObjectStageFlags): { ready: Promise<void>; release: ()
     };
     buildQueue.push(entry);
   });
-  nextBuild();
+  // A microtask later: scenes mounted in one commit are all queued before the first is chosen, so
+  // the playing one goes first even when a neighbour mounted before it.
+  queueMicrotask(nextBuild);
   return {
     ready,
     release: () => {
@@ -120,8 +122,12 @@ function buildTurn(flags: ObjectStageFlags): { ready: Promise<void>; release: ()
       if (index >= 0) buildQueue.splice(index, 1);
       if (!started) return;
       building = false;
-      // A task later, so a frame can paint between two builds.
-      setTimeout(nextBuild, 0);
+      // The next build waits until the page is idle, so the stage can show the scene that just
+      // finished (its ready state, its fade-in) and frames can paint. A zero-delay timer could run
+      // before React committed that state, and the next build then held it back by its own length:
+      // seconds on software WebGL.
+      if (typeof requestIdleCallback === "function") requestIdleCallback(nextBuild, { timeout: 500 });
+      else setTimeout(nextBuild, 100);
     },
   };
 }

@@ -7,6 +7,22 @@ release is cut and how a site moves to it.
 
 ## [Unreleased]
 
+## [0.7.2] - 2026-11-15
+
+Two fixes to the scene build queue 0.7.1 added, found on junxiong.dev's Hobbies page under software
+WebGL. A patch release: nothing a site wrote has to change.
+
+### Fixed
+
+- **The playing scene builds first even when a neighbour mounted before it.** Scenes mounted in
+  one commit are all queued before the first is chosen; in 0.7.1 the first to mount took the slot.
+- **The next build waits for an idle moment** (`requestIdleCallback`, 500 ms at most), so the page
+  shows the scene that just finished before the next build starts. A zero-delay timer could run
+  before the stage's ready state was committed, and the next build then held it back by its own
+  length.
+- **Docs:** `preload` says to hold at most the scenes before and after the playing one. Four live
+  contexts under software WebGL cost the two oldest theirs after about 20 s.
+
 ## [0.7.1] - 2026-11-15
 
 3D scenes stop stalling the page: shaders compile off the main thread, scenes build one at a time
@@ -537,7 +553,8 @@ pinned before that (junxiong.dev at `e6b6ed7`, notes.junxiong.dev at `3886f0d`) 
    dark) and run tier 1 on them (`npx uipack-grade check <url>`), as
    [docs/releases.md](docs/releases.md#moving-a-site-to-a-release) describes.
 
-[Unreleased]: https://github.com/ong6/uipack/compare/v0.7.1...HEAD
+[Unreleased]: https://github.com/ong6/uipack/compare/v0.7.2...HEAD
+[0.7.2]: https://github.com/ong6/uipack/compare/v0.7.1...v0.7.2
 [0.7.1]: https://github.com/ong6/uipack/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/ong6/uipack/compare/v0.6.0...v0.7.0
 [0.4.0]: https://github.com/ong6/uipack/compare/v0.3.0...v0.4.0
