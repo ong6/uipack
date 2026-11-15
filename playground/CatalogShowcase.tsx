@@ -12,21 +12,13 @@ import "../src/slides/slides.css";
 import "../src/presentations/presentations.css";
 import "./presentations.css";
 
-// Each object card opens the scene its still shows (scripts/style-stills.mjs keeps the same
-// subjects): one the direction offers, since a subject keeps only the directions that suit it.
-const objectLinks = {
-  studio: { story: "travel", label: "Open the woodland atlas" },
-  "paper-theatre": { story: "travel", label: "Open the alpine passage" },
-  kinetic: { story: "travel", label: "Open the armillary globe" },
-  cartoon: { story: "tennis", label: "Open the courtside club" },
-  realistic: { story: "reading", label: "Open the quiet chapter" },
-  abstract: { story: "ai", label: "Open the thought lattice" },
-};
+// The 3D card opens the scene its still shows (scripts/style-stills.mjs keeps the same subject).
+const objectLink = { story: "travel", label: "Open the folded atlas" };
 
 type VisualStyle = (typeof visualStyles)[number];
 const technical = visualStyles.find((s) => s.id === "technical")!;
 const mechanism = visualStyles.find((s) => s.id === "mechanism");
-const directions = visualStyles.filter((s) => "variant" in s);
+const ink = visualStyles.find((s) => s.id === "ink");
 
 /** One style or look: its preview drawn by the style itself, what it is, and where it is used. */
 function StyleCard({ style, theme, wide }: { style: VisualStyle; theme: "light" | "dark"; wide?: boolean }) {
@@ -47,11 +39,7 @@ function StyleCard({ style, theme, wide }: { style: VisualStyle; theme: "light" 
         ) : style.id === "mechanism" ? (
           <a href={`/mechanism?theme=${theme}`}>Verification gate machine</a>
         ) : (
-          <a
-            href={`/animations?story=${objectLinks[style.id as keyof typeof objectLinks].story}&variant=${"variant" in style ? style.variant : 0}&theme=${theme}`}
-          >
-            {objectLinks[style.id as keyof typeof objectLinks].label}
-          </a>
+          <a href={`/animations?story=${objectLink.story}&theme=${theme}`}>{objectLink.label}</a>
         )}
       </div>
     </article>
@@ -169,15 +157,12 @@ export function StyleCatalog() {
       <h2 className="style-specs__heading">Illustration looks within Technical</h2>
       <p className="collection-intro">
         An illustration can take one of these looks. They draw the picture only; the page, the slide and the type around it stay
-        Technical. Mechanism draws isometric machines in Technical&rsquo;s palette; each 3D subject offers two or three of the art
-        directions, each with its own models, materials, perspective and motion. The 3D looks also carry their own illustration
-        palettes, outside the Cyanotype UI palette (Studio alone reads it).
+        Technical. Mechanism draws isometric machines in Technical&rsquo;s palette, and every 3D object is drawn in ink line art
+        from the page&rsquo;s own paper, ink and accent.
       </p>
       <div className="style-grid">
         {mechanism && <StyleCard style={mechanism} theme={theme} wide />}
-        {directions.map((style) => (
-          <StyleCard key={style.id} style={style} theme={theme} />
-        ))}
+        {ink && <StyleCard style={ink} theme={theme} wide />}
       </div>
     </section>
   );

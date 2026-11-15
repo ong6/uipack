@@ -51,7 +51,6 @@ const SHELL = [
   "showcase",
   "brand-mark",
   "site-consistency",
-  "gallery",
   "assets-gallery",
   "web",
   "showcase-content",
@@ -80,7 +79,7 @@ const AREAS = [
   ],
   // The sample product's facts and section order: the content guard.
   [/^playground\/tidyFacts/, ["showcase-content", "web"]],
-  [/^src\/objects\//, ["objects", "art-directions", "contact-directions"]],
+  [/^src\/objects\//, ["objects", "ink"]],
   [/^src\/slides\//, ["slides"]],
   [/^src\/browser\/|^assets\//, ["assets"]],
   // The generator of the header mark's landing loop (its keyframes are in playground/showcase.css).
@@ -136,9 +135,10 @@ const AREAS = [
   [/^playground\/(CatalogShowcase|StylePreviews|presentations\.css)/, ["web", "page-audit", "showcase"]],
   // Component demos embedded in their docs pages.
   [/^playground\/(ArticleShowcase|article-showcase)/, ["article"]],
-  [/^playground\/FiguresShowcase/, [...FIGURES, "charts", "assets", "gallery"]],
+  [/^playground\/FiguresShowcase/, [...FIGURES, "charts", "assets"]],
   [/^playground\/(MechanismShowcase|mechanism-showcase)/, ["mechanism"]],
   [/^playground\/(SlideShowcase|slides-showcase)/, ["slides", "objects"]],
+  [/^playground\/(ObjectsShowcase|objects-showcase)/, ["ink"]],
   // The figure geometry check a site runs; geometry.spec runs it on every figure of the diagrams page.
   [/^bin\/(uipack-figure-check|figure-check-cli)/, ["geometry"]],
   // dist/ is built, not committed: what changes the build (and the page that loads it) runs the smoke

@@ -75,13 +75,10 @@
   --ui-band-fill: light-dark(#0b2748, #0b0c0e);
 }
 
-/* A 3D scene's card in dark (the still it shows before WebGL draws, or without it): every art
-   direction's card sits on the site's charcoal, a lighter pool behind the subject, instead of its own
-   night colours (the cartoon and abstract cards are navy). The scene's own world, once WebGL draws
-   it, is the look's. */
-:is(.showcase-frame, .uipack-canvas-dialog) .uipack-object[data-theme="dark"][data-art-direction]:not([data-surface="page"]) {
-  --object-bg: var(--ui-surface);
-  background: radial-gradient(ellipse at 50% 38%, var(--ui-surface-2), var(--ui-paper));
+/* A 3D scene's stage in dark sits on the site's charcoal: the paper its faces take (and the stage's
+   ground) is the site's surface, so the drawing and its card are one ground. */
+:is(.showcase-frame, .uipack-canvas-dialog) .uipack-object[data-theme="dark"]:not([data-surface="page"]) {
+  --object-paper: var(--ui-surface);
 }
 
 /* The frame's text is the site's ink. <body> holds Technical's roles (index.html), so the colour it

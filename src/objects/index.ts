@@ -1,22 +1,7 @@
-// uipack/objects: lazy 3D objects, their curated variations, the gallery and the inspector.
-// Every export is listed by name, so a new module cannot shadow or collide with an existing name.
-export { ObjectDirectionPicker, ObjectScene, objectPalettes, type ObjectSceneProps } from "./ObjectScene";
+// uipack/objects: lazy 3D object scenes, each drawn in ink line art in the page's own colours, the
+// player and the gallery. Every export is listed by name, so a new module cannot shadow or collide
+// with an existing name.
+export { ObjectScene, type ObjectSceneProps } from "./ObjectScene";
 export { objectScenes } from "./scene-list";
-export { AnimationWorkspace, ObjectGallery, ObjectInspector } from "./gallery";
-export {
-  chooseObjectVariant,
-  directionSymbols,
-  hasObjectLook,
-  normalizeObjectVariant,
-  objectDirectionIndex,
-  objectDirections,
-  objectEditions,
-  objectLooks,
-  objectVariants,
-  parseObjectVariant,
-  transferObjectVariant,
-  type KindWithLook,
-  type ObjectEdition,
-  type ObjectVariant,
-} from "./variants";
-export type { ObjectKind, ObjectPalette } from "./scenes";
+export { AnimationWorkspace, ObjectGallery } from "./gallery";
+export type { ObjectKind } from "./scenes";

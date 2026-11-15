@@ -1,11 +1,12 @@
-import type { ObjectVariant } from "./variants";
+// The trading subject's synthetic, repeating market: consistent open, high, low and close per bar
+// and its volume. Illustrative only; no live data.
 export const MARKET_BARS = 64;
 export const MARKET_BAR_MS = 480;
 export const MARKET_LOOP_MS = MARKET_BARS * MARKET_BAR_MS;
-export function marketBar(index: number, variant: ObjectVariant = 0) {
+export function marketBar(index: number) {
   const closeAt = (i: number) => {
     const t = ((((i % MARKET_BARS) + MARKET_BARS) % MARKET_BARS) * Math.PI * 2) / MARKET_BARS;
-    return 100 + 1.65 * Math.sin(t + variant) + 0.65 * Math.sin(t * 7 + variant * 0.6) + 0.28 * Math.sin(t * 13);
+    return 100 + 1.65 * Math.sin(t) + 0.65 * Math.sin(t * 7) + 0.28 * Math.sin(t * 13);
   };
   const open = closeAt(index - 1),
     close = closeAt(index);

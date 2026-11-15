@@ -312,7 +312,7 @@ function hasWebGL() {
 }
 
 /**
- * The 3D tile: the Studio travel scene (uipack/objects), mounted only once the tile is on screen,
+ * The 3D tile: the travel scene in ink line art (uipack/objects), mounted only once the tile is on screen,
  * with WebGL and motion allowed; otherwise a still of the same scene and look
  * (playground/assets/styles, scripts/style-stills.mjs). Its own Pause stays usable.
  */
@@ -324,7 +324,7 @@ function ScenePreview({ theme }: { theme: Theme }) {
   // "On screen": a third of the tile showing, with no margin and no idle-time mount.
   const { ref, near } = useNearViewport<HTMLDivElement>({ inert: false, idle: false, margin: "0px", threshold: 0.35 });
   const mode = stillOnly ? "still" : near ? "live" : "waiting";
-  const still = new URL(`./assets/styles/studio-${theme}.jpg`, import.meta.url).href;
+  const still = new URL(`./assets/styles/ink-${theme}.jpg`, import.meta.url).href;
   return (
     <div ref={ref} className="landing-scene" data-scene={mode}>
       {mode === "live" ? (

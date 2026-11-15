@@ -1,11 +1,10 @@
 // Data-only modules, not the uipack/objects barrel: this file is in the playground's entry chunk.
-import { objectDirections } from "../src/objects/variants";
 import { objectScenes } from "../src/objects/scene-list";
 import { docsManifest, docsSections, type DocsPageEntry, type DocsSectionId } from "./docs-manifest";
 import { figureRows } from "./figure-rows";
 /**
  * Content type and visual style are independent axes. Technical is the one style (pages, documents,
- * slides, figures); Mechanism and the 3D art directions are illustration looks drawn within it.
+ * slides, figures); Mechanism and the 3D objects' ink line art are illustration looks drawn within it.
  * Register them here, never fork the shell.
  */
 export const visualStyles = [
@@ -25,19 +24,14 @@ export const visualStyles = [
     tokens: "src/mechanism/mechanism.css",
     guidance: "docs/mechanism.md",
   },
-  ...objectDirections.map((direction, variant) => ({
-    id: direction.id,
-    name: direction.name,
-    description: direction.description,
-    tokens:
-      variant === 0
-        ? "src/objects/objects.css"
-        : variant < 3
-          ? "src/objects/art-directions.ts"
-          : "src/objects/expanded-directions.ts",
+  {
+    id: "ink",
+    name: "Ink line art",
+    description:
+      "The one 3D look: a single physical object per subject floating on the page, drawn as a line drawing. Faces in the page's paper tone, a constant-width ink silhouette and crease lines, one accent part; dark mode draws light lines on a slightly lifted ground.",
+    tokens: "src/objects/objects.css",
     guidance: "docs/objects.md",
-    variant,
-  })),
+  },
 ] as const;
 
 /**

@@ -4,8 +4,8 @@
 // in docs/system/layout/README.md and docs/components/README.md from it. Plain data, no imports, so
 // it ships beside check-spec.ts and runs from node_modules/uipack in a site.
 //
-// test/specs.test.tsx keeps it true to the code: the 3D looks are `objectDirections` in
-// src/objects/variants.ts, and every archetype's file exists.
+// test/specs.test.tsx keeps it true to the code: the one 3D look is the ink line art every object
+// scene draws (src/objects/ink.ts), and every archetype's file exists.
 
 /** A kind of page a site can have; a spec lists the ones it uses (`pages:`). */
 export interface PageType {
@@ -128,7 +128,7 @@ export interface Component {
   /** The component doc: its looks in full, and for a fixed look the table of values it fixes. */
   readonly doc: string;
   readonly members: string;
-  /** Whether a spec picks one look (`diagrams: blueprint`) or several (`3d: [studio, realistic]`). */
+  /** Whether a spec picks one look (`diagrams: blueprint`) or several (`looks: [a, b]`). */
   readonly pick: "one" | "several";
   readonly looks: readonly ComponentLook[];
 }
@@ -167,49 +167,16 @@ export const COMPONENTS = [
     name: "3D object scenes",
     doc: "docs/components/3d.md",
     members: "`ObjectScene` and its player (`uipack/objects`)",
-    pick: "several",
+    pick: "one",
     looks: [
       {
-        id: "studio",
-        name: "Studio objects",
+        id: "ink",
+        name: "Ink line art",
         mode: "flex",
-        fixed: "Product photography: one object on a seamless sweep, one lens family, shaped key, real shadow",
-        takes: "Night room from the ink, rim from the accent; a `palette` prop overrides both",
-      },
-      {
-        id: "paper-theatre",
-        name: "Paper worlds",
-        mode: "fixed",
-        fixed: "Cut-card toy theatres, viridian and persimmon frames on cream, one warm lantern",
-        takes: "Light or dark only",
-      },
-      {
-        id: "kinetic",
-        name: "Kinetic sculptures",
-        mode: "fixed",
-        fixed: "Brass armatures, glazed stoneware, slate bases, a gallery spot at night",
-        takes: "Light or dark only",
-      },
-      {
-        id: "cartoon",
-        name: "Cartoon worlds",
-        mode: "fixed",
-        fixed: "Floating toy islands, toon ramp, day and night palettes of their own",
-        takes: "Light or dark only",
-      },
-      {
-        id: "realistic",
-        name: "Realistic close-ups",
-        mode: "fixed",
-        fixed: "Macro still lifes on real surfaces, depth of field, window light by day, a desk lamp at night",
-        takes: "Light or dark only",
-      },
-      {
-        id: "abstract",
-        name: "Abstract forms",
-        mode: "fixed",
-        fixed: "Refractive glass in front of lacquer bars, a spectral caustic",
-        takes: "Light or dark only",
+        fixed:
+          "One physical object per subject floating on the page: unlit faces, a 2px ink silhouette and 1px crease lines at every size, one accent part; no lights, shadow maps or photographic textures",
+        takes:
+          "Paper (the faces), ink (the lines) and accent (the one accent part) from the page's roles, re-read on every theme change",
       },
     ],
   },

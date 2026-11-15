@@ -1280,7 +1280,7 @@ html:has(.showcase-frame:not([data-banner="static"])) {
   opacity: 0.4;
   cursor: default;
 }
-.showcase-shell :is(.catalog-filters select, .uipack-edition-select select) {
+.showcase-shell .catalog-filters select {
   appearance: none;
   -webkit-appearance: none;
   min-height: 44px;
@@ -1293,10 +1293,10 @@ html:has(.showcase-frame:not([data-banner="static"])) {
   font: var(--show-control-font);
   cursor: pointer;
 }
-:root[data-theme="dark"] .showcase-shell :is(.catalog-filters select, .uipack-edition-select select) {
+:root[data-theme="dark"] .showcase-shell .catalog-filters select {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 4.5 6 8l3.5-3.5' fill='none' stroke='%239aa39e' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 }
-.showcase-shell :is(.catalog-filters select, .uipack-edition-select select):hover {
+.showcase-shell .catalog-filters select:hover {
   border-color: var(--show-ink);
 }
 /* Controls inside a stage frame: the machine's Pause. The same mono as the figure's own
@@ -1310,17 +1310,11 @@ html:has(.showcase-frame:not([data-banner="static"])) {
   font: var(--show-control-font);
   border-radius: var(--show-control-radius);
 }
-/* The 3D library's scene list and art-direction cards are option tiles, not controls: the shell
-   sans, deliberately, with the control radius. */
+/* The 3D library's scene list is option tiles, not controls: the shell sans, deliberately, with the
+   control radius. */
 .showcase-shell .uipack-scene-list button {
   font-family: var(--show-font-sans);
   border-radius: var(--show-control-radius);
-}
-.showcase-shell .uipack-direction-list button {
-  border-radius: var(--show-control-radius);
-}
-.showcase-shell .uipack-direction-list :is(strong, small) {
-  font-family: var(--show-font-sans);
 }
 /* Inline code in shell copy (intros, notes, usage) is the shell mono, never the UA's generic
    monospace. Zero specificity: a style's own code rule (docs prose, the /web sample) still wins. */

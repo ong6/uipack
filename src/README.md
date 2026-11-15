@@ -11,7 +11,7 @@
 - `CanvasView.tsx` and `canvas.css`: shared modal canvas workspace. Build appends its CSS to both distributed theme files.
 - `presets/`: typed SVG scene builders with wide and narrow drawings.
 - `slides/`: optional Three.js/GSAP animations; public compatibility entry `uipack/slides`.
-- `objects/`: lazy procedural and Blender-authored objects, curated variations, accessible playback, and fallback illustrations (`uipack/objects`).
+- `objects/`: lazy procedural 3D subjects drawn in ink line art (`ink.ts`, contract in `objects/LOOK.md`), accessible playback, and fallback illustrations (`uipack/objects`).
 - `presentations/`: generic Opening, Explanation, and System slide layouts with speaker guides and SVG output (`uipack/presentations`).
 - `deck/`: the deck player (`uipack/deck`, `uipack/deck.css`): `DeckPlayer`, slide parts (`parts.tsx`, `bento.tsx`), transitions (`transitions.ts`), the storyline checks (`storyline.ts`, a barrel over `storyline/`: roles, templates, rules, heuristics, checks, ghost deck) and the consulting slides and charts (`consulting/`). See [deck](../docs/deck.md) and [consulting slides](../docs/deck-consulting.md).
 - `browser/`: searchable asset browser.

@@ -1,224 +1,218 @@
-import { readFileSync } from "node:fs";
-import { describe, it, expect, vi, afterEach, beforeEach } from "vitest";
+import { describe, it, expect, vi, afterEach } from "vitest";
 import { render, screen } from "@testing-library/react";
-import { Box3, Vector3 } from "three";
-import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import * as THREE from "three";
 import { createObject, disposeObject, type ObjectKind } from "../src/objects/scenes";
-import {
-  ObjectScene,
-  objectPalettes,
-  objectScenes,
-  chooseObjectVariant,
-  objectLooks,
-  objectVariants,
-  normalizeObjectVariant,
-  transferObjectVariant,
-  type ObjectVariant,
-} from "../src/objects";
-// Studio tennis loads its model by URL (src/package-assets.ts). jsdom cannot fetch it, so parse the
-// packaged file from disk; the test still checks the URL it was asked for.
-const modelFile = readFileSync("assets/objects/tennis-return.glb");
-const loadedUrls: string[] = [];
-beforeEach(() => {
-  loadedUrls.length = 0;
-  vi.spyOn(GLTFLoader.prototype, "loadAsync").mockImplementation(function (this: GLTFLoader, url: string) {
-    loadedUrls.push(url);
-    return this.parseAsync(Uint8Array.from(modelFile).buffer, ""); // an ArrayBuffer from this realm, as GLTFLoader checks
-  });
-});
+import { inkify, inkRoleOf, INK_BUILD_PALETTE, type InkRole } from "../src/objects/ink";
+import { paceFrame } from "../src/objects/mount";
+import { ObjectScene, objectScenes } from "../src/objects";
+import * as objects from "../src/objects";
+
 afterEach(() => vi.restoreAllMocks());
 const drawingContext = () =>
-  ({
-    fillText() {},
-    fillRect() {},
-    beginPath() {},
-    moveTo() {},
-    lineTo() {},
-    stroke() {},
-    save() {},
-    restore() {},
-    rect() {},
-    clip() {},
-  }) as unknown as CanvasRenderingContext2D;
-describe("authored object animation envelopes", () => {
-  it("can select every look a kind offers, and only those, with controlled randomness", () => {
-    expect([0, 0.34, 0.67, 0.99].map((value) => chooseObjectVariant("ai", () => value))).toEqual([2, 5, 3, 3]);
-    expect([0, 0.5, 0.99].map((value) => chooseObjectVariant("server", () => value))).toEqual([4, 0, 0]);
-    // Another look steps on through the kind's list and wraps.
-    expect([0, 1, 2, 3].map((step) => chooseObjectVariant("travel", () => 0.5, step))).toEqual([1, 2, 0, 1]);
-  });
-  it("each kind names exactly its looks, two to four of them, and falls back to its default", () => {
-    for (const kind of Object.keys(objectLooks) as ObjectKind[]) {
-      const looks = objectLooks[kind];
-      expect(looks.length).toBeGreaterThanOrEqual(2);
-      expect(looks.length).toBeLessThanOrEqual(4);
-      expect(Object.keys(objectVariants[kind]).map(Number).sort()).toEqual([...looks].sort());
-      for (const variant of [0, 1, 2, 3, 4, 5] as ObjectVariant[])
-        expect(normalizeObjectVariant(kind, variant)).toBe(looks.includes(variant) ? variant : looks[0]);
-    }
-    // The website's older picks: reading Kinetic and server Cartoon are gone, so each shows its default.
-    expect(normalizeObjectVariant("reading", 2)).toBe(4);
-    expect(normalizeObjectVariant("server", 3)).toBe(4);
-    expect(normalizeObjectVariant("contact", 4)).toBe(0);
-    // Switching subjects keeps the direction where the next subject has it.
-    expect(transferObjectVariant("travel", "trading", 2)).toBe(2);
-    expect(transferObjectVariant("travel", "ai", 0)).toBe(2);
-    expect(transferObjectVariant("tennis", "contact", 3)).toBe(3);
-    expect(transferObjectVariant("trading", "contact", 2)).toBe(0);
-    expect(transferObjectVariant("contact", "reading", 3)).toBe(3);
-  });
-  it("builds a kind's default look for a variant it does not offer", async () => {
-    vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue(drawingContext());
-    const object = await createObject("ai", objectPalettes.light, 0);
-    expect(object.userData.variant).toBe(2);
-    expect(object.userData.style).toBe("kinetic");
-    disposeObject(object);
-  });
-  for (const kind of ["ai", "contact", "tennis", "trading", "server", "travel", "reading"] as ObjectKind[]) {
-    for (const variant of objectLooks[kind])
-      it(`${kind} variant ${variant} stays finite, fits the camera through the whole motion, and settles`, async () => {
-        vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue(drawingContext());
-        const object = await createObject(kind, objectPalettes.light, variant);
-        const halfWidth = variant === 4 && kind !== "contact" ? 2.15 : kind === "server" ? 3.25 : 2.65;
-        for (let time = 0; time <= (object.userData.loopDuration ?? 5400); time += 30) {
-          object.userData.animate(time);
-          const box = new Box3().setFromObject(object);
-          expect(Math.max(Math.abs(box.min.x), Math.abs(box.max.x))).toBeLessThan(halfWidth);
-          expect(
-            Math.max(
-              Math.abs(box.min.y + (variant === 4 && kind !== "contact" ? 0.15 : 0)),
-              Math.abs(box.max.y + (variant === 4 && kind !== "contact" ? 0.15 : 0)),
-            ),
-          ).toBeLessThan(variant === 4 && kind !== "contact" ? 1.75 : 2.2);
-        }
-        if (object.userData.loopDuration) {
-          object.userData.animate(0);
-          const start = new Box3().setFromObject(object);
-          object.userData.animate(object.userData.loopDuration);
-          expect(new Box3().setFromObject(object).equals(start)).toBe(true);
-        } else {
-          expect(object.userData.phase).toBe("rest");
-          const pose = new Box3().setFromObject(object);
-          object.userData.animate(9000);
-          expect(new Box3().setFromObject(object).equals(pose)).toBe(true);
-        }
-        disposeObject(object);
-      });
-  }
+  new Proxy(
+    {},
+    { get: (_, name) => (name === "createLinearGradient" ? undefined : () => undefined) },
+  ) as CanvasRenderingContext2D;
+const withCanvas = () => vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue(drawingContext());
+const built = ["contact", "tennis", "trading", "server", "travel"] as const satisfies readonly ObjectKind[];
 
-  for (const kind of ["ai", "tennis", "trading", "server", "travel", "reading"] as ObjectKind[])
-    it(`${kind} directions have different geometry and seamless moving loops`, async () => {
-      vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue(drawingContext());
-      const signatures: string[] = [];
-      for (const variant of objectLooks[kind]) {
-        const object = await createObject(kind, objectPalettes.light, variant);
-        const geometry: number[] = [];
-        object.traverse((item) => {
-          const mesh = item as import("three").Mesh;
-          if (mesh.geometry) geometry.push(mesh.geometry.attributes.position.count);
-        });
-        signatures.push(geometry.join(","));
-        if (variant !== 0) {
-          const snapshot = (time: number) => {
-            object.userData.animate(time);
-            object.updateMatrixWorld(true);
-            const matrices: number[] = [];
-            object.traverse((item) => matrices.push(...item.matrixWorld.elements));
-            return matrices;
-          };
-          // Position and velocity at the wrap, repeated for three entire cycles.
-          for (const offset of [-1, 0, 1, 2100])
-            for (const cycle of [1, 2, 3]) {
-              const first = snapshot(offset),
-                repeated = snapshot(offset + cycle * 12000);
-              expect(Math.max(...first.map((n, i) => Math.abs(n - repeated[i])))).toBeLessThan(1e-8);
-            }
-          const before = snapshot(11999),
-            after = snapshot(12001);
-          expect(Math.max(...before.map((n, i) => Math.abs(n - after[i])))).toBeLessThan(0.02);
-        }
-        disposeObject(object);
+describe("the one style", () => {
+  it("exports only the player, the scene list and the gallery", () => {
+    expect(Object.keys(objects).sort()).toEqual(["AnimationWorkspace", "ObjectGallery", "ObjectScene", "objectScenes"]);
+  });
+
+  it("ai and reading have no subject yet, so they keep their fallback drawing", () => {
+    expect(createObject("ai")).toBeNull();
+    expect(createObject("reading")).toBeNull();
+  });
+
+  for (const kind of built)
+    it(`${kind} stays finite, inside the frame, tags its parts and loops seamlessly`, () => {
+      withCanvas();
+      const object = createObject(kind)!;
+      expect(object.userData.style).toBe("ink");
+      // Every part carries its ink role (on the mesh or its material), so nothing is guessed.
+      object.traverse((item) => {
+        const mesh = item as THREE.Mesh;
+        if (!mesh.isMesh || item.name === "contact-shadow") return;
+        const material = Array.isArray(mesh.material) ? mesh.material[0] : mesh.material;
+        expect(item.userData.inkRole ?? material.userData.inkRole, `${kind} ${mesh.geometry.type}`).toBeDefined();
+      });
+      const span = object.userData.loopDuration ?? object.userData.playDuration;
+      for (let time = 0; time <= span; time += 60) {
+        object.userData.animate(time);
+        const box = new THREE.Box3().setFromObject(object);
+        expect(Math.max(Math.abs(box.min.x), Math.abs(box.max.x)), `${kind} at ${time}`).toBeLessThan(3.25);
+        expect(Math.max(Math.abs(box.min.y), Math.abs(box.max.y)), `${kind} at ${time}`).toBeLessThan(2.4);
       }
-      expect(new Set(signatures).size).toBe(objectLooks[kind].length);
+      const snapshot = (time: number) => {
+        object.userData.animate(time);
+        object.updateMatrixWorld(true);
+        const values: number[] = [];
+        object.traverse((item) => values.push(...item.matrixWorld.elements));
+        return values;
+      };
+      if (object.userData.loopDuration) {
+        const loop = object.userData.loopDuration as number;
+        for (const offset of [0, 1, loop / 3])
+          for (const cycle of [1, 2]) {
+            const first = snapshot(offset),
+              repeated = snapshot(offset + cycle * loop);
+            expect(Math.max(...first.map((n, i) => Math.abs(n - repeated[i])))).toBeLessThan(1e-6);
+          }
+      } else {
+        expect(snapshot(5400)).toEqual(snapshot(9000));
+        expect(object.userData.phase).toBe("rest");
+      }
+      disposeObject(object);
     });
 
-  it("map folds stay connected throughout opening", async () => {
-    vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue(drawingContext());
-    const object = await createObject("travel", objectPalettes.light, 0);
+  it("one accent part: each subject has an accent, and it stays a small share of its meshes", () => {
+    withCanvas();
+    for (const kind of built) {
+      const object = createObject(kind)!;
+      const roles: InkRole[] = [];
+      object.traverse((item) => {
+        const mesh = item as THREE.Mesh;
+        if (!mesh.isMesh || item.name === "contact-shadow") return;
+        for (const m of Array.isArray(mesh.material) ? mesh.material : [mesh.material]) roles.push(inkRoleOf(mesh, m));
+      });
+      const accents = roles.filter((r) => r === "accent").length;
+      expect(accents, kind).toBeGreaterThan(0);
+      expect(accents / roles.length, kind).toBeLessThan(0.35);
+      disposeObject(object);
+    }
+  });
+
+  it("map folds stay connected throughout opening", () => {
+    withCanvas();
+    const object = createObject("travel")!;
     for (let t = 0; t <= 1700; t += 40) {
       object.userData.animate(t);
       object.updateMatrixWorld(true);
       const [left, center, right] = object.userData.mapFolds;
       for (const y of [-1.225, 1.225]) {
-        expect(left.localToWorld(new Vector3(0, y, 0)).distanceTo(center.localToWorld(new Vector3(-0.615, y, 0)))).toBeLessThan(
-          0.00001,
-        );
-        expect(right.localToWorld(new Vector3(0, y, 0)).distanceTo(center.localToWorld(new Vector3(0.615, y, 0)))).toBeLessThan(
-          0.00001,
-        );
+        expect(
+          left.localToWorld(new THREE.Vector3(0, y, 0)).distanceTo(center.localToWorld(new THREE.Vector3(-0.615, y, 0))),
+        ).toBeLessThan(1e-5);
+        expect(
+          right.localToWorld(new THREE.Vector3(0, y, 0)).distanceTo(center.localToWorld(new THREE.Vector3(0.615, y, 0))),
+        ).toBeLessThan(1e-5);
       }
     }
     disposeObject(object);
   });
-  it("tennis ball meets the racket face at the strike", async () => {
-    vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue({
-      fillText() {},
-      fillRect() {},
-    } as unknown as CanvasRenderingContext2D);
-    const object = await createObject("tennis", objectPalettes.light, 0);
-    expect(loadedUrls).toHaveLength(1);
-    expect(loadedUrls[0]).toMatch(/\/assets\/objects\/tennis-return\.glb$/);
-    for (let i = 0; i < 2; i++) {
-      object.userData.animate(object.userData.contactTimes[i]);
+
+  it("tennis is built in code, and its ball meets the strings at each strike", () => {
+    const object = createObject("tennis")!;
+    expect(object.userData.source).toBeUndefined();
+    for (const time of object.userData.contactTimes as number[]) {
+      object.userData.animate(time);
       object.updateMatrixWorld(true);
-      const ball = object.userData.ball.getWorldPosition(new Vector3());
-      const racket = object.userData.rackets[i].localToWorld(object.userData.racketContact.clone());
+      const ball = object.userData.ball.getWorldPosition(new THREE.Vector3());
+      const racket = object.userData.racket.localToWorld(object.userData.racketContact.clone());
       expect(ball.distanceTo(racket)).toBeLessThan(0.001);
     }
-    object.userData.animate(5999);
-    const before = object.userData.ball.getWorldPosition(new Vector3());
-    object.userData.animate(6001);
-    const after = object.userData.ball.getWorldPosition(new Vector3());
-    expect(before.distanceTo(after)).toBeLessThan(0.01);
     disposeObject(object);
   });
 
-  it("tennis loads the packaged model by default and a modelUrl override instead", async () => {
-    vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue({
-      fillText() {},
-      fillRect() {},
-    } as unknown as CanvasRenderingContext2D);
-    disposeObject(await createObject("tennis", objectPalettes.light, 0, 1, "https://cdn.example/tennis.glb"));
-    // Cartoon and Realistic tennis are procedural and fetch nothing.
-    disposeObject(await createObject("tennis", objectPalettes.light, 3, 0, "https://cdn.example/tennis.glb"));
-    disposeObject(await createObject("tennis", objectPalettes.light, 4, 0, "https://cdn.example/tennis.glb"));
-    expect(loadedUrls).toEqual(["https://cdn.example/tennis.glb"]);
-  });
-
-  it("contact converges three distinct routes into one settled inbox", async () => {
-    vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue({
-      fillText() {},
-      fillRect() {},
-    } as unknown as CanvasRenderingContext2D);
-    const object = await createObject("contact", objectPalettes.light, 0);
+  it("contact converges three distinct routes into one settled inbox", () => {
+    const object = createObject("contact")!;
     const { inboxPoint, routes, packets, receipts } = object.userData.contact;
     expect(routes).toHaveLength(3);
-    expect(packets).toHaveLength(3);
-    expect(receipts).toHaveLength(3);
-    for (const route of routes) expect(route.getPoint(1).distanceTo(inboxPoint as Vector3)).toBeLessThan(0.0001);
-    expect(receipts.every((receipt: { scale: Vector3 }) => receipt.scale.x < 0.01)).toBe(true);
-
+    for (const route of routes) expect(route.getPoint(1).distanceTo(inboxPoint as THREE.Vector3)).toBeLessThan(0.0001);
+    expect(receipts.every((receipt: THREE.Object3D) => receipt.scale.x < 0.01 && !receipt.visible)).toBe(true);
     object.userData.animate(5400);
     expect(object.userData.phase).toBe("rest");
-    expect(receipts.every((receipt: { scale: Vector3 }) => receipt.scale.x === 1)).toBe(true);
-    expect(packets.every((packet: { scale: Vector3 }) => packet.scale.x < 0.01)).toBe(true);
+    expect(receipts.every((receipt: THREE.Object3D) => receipt.scale.x === 1 && receipt.visible)).toBe(true);
+    expect(packets.every((packet: THREE.Object3D) => !packet.visible)).toBe(true);
     disposeObject(object);
   });
+});
 
-  it("exports contact metadata and a labelled non-WebGL fallback", () => {
-    expect(objectScenes.find((scene) => scene.id === "contact")).toMatchObject({
-      title: "Contact inbox",
-    });
+describe("the ink renderer", () => {
+  const part = (role?: InkRole, color?: number) => {
+    const mesh = new THREE.Mesh(new THREE.BoxGeometry(), new THREE.MeshBasicMaterial({ color: color ?? 0xffffff }));
+    if (role) mesh.userData.inkRole = role;
+    return mesh;
+  };
+
+  it("a part's inkRole decides its tone; only untagged parts are read from their colour", () => {
+    expect(inkRoleOf(part("dark", INK_BUILD_PALETTE.accent), part("dark").material as THREE.Material)).toBe("dark");
+    const accent = part(undefined, INK_BUILD_PALETTE.accent);
+    expect(inkRoleOf(accent, accent.material as THREE.Material)).toBe("accent");
+    const graphite = part(undefined, 0x1b1e1e);
+    expect(inkRoleOf(graphite, graphite.material as THREE.Material)).toBe("shade");
+    const light = part(undefined, 0xc9ccc6);
+    expect(inkRoleOf(light, light.material as THREE.Material)).toBe("paper");
+    const tagged = new THREE.MeshBasicMaterial();
+    tagged.userData.inkRole = "accent";
+    expect(inkRoleOf(new THREE.Mesh(new THREE.BoxGeometry(), tagged), tagged)).toBe("accent");
+  });
+
+  it("merges static parts per role, restyles moving ones in place, and recolours without new materials", () => {
+    const root = new THREE.Group();
+    const spinner = part("accent");
+    root.add(part("paper"), part("paper").translateX(2), part("shade").translateX(-2), spinner);
+    root.userData.loopDuration = 1000;
+    root.userData.animate = (t: number) => (spinner.rotation.z = (t / 1000) * Math.PI * 2);
+    const scene = inkify(root, { paper: 0xffffff, ink: 0x000000, accent: 0x0000ff });
+    const fills = root.children.filter((c) => c.name.startsWith("ink-"));
+    expect(fills.map((f) => f.name).sort()).toEqual(["ink-paper", "ink-shade"]);
+    // Each merged fill carries a silhouette and its crease lines.
+    for (const fill of fills) expect(fill.children.map((c) => c.name).sort()).toEqual(["ink-crease", "ink-silhouette"]);
+    expect((spinner.material as unknown as THREE.ShaderMaterial).name).toBe("ink-fill-accent");
+    const paper = fills.find((f) => f.name === "ink-paper") as THREE.Mesh;
+    const uniform = (paper.material as THREE.ShaderMaterial).uniforms.color.value as THREE.Color;
+    expect(uniform.getHex(THREE.SRGBColorSpace)).toBe(0xffffff);
+    // Dark page: the paper is darker than the ink, so faces lift a little off the page.
+    scene.setColors({ paper: 0x151311, ink: 0xf2ece3, accent: 0x9ab6ff });
+    expect((paper.material as THREE.ShaderMaterial).uniforms.color.value).toBe(uniform);
+    expect(uniform.getHex(THREE.SRGBColorSpace)).not.toBe(0x151311);
+    expect(new THREE.Color(0x151311).getHex()).toBeLessThan(uniform.getHex());
+  });
+
+  it("builder lines become fat ink lines that never set the framing", () => {
+    const root = new THREE.Group();
+    const line = new THREE.LineSegments(
+      new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(1, 0, 0)]),
+      new THREE.LineBasicMaterial(),
+    );
+    line.userData.inkWidth = 0.75;
+    root.add(line);
+    inkify(root);
+    const fat = root.children[0] as THREE.Mesh;
+    expect((fat as unknown as { isLineSegments2: boolean }).isLineSegments2).toBe(true);
+    expect(fat.userData.frameIgnore).toBe(true);
+    expect((fat.material as unknown as { linewidth: number }).linewidth).toBe(0.75);
+  });
+});
+
+describe("frame pacing", () => {
+  const paints = (refresh: number, interval: number, ms = 1000) => {
+    let last = -Infinity,
+      count = 0;
+    for (let t = 0; t < ms; t += 1000 / refresh) {
+      const next = paceFrame(last, t, interval);
+      if (next !== null) {
+        last = next;
+        count++;
+      }
+    }
+    return count;
+  };
+  it("caps a desktop at 60 a second on a 120 Hz display, evenly, and leaves 60 Hz alone", () => {
+    expect(paints(120, 1000 / 60)).toBeGreaterThanOrEqual(59);
+    expect(paints(120, 1000 / 60)).toBeLessThanOrEqual(61);
+    expect(paints(60, 1000 / 60)).toBeGreaterThanOrEqual(59);
+    expect(paints(120, 1000 / 30)).toBeLessThanOrEqual(31);
+    expect(paints(60, 1000 / 30)).toBeGreaterThanOrEqual(29);
+  });
+});
+
+describe("the player", () => {
+  it("exports metadata and a labelled non-WebGL fallback", () => {
+    expect(objectScenes.map((s) => s.id)).toEqual(["ai", "contact", "tennis", "trading", "server", "travel", "reading"]);
     render(
       <div style={{ height: 320 }}>
         <ObjectScene kind="contact" label="Contact inbox" active={false} />
@@ -226,12 +220,13 @@ describe("authored object animation envelopes", () => {
     );
     expect(screen.getByRole("img", { name: "Contact inbox illustration" })).toBeInTheDocument();
     expect(document.querySelector("canvas")).toBeNull();
+    expect(document.querySelector('.uipack-object[data-art-direction="ink"]')).toBeInTheDocument();
   });
 
   it("holds a preloaded scene's canvas while inactive, with no playback control", () => {
     render(
       <div style={{ height: 320 }}>
-        <ObjectScene kind="reading" label="Reading" active={false} preload controls="playback" />
+        <ObjectScene kind="ai" label="Agent session" active={false} preload controls="playback" />
       </div>,
     );
     expect(document.querySelector("canvas")).toBeInTheDocument();
@@ -242,48 +237,23 @@ describe("authored object animation envelopes", () => {
   it("offers a playback-only mode for compact consumer embeds", () => {
     render(
       <div style={{ height: 320 }}>
-        <ObjectScene kind="reading" label="Reading" active={false} controls="playback" />
+        <ObjectScene kind="ai" label="Agent session" active={false} controls="playback" />
       </div>,
     );
     expect(screen.queryByRole("button", { name: "Open canvas" })).toBeNull();
-    expect(screen.queryByRole("button", { name: "Another look" })).toBeNull();
     expect(document.querySelector('[data-controls="playback"]')).toBeInTheDocument();
   });
-});
 
-// Each WebGL mount listens for context loss once, so the listener count is the number of renderers built.
-it("keys the WebGL scene on palette values, so an inline palette does not rebuild it on every render", () => {
-  const listen = vi.spyOn(HTMLCanvasElement.prototype, "addEventListener");
-  const mounts = () => listen.mock.calls.filter(([type]) => type === "webglcontextlost").length;
-  const scene = (accent: number) => (
-    <ObjectScene kind="server" label="Server" variant={4} palette={{ ...objectPalettes.dark, accent }} />
-  );
-  const { rerender } = render(scene(0x71bda3));
-  expect(mounts()).toBe(1);
-  rerender(scene(0x71bda3));
-  rerender(scene(0x71bda3));
-  expect(mounts()).toBe(1);
-  rerender(scene(0x205f49));
-  expect(mounts()).toBe(2);
-});
-
-it("contact's post office repeats continuously across three cycles", async () => {
-  const object = await createObject("contact", objectPalettes.light, 3);
-  const snapshot = (time: number) => {
-    object.userData.animate(time);
-    object.updateMatrixWorld(true);
-    const values: number[] = [];
-    object.traverse((item) => values.push(...item.matrixWorld.elements));
-    return values;
-  };
-  for (const offset of [-1, 0, 1, 3600])
-    for (const cycle of [1, 2, 3]) {
-      const first = snapshot(offset),
-        repeat = snapshot(offset + cycle * 12000);
-      expect(Math.max(...first.map((n, i) => Math.abs(n - repeat[i])))).toBeLessThan(1e-8);
-    }
-  const before = snapshot(11999),
-    after = snapshot(12001);
-  expect(Math.max(...before.map((n, i) => Math.abs(n - after[i])))).toBeLessThan(0.02);
-  disposeObject(object);
+  // Each mount listens for context loss once, so the listener count is the number of scenes built.
+  // (AI has no subject yet, so jsdom never tries to open a WebGL context.)
+  it("a theme change recolours the scene in place instead of rebuilding it", () => {
+    const listen = vi.spyOn(HTMLCanvasElement.prototype, "addEventListener");
+    const mounts = () => listen.mock.calls.filter(([type]) => type === "webglcontextlost").length;
+    const scene = (theme: "light" | "dark") => <ObjectScene kind="ai" label="Agent session" theme={theme} />;
+    const { rerender } = render(scene("light"));
+    expect(mounts()).toBe(1);
+    rerender(scene("dark"));
+    rerender(scene("light"));
+    expect(mounts()).toBe(1);
+  });
 });

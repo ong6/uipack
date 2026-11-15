@@ -11,14 +11,6 @@ const ALLOWED: Record<string, { count: number; why: string }> = {
     count: 61,
     why: "Vendored isometric kit (MIT, src/mechanism/kit/LICENSE), kept byte-for-byte; mechanism.css maps its output to roles.",
   },
-  "src/objects/objects.css": {
-    count: 24,
-    why: "Stage gradients of the five non-Studio 3D art directions, each its own style (docs/objects.md); Studio reads roles.",
-  },
-  "src/objects/ObjectScene.tsx": {
-    count: 2,
-    why: "The 2D fallback drawing's up and down candle strokes, data colours of the market-study subject.",
-  },
 };
 
 function files(dir: string): string[] {

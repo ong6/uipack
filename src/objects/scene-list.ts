@@ -19,22 +19,22 @@ export const objectScenes: {
   {
     id: "tennis",
     title: "Tennis practice",
-    description: "Two players trade returns across the net in a continuous rally.",
+    description: "A ball bounces on a racket's strings beside its can, in a continuous loop.",
   },
   {
     id: "trading",
     title: "Trading journal",
-    description: "A continuously panning candlestick chart with consistent OHLC prices and volume. Simulation; no live data.",
+    description: "A market abacus: each bar's wick and bead slide on its rod as the bars tick forward. Simulation; no live data.",
   },
   {
     id: "server",
     title: "Inference study",
-    description: "An exploded hardware study assembles inside a chassis outline.",
+    description: "An inference rack hot-swaps its compute sled while its drives and links blink.",
   },
   {
     id: "travel",
     title: "Local map",
-    description: "A paper map opens and a route traces continuously to its destination.",
+    description: "A folded atlas opens into a tent, a route draws across it and a pin marks the destination.",
   },
   {
     id: "reading",

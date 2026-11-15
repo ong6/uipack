@@ -1,0 +1,56 @@
+/* The object subjects demo: every subject on the page, one playing. */
+.object-subjects {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 24px 20px;
+}
+.object-subjects__tile {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  min-width: 0;
+}
+.object-subjects__stage {
+  height: 260px;
+}
+.object-subjects__tile figcaption {
+  display: grid;
+  gap: 4px;
+}
+.object-subjects__tile button,
+.object-subjects__tile figcaption > span {
+  justify-self: start;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--show-rule);
+  border-radius: var(--show-control-radius);
+  background: transparent;
+  color: var(--show-ink);
+  font: var(--show-control-font);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 140ms ease;
+}
+.object-subjects__tile figcaption > span {
+  display: inline-flex;
+  align-items: center;
+  border-style: dashed;
+  color: var(--show-muted);
+  cursor: default;
+}
+.object-subjects__tile button:hover {
+  border-color: var(--show-ink);
+}
+.object-subjects__tile button[aria-pressed="true"] {
+  border-color: var(--show-accent);
+  color: var(--show-accent);
+}
+.object-subjects__tile button:focus-visible {
+  outline: 2px solid var(--show-accent);
+  outline-offset: 2px;
+}
+.object-subjects__tile small {
+  color: var(--show-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}

@@ -26,7 +26,6 @@ import { figureRows } from "../playground/figure-rows";
 import { LAYER_SECTION_PARTS } from "../examples/articleSectionParts";
 import { docsManifest, docsPages, docsSections, siteRegistry, type DocsPageEntry } from "../playground/docs-manifest";
 import { installLine, tarballUrl as releaseTarball } from "../playground/release";
-import { objectDirections, objectLooks, objectVariants } from "../src/objects/variants";
 import { frontmatter } from "./check-spec";
 import { COMPONENTS, LAYOUT_ARCHETYPES, PAGE_TYPES } from "./site-model";
 import { CORE_ROLES, lightDark, parseValueSet } from "./style-contract";
@@ -388,22 +387,6 @@ export function componentLookList(file: string) {
   ].join("\n");
 }
 
-/** Which 3D looks each subject offers, its default first (objectLooks in src/objects/variants.ts). */
-export function objectLookTable() {
-  const ids = COMPONENTS.find((c) => c.id === "3d")!.looks.map((l) => l.id);
-  const header = `| Subject | ${ids.map((id) => `\`${id}\``).join(" | ")} |`;
-  const rows = Object.entries(objectLooks).map(([kind, variants]) => {
-    const cells = ids.map((id) => {
-      const offered = variants.filter((v) => (kind === "contact" && v < 3 ? "studio" : objectDirections[v].id) === id);
-      if (!offered.length) return "";
-      const first = variants[0] === offered[0] ? " (default)" : "";
-      return `${offered.map((v) => (objectVariants[kind as keyof typeof objectVariants] as Record<number, string>)[v].replace(/^[^·]*·\s*/, "")).join(", ")}${first}`;
-    });
-    return `| ${kind} | ${cells.join(" | ")} |`;
-  });
-  return [header, `| --- |${ids.map(() => " --- |").join("")}`, ...rows].join("\n");
-}
-
 /* ------------------------------------------------------------------ writing guidance */
 
 const dash = (r: readonly number[]) => r.join("–");
@@ -584,7 +567,6 @@ export const generators: Record<string, (file: string) => string> = {
   "layout-archetype": (file) => layoutArchetype(file),
   "component-looks": (file) => componentLooks(file),
   "component-look-list": (file) => componentLookList(file),
-  "object-looks": () => objectLookTable(),
   "title-forms": () => titleForms(),
   "figure-lengths": () => figureLengths(),
   "headline-rule": () => headlineRule(),

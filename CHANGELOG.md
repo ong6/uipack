@@ -7,6 +7,73 @@ release is cut and how a site moves to it.
 
 ## [Unreleased]
 
+Every 3D object is drawn in one style, ink line art, and the other art directions are gone (the
+owner, 2026-11-15: "lets have one style that we stick to and refine"). Scenes paint sooner, recolour
+on a theme change without rebuilding, and a desktop paints at 60 frames a second at most. Props and
+exports are removed, so this is a minor release ([version numbers](docs/releases.md#version-numbers)).
+
+### Added
+
+- **Ink line art** (`src/objects/ink.ts`): unlit faces in the page's paper tone, a constant 2px ink
+  silhouette, 1px crease lines and one accent part per subject; light lines on a slightly lifted
+  ground in dark. No lights, environment map, shadow maps, transmission or post-processing.
+- **Colours from the page's roles:** a scene reads `--object-paper`, `--object-ink` and
+  `--object-accent` on its stage (by default `--ui-surface`, or `--ui-paper` on `surface="page"`,
+  `--ui-ink` and `--ui-accent`), at mount and again whenever the theme changes, so a site that sets
+  its roles gets its own colours with no prop.
+- **A role contract for parts:** a mesh's `userData.inkRole` (`paper`, `shade`, `dark`, `accent`)
+  decides its tone; only untagged parts are read from their colour (`src/objects/LOOK.md`).
+- The canvas reports `data-colors`, `data-programs` and `data-first-paint-ms`; kinds with no subject
+  yet report `data-subject="none"`.
+- `/components/objects` shows every subject at once (the `object-subjects` demo).
+
+### Changed
+
+- **Studio's five subjects are redrawn in ink:** contact, tennis, trading, server and travel.
+  Trading's beads print hollow (rising) or toned (falling), with the newest bar as the accent; the
+  atlas print is ink line work; Contact's labels and icons are lines, with no textured text.
+- **Tennis is built in code:** racket, can, two balls and the bounce loop, with no model download.
+- **A theme change recolours the running scene in place** instead of tearing down and rebuilding
+  its WebGL context.
+- **Desktops paint at most 60 frames a second** (phones keep 30): a 120 Hz display used to paint
+  every frame. Frames are paced evenly (every other frame at 120 Hz).
+- **First paint is faster** (fewer programs, no environment or shadow pass): see
+  [docs/objects.md, Budgets](docs/objects.md#budgets).
+- `ObjectGallery` takes `kind`, `theme` and `onChange(kind)`; it no longer has an inspector.
+- `objectScenes` descriptions follow the redrawn tennis, trading, server and travel subjects.
+- `ai` and `reading` show their labelled 2D drawing until their ink subjects land; they open no
+  WebGL context.
+- The `3d` component has one look, `ink` (`components: { 3d: ink }`); Technical and the docs site
+  pick it.
+
+### Removed
+
+- The Paper, Kinetic, Cartoon, Realistic and Abstract directions, Studio's photographic rendering
+  and its colour editions.
+- `ObjectScene` props `variant`, `edition`, `modelUrl` and `palette`; the "Another look" button and
+  the look caption.
+- Exports `ObjectDirectionPicker`, `ObjectInspector`, `objectPalettes`, `objectDirections`,
+  `objectLooks`, `objectVariants`, `objectEditions`, `directionSymbols`, `chooseObjectVariant`,
+  `normalizeObjectVariant`, `parseObjectVariant`, `transferObjectVariant`, `objectDirectionIndex`,
+  `hasObjectLook`, and the types `ObjectVariant`, `ObjectEdition`, `KindWithLook`, `ObjectPalette`.
+- `assets/objects/tennis-return.glb` and the `uipack/assets/objects/*` export, its Blender script
+  and its loaders (GLTFLoader and the meshopt decoder no longer load).
+- The per-direction stage gradients and the inspector, edition and direction-picker styles in
+  `objects.css`; the `--tune-object-glow` and `--tune-object-edge` hooks.
+
+### Upgrading
+
+- Drop `variant`, `edition`, `modelUrl` and `palette` from every `ObjectScene` (TypeScript flags
+  them; plain JavaScript ignores them).
+- Point the scene's colours at the site's own if they are not its `--ui-*` roles: set
+  `--object-paper`, `--object-ink` and `--object-accent` on `.uipack-object` (on `surface="page"`
+  the paper should be the page's background). Without it a page surface takes `--ui-paper`.
+- Replace imports of the removed exports; `ObjectScene`, `objectScenes`, `ObjectGallery`,
+  `AnimationWorkspace` and the types `ObjectKind` and `ObjectSceneProps` remain.
+- A spec that picks 3D looks writes `3d: ink` (`scripts/check-spec.ts` rejects the old ids).
+- Pages that show `ai` or `reading` show their fallback drawing until those subjects land.
+- Stop copying or serving `tennis-return.glb`.
+
 ## [0.7.2] - 2026-11-15
 
 Two fixes to the scene build queue 0.7.1 added, found on junxiong.dev's Hobbies page under software
