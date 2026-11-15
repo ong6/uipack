@@ -151,7 +151,10 @@ test("modeled tennis keeps painting within the mobile frame budget", async ({ pa
   await page.goto("/animations?story=tennis&variant=0");
   const canvas = page.locator(".uipack-object canvas");
   await expect(canvas).toHaveAttribute("data-source", "blender");
+  // Shaders compile before the first paint; the rate is measured once the scene is painting.
+  await expect(canvas).toHaveAttribute("data-renderer", "webgl");
   await canvas.scrollIntoViewIfNeeded();
+  await expect.poll(async () => Number(await canvas.getAttribute("data-frames"))).toBeGreaterThan(0);
   const start = Number(await canvas.getAttribute("data-frames"));
   const started = Date.now();
   // Wall clock on purpose: this measures paints per second.
@@ -200,6 +203,19 @@ for (const kind of ["tennis", "trading"])
     expect(await canvas.getAttribute("data-frames")).toBe(reduced);
     await expect(page.getByRole("button", { name: /motion$/ })).toHaveCount(0);
   });
+
+test("a preloaded scene is built and painted but does not play or show Pause", async ({ page }) => {
+  await page.goto("/animations?story=ai&variant=2&play=held");
+  const canvas = page.locator(".uipack-object canvas");
+  await canvas.scrollIntoViewIfNeeded();
+  await expect(canvas).toHaveAttribute("data-renderer", "webgl");
+  await expect(canvas).toHaveAttribute("data-ready", "true");
+  await expect(page.locator('.uipack-object[data-active="false"]')).toHaveCount(1);
+  // The loop never starts: no frame is counted, however long it waits.
+  await page.waitForTimeout(650);
+  expect(await canvas.getAttribute("data-frames")).toBeNull();
+  await expect(page.getByRole("button", { name: /motion$/ })).toHaveCount(0);
+});
 
 test("offscreen object playback suspends and resumes without racing forward", async ({ page }) => {
   await page.goto("/animations?story=tennis&variant=0");

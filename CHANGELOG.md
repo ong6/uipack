@@ -7,6 +7,30 @@ release is cut and how a site moves to it.
 
 ## [Unreleased]
 
+## [0.7.1] - 2026-11-15
+
+3D scenes stop stalling the page: shaders compile off the main thread, scenes build one at a time
+with the playing one first, and a page can hold the scenes near the viewport ready. Nothing a site
+wrote has to change, so this is a patch release.
+
+### Added
+
+- **`ObjectScene` `preload`:** builds the scene and paints its first frame while it is not
+  `active`, and keeps it when `active` goes false. A page with several scenes sets it on the ones
+  near the viewport, so a scene is ready before the reader reaches it and no fallback drawing is
+  swapped for a canvas on arrival. Pause shows only while a scene is `active`.
+
+### Fixed
+
+- **`ObjectScene` no longer stalls the page when a scene mounts:** shaders are compiled before the
+  first paint with `compileAsync`, off the main thread where the browser supports it. The first
+  `render` used to compile them synchronously, which froze scrolling for 0.8 to 3 s per Realistic
+  scene on a cold shader cache (measured on junxiong.dev's Hobbies page, Chrome on an M3 Pro).
+- **Scenes build one at a time, the playing one first:** several `ObjectScene`s mounted together
+  used to share the main thread, so the scene on screen waited for its neighbours.
+- **Pause on a Realistic scene:** the chip carries its own paper disc and full ink there. On a
+  page surface it took the page's ink, which disappeared into a dark set.
+
 ## [0.7.0] - 2026-11-13
 
 The docs site holds the basics a multi-page site should: one fluid width with one header on the
@@ -513,7 +537,8 @@ pinned before that (junxiong.dev at `e6b6ed7`, notes.junxiong.dev at `3886f0d`) 
    dark) and run tier 1 on them (`npx uipack-grade check <url>`), as
    [docs/releases.md](docs/releases.md#moving-a-site-to-a-release) describes.
 
-[Unreleased]: https://github.com/ong6/uipack/compare/v0.7.0...HEAD
+[Unreleased]: https://github.com/ong6/uipack/compare/v0.7.1...HEAD
+[0.7.1]: https://github.com/ong6/uipack/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/ong6/uipack/compare/v0.6.0...v0.7.0
 [0.4.0]: https://github.com/ong6/uipack/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/ong6/uipack/compare/v0.2.0...v0.3.0

@@ -21,6 +21,13 @@ export interface ObjectSceneProps {
   kind: ObjectKind;
   label: string;
   active?: boolean;
+  /**
+   * Build the scene and paint its first frame while it is not `active`, and keep it when `active`
+   * goes false, so it is ready before a reader reaches it and plays at once when it turns active.
+   * A page of several scenes sets it on the ones near the viewport. Default false: an inactive
+   * scene shows its fallback drawing and holds no WebGL context.
+   */
+  preload?: boolean;
   theme?: "light" | "dark";
   palette?: ObjectPalette;
   /** Compact embeds can keep playback while leaving gallery controls to the library page. */
@@ -176,6 +183,7 @@ function ObjectStage({
   kind,
   label,
   active = true,
+  preload = false,
   theme = "light",
   palette,
   zoom = 1,
@@ -202,6 +210,8 @@ function ObjectStage({
   // object on every parent render and must not tear down and rebuild the WebGL renderer.
   const paletteKey = palette ? JSON.stringify(palette) : "";
   const resolvedVariant = normalizeObjectVariant(kind, variant === "random" ? objectLooks[kind][0] : variant);
+  // The scene exists while it plays or is held ready; the loop runs only while `active`.
+  const mounted = active || preload;
 
   useEffect(() => {
     flagsRef.current.zoom = zoom;
@@ -220,12 +230,12 @@ function ObjectStage({
   useEffect(() => {
     const flags = flagsRef.current;
     flags.active = active;
-    if (active && !flags.paused && !flags.reduced) sceneRef.current?.draw();
+    if (active && !flags.paused && !flags.reduced) sceneRef.current?.resume();
   }, [active]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!active || !canvas) {
+    if (!mounted || !canvas) {
       setReady(false);
       return undefined;
     }
@@ -256,7 +266,7 @@ function ObjectStage({
       sceneRef.current = null;
       scene.dispose();
     };
-  }, [active, kind, theme, paletteKey, resolvedVariant, edition, modelUrl]);
+  }, [mounted, kind, theme, paletteKey, resolvedVariant, edition, modelUrl]);
 
   const togglePaused = () => {
     const flags = flagsRef.current;
@@ -283,9 +293,9 @@ function ObjectStage({
       data-variant-label={objectVariants[kind][resolvedVariant]}
     >
       <Fallback kind={kind} label={label} />
-      {active && <canvas ref={canvasRef} className={styles.canvas} data-ready={ready ? "true" : "false"} aria-hidden="true" />}
+      {mounted && <canvas ref={canvasRef} className={styles.canvas} data-ready={ready ? "true" : "false"} aria-hidden="true" />}
 
-      {ready && !reduced && (
+      {ready && active && !reduced && (
         <button
           type="button"
           className={styles.pause}

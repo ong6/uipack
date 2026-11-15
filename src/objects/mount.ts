@@ -78,6 +78,54 @@ function disposeScene(scene: import("three").Scene, textures: (material: import(
   });
 }
 
+/**
+ * One scene builds at a time, and a scene that is to play goes ahead of the ones only being held
+ * ready (`preload`). Building is main-thread work (geometry, textures), so three scenes mounted
+ * together would otherwise share it and the one on screen would wait for its neighbours.
+ */
+const buildQueue: { flags: ObjectStageFlags; start: () => void }[] = [];
+let building = false;
+function nextBuild() {
+  if (building || !buildQueue.length) return;
+  const index = Math.max(
+    0,
+    buildQueue.findIndex((entry) => entry.flags.active),
+  );
+  const [entry] = buildQueue.splice(index, 1);
+  building = true;
+  entry.start();
+}
+/** Wait for this scene's turn to build. Returns a `release` to call once, when it has painted or given up. */
+function buildTurn(flags: ObjectStageFlags): { ready: Promise<void>; release: () => void } {
+  let entry: (typeof buildQueue)[number] | undefined;
+  let started = false;
+  let released = false;
+  const ready = new Promise<void>((resolve) => {
+    entry = {
+      flags,
+      start: () => {
+        started = true;
+        resolve();
+      },
+    };
+    buildQueue.push(entry);
+  });
+  nextBuild();
+  return {
+    ready,
+    release: () => {
+      if (released) return;
+      released = true;
+      const index = entry ? buildQueue.indexOf(entry) : -1;
+      if (index >= 0) buildQueue.splice(index, 1);
+      if (!started) return;
+      building = false;
+      // A task later, so a frame can paint between two builds.
+      setTimeout(nextBuild, 0);
+    },
+  };
+}
+
 export function mountObjectScene(canvas: HTMLCanvasElement, options: ObjectSceneOptions): ObjectSceneHandle {
   const { kind, colors, variant, edition, modelUrl, theme, flags, host, onReady, onCompleted, onReplayed, onReducedMotion } =
     options;
@@ -109,7 +157,8 @@ export function mountObjectScene(canvas: HTMLCanvasElement, options: ObjectScene
   };
   canvas.addEventListener("webglcontextlost", handleContextLost);
 
-  Promise.all([import("three"), import("./scenes"), import("./look")])
+  const turn = buildTurn(flags);
+  Promise.all([import("three"), import("./scenes"), import("./look"), turn.ready])
     .then(async ([THREE, { createObject, disposeObject }, look]) => {
       if (disposed) return;
       materialTextures = look.materialTextures;
@@ -243,17 +292,19 @@ export function mountObjectScene(canvas: HTMLCanvasElement, options: ObjectScene
             frame = requestAnimationFrame(render);
           }
         };
-        loaded.settle = () => {
+        // Handed to the stage only after the shaders are compiled (below), so nothing paints before.
+        const controls: typeof loaded = {};
+        controls.settle = () => {
           if (!restPainted) paint(restTime, performance.now());
         };
-        loaded.draw = () => {
+        controls.draw = () => {
           if (!frame && !disposed) frame = requestAnimationFrame(render);
         };
-        loaded.resume = () => {
+        controls.resume = () => {
           lastTickAt = undefined;
           loaded.draw?.();
         };
-        loaded.replay = () => {
+        controls.replay = () => {
           elapsed = 0;
           lastTickAt = undefined;
           lastPaintAt = -Infinity;
@@ -262,7 +313,7 @@ export function mountObjectScene(canvas: HTMLCanvasElement, options: ObjectScene
           onReplayed();
           loaded.draw?.();
         };
-        const resize = () => {
+        const frameCamera = () => {
           const width = canvas.clientWidth || 1;
           const height = canvas.clientHeight || 1;
           gl.setSize(width, height, false);
@@ -286,9 +337,22 @@ export function mountObjectScene(canvas: HTMLCanvasElement, options: ObjectScene
           camera.zoom = flags.zoom;
           camera.updateProjectionMatrix();
           backdrop?.fit();
+        };
+        const resize = () => {
+          frameCamera();
           gl.render(world, camera);
         };
-        loaded.resize = resize;
+        // Compile every shader before the first paint, off the main thread where the browser can
+        // (KHR_parallel_shader_compile). A first `render` compiles them synchronously instead: on
+        // a cold shader cache that froze the page for 0.8 to 3 s per Realistic scene (11 programs
+        // on an M3 Pro), which a reader met as a stall on scrolling to it.
+        frameCamera();
+        await gl.compileAsync(world, camera);
+        if (disposed || contextLost) {
+          disposeObject(object);
+          return;
+        }
+        Object.assign(loaded, controls, { resize });
         resizeObserver = new ResizeObserver(resize);
         resizeObserver.observe(canvas);
         viewportObserver = new IntersectionObserver(([entry]) => {
@@ -305,7 +369,7 @@ export function mountObjectScene(canvas: HTMLCanvasElement, options: ObjectScene
         canvas.dataset.renderer = "webgl";
         onReady(true);
         if (flags.reduced) render();
-        else if (flags.active) loaded.draw();
+        else if (flags.active) loaded.draw?.();
       } catch {
         canvas.dataset.renderer = "fallback";
       }
@@ -315,7 +379,8 @@ export function mountObjectScene(canvas: HTMLCanvasElement, options: ObjectScene
         canvas.dataset.renderer = "fallback";
         onReady(false);
       }
-    });
+    })
+    .finally(turn.release);
 
   const visibility = () => {
     if (!document.hidden && !flags.paused && !flags.completed && !flags.reduced) loaded.resume?.();
@@ -332,6 +397,7 @@ export function mountObjectScene(canvas: HTMLCanvasElement, options: ObjectScene
     dispose: () => {
       document.removeEventListener("visibilitychange", visibility);
       disposed = true;
+      turn.release();
       for (const name of Object.keys(loaded) as (keyof typeof loaded)[]) delete loaded[name];
       canvas.removeEventListener("webglcontextlost", handleContextLost);
       stop();

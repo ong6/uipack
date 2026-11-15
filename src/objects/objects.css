@@ -129,6 +129,15 @@
   border-color: color-mix(in srgb, currentColor 45%, transparent);
   background: color-mix(in srgb, var(--object-bg, var(--ui-surface)) 82%, transparent);
 }
+/* A full-frame look (Realistic's set fills the canvas) puts Pause on the picture, where the page's
+   ink can vanish into a dark set. There the chip carries its own paper disc and full ink. */
+.uipack-object[data-art-direction="realistic"] .uipack-object__motion::before {
+  border-color: color-mix(in srgb, currentColor 30%, transparent);
+  background: color-mix(in srgb, var(--tune-object-paper, var(--ui-surface)) 86%, transparent);
+}
+.uipack-object[data-art-direction="realistic"] .uipack-object__motion svg {
+  color: currentColor;
+}
 .uipack-object__motion:focus-visible,
 .uipack-object-open:focus-visible {
   outline: 2px solid currentColor;

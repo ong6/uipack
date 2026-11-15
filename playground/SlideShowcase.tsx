@@ -25,6 +25,9 @@ import { keepFocusedInView } from "../src/env";
 export function AnimationLibrary() {
   const params = new URLSearchParams(location.search);
   const surface = params.get("surface") === "page" ? "page" : "styled";
+  // ?play=held shows a scene built and held on its first frame (`preload` without `active`), the
+  // state a page keeps for scenes near the viewport.
+  const held = params.get("play") === "held";
   const defaultStory = location.pathname === "/slides" ? slideStories[0].id : objectScenes[0].id;
   const knownStory = (id: string | null) => !!id && [...objectScenes, ...slideStories].some((s) => s.id === id);
   const [storyId, setStoryId] = useState(() => (knownStory(params.get("story")) ? params.get("story")! : defaultStory));
@@ -163,6 +166,8 @@ export function AnimationLibrary() {
                   theme={theme}
                   variant={shown}
                   edition={edition}
+                  active={!held}
+                  preload={held}
                 />
               </div>
             ) : (
