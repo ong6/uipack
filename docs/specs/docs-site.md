@@ -4,7 +4,7 @@ site: ui.junxiong.dev (the uipack docs site, this repo's playground)
 extends: technical
 pages: [landing, documentation]
 layouts: { landing: product-landing, documentation: docs-shell }
-components: { diagrams: blueprint, 3d: [studio, paper-theatre, kinetic, cartoon, realistic, abstract], mechanism: isometric }
+components: { diagrams: blueprint, 3d: ink, mechanism: isometric }
 diagram-themes: { default: docs-night }
 status: implemented
 uipack: current
@@ -475,7 +475,7 @@ Technical's ([Technical, Writing style](technical.md#writing-style)): the house 
 
 ## Component looks
 
-As Technical: diagrams in `blueprint`, all six 3D looks, the `isometric` mechanism. Diagrams take the
+As Technical: diagrams in `blueprint`, the `ink` 3D look, the `isometric` mechanism. Diagrams take the
 site's diagram theme, `docs-night`: Blueprint's ink, accent and flow colours (Technical's, the
 `blueprint` theme exactly in light), on this site's charcoal ground in dark (below). Every live demo
 and Assets preview shows a part as the package draws it, with Technical's hues: the site's palette
@@ -490,7 +490,7 @@ to changes if needed"). The site sets only the ground a part sits on, the allowa
 [a spec has for a fixed look](../system/spec-settings.md): the paper, the surfaces, node fills,
 solid lines and the closing band, the values below (the same as the page's). A part's ink, accent,
 flow, data and slide hues stay Technical's, so a figure, slide or chart reads as it does on every
-site. Light is Technical's exactly. A 3D scene's own world, once WebGL draws it, is its look's. The
+site. Light is Technical's exactly. A 3D scene draws in the paper, ink and accent its stage resolves, so in dark its faces sit on the same charcoal. The
 package's static exports and stills keep Technical; where a dark still's ground is Technical's navy
 (the three canvas backgrounds on Assets and on Icons & marks), the site draws the tile itself on its
 surface, with the dots and rules in its hairline (`playground/showcase.css`). The role swatches on
@@ -523,6 +523,4 @@ dark palette and navigation included, says `extends: docs-site`.
   (`e2e/site-consistency.spec.ts` scans them). The files themselves (`docs/assets/dark/`, the
   manifest's `previewDark`) are the package's and stay Technical's navy for every other site.
 - TODO: static SVG export (`uipack/static`) has no site palette: a figure exported from this site
-  in dark is Technical's. Whether it should take a site's ground is open (the owner decides). The
-  art directions' WebGL worlds (Cartoon's night sky, Abstract's navy pool) are their looks' and
-  stay.
+  in dark is Technical's. Whether it should take a site's ground is open (the owner decides).

@@ -1,22 +1,8 @@
-import { studioObjectPalettes } from "../styles/scene-palettes";
 import { useEffect, useReducer, useRef, useState } from "react";
-import {
-  objectDirectionIndex,
-  normalizeObjectVariant,
-  chooseObjectVariant,
-  hasObjectLook,
-  objectDirections,
-  objectEditions,
-  objectLooks,
-  objectVariants,
-  directionSymbols,
-  type ObjectEdition,
-  type ObjectVariant,
-} from "./variants";
 import { CanvasView } from "../CanvasView";
 import { usePrefersReducedMotion } from "../env";
 import { mountObjectScene, type ObjectSceneHandle, type ObjectStageFlags } from "./mount";
-import type { ObjectKind, ObjectPalette } from "./scenes";
+import type { ObjectKind } from "./scenes";
 export interface ObjectSceneProps {
   kind: ObjectKind;
   label: string;
@@ -29,28 +15,16 @@ export interface ObjectSceneProps {
    * scene shows its fallback drawing and holds no WebGL context.
    */
   preload?: boolean;
+  /**
+   * The colour theme the stage resolves its roles in. The scene is drawn in the page's paper, ink
+   * and accent (`--object-paper`, `--object-ink`, `--object-accent`), re-read when this changes.
+   */
   theme?: "light" | "dark";
-  palette?: ObjectPalette;
-  /** Compact embeds can keep playback while leaving gallery controls to the library page. */
+  /** Compact embeds can keep playback while leaving Open canvas to the library page. */
   controls?: "full" | "playback";
   /** Reveal the host page behind the artwork, in either theme. */
   surface?: "styled" | "page";
-  /**
-   * Pick once per mount from the kind's looks (`objectLooks`), or pin one for a reproducible
-   * preview. A variant the kind does not offer shows its default look.
-   */
-  variant?: ObjectVariant | "random";
-  /** Original edition within Studio; ignored by the other directions. */
-  edition?: ObjectEdition;
-  /**
-   * Where Studio tennis fetches its model. Default: the package's
-   * `assets/objects/tennis-return.glb`, which the bundler copies and rewrites. Set it when
-   * you serve the file yourself (a CDN, a bundler without `new URL(…, import.meta.url)`).
-   */
-  modelUrl?: string;
 }
-/** The Studio scenes' material palette per theme (src/styles/scene-palettes.ts). */
-export const objectPalettes = studioObjectPalettes;
 const styles = {
   scene: "uipack-object",
   canvas: "uipack-object__canvas",
@@ -106,13 +80,10 @@ const Fallback = ({ kind, label }: { kind: ObjectKind; label: string }) => {
         <rect x="26" y="24" width="308" height="152" rx="8" />
         <path d="M161 176v18h38v-18m-60 22h82" />
         <path className="soft" d="M43 70h268M43 100h268M43 130h268M43 151h268" />
-        {/* Candles stay inside the plot (y 44–140); the caption is HTML below. */}
+        {/* Candles stay inside the plot (y 44–140): rising in the accent, falling in ink; the caption is HTML below. */}
+        <path d="M62 98V131M55 108h14v16h-14zM109 89V130M102 102h14v20h-14zM170 86V108M163 95h14v22h-14zM218 80V102M211 86h14v11h-14zM55 163v-8h14v8m33 0v-11h14v11m54 0v-14h14v14m41 0v-18h14v18" />
         <path
-          stroke="#269764"
-          d="M62 98V131M55 108h14v16h-14zM109 89V130M102 102h14v20h-14zM170 86V108M163 95h14v22h-14zM218 80V102M211 86h14v11h-14zM55 163v-8h14v8m33 0v-11h14v11m54 0v-14h14v14m41 0v-18h14v18"
-        />
-        <path
-          stroke="#d85b65"
+          className="ink"
           d="M85 109V140M78 116h14v16h-14zM135 93V125M128 102h14v15h-14zM193 70V100M186 79h14v13h-14zM243 44V78M236 54h14v16h-14zM78 163v-6h14v6m36 0v-9h14v9m51 0v-11h14v11m43 0v-8h14v8"
         />
       </>
@@ -186,13 +157,9 @@ function ObjectStage({
   active = true,
   preload = false,
   theme = "light",
-  palette,
   zoom = 1,
-  variant = 0,
-  edition = 0,
   controls = "full",
   surface = "styled",
-  modelUrl,
 }: ObjectSceneProps & { zoom?: number }) {
   const hostRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -207,10 +174,6 @@ function ObjectStage({
   // controls; these are the copies the loop sees without waiting for a render.
   const flagsRef = useRef<ObjectStageFlags>({ active, paused: false, completed: false, reduced: false, zoom });
   const sceneRef = useRef<ObjectSceneHandle | null>(null);
-  // The scene keys on the palette's values, not its identity: an inline `palette={{…}}` is a new
-  // object on every parent render and must not tear down and rebuild the WebGL renderer.
-  const paletteKey = palette ? JSON.stringify(palette) : "";
-  const resolvedVariant = normalizeObjectVariant(kind, variant === "random" ? objectLooks[kind][0] : variant);
   // The scene exists while it plays or is held ready; the loop runs only while `active`.
   const mounted = active || preload;
 
@@ -234,6 +197,11 @@ function ObjectStage({
     if (active && !flags.paused && !flags.reduced) sceneRef.current?.resume();
   }, [active]);
 
+  // A theme change recolours the running scene in place; it is never rebuilt for it.
+  useEffect(() => {
+    sceneRef.current?.recolor();
+  }, [theme, surface]);
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!mounted || !canvas) {
@@ -247,11 +215,6 @@ function ObjectStage({
     setCompleted(false);
     const scene = mountObjectScene(canvas, {
       kind,
-      colors: paletteKey ? (JSON.parse(paletteKey) as ObjectPalette) : objectPalettes[theme],
-      variant: resolvedVariant,
-      edition,
-      modelUrl,
-      theme,
       flags: flagsRef.current,
       host: () => hostRef.current,
       onReady: setReady,
@@ -267,7 +230,7 @@ function ObjectStage({
       sceneRef.current = null;
       scene.dispose();
     };
-  }, [mounted, kind, theme, paletteKey, resolvedVariant, edition, modelUrl]);
+  }, [mounted, kind]);
 
   const togglePaused = () => {
     const flags = flagsRef.current;
@@ -287,11 +250,8 @@ function ObjectStage({
       className={styles.scene}
       data-active={active ? "true" : "false"}
       data-kind={kind}
-      data-variant={resolvedVariant}
-      data-edition={edition}
-      data-art-direction={objectDirections[objectDirectionIndex(kind, resolvedVariant)].id}
+      data-art-direction="ink"
       data-controls={controls}
-      data-variant-label={objectVariants[kind][resolvedVariant]}
     >
       <Fallback kind={kind} label={label} />
       {mounted && <canvas ref={canvasRef} className={styles.canvas} data-ready={ready ? "true" : "false"} aria-hidden="true" />}
@@ -317,37 +277,9 @@ export function ObjectScene(props: ObjectSceneProps) {
   const [open, setOpen] = useState(false),
     [zoom, setZoom] = useState(1);
   const opener = useRef<HTMLButtonElement>(null);
-  // One random roll per mount, taken after it so the server and client agree. The look is derived
-  // from it among the current kind's looks, and Another look steps on through them.
-  const [pick, setPick] = useState<{ roll: number; turns: number } | null>(null);
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- a client-only random value, set once after hydration
-    setPick({ roll: Math.random(), turns: 0 });
-  }, []);
-  const randomVariant = pick === null ? null : chooseObjectVariant(props.kind, () => pick.roll, pick.turns);
-  const canVary = props.variant === undefined || props.variant === "random";
   const controls = props.controls ?? "full";
-  const chosenVariant = canVary ? randomVariant : (props.variant as ObjectVariant);
-  const variant = chosenVariant === null ? null : normalizeObjectVariant(props.kind, chosenVariant);
-  const anotherLook = () => setPick((current) => current && { ...current, turns: current.turns + 1 });
   return (
     <div className="uipack-object-frame" data-theme={props.theme ?? "light"} data-controls={controls}>
-      {controls === "full" && variant !== null && (
-        <div className="uipack-object-edition">
-          <span>
-            {objectVariants[props.kind][variant]}
-            {/* A non-default Studio edition is named after the direction's own name, never instead of it. */}
-            {variant === 0 && props.kind !== "contact" && props.edition && hasObjectLook(props.kind, 0)
-              ? ` · ${objectEditions[props.kind][props.edition]}`
-              : ""}
-          </span>
-          {canVary && (
-            <button type="button" onClick={anotherLook} aria-label="Another look">
-              ↻
-            </button>
-          )}
-        </div>
-      )}
       {controls === "full" && (
         <button ref={opener} type="button" className="uipack-object-open" onClick={() => setOpen(true)} title="Open canvas">
           <ControlIcon name="expand" />
@@ -362,47 +294,8 @@ export function ObjectScene(props: ObjectSceneProps) {
         restoreFocus={() => opener.current?.focus()}
         zoom={{ value: zoom, min: 0.75, max: 2, onChange: setZoom }}
       >
-        <ObjectStage
-          key={`${props.kind}-${props.theme ?? "light"}-${variant ?? "pending"}-${props.edition ?? 0}`}
-          {...props}
-          active={(props.active ?? true) && variant !== null}
-          variant={variant ?? 0}
-          zoom={zoom}
-        />
+        <ObjectStage key={props.kind} {...props} zoom={zoom} />
       </CanvasView>
-    </div>
-  );
-}
-
-/**
- * Shared style selector; consumers own the selected value and URL persistence. With `kind`, it
- * offers only that kind's looks (`objectLooks`); without, every direction, for a set of scenes
- * (each scene shows its own default for a direction it lacks).
- */
-export function ObjectDirectionPicker({
-  value,
-  onChange,
-  kind,
-}: {
-  value: ObjectVariant | "random";
-  onChange: (value: ObjectVariant) => void;
-  kind?: Exclude<ObjectKind, "contact">;
-}) {
-  return (
-    <div className="uipack-object-directions" role="group" aria-label="3D art direction">
-      {objectDirections.map((direction, index) =>
-        kind && !hasObjectLook(kind, index as ObjectVariant) ? null : (
-          <button
-            key={direction.id}
-            type="button"
-            aria-pressed={value === index}
-            onClick={() => onChange(index as ObjectVariant)}
-          >
-            <span aria-hidden="true">{directionSymbols[index]}</span>
-            {direction.name}
-          </button>
-        ),
-      )}
     </div>
   );
 }

@@ -17,6 +17,6 @@ For articulated characters or complex deformation, author and review the geometr
 
 Register the exported scene in the library catalog before adding it to a consumer. The library owns asset loading, animation clips, disposal and fallback, and connects the clip to the existing pause/replay/reduced-motion controls. Load only the selected model. Verify download size, mobile performance, load failure and light/dark framing using the built package. Homepage components continue to import UiPack without copying loaders or model files.
 
-Tennis now uses this path: its reproducible Blender source exports a GLB that the existing Three.js player loads lazily. The other six object scenes remain procedural. Keep asset authoring and browser playback as separate responsibilities.
+The object scenes (`uipack/objects`) no longer use this path: every subject is built in code and drawn in the one style, ink line art ([src/objects/LOOK.md](../src/objects/LOOK.md)), so a new subject is a builder file, not a model. Keep asset authoring and browser playback as separate responsibilities wherever a model is still needed.
 
-For variants, author a small named set, choose once when the scene mounts, and preserve the selection during replay, theme changes and expanded-canvas inspection. Support a pinned variant for reproducible review. Validate every variant rather than assuming shared geometry guarantees shared bounds.
+A 3D object has one look (ink line art, by the owner's decision of 2026-11-15); refine it rather than adding variants. A theme change recolours a scene in place and never rebuilds it.

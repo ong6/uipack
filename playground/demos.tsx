@@ -74,6 +74,11 @@ export const demos: Record<string, DemoDef> = {
   "deck-player": demo(() => import("./DeckShowcase"), "DeckDemo", "The example deck the address names, playable."),
   "slide-starters": demo(catalog, "SlideStarters", "The slide starters with their talk tracks, then a composed narrative."),
   "animation-library": demo(() => import("./SlideShowcase"), "AnimationLibrary", "The 3D scene library and its live preview."),
+  "object-subjects": demo(
+    () => import("./ObjectsShowcase"),
+    "ObjectSubjects",
+    "Every 3D subject in the one style, ink line art, on the page: each held on its first frame, the chosen one playing.",
+  ),
   "mechanism-gate": demo(
     () => import("./MechanismShowcase"),
     "MechanismDemo",

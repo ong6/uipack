@@ -32,7 +32,7 @@ The package isn't on npm. Each release attaches its built package to the GitHub 
 
 <!-- generated:install -->
 ```sh
-npm install https://github.com/ong6/uipack/releases/download/v0.7.2/uipack-0.7.2.tgz
+npm install https://github.com/ong6/uipack/releases/download/v0.8.0/uipack-0.8.0.tgz
 ```
 <!-- /generated -->
 
@@ -82,7 +82,7 @@ optional peers, used only by `uipack/objects` and `uipack/slides`. `react-markdo
 | `uipack/deck` + `.css` | The deck player: 1920×1080 slides, transitions, speaker view, `lintDeck` | [Deck player](docs/deck.md), [storytelling](docs/deck-storytelling.md) |
 | `uipack/presentations` + `.css` | Editable SVG slide starters with speaker guides | [Slide starters](docs/presentations.md) |
 | `uipack/mechanism` + `.css` | Isometric machines driven by a pose | [Mechanism](docs/mechanism.md) |
-| `uipack/objects` + `.css` | Lazy 3D object scenes and their art directions | [3D object scenes](docs/objects.md) |
+| `uipack/objects` + `.css` | Lazy 3D object scenes, drawn in ink line art from the page's colours | [3D object scenes](docs/objects.md) |
 | `uipack/slides` + `.css` | 3D camera stories (`SlidePlayer`). The name is historical and kept for existing imports | [3D stories](docs/slides.md) |
 | `uipack/docs` + `.css` | A documentation shell and Markdown renderer | [Docs layout](docs/docs-layout.md) |
 | `uipack/browser` + `.css` | The asset browser | [Icons and marks](docs/icons-and-marks.md) |

@@ -7,7 +7,7 @@ For talks, use [`uipack/deck`](deck.md): it plays a whole deck with one transiti
 Pick a scene from the library, then step through its camera stops in the preview:
 
 ```uipack-demo animation-library wide
-The scene library (search and filter by technique) beside a live preview with its camera stops and art directions.
+The scene library (search and filter by technique) beside a live preview with its camera stops.
 ```
 
 ## Install

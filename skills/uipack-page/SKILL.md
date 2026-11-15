@@ -34,8 +34,8 @@ Paths are relative to the uipack root: `node_modules/uipack/` in a site, or a ui
 2. **Fixed vs per site.** Core rules ([docs/system/](../../docs/system/README.md): the role
    contract, the [layout floors](../../docs/system/layout/README.md#floors-what-holds-on-every-site),
    the core writing rules) hold on every site; a `fixed` [component look](../../docs/components/README.md)
-   (five of the 3D art directions) looks the same everywhere, and a `flex` one (the diagrams'
-   Blueprint, through the site's diagram theme) keeps its drawing and takes the site's colours; everything
+   looks the same everywhere, and a `flex` one (the diagrams' Blueprint, through the site's diagram
+   theme; the 3D ink line art, through its roles) keeps its drawing and takes the site's colours; everything
    [a spec may set](../../docs/system/spec-settings.md) is the site's.
 3. **The claim.** One sentence the page or deck must make its reader conclude. If you can't write
    it, ask.

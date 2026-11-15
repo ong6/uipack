@@ -245,7 +245,8 @@ export function checkSpec(text: string, { root = UIPACK_ROOT }: CheckOptions = {
         problems.push(`components: ${componentId} offers no look "${lookId}" (${component.looks.map((l) => l.id).join(", ")})`);
         continue;
       }
-      if (look.mode !== "fixed") continue;
+      // No look ships fixed today; the check stays for the next one.
+      if ((look.mode as string) !== "fixed") continue;
       const doc = join(root, component.doc);
       if (!existsSync(doc)) continue;
       for (const token of fixedTokens(readFileSync(doc, "utf8")))

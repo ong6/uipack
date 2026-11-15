@@ -125,7 +125,7 @@ mostly by pointing at a core role.
 
 **Component tuning is not a role.** `--tune-*` values are Technical's hand-tuned colours for one
 component: the docs entry's warm palette (`--tune-docs-warm-*`), the slide rule (`--tune-slide-line`), print
-(`--tune-print-*`) and the full-screen letterbox. Mechanism tones (`--tune-mech-*`), the Studio
+(`--tune-print-*`) and the full-screen letterbox. Mechanism tones (`--tune-mech-*`), the 3D
 stage (`--tune-object-*`) and the docs surfaces are optional hooks that Technical now leaves to the
 derivation. A component reads one as `var(--tune-x, <a mix of core roles>)`, so any
 other style gets the derivation, and every style host resets them so they never leak.
@@ -135,14 +135,14 @@ thing that matters. A spec may not add a second accent.
 
 ## Specs and component looks
 
-Mechanism and the 3D directions are component looks: a spec picks them in `components:`, and each
+Mechanism and the 3D ink line art are component looks: a spec picks them in `components:`, and each
 is `fixed` or `flex` ([every look](../components/README.md)).
 
 | What | For | Values | Guide |
 | --- | --- | --- | --- |
 | **Site specs** | One per website: its palette, faces, ornaments, voice | `src/styles/<id>.css` once implemented | [Site registry](../specs/registry.md), [Technical spec](../specs/technical.md) |
 | **Mechanism** (`flex`) | One isometric machine whose working is the point | The site's roles mapped to four solid tones (derived; `--tune-mech-*` hooks), one lit part | [Mechanism look](../components/mechanism.md), [Mechanism](../mechanism.md) |
-| **3D art directions** | Object scenes | Studio (`flex`, reads `--tune-object-*`); Paper worlds, Kinetic, Cartoon, Realistic, Abstract (`fixed`) | [3D looks](../components/3d.md), [3D object scenes](../objects.md) |
+| **3D ink line art** (`flex`) | Object scenes | The page's paper, ink and accent (`--object-*` on the stage; `--tune-object-*` hooks) | [3D looks](../components/3d.md), [3D object scenes](../objects.md) |
 
 The `uiStyle` prop (`Figure`, `DeckPlayer`, `SlideStarter`, `WebSurface`, `Section`) and
 `data-ui-style` on any element set the style; the nearest one wins, and with nothing set it is
@@ -264,23 +264,20 @@ Hover changes stroke, fill and opacity only, never layout. A 3D style may add ph
 
 ## 3D
 
-A 3D art direction is a style. The scene's subject and its camera stops are writing and layout,
-so the same story can be rendered in another direction. Each object scene offers only the two or three
-directions that suit its subject (`objectLooks`; reasons in [objects.md](../objects.md#directions-per-subject)).
+Every 3D object is drawn in one style, ink line art (the owner, 2026-11-15: "one style that we
+stick to and refine"). The scene's subject and its camera stops are writing and layout; the drawing
+is the style.
 
-| Direction | Character |
+| Look | Character |
 | --- | --- |
-| Studio (default) | Product photography: one object on a seamless sweep, soft key, low lens |
-| Paper worlds | Cut-card toy theatres: layered flats in a proscenium, one warm key |
-| Kinetic | Brass armatures and glazed ceramic on a turned slate base |
-| Cartoon | Floating toy islands, toon shading, day and night |
-| Realistic | Low macro close-ups on real surfaces, grazing window light |
-| Abstract | Refractive glass against colour bands |
+| Ink line art | One physical object per subject floating on the page: unlit faces in the page's paper, a constant 2px ink silhouette and 1px creases, one accent part; light lines on a slightly lifted ground in dark |
 | Mechanism (SVG) | Isometric solids in four tones by facing, one lit part in the accent |
 
-Shared 3D rules: the scene's palette maps to the four roles (`paper`, `ink`, `muted`, `accent`);
-flows keep their shapes and colours; labels are crisp HTML in label type, never textured text; small
-corner radii; mobile paints at 30fps at most; reduced motion shows an authored still pose.
+Shared 3D rules: the scene's colours are the page's roles (`paper`, `ink`, `accent`; a part's
+`inkRole` picks among paper, shade, dark and accent, [src/objects/LOOK.md](../../src/objects/LOOK.md));
+one accent part per subject; flows keep their shapes and colours; labels are crisp HTML in label
+type, never textured text; no photographic textures; desktops paint at 60fps at most and phones at
+30; reduced motion shows an authored still pose.
 
 ## Where the code stands
 
@@ -297,9 +294,8 @@ The contract is in place:
 
 Known gaps:
 
-- Hex literals remain in four files, each listed with its reason in `test/no-hex.test.tsx`: the
-  vendored Mechanism kit, 3D subject materials, the five non-Studio art-direction stage gradients
-  and two candle strokes in the object fallback.
+- Hex literals remain in one file, listed with its reason in `test/no-hex.test.tsx`: the vendored
+  Mechanism kit. The 3D scenes read their colours from the roles.
 - Component tuning (`--tune-*`) exists for Technical only. A new style gets derivations of its core
-  roles for Mechanism tones, the Studio stage and docs.
+  roles for Mechanism tones, the 3D stage and docs.
 - Only the web reads the ornament slots. Figures and slides have no backdrop or marker slot yet.

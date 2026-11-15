@@ -1,151 +1,102 @@
-# The look system for 3D object scenes
+# Ink line art: the renderer and the role contract
 
-`src/objects/look.ts` is the shared rendering layer under every art direction: a light rig per
-theme, image-based lighting, physically based material presets, contact shadows, framing and
-tone mapping. `mount.ts` applies it; a direction only declares what it wants.
+Every 3D object scene is drawn one way, ink line art. This file is for whoever changes the renderer
+or builds a subject: what the renderer does, the contract a model's parts follow, and how to add a
+subject. The props and behaviour a consumer sees are in [docs/objects.md](../../docs/objects.md).
 
-## Opting in
+| File | Owns |
+| --- | --- |
+| `ink.ts` | The renderer: `inkify(root, colors)` redraws a built subject; `readInkColors(stage)` reads the page's roles |
+| `look.ts` | The lens and framing a subject declares (`userData.look`), and `contactShadow` |
+| `studio.ts` | The subjects: `contact`, `tennis`, `trading`, `server`, `travel` |
+| `scenes.ts` | The registry (`createObject`), with the seam for `ai` and `reading` |
+| `mount.ts` | The canvas: build queue, renderer, framing, playback, frame cap, recolour, teardown |
 
-A direction sets `userData.look` on the root it returns, and builds its meshes with `lookMaterial`:
+## What the renderer draws
 
-```ts
-import { lookMaterial, themed, shade, type ObjectLook } from "./look";
+`inkify` walks the built subject once, after its contact shadows are added and before the first
+paint:
 
-const kineticLook: ObjectLook = {
-  rig: {
-    both: { key: { color: 0xffe9c9, intensity: 2.5 }, rim: { color: 0x9cc3ff, intensity: 1.5 } },
-    dark: { rim: { intensity: 3 }, hemisphere: { intensity: 0.1 } },
-  },
-  camera: { projection: "perspective", fov: 28, pitch: 8 },
-  framing: { fill: 0.6 },
-  contactShadow: true,
-};
-root.userData.look = kineticLook;
+- **Faces:** every mesh's material is replaced by one small unlit shader per role (a flat colour,
+  with an optional print, below). No lights, environment map, shadow maps, transmission, clearcoat
+  or post-processing.
+- **Silhouette:** an inverted hull (the part's back faces pushed out along its averaged normals) a
+  constant 2 CSS px wide on screen, at every canvas size and pixel ratio. A part scaled to exactly
+  zero draws nothing, which is how a builder hides an instance.
+- **Creases:** fat lines (`LineSegments2`) where faces meet at 65° or more, 1.1 px (1 px, in the
+  paper colour, on accent and dark parts). Parts under 0.05 units take none (screws, LEDs, holes),
+  nor do spheres, tubes and tori, whose silhouette is their drawing.
+- **Lines a builder draws** (`THREE.Line`, `LineLoop`, `LineSegments`: strings, seams, icons, rods)
+  become fat ink lines at `userData.inkWidth` CSS px (default 1.1).
+- **Contact shadows** (`contactShadow()`, named `contact-shadow`) become a faint hard-edged ink
+  ellipse; a builder animates one through its `material.opacity`.
+- **Merging:** a part that never moves relative to its nearest moving ancestor is merged with the
+  other parts of its role there (one fill, one silhouette, one crease mesh per role per rigid
+  group); a part that moves, carries several materials or a print, or has children is restyled in
+  place. Which parts move is found by sampling `animate` over the loop.
 
-const brass = lookMaterial("metal", 0xb8893b, { roughness: 0.22 });
-const base = themed(lookMaterial("plastic", 0x1e2a33, { roughness: 0.7 }), { dark: { color: shade(0x1e2a33, -0.3) } });
-```
+Colours are uniforms shared by every material of a role, so `setColors` (a theme change) restyles a
+running scene without compiling anything. A typical subject compiles 4 to 8 programs.
 
-Each direction's look lives beside its builders: `studioLook(palette, shot)` in `studio.ts` (Contact's original
-editions fall back to the defaults in `scenes.ts#createObject`), `paperLook` in `paper-worlds.ts`,
-`kineticLook` in `kinetic-sculptures.ts`, and `cartoonLook`, `realisticLook` and `abstractLook` in
-`expanded-cartoon.ts`, `expanded-realistic.ts` and `expanded-abstract.ts`. Change those, not `mount.ts`.
+## The role contract
 
-Studio builds its look per subject: `studioLook(palette, shot)` keeps one rig and one lens family
-and sets each subject's pitch, field of view and fill. Its night colours derive from the palette
-(`nightRoom`: the ink's hue for the sweep's pool, the sky and the kicker; the accent's hue for the
-rim), so Studio follows the page style it sits in. It adds two scene-local devices on top of its
-rig. A rim term on lit dielectric materials (`addRim`, weighted per preset; metals take none, their
-edge comes from the environment) brightens surfaces that turn away from the lens towards the rim's
-side; it rides in the emissive colour, so `themed` switches it (white and faint by day, the room's
-rim colour at night). A sweep (`sweep`) draws the seamless backdrop only as light: a falloff away
-from the subject and, at night, a pool behind it and a warm top-light pool on the table under it.
-Its geometry is stored small and scaled in the vertex shader, so it never counts towards bounds or
-framing.
+A mesh may carry `userData.inkRole`, one of four roles; when present it decides the face's tone.
+Only otherwise is the role read from the mesh's original material colour.
 
-Paper and Kinetic add scene-local devices in `kinetic-sculptures.ts`, which `paper-worlds.ts` also
-imports. `surfaceFinish` gives a material a procedural surface in object space (no UVs needed):
-colour, roughness, normal and clearcoat-normal GLSL run after three's own chunks. Kinetic uses it
-for glazed stoneware (soft body under a clear glaze, mottling, iron speckle, orange-peel ripple),
-brass turning marks and honed slate; Paper for card formation, stray fibres and tooth on top of the
-fibre map. `themeSwitch` lets a scene own a light that changes with the theme: an invisible probe
-material is themed, and a tick reads it. Paper's warm lantern and Kinetic's gallery spot are such
-lights, a soft accent by day and the main light at night (Kinetic keeps its slate dark at night and
-lets the spot pool on it). Spot lights cast no shadow map; the rig's key still does.
+| `inkRole` | Use it for | Light page | Dark page |
+| --- | --- | --- | --- |
+| `paper` | Most bodies: panels, frames, paper, felt, plates | The paper itself | Paper lifted 10% toward the ink |
+| `shade` | Secondary bodies that should read as a different surface: housings, a desk, a lid, a falling bar's bead | Paper 13% toward the ink | The paper itself (darker than `paper` faces) |
+| `dark` | Small dense parts drawn as solid ink: holes, wells, LEDs, a can's open mouth, a racket's collar | The ink | The ink (light on a dark page) |
+| `accent` | The subject's one accent part | The accent | The accent |
 
-The expanded directions add theirs in their own files. Cartoon (`expanded-cartoon.ts`) layers toy
-finishes on the toon ramp (`withMoonRim`: a hard gloss from each directional light for vinyl, a dim
-one for satin, a grazing lift and fibre speckle for flock) and a warm practical `PointLight` per
-scene, on only at night. Realistic (`expanded-realistic.ts`) runs its surface back to a wall
-(`backdrop`) and softens both with distance from the subject (`defocus`, a mip bias on every map)
-instead of fading the surface out. Abstract (`expanded-abstract.ts`) lights its lacquer bars with a
-pool light (`poolLight`) and draws caustics with normal blending, since added light disappears on a
-pale card.
+- **Precedence:** the mesh's `userData.inkRole`, then its material's `userData.inkRole` (one tag for
+  every mesh sharing the material), then the colour: exactly `INK_BUILD_PALETTE.accent` is `accent`,
+  a near-black (linear luminance under 0.08) is `shade`, anything else `paper`; a `userData.glow`
+  part is `dark`. New models tag every mesh and never rely on the colour.
+- **One accent part per subject.** It is the thing the subject is about (the compute sled, the
+  route, the newest bar); everything else is paper, shade or dark. `test/objects.test.tsx` checks a
+  subject has an accent and keeps it a small share of its parts.
+- **Silhouettes and creases are always ink** (the paper colour on accent and dark faces); a builder
+  never picks line colours.
+- **Optional extras:** `userData.inkCreases = false` drops a part's crease lines (fan blades, guard
+  rings: many small faces that only add noise). `material.userData.inkPrint = texture` draws a print
+  on a face: the texture's alpha is ink coverage, drawn in the ink colour over the role's tone
+  (the atlas). Draw a print as line work, never a picture; free its texture in `root.userData.dispose`.
+- **Never:** photographic textures, painted-on screens or labels, textured text (words are HTML
+  beside the scene), transparency fades (a part is pushed in, pulled out, scaled or hidden instead),
+  parts sunk into one another (a silhouette hidden inside another part disappears: stand parts
+  clear, as Contact's stacked receipts are).
 
-## Light rigs (`lightRigs`, `rig`)
+## Adding a subject
 
-| Part | Light default | Dark default | Notes |
-|---|---|---|---|
-| Tone mapping, exposure | ACES, 1.05 | ACES, 1.0 | `toneMapping: "agx" \| "neutral"` for gentler highlights |
-| Environment | `room`, 0.35 | `room`, 0.2 | `softbox` for metal and glass; `rotation` (radians) moves highlights; `none` saves the PMREM pass |
-| Hemisphere | warm sky / slate ground, 2.0 | cool sky / near-black ground, 1.15 | the ambient; lower it for drama |
-| Key | warm, 2.5, top-left front | warm, 2.4 | `shadow: true` adds a shadow map (see budget) |
-| Fill | off | off | set `intensity` to use it |
-| Rim | cool, 1.4, behind right | cool, 3.0 | lifts silhouettes off a dark card |
-| `reflections` | 1 | 0.75 | multiplies every preset's reflection strength |
+1. **A builder in its own file** (`studio-<kind>.ts`), exporting a function that takes no required
+   arguments and returns a `THREE.Group`:
+   - every mesh tagged with `userData.inkRole` (any material: it is replaced, so a shared
+     `MeshBasicMaterial` per role is enough);
+   - fine detail as `THREE.Line`/`LineSegments` with `userData.inkWidth`, not thin tubes;
+   - the subject sitting on `y = -1` (the shared tabletop), roughly 3 to 4 units across;
+   - `userData.animate(time)` setting the pose for a time in ms and `userData.phase` / `userData.pose`
+     (0..1 through the motion); `userData.loopDuration` for a seamless loop (or `playDuration` for a
+     play-once subject, which rests at 5400 ms); `userData.restTime`, the still pose for reduced
+     motion;
+   - `userData.look`: `{ camera: { projection: "perspective", fov, pitch }, framing: { fill, maxWidth, lift }, contactShadow }`
+     (`studioLook(shot)` in `studio.ts` is the shared lens family).
+2. **Register it** in `src/objects/scenes.ts`: import its builder and add it to `builders`. A
+   subject may live in `studio.ts` or in a file of its own (`studio-ai.ts`, `studio-reading.ts`). A
+   kind whose builder is `null` shows its fallback drawing and opens no WebGL context.
+3. **Check it:** `npx vitest run test/objects.test.tsx` (add the kind to `built`: finite bounds, every
+   mesh tagged, a seamless loop, one accent), then `e2e/ink.spec.ts` (add it to `built`: both themes,
+   both widths, the budgets). Look at stills in light and dark, at 573 × 558 and 390 wide, at rest
+   and at two other points in the loop: no doubled outlines, no lines that shimmer between samples,
+   no part that loses its shape, one accent.
+4. **Docs:** its row in [docs/objects.md](../../docs/objects.md#subjects) and its description in
+   `scene-list.ts`.
 
-`rig.both` applies to both themes, then `rig.light` / `rig.dark` on top. Dark mode should be a
-different light, not a recoloured card: lower ambient, keep or raise the rim, and use `themed`
-materials for anything that should go darker (plinths, slabs about 30%) or glow at night
-(`emissive`, `emissiveIntensity`).
+## Budget
 
-## Material presets (`lookMaterial(preset, color, overrides)`)
-
-| Preset | Base | Use for | Key values |
-|---|---|---|---|
-| `metal` | Standard | polished brass, chrome, steel | metalness 1, roughness 0.24 |
-| `brushedMetal` | Physical | aluminium, brushed steel | roughness 0.36, anisotropy 0.65 |
-| `glass` | Physical | optical glass, crystals | transmission 1, thickness 0.6, ior 1.5, roughness 0.04 |
-| `ceramic` | Physical | glazed ceramic, gloss enamel | roughness 0.38, clearcoat 1 / 0.06 |
-| `paper` | Standard | card, paper, matte print | roughness 0.94, procedural fibre map and normal map |
-| `plastic` | Standard | matte plastic, painted parts | roughness 0.48 |
-| `rubber` | Standard | grips, feet, cables | roughness 0.9, faint reflections |
-| `felt` | Physical | tennis felt, cloth | sheen 1, fibre normal map |
-
-- Any `MeshPhysicalMaterial` option overrides the preset (`dispersion`, `attenuationColor`,
-  `sheenColor`, `clearcoat`…). `envMapIntensity` scales the preset's own reflection strength.
-- `grain` sets how many times the fibre texture tiles on paper and felt (default 4). The mesh needs UVs.
-- Presets get the environment at their own strength; three otherwise gives every material the
-  scene's single `environmentIntensity`. Unconverted materials keep the rig's environment value.
-- **Glass needs something behind it.** Put the colour in the scene (bands, a backdrop): glass
-  refracts only what three renders. Where nothing is behind, it refracts `transmissionBackdrop`
-  (per theme, defaults close to the card), so the canvas stays transparent and glass does not go white.
-- **Metal needs something to reflect.** Use `environment: { kind: "softbox" }` for crisp highlights.
-- Thin wires: use tubes, never `Line`. `lineRadius(subjectHeight)` gives the world radius that
-  draws 1.5px on a 360px card at the default fill.
-
-## Shadows
-
-- `contactShadow: true` (or `{ opacity, spread, y, color }`) adds a baked soft ellipse under the
-  subject at its rest pose, in the root's own floor plane. Two triangles, no shadow map. It is a
-  child of the root, so it follows the root's sway. Floating subjects: set `y` lower and `opacity` lower.
-- `castShadows: true` makes every mesh cast and receive the key's shadow map (PCF, `shadowRadius`
-  4, 1024 map). Use it when parts shadow each other (cut-paper layers, dioramas); prefer a contact
-  shadow when one object only needs grounding.
-
-## Framing (`framing`, `camera`)
-
-By default the camera fits the subject: its projected bounds fill `fill` (0.62) of the frame's
-height, never more than `maxWidth` (0.78) of its width, centred and lifted by `lift` (0.02 of the
-height). Bounds are measured once per mount over the whole loop (`sample: "loop"`) or the rest
-pose only (`sample: "rest"`), and re-fitted on every resize, so phones and slides frame alike.
-`canvas[data-fill]` reports the result.
-
-- Mark backdrops, floors that run off the frame and decoration with `mesh.userData.frameIgnore = true`.
-- `framing: false` keeps the old fixed frame (not recommended).
-- `camera: { projection: "perspective", fov, pitch, yaw }` replaces the authored straight-on
-  orthographic view. Pitch is what makes plinths and floors read as surfaces; when you add it,
-  remove the matching tilt from the root.
-- Close-up crops (realistic macro): raise `fill` above 0.8 and `maxWidth` above 1.
-- A set whose cards must match (cartoon's islands) can frame a fixed invisible proxy instead of its
-  props: a `LineSegments` envelope with `colorWrite: false` that every prop stays inside, so it
-  alone sets the fit (lines cast no shadow and never render). Check that `data-fill` matches across
-  the set.
-
-## Performance budget
-
-These run as small cards, in slides, on phones and on CI's software WebGL (Mesa llvmpipe).
-`e2e/art-directions.spec.ts` enforces: under 220 draw calls and 100k triangles per scene at rest,
-and over 15 paints a second at 390px (13 on CI), capped at 30.
-
-| Feature | Cost | Advice |
-|---|---|---|
-| Environment (PMREM) | one-off at mount, a few ms | free per frame; `none` only if you light everything directly |
-| Preset materials | Standard: as before. Physical: heavier shader | Physical only where its feature shows |
-| `glass` (transmission) | an extra render of the opaque scene per frame | one glass direction; few glass meshes; small `thickness` |
-| `castShadows` / key `shadow` | an extra depth pass per frame | leave the map at 1024 |
-| `contactShadow` | 1 draw call | default choice for grounding |
-| Framing | one-off at mount: about 3k vertices per pose, 9 poses for a loop (about 4ms; 70ms for the skinned tennis model) | free per frame |
-| Draw calls | each mesh × material is one | merge static parts (`mergeGeometries`), share materials, use `InstancedMesh` for repeats |
-
-Pixel ratio is capped at 1.5 and phones paint at 30 fps; do not raise either.
+Under 100 draw calls, 100,000 triangles and 10 shader programs per subject at rest
+(`e2e/ink.spec.ts`). Pixel ratio is capped at 1.5; desktops paint at 60 frames a second at most and
+phones at 30; do not raise either. Merge static parts by keeping them static (the renderer does the
+rest), reuse geometries, and use `InstancedMesh` for repeats; hide an instance with a zero-scale
+matrix.

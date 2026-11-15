@@ -4,7 +4,7 @@ site: uipack package defaults (the docs site extends it: docs-site.md)
 extends: core
 pages: [landing, documentation, article, deck, dashboard]
 layouts: { landing: product-landing, documentation: docs-shell, article: layer-article, deck: slide-canvas, dashboard: one-question-dashboard }
-components: { diagrams: blueprint, 3d: [studio, paper-theatre, kinetic, cartoon, realistic, abstract], mechanism: isometric }
+components: { diagrams: blueprint, 3d: ink, mechanism: isometric }
 diagram-themes: { default: blueprint }
 status: implemented
 uipack: current
@@ -355,7 +355,7 @@ thing in the same words.
 | Component | Technical picks | Why |
 | --- | --- | --- |
 | Diagrams | `blueprint`, theme `blueprint` on every page | The one diagram grammar, shared with every site; the built-in `blueprint` theme is Technical's values |
-| 3D object scenes | All six | The gallery shows every look; each scene offers its subject's two or three ([which](../components/3d.md#which-subjects-offer-each-look)) |
+| 3D object scenes | `ink` | The one 3D look: every scene is drawn in Technical's paper, Prussian ink and amber accent (gold in dark) |
 | Mechanism | `isometric` | Drawn in the Cyanotype roles: Prussian tones, the amber (gold in dark) lit part |
 
 ## Reuse

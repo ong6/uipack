@@ -10,7 +10,7 @@ import { lazy, useMemo, useState, type ComponentType, type ReactNode } from "rea
 import { PRESETS } from "../src/presets";
 import { SlideThumbnail } from "../src/deck";
 import { renderSlideSvg } from "../src/presentations";
-import { ObjectScene, objectScenes, objectVariants } from "../src/objects";
+import { ObjectScene, objectScenes } from "../src/objects";
 import { SlidePlayer, slideStories } from "../src/slides";
 import { VerificationGate } from "../src/mechanism";
 import manifest from "../assets/manifest.json";
@@ -167,13 +167,12 @@ function galleryItems(): GalleryItem[] {
 
   // 3D: each object scene (its still illustration; the docs page plays it live), then the camera stories.
   for (const scene of objectScenes) {
-    const looks = Object.values(objectVariants[scene.id] ?? {}).filter(Boolean);
     items.push({
       id: `object-${scene.id}`,
       category: "3d",
       group: "Object scenes",
       title: scene.title,
-      kind: looks.length === 1 ? "1 look" : `${looks.length} looks`,
+      kind: "Ink line art",
       page: "objects",
       preview: {
         kind: "live",

@@ -13,8 +13,8 @@ first; the layer guides hold the detail:
 | **[Layout](layout/README.md)** | Where does each thing sit, and in what order does it appear? Grids, regions, archetypes, beats, camera stops. | [Floors](layout/README.md#floors-what-holds-on-every-site): reading order, narrow layout, no overflow, tap targets, focus, the 8px unit | Per page type: an [archetype](layout/README.md#archetype-library) picked, extended or defined |
 
 Components sit across the layers: each has a few named [looks](../components/README.md), `fixed`
-(the same on every site, like the Paper worlds 3D scenes) or `flex` (taking the site's palette and
-faces), and a spec picks the ones it uses. The boundary in full is
+(the same on every site) or `flex` (taking the site's palette and faces, like the 3D ink line
+art), and a spec picks the ones it uses. The boundary in full is
 [What a spec may set](spec-settings.md). To build a page, start from its
 [recipe](../recipes/README.md): it names the writing and layout files that page relies on.
 
@@ -193,7 +193,7 @@ values:
 - [Design direction](../design-direction.md): the playground shell, catalog taxonomy, interaction
   polish and acceptance checks.
 - Per-style guides: [web principles](../web-principles.md), [Mechanism](../mechanism.md),
-  [Object scenes and 3D art directions](../objects.md). Site specs: [how to write one](../specs/README.md),
+  [3D object scenes](../objects.md). Site specs: [how to write one](../specs/README.md),
   [Technical spec](../specs/technical.md) and the [site registry](../specs/registry.md); the
   [component looks](../components/README.md).
 - Medium references: [Deck player](../deck.md), [Deck storytelling](../deck-storytelling.md),

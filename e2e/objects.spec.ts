@@ -1,34 +1,12 @@
 import { test, expect, waitForStable } from "./fixtures";
 import { playAnimationTime } from "./helpers";
-const kinds = ["ai", "contact", "tennis", "trading", "server", "travel", "reading"];
-for (const theme of ["light", "dark"])
-  for (const width of [390, 1440]) {
-    test(
-      `objects fit and render at ${width} in ${theme}`,
-      { tag: width === 390 && theme === "light" ? ["@cross-browser"] : [] },
-      async ({ page }) => {
-        // Seven scenes in a row, each built and settled: allow more than the default 30 s on slow runners.
-        test.setTimeout(90_000);
-        await page.setViewportSize({ width, height: 900 });
-        await page.emulateMedia({ reducedMotion: "reduce" });
-        const errors: string[] = [];
-        page.on("pageerror", (e) => errors.push(e.message));
-        for (const kind of kinds) {
-          await page.goto(`/animations?story=${kind}&theme=${theme}`);
-          const canvas = page.locator(".uipack-object canvas");
-          await expect(canvas).toHaveAttribute("data-renderer", "webgl");
-          await expect(canvas).toHaveAttribute("data-phase", "rest");
-          await canvas.scrollIntoViewIfNeeded();
-          expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
-          await expect(page.getByRole("button", { name: /motion$/ })).toHaveCount(0);
-        }
-        expect(errors).toEqual([]);
-      },
-    );
-  }
+// The player: playback, fallbacks, theme changes and suspension. The renders themselves (every
+// subject in both themes at both widths, the budgets) are in ink.spec.ts.
+const built = ["ai", "contact", "tennis", "trading", "server", "travel", "reading"];
+
 test("object playback pauses, finishes, replays and opens one accessible canvas", async ({ page }) => {
-  // Contact is the one scene that still plays once and offers Replay (every Studio subject loops).
-  await page.goto("/animations?story=contact&variant=0");
+  // Contact is the one scene that plays once and offers Replay (every other subject loops).
+  await page.goto("/animations?story=contact");
   const canvas = page.locator(".uipack-object canvas");
   await expect(canvas).toHaveAttribute("data-renderer", "webgl");
   await page.getByRole("button", { name: "Pause motion" }).click();
@@ -54,6 +32,7 @@ test("object playback pauses, finishes, replays and opens one accessible canvas"
   await expect(page.getByRole("dialog")).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Open canvas" })).toBeFocused();
 });
+
 test("renderer failure retains the labelled object fallback", async ({ page }) => {
   await page.addInitScript(() => {
     const original = HTMLCanvasElement.prototype.getContext;
@@ -68,90 +47,50 @@ test("renderer failure retains the labelled object fallback", async ({ page }) =
   await expect(page.getByRole("button", { name: /motion$/ })).toHaveCount(0);
 });
 
-test("switching objects and themes creates a usable renderer every time", async ({ page }) => {
-  // Seven WebGL scenes in turn: 20-27s alone, so the default 30s fails under a second worker.
+test("switching objects creates a usable renderer every time", async ({ page }) => {
   test.setTimeout(60_000);
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
-  await page.goto("/animations?story=ai");
-  for (const title of [
-    "Tennis practice",
-    "Open book",
-    "Local map",
-    "Trading journal",
-    "Inference study",
-    "Agent session",
-    "Contact inbox",
-  ]) {
-    await page
-      .getByRole("button", {
-        name: title,
-        exact: true,
-      })
-      .click();
+  await page.goto("/animations?story=travel");
+  for (const title of ["Tennis practice", "Local map", "Trading journal", "Inference study", "Contact inbox"]) {
+    await page.getByRole("button", { name: title, exact: true }).click();
     await expect(page.locator(".uipack-object canvas")).toHaveAttribute("data-renderer", "webgl");
     await expect(page.getByRole("button", { name: "Pause motion" })).toBeVisible();
     await expect(page.locator("canvas")).toHaveCount(1);
   }
-  await page.getByRole("button", { name: "Dark mode", exact: true }).click();
-  await expect(page.locator(".uipack-object canvas")).toHaveAttribute("data-renderer", "webgl");
-  await expect(page.getByRole("button", { name: "Pause motion" })).toBeVisible();
   expect(errors).toEqual([]);
 });
 
-test("curated look persists through loop, theme and expanded canvas", async ({ page }) => {
-  await page.clock.install();
-  await page.goto("/animations?story=tennis");
-  const object = page.locator(".uipack-object");
-  const canvas = object.locator("canvas");
+test("a theme change recolours the running scene in place, from the page's roles", async ({ page }) => {
+  await page.goto("/animations?story=server&theme=light");
+  const canvas = page.locator(".uipack-object canvas");
   await expect(canvas).toHaveAttribute("data-renderer", "webgl");
-  // Tennis offers Studio, Cartoon and Realistic only, and the inspector lists only those.
-  const directions = page.getByRole("group", { name: "3D art direction" }).getByRole("button");
-  await expect(directions).toHaveText([/Studio objects/, /Cartoon worlds/, /Realistic close/]);
-  await page.getByRole("button", { name: /Cartoon worlds/ }).click();
-  await expect(object).toHaveAttribute("data-variant", "3");
-  await expect(canvas).toHaveAttribute("data-renderer", "webgl");
-  const next = await object.getAttribute("data-variant");
+  const light = await canvas.getAttribute("data-colors");
+  await canvas.evaluate((element) => ((element as HTMLCanvasElement & { kept?: boolean }).kept = true));
   await page.getByRole("button", { name: "Dark mode", exact: true }).click();
-  // The theme remounts the stage with a new canvas. Until the new stage is up, `canvas` still finds
-  // the light one, already "webgl", so wait for the dark stage before reading its renderer.
-  await expect(object).toHaveAttribute("data-theme", "dark");
+  await expect(page.locator(".uipack-object")).toHaveAttribute("data-theme", "dark");
+  await expect.poll(() => canvas.getAttribute("data-colors")).not.toBe(light);
+  // The same canvas and renderer: recoloured, not rebuilt.
+  expect(await canvas.evaluate((element) => (element as HTMLCanvasElement & { kept?: boolean }).kept)).toBe(true);
   await expect(canvas).toHaveAttribute("data-renderer", "webgl");
-  await expect(object).toHaveAttribute("data-variant", next!);
-  // Past the 5.4s a once-only scene takes to come to rest, a loop still plays.
-  await playAnimationTime(page, 6500);
   await expect(page.getByRole("button", { name: "Pause motion" })).toBeVisible();
-  await expect(canvas).toHaveAttribute("data-playback", "loop");
-  await expect(object).toHaveAttribute("data-variant", next!);
-  await page.getByRole("button", { name: "Open canvas", exact: true }).click();
-  await expect(canvas).toHaveAttribute("data-renderer", "webgl");
-  await expect(object).toHaveAttribute("data-variant", next!);
-  await expect(page.locator("canvas")).toHaveCount(1);
+  // A site's roles reach the scene with no prop: set the stage's colours and the scene follows.
+  await page.evaluate(() => {
+    const stage = document.querySelector<HTMLElement>(".uipack-object")!;
+    stage.style.setProperty("--object-accent", "rgb(200, 30, 90)");
+  });
+  await expect.poll(() => canvas.getAttribute("data-colors")).toMatch(/#c81e5a$/);
 });
 
-test("a pinned look is reproducible and failed model loading shows the fallback", async ({ page }) => {
-  await page.route("**/tennis-return*.glb", (route) => route.abort());
-  await page.goto("/animations?story=tennis&variant=0");
-  await expect(page.locator(".uipack-object")).toHaveAttribute("data-variant", "0");
-  await expect(page.locator(".uipack-object canvas")).toHaveAttribute("data-renderer", "fallback");
-  await expect(page.getByRole("img", { name: "Tennis practice illustration" })).toBeVisible();
-  await expect(page.getByRole("button", { name: /motion$/ })).toHaveCount(0);
-  await expect(page.getByRole("button", { name: "Another look", exact: true })).toHaveCount(0);
-});
-
-test("modeled tennis keeps painting within the mobile frame budget", async ({ page }, testInfo) => {
-  // A paint rate means something on a real GPU. CI renders WebGL on the CPU (Mesa llvmpipe), where
-  // the skinned Blender model paints at about 6 a second; the paper and kinetic directions keep a
-  // CI-calibrated budget in art-directions.spec.ts.
+test("phone-width painting stays within its 30 fps cap", async ({ page }, testInfo) => {
+  // A paint rate means something on a real GPU; CI renders WebGL on the CPU (Mesa llvmpipe).
   test.skip(
     Boolean(process.env.CI) && process.platform === "linux",
     "paint rate is checked on real GPUs, not CI's software WebGL",
   );
   await page.setViewportSize({ width: 390, height: 900 });
-  await page.goto("/animations?story=tennis&variant=0");
+  await page.goto("/animations?story=tennis");
   const canvas = page.locator(".uipack-object canvas");
-  await expect(canvas).toHaveAttribute("data-source", "blender");
-  // Shaders compile before the first paint; the rate is measured once the scene is painting.
   await expect(canvas).toHaveAttribute("data-renderer", "webgl");
   await canvas.scrollIntoViewIfNeeded();
   await expect.poll(async () => Number(await canvas.getAttribute("data-frames"))).toBeGreaterThan(0);
@@ -162,12 +101,7 @@ test("modeled tennis keeps painting within the mobile frame budget", async ({ pa
   const frames = Number(await canvas.getAttribute("data-frames")) - start;
   const elapsed = Date.now() - started;
   await testInfo.attach("mobile-viewport-paint-rate", {
-    body: JSON.stringify({
-      frames,
-      elapsed,
-      paintsPerSecond: (frames * 1000) / elapsed,
-      note: "Desktop browser at 390px, not physical mobile hardware",
-    }),
+    body: JSON.stringify({ frames, elapsed, paintsPerSecond: (frames * 1000) / elapsed, note: "Desktop browser at 390px" }),
     contentType: "application/json",
   });
   expect(frames).toBeGreaterThan(12);
@@ -176,15 +110,13 @@ test("modeled tennis keeps painting within the mobile frame budget", async ({ pa
 
 for (const kind of ["tennis", "trading"])
   test(`${kind} keeps looping, pauses and respects reduced motion`, async ({ page }) => {
-    // 6.5s of playback in 50ms steps renders 130 frames; under CI's software WebGL that alone
-    // can take most of the default 30s.
     test.slow();
     await page.clock.install();
-    await page.goto(`/animations?story=${kind}&variant=0`);
+    await page.goto(`/animations?story=${kind}`);
     const canvas = page.locator(".uipack-object canvas");
     await expect(canvas).toHaveAttribute("data-playback", "loop");
     await canvas.scrollIntoViewIfNeeded();
-    // Past the end of the 6s tennis loop, and past the 5.4s rest point of a once-only scene (trading), it still plays.
+    // Past the end of the 6s tennis loop, and past the 5.4s rest point of a once-only scene, it still plays.
     await playAnimationTime(page, 6500);
     await expect(page.getByRole("button", { name: "Pause motion" })).toBeVisible();
     const frames = Number(await canvas.getAttribute("data-frames"));
@@ -205,7 +137,7 @@ for (const kind of ["tennis", "trading"])
   });
 
 test("a preloaded scene is built and painted but does not play or show Pause", async ({ page }) => {
-  await page.goto("/animations?story=ai&variant=2&play=held");
+  await page.goto("/animations?story=travel&play=held");
   const canvas = page.locator(".uipack-object canvas");
   await canvas.scrollIntoViewIfNeeded();
   await expect(canvas).toHaveAttribute("data-renderer", "webgl");
@@ -218,7 +150,7 @@ test("a preloaded scene is built and painted but does not play or show Pause", a
 });
 
 test("offscreen object playback suspends and resumes without racing forward", async ({ page }) => {
-  await page.goto("/animations?story=tennis&variant=0");
+  await page.goto("/animations?story=tennis");
   const canvas = page.locator(".uipack-object canvas");
   await canvas.scrollIntoViewIfNeeded();
   await expect(canvas).toHaveAttribute("data-renderer", "webgl");
@@ -247,14 +179,25 @@ for (const theme of ["light", "dark"])
   for (const width of [390, 1440]) {
     test(`page surface blends at ${width} in ${theme}`, async ({ page }) => {
       await page.setViewportSize({ width, height: 900 });
-      await page.goto(`/animations?story=travel&variant=1&surface=page&theme=${theme}`);
+      await page.goto(`/animations?story=travel&surface=page&theme=${theme}`);
       const object = page.locator(".uipack-object");
       await expect(object.locator("canvas")).toHaveAttribute("data-renderer", "webgl");
       await expect(object).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
-      await expect(object).toHaveCSS("background-image", "none");
       await expect(object).toHaveCSS("border-top-color", "rgba(0, 0, 0, 0)");
-      await page.goto(`/animations?story=travel&variant=1&theme=${theme}`);
+      await page.goto(`/animations?story=travel&theme=${theme}`);
       await expect(object).toHaveAttribute("data-surface", "styled");
-      await expect(object).not.toHaveCSS("background-image", "none");
+      await expect(object).not.toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
     });
   }
+
+test("every subject builds without errors", async ({ page }) => {
+  test.setTimeout(60_000);
+  const errors: string[] = [];
+  page.on("pageerror", (e) => errors.push(e.message));
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  for (const kind of built) {
+    await page.goto(`/animations?story=${kind}`);
+    await expect(page.locator(".uipack-object canvas")).toHaveAttribute("data-phase", "rest");
+  }
+  expect(errors).toEqual([]);
+});

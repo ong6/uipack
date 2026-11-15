@@ -22,7 +22,7 @@ Frontmatter: `spec` is the id other specs extend; `extends` is `core`, or the id
 look this site reuses; `pages` lists the [page types](../system/layout/README.md#how-a-spec-sets-layout)
 the site has (a deck counts: it is a page of the site); `layouts` gives each one an
 [archetype](../system/layout/README.md#archetype-library) id or `custom`; `components` picks the
-[component looks](../components/README.md) the site uses (`3d: [studio, realistic]` for several);
+[component looks](../components/README.md) the site uses (`3d: ink`);
 `diagram-themes` says which [diagram theme](../components/diagrams.md#diagram-themes) colours the
 site's figures: `default` for the site, plus one key per page (or page group) that has its own,
 e.g. `{ default: site-paper, compoze: compoze, trading: trading }`; a theme UiPack doesn't ship
@@ -200,7 +200,7 @@ never loosen them.
 ## Component looks
 
 TODO: for each component in `components:`, why that look fits the site; for 3D, the subjects the
-site shows and the look each one is pinned to ([which subjects offer each look](../components/3d.md#which-subjects-offer-each-look)).
+site shows ([3D object scenes](../components/3d.md)).
 A `fixed` look's values are not this spec's to set.
 
 For diagrams, one row per theme in `diagram-themes` that UiPack doesn't ship: its name in backticks,

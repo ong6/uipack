@@ -503,7 +503,7 @@ export const docsManifest = [
         label: "3D object scenes",
         path: "/components/objects",
         file: "docs/objects.md",
-        intro: "Reusable, lazy 3D illustrations, their art directions and the player that shows them.",
+        intro: "Reusable, lazy 3D illustrations drawn in ink line art from the page's colours, and the player that shows them.",
       },
       {
         id: "mechanism",
@@ -555,7 +555,7 @@ export const docsManifest = [
         label: "3D looks",
         path: "/looks/3d",
         file: "docs/components/3d.md",
-        intro: "The six 3D looks, which subjects offer each, and which one takes the site's palette.",
+        intro: "The one 3D look, ink line art, and how it takes the site's paper, ink and accent.",
       },
       {
         id: "component-mechanism",

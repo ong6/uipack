@@ -33,7 +33,7 @@ component looks to pick from. A deck is a page of a site, so it reads the same s
 | --- | --- | --- |
 | Core rules | What every site keeps: the role contract (what a spec must define), the layout floors (what no layout may break), the core writing rules and slot ceilings (text length limits) | [Core rules](system/README.md) |
 | Layout archetypes | Named layouts per page type (grid, regions, section order, hero) a spec picks, extends or replaces | [Layout](system/layout/README.md) |
-| Component looks | Each component's named looks, `fixed` (the same on every site, like the Paper worlds 3D scenes) or `flex` (taking the site's roles) | [Component looks](components/README.md) |
+| Component looks | Each component's named looks, `fixed` (the same on every site) or `flex` (taking the site's roles, like the 3D ink line art) | [Component looks](components/README.md) |
 | Site specs | One per website: its roles, a layout per page type, its writing style and the looks it picks; built from a template and checked | [How to write a spec](specs/README.md), [what a spec may set](system/spec-settings.md), [Technical spec](specs/technical.md) |
 | Recipes | One per page type: the parts and the rules it relies on | [Recipes](recipes/README.md) |
 | Components | The parts, most with a live demo | [Architecture diagrams](diagrams.md), [Deck player](deck.md), [Web principles](web-principles.md) |
@@ -56,7 +56,7 @@ UiPack installs from the tarball attached to each GitHub release (ES modules onl
 
 <!-- generated:install -->
 ```sh
-npm install https://github.com/ong6/uipack/releases/download/v0.7.2/uipack-0.7.2.tgz
+npm install https://github.com/ong6/uipack/releases/download/v0.8.0/uipack-0.8.0.tgz
 ```
 <!-- /generated -->
 

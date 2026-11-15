@@ -4,7 +4,7 @@
 
 Agents: read docs/agents/README.md first, then the skill for your job in skills/ (README.md indexes them); the design system itself starts at docs/system/README.md. Agent instructions are in AGENTS.md. Generated from playground/docs-manifest.ts by `npm run docs:sync`; do not edit by hand.
 
-Install (ES modules only; not on npm): `npm install https://github.com/ong6/uipack/releases/download/v0.7.2/uipack-0.7.2.tgz`.
+Install (ES modules only; not on npm): `npm install https://github.com/ong6/uipack/releases/download/v0.8.0/uipack-0.8.0.tgz`.
 
 ## Start
 
@@ -64,7 +64,7 @@ Install (ES modules only; not on npm): `npm install https://github.com/ong6/uipa
 - [Deck storytelling](docs/deck-storytelling.md): Storyline templates, slide roles and the checks lintDeck runs on a deck's argument.
 - [Slide starters](docs/presentations.md): Slide layouts with their speech notes, then a complete five-chapter narrative built from them.
 - [3D animations](docs/slides.md): Live 3D scenes with camera moves, animated flows and presentation controls.
-- [3D object scenes](docs/objects.md): Reusable, lazy 3D illustrations, their art directions and the player that shows them.
+- [3D object scenes](docs/objects.md): Reusable, lazy 3D illustrations drawn in ink line art from the page's colours, and the player that shows them.
 - [Mechanism](docs/mechanism.md): Mechanical drawings that explain how a system moves, one part at a time.
 - [Docs layout](docs/docs-layout.md): A three-column product documentation shell with responsive navigation and Markdown prose.
 - [Web parts API](docs/web-api.md): The uipack/web parts with their props: page parts, motion, backgrounds, type and scoping.
@@ -73,7 +73,7 @@ Install (ES modules only; not on npm): `npm install https://github.com/ong6/uipa
 
 - [Component looks](docs/components/README.md): Each component's named looks, fixed (the same on every site) or flex (taking the site's palette and faces), and how a spec picks them.
 - [Diagram look and themes](docs/components/diagrams.md): The Blueprint look and diagram themes: one grammar on every site, colours, faces and ground from a theme; the theme API, the user-flow and sequence parts, the node strip.
-- [3D looks](docs/components/3d.md): The six 3D looks, which subjects offer each, and which one takes the site's palette.
+- [3D looks](docs/components/3d.md): The one 3D look, ink line art, and how it takes the site's paper, ink and accent.
 - [Mechanism look](docs/components/mechanism.md): The isometric machine look: its fixed drawing and the roles it takes from the site.
 
 ## Build · Examples

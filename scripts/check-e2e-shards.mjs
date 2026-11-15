@@ -3,7 +3,7 @@
 import { readdirSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 
-export const GL = /\/(art-directions|contact-directions|objects)\.spec\.ts$/;
+export const GL = /\/(ink|objects)\.spec\.ts$/;
 
 export function chromiumGroups() {
   const all = readdirSync(new URL("../e2e/", import.meta.url))
@@ -20,7 +20,7 @@ export function chromiumGroups() {
   const missing = all.filter((file) => !covered.has(file));
   if (missing.length || covered.size !== gl.length + rest.length)
     throw new Error(`Chromium groups must cover each spec once; uncovered: ${missing.join(" ")}`);
-  if (gl.length !== 3 || !rest.length) throw new Error("Expected three GL specs and a non-empty non-GL group");
+  if (gl.length !== 2 || !rest.length) throw new Error("Expected two GL specs and a non-empty non-GL group");
   return { gl, rest };
 }
 

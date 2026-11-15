@@ -383,7 +383,7 @@ test("without WebGL, the 3D tile shows a still of the scene", async ({ page }) =
   await scene.scrollIntoViewIfNeeded();
   await expect(scene).toHaveAttribute("data-scene", "still");
   const still = scene.locator("img");
-  await expect(still).toHaveAttribute("src", /studio-dark/);
+  await expect(still).toHaveAttribute("src", /ink-dark/);
   await expect.poll(() => still.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth)).toBeGreaterThan(0);
   await expect(scene.locator("canvas")).toHaveCount(0);
 });

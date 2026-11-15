@@ -1,39 +1,38 @@
-// Regenerates the object art-direction stills on /styles (playground/assets/styles/*.jpg).
-// One scene per direction, in both themes: travel where the direction offers it, otherwise a
-// subject that keeps the direction (the same as the card links in playground/CatalogShowcase.tsx).
-// Needs the dev server: `npx vite --port 5285`, then
-// `node scripts/style-stills.mjs [baseURL] [direction ids…]` (default: all six).
-// No image dependency: the browser downscales.
+// Regenerates the 3D look's stills (playground/assets/styles/ink-{light,dark}.jpg): the travel scene
+// in ink line art at its rest pose, for the style card on /specs/technical and the landing page's
+// 3D tile without WebGL. The same subject as the card's link in playground/CatalogShowcase.tsx.
+// Needs the dev server: `npx vite --port 5285`, then `node scripts/style-stills.mjs [baseURL]`.
+// One headless browser on the real GPU, with page timeouts and an overall deadline; no image
+// dependency (the browser downscales).
 import { chromium } from "@playwright/test";
 import { mkdirSync, writeFileSync } from "node:fs";
 
 const base = process.argv[2] ?? "http://localhost:5285";
-const only = process.argv.slice(3);
 const out = new URL("../playground/assets/styles/", import.meta.url);
-const directions = [
-  ["studio", "travel"],
-  ["paper-theatre", "travel"],
-  ["kinetic", "travel"],
-  ["cartoon", "tennis"],
-  ["realistic", "reading"],
-  ["abstract", "ai"],
-];
 const [W, H] = [720, 360];
 mkdirSync(out, { recursive: true });
 
-const browser = await chromium.launch();
-for (const theme of ["light", "dark"]) {
-  const page = await browser.newPage({ viewport: { width: 1440, height: 1000 }, deviceScaleFactor: 2, reducedMotion: "reduce" });
-  for (const [variant, [id, story]] of directions.entries()) {
-    if (only.length && !only.includes(id)) continue;
-    await page.goto(`${base}/animations?story=${story}&variant=${variant}&theme=${theme}`, { waitUntil: "networkidle" });
-    await page.waitForTimeout(5000);
+const browser = await chromium.launch({ headless: true, args: ["--use-angle=metal", "--enable-gpu", "--ignore-gpu-blocklist"] });
+const deadline = setTimeout(() => browser.close().finally(() => process.exit(2)), 120_000);
+try {
+  for (const theme of ["light", "dark"]) {
+    const page = await browser.newPage({
+      viewport: { width: 1440, height: 1000 },
+      deviceScaleFactor: 2,
+      reducedMotion: "reduce",
+    });
+    page.setDefaultTimeout(20_000);
+    await page.goto(`${base}/animations?story=travel&theme=${theme}`, { waitUntil: "domcontentloaded" });
     const canvas = page.locator(".uipack-gallery-stage canvas").first();
+    await canvas.and(page.locator('[data-phase="rest"]')).waitFor();
+    await page.waitForFunction(() => getComputedStyle(document.querySelector(".uipack-gallery-stage canvas")).opacity === "1");
+    // The still is the drawing alone: no player chrome.
+    await page.addStyleTag({ content: ".uipack-object-open, .uipack-object__motion { visibility: hidden; }" });
+    await canvas.scrollIntoViewIfNeeded();
     const box = await canvas.boundingBox();
-    if (!box) throw new Error(`no canvas for ${id}`);
-    // A 2:1 band below the stage's label and Open canvas button.
-    const top = box.y + 68;
-    const png = await page.screenshot({ clip: { x: box.x, y: top, width: box.width, height: box.width / 2 } });
+    if (!box) throw new Error("no canvas for the travel scene");
+    // The whole stage, fitted into the 2:1 still on the stage's own ground (its corner pixel).
+    const png = await page.screenshot({ clip: box });
     const jpeg = await page.evaluate(
       async ({ src, W, H }) => {
         const img = new Image();
@@ -42,14 +41,20 @@ for (const theme of ["light", "dark"]) {
         const c = document.createElement("canvas");
         [c.width, c.height] = [W, H];
         const g = c.getContext("2d");
+        g.drawImage(img, 0, 0, 1, 1, 0, 0, W, H);
         g.imageSmoothingQuality = "high";
-        g.drawImage(img, 0, 0, W, H);
-        return c.toDataURL("image/jpeg", 0.8).split(",")[1];
+        const scale = Math.min(W / img.width, (H * 1.12) / img.height);
+        const w = img.width * scale,
+          h = img.height * scale;
+        g.drawImage(img, (W - w) / 2, (H - h) / 2, w, h);
+        return c.toDataURL("image/jpeg", 0.85).split(",")[1];
       },
       { src: `data:image/png;base64,${png.toString("base64")}`, W, H },
     );
-    writeFileSync(new URL(`${id}-${theme}.jpg`, out), Buffer.from(jpeg, "base64"));
+    writeFileSync(new URL(`ink-${theme}.jpg`, out), Buffer.from(jpeg, "base64"));
+    await page.close();
   }
-  await page.close();
+} finally {
+  clearTimeout(deadline);
+  await browser.close();
 }
-await browser.close();

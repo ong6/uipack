@@ -5,7 +5,6 @@ import { resolve } from "node:path";
 import { existsSync } from "node:fs";
 import { checkSpec, frontmatter, pickedLooks, fixedTokens, roleRows } from "../scripts/check-spec";
 import { COMPONENTS, LAYOUT_ARCHETYPES, PAGE_TYPES } from "../scripts/site-model";
-import { objectDirections } from "../src/objects/variants";
 import { CORE_ROLES, lightDark, parseValueSet } from "../scripts/style-contract";
 import { siteRegistry } from "../playground/docs-manifest";
 
@@ -99,9 +98,11 @@ describe("site specs", () => {
     expect(checkSpec(technical.replace("diagrams: blueprint", "diagrams: neon"), { root })).toContain(
       'components: diagrams offers no look "neon" (blueprint)',
     );
-    expect(checkSpec(technical.replace("realistic, abstract]", "realistic, abstract, claymation]"), { root })).toContain(
-      'components: 3d offers no look "claymation" (studio, paper-theatre, kinetic, cartoon, realistic, abstract)',
+    // The removed 3D looks are unknown ids now: a spec still naming one fails.
+    expect(checkSpec(technical.replace("3d: ink", "3d: kinetic"), { root })).toContain(
+      'components: 3d offers no look "kinetic" (ink)',
     );
+    expect(checkSpec(technical.replace("3d: ink", "3d: [ink, ink]"), { root })).toContain("components: 3d takes one look, got 2");
     expect(checkSpec(technical.replace("mechanism: isometric", "mechanism: [isometric, isometric]"), { root })).toContain(
       "components: mechanism takes one look, got 2",
     );
@@ -150,9 +151,10 @@ describe("site specs", () => {
   });
 
   it("the site model matches the code and the docs", () => {
-    // 3D looks are the object directions, in order.
+    // The 3D component has the one look every object scene draws, ink line art.
     const looks3d = COMPONENTS.find((c) => c.id === "3d")!.looks.map((l) => l.id);
-    expect(looks3d).toEqual(objectDirections.map((d) => d.id));
+    expect(looks3d).toEqual(["ink"]);
+    expect(readFileSync(resolve(root, "src/objects/mount.ts"), "utf8")).toContain('canvas.dataset.artDirection = "ink"');
     // Every archetype's doc and every component doc exists; every page type has an archetype.
     for (const a of LAYOUT_ARCHETYPES) expect(existsSync(resolve(root, a.file)), a.file).toBe(true);
     for (const c of COMPONENTS) expect(existsSync(resolve(root, c.doc)), c.doc).toBe(true);
