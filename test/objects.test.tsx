@@ -228,6 +228,17 @@ describe("authored object animation envelopes", () => {
     expect(document.querySelector("canvas")).toBeNull();
   });
 
+  it("holds a preloaded scene's canvas while inactive, with no playback control", () => {
+    render(
+      <div style={{ height: 320 }}>
+        <ObjectScene kind="reading" label="Reading" active={false} preload controls="playback" />
+      </div>,
+    );
+    expect(document.querySelector("canvas")).toBeInTheDocument();
+    expect(document.querySelector('[data-active="false"]')).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /motion$/ })).toBeNull();
+  });
+
   it("offers a playback-only mode for compact consumer embeds", () => {
     render(
       <div style={{ height: 320 }}>
