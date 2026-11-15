@@ -237,6 +237,48 @@ describe("the player", () => {
     expect(screen.queryByRole("button", { name: /motion$/ })).toBeNull();
   });
 
+  it("shows no stand-in picture by default, and the drawing when asked", () => {
+    const { container, rerender } = render(<ObjectScene kind="tennis" label="Tennis" active={false} />);
+    expect(container.querySelector(".uipack-object")).toHaveAttribute("data-placeholder", "none");
+    // The drawing stays in the page for screen readers either way.
+    expect(screen.getByRole("img", { name: "Tennis illustration" })).toBeInTheDocument();
+    rerender(<ObjectScene kind="tennis" label="Tennis" active={false} placeholder="drawing" />);
+    expect(container.querySelector(".uipack-object")).toHaveAttribute("data-placeholder", "drawing");
+  });
+
+  it("trading glides: no bar-long hold and no jump between frames", () => {
+    withCanvas();
+    const object = createObject("trading")!;
+    const beads: THREE.InstancedMesh[] = [];
+    object.traverse((item) => {
+      const mesh = item as THREE.InstancedMesh;
+      if (mesh.isInstancedMesh && mesh.count === 1) beads.push(mesh);
+    });
+    // The newest bar's bead: its centre height, sampled every 16 ms over ten bars.
+    const matrix = new THREE.Matrix4(),
+      at = new THREE.Vector3();
+    const heights: number[] = [];
+    for (let t = 2000; t <= 2000 + 10 * 480; t += 16) {
+      object.userData.animate(t);
+      beads[0].getMatrixAt(0, matrix);
+      heights.push(at.setFromMatrixPosition(matrix).y);
+    }
+    const steps = heights.slice(1).map((h, i) => Math.abs(h - heights[i]));
+    const travel = Math.max(...heights) - Math.min(...heights);
+    expect(travel).toBeGreaterThan(0.02);
+    // No frame carries more than a tenth of the travel (a tick would), and it never sits still
+    // for a whole bar (a hold would): no run of twenty still frames.
+    expect(Math.max(...steps)).toBeLessThan(travel / 10);
+    let still = 0,
+      longest = 0;
+    for (const step of steps) {
+      still = step < 1e-6 ? still + 1 : 0;
+      longest = Math.max(longest, still);
+    }
+    expect(longest).toBeLessThan(20);
+    disposeObject(object);
+  });
+
   it("offers a playback-only mode for compact consumer embeds", () => {
     render(
       <div style={{ height: 320 }}>

@@ -44,6 +44,8 @@ test("renderer failure retains the labelled object fallback", async ({ page }) =
   await page.goto("/animations?story=contact");
   await expect(page.locator(".uipack-object canvas")).toHaveAttribute("data-renderer", "fallback");
   await expect(page.getByRole("img", { name: "Contact inbox illustration" })).toBeVisible();
+  // Only a scene that cannot be drawn shows its drawing (placeholder="none" hides it otherwise).
+  await expect(page.locator(".uipack-object__fallback")).toHaveCSS("opacity", "1");
   await expect(page.getByRole("button", { name: /motion$/ })).toHaveCount(0);
 });
 

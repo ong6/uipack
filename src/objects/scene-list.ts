@@ -24,7 +24,7 @@ export const objectScenes: {
   {
     id: "trading",
     title: "Trading journal",
-    description: "A market abacus: each bar's wick and bead slide on its rod as the bars tick forward. Simulation; no live data.",
+    description: "A market abacus: each bar's wick and bead glide on its rod as the market scrolls. Simulation; no live data.",
   },
   {
     id: "server",

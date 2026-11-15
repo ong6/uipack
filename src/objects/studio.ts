@@ -586,29 +586,28 @@ export function trading() {
   root.userData.animate = (time: number) => {
     const t = wrap(time, MARKET_LOOP_MS);
     turntable(desk, 0.42, t, MARKET_LOOP_MS, 0.12);
+    // The market scrolls continuously: each column reads the series at its own place plus the
+    // time, so every bead glides. (It used to hold each bar and then move every column at once in
+    // a 140 ms tick, twice a second, which read as a stutter.)
     const offset = t / MARKET_BAR_MS,
       first = Math.floor(offset),
       fraction = offset - first;
-    // Each bar holds, then every column takes its right-hand neighbour's values in one quick tick.
-    const tick = smootherstep(clamp((fraction - 0.66) / 0.3));
     for (let i = 0; i < COLS; i++) {
-      const from = marketBar(first - (COLS - 1) + i),
-        to = marketBar(first - (COLS - 2) + i);
-      const o = lerp(from.open, to.open, tick),
-        c = lerp(from.close, to.close, tick),
-        h = lerp(from.high, to.high, tick),
-        l = lerp(from.low, to.low, tick);
+      const bar = marketBar(offset - (COLS - 1) + i);
       const x = -span / 2 + i * PITCH;
       wicks.setMatrixAt(
         i,
-        scratch.compose(where.set(x, (y(h) + y(l)) / 2, 0), upright, size.set(1, Math.max(0.02, y(h) - y(l)), 1)),
+        scratch.compose(
+          where.set(x, (y(bar.high) + y(bar.low)) / 2, 0),
+          upright,
+          size.set(1, Math.max(0.02, y(bar.high) - y(bar.low)), 1),
+        ),
       );
       const body = scratch.compose(
-        where.set(x, (y(o) + y(c)) / 2, 0),
+        where.set(x, (y(bar.open) + y(bar.close)) / 2, 0),
         upright,
-        size.set(1, Math.max(0.035, Math.abs(y(o) - y(c))), 1),
+        size.set(1, Math.max(0.035, Math.abs(y(bar.open) - y(bar.close))), 1),
       );
-      const bar = tick < 0.5 ? from : to;
       const last = i === COLS - 1;
       const up = bar.close >= bar.open;
       if (last) newest.setMatrixAt(0, body);
@@ -616,8 +615,9 @@ export function trading() {
       falling.setMatrixAt(i, !last && !up ? body : HIDDEN);
     }
     for (const mesh of [wicks, rising, falling, newest]) mesh.instanceMatrix.needsUpdate = true;
-    const latest = marketBar(first + (tick > 0.5 ? 1 : 0));
-    leds[0].visible = Math.sin(Math.PI * clamp((fraction - 0.66) / 0.3)) > 0.3;
+    const latest = marketBar(offset);
+    // The status light blinks once a bar.
+    leds[0].visible = fraction > 0.7;
     leds[2].visible = latest.close >= latest.open;
     root.userData.phase = "market-pan";
     root.userData.pose = t / MARKET_LOOP_MS;

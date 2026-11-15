@@ -177,7 +177,16 @@ function galleryItems(): GalleryItem[] {
       preview: {
         kind: "live",
         ratio: "4 / 3",
-        render: (theme) => <ObjectScene kind={scene.id} label={scene.title} theme={theme} active={false} controls="playback" />,
+        render: (theme) => (
+          <ObjectScene
+            kind={scene.id}
+            label={scene.title}
+            theme={theme}
+            active={false}
+            controls="playback"
+            placeholder="drawing"
+          />
+        ),
       },
     });
   }

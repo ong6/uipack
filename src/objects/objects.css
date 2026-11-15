@@ -43,6 +43,19 @@
 .uipack-object:has(canvas[data-ready="true"]) .uipack-object__fallback {
   opacity: 0;
 }
+/* No stand-in picture (placeholder="none", the default): the 2D drawing is the fallback for a
+   scene that cannot be drawn, when the canvas reports data-renderer="fallback" (no WebGL, a lost
+   context, a kind with no subject). It is not shown while a scene loads or before it mounts, so
+   nothing is swapped for the scene. It stays in the page for screen readers, and shows when
+   scripting is off, since no scene will come. */
+@media (scripting: enabled) {
+  .uipack-object[data-placeholder="none"] .uipack-object__fallback {
+    opacity: 0;
+  }
+  .uipack-object[data-placeholder="none"]:has(canvas[data-renderer="fallback"]) .uipack-object__fallback {
+    opacity: 1;
+  }
+}
 .uipack-object__fallback {
   display: flex;
   flex-direction: column;
