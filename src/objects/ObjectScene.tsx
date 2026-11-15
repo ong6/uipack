@@ -24,7 +24,8 @@ export interface ObjectSceneProps {
   /**
    * Build the scene and paint its first frame while it is not `active`, and keep it when `active`
    * goes false, so it is ready before a reader reaches it and plays at once when it turns active.
-   * A page of several scenes sets it on the ones near the viewport. Default false: an inactive
+   * A page of several scenes sets it on the ones before and after the playing one, no more (each
+   * holds a WebGL context). Default false: an inactive
    * scene shows its fallback drawing and holds no WebGL context.
    */
   preload?: boolean;

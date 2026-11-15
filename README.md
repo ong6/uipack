@@ -32,7 +32,7 @@ The package isn't on npm. Each release attaches its built package to the GitHub 
 
 <!-- generated:install -->
 ```sh
-npm install https://github.com/ong6/uipack/releases/download/v0.7.1/uipack-0.7.1.tgz
+npm install https://github.com/ong6/uipack/releases/download/v0.7.2/uipack-0.7.2.tgz
 ```
 <!-- /generated -->
 
