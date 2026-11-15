@@ -7,6 +7,8 @@ release is cut and how a site moves to it.
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-11-15
+
 Every 3D object is drawn in one style, ink line art, and the other art directions are gone (the
 owner, 2026-11-15: "lets have one style that we stick to and refine"). Scenes paint sooner, recolour
 on a theme change without rebuilding, and a desktop paints at 60 frames a second at most. Props and
@@ -41,8 +43,9 @@ exports are removed, so this is a minor release ([version numbers](docs/releases
   [docs/objects.md, Budgets](docs/objects.md#budgets).
 - `ObjectGallery` takes `kind`, `theme` and `onChange(kind)`; it no longer has an inspector.
 - `objectScenes` descriptions follow the redrawn tennis, trading, server and travel subjects.
-- `ai` and `reading` show their labelled 2D drawing until their ink subjects land; they open no
-  WebGL context.
+- **Two new subjects, built in code:** `ai` (Coding & AI), an open laptop running an agent
+  session with the accent on the step in progress, and `reading`, an open book with one page
+  turning and an accent ribbon (`src/objects/studio-ai.ts`, `studio-reading.ts`).
 - The `3d` component has one look, `ink` (`components: { 3d: ink }`); Technical and the docs site
   pick it.
 
@@ -71,7 +74,6 @@ exports are removed, so this is a minor release ([version numbers](docs/releases
 - Replace imports of the removed exports; `ObjectScene`, `objectScenes`, `ObjectGallery`,
   `AnimationWorkspace` and the types `ObjectKind` and `ObjectSceneProps` remain.
 - A spec that picks 3D looks writes `3d: ink` (`scripts/check-spec.ts` rejects the old ids).
-- Pages that show `ai` or `reading` show their fallback drawing until those subjects land.
 - Stop copying or serving `tennis-return.glb`.
 
 ## [0.7.2] - 2026-11-15
@@ -620,7 +622,8 @@ pinned before that (junxiong.dev at `e6b6ed7`, notes.junxiong.dev at `3886f0d`) 
    dark) and run tier 1 on them (`npx uipack-grade check <url>`), as
    [docs/releases.md](docs/releases.md#moving-a-site-to-a-release) describes.
 
-[Unreleased]: https://github.com/ong6/uipack/compare/v0.7.2...HEAD
+[Unreleased]: https://github.com/ong6/uipack/compare/v0.8.0...HEAD
+[0.8.0]: https://github.com/ong6/uipack/compare/v0.7.2...v0.8.0
 [0.7.2]: https://github.com/ong6/uipack/compare/v0.7.1...v0.7.2
 [0.7.1]: https://github.com/ong6/uipack/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/ong6/uipack/compare/v0.6.0...v0.7.0

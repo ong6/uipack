@@ -82,10 +82,9 @@ Only otherwise is the role read from the mesh's original material colour.
      motion;
    - `userData.look`: `{ camera: { projection: "perspective", fov, pitch }, framing: { fill, maxWidth, lift }, contactShadow }`
      (`studioLook(shot)` in `studio.ts` is the shared lens family).
-2. **Register it** in `src/objects/scenes.ts`. The seam is marked there: for the two subjects being
-   built now, import `ai` from `./studio-ai` and `reading` from `./studio-reading` and replace the two
-   `null`s in `builders`. A kind whose builder is `null` shows its fallback drawing and opens no
-   WebGL context.
+2. **Register it** in `src/objects/scenes.ts`: import its builder and add it to `builders`. A
+   subject may live in `studio.ts` or in a file of its own (`studio-ai.ts`, `studio-reading.ts`). A
+   kind whose builder is `null` shows its fallback drawing and opens no WebGL context.
 3. **Check it:** `npx vitest run test/objects.test.tsx` (add the kind to `built`: finite bounds, every
    mesh tagged, a seamless loop, one accent), then `e2e/ink.spec.ts` (add it to `built`: both themes,
    both widths, the budgets). Look at stills in light and dark, at 573 × 558 and 390 wide, at rest

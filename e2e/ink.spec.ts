@@ -4,7 +4,7 @@ test.describe.configure({ mode: "parallel" });
 // Canvas snapshots and video recording perturb the timings being measured.
 const timingTest = test.extend({ trace: "off", video: "off" });
 // The renders: every built subject in ink line art, both themes, both widths, within budget.
-const built = ["contact", "tennis", "trading", "server", "travel"] as const;
+const built = ["ai", "contact", "tennis", "trading", "server", "travel", "reading"] as const;
 const MAX_DRAW_CALLS = 100;
 const MAX_TRIANGLES = 100_000;
 /** Fill, silhouette and line programs, with and without instancing, the print and the shadow. */
@@ -62,12 +62,6 @@ test("the docs page shows every subject in the one style, one playing", async ({
   await page.goto("/components/objects");
   const tiles = page.locator(".object-subjects__tile");
   await expect(tiles).toHaveCount(objectScenes.length);
-  for (const kind of ["ai", "reading"]) {
-    const tile = page.locator(`.object-subjects__tile[data-kind="${kind}"]`);
-    await expect(tile.locator('[role="img"]')).toBeVisible();
-    // No subject yet: the drawing, and no canvas or WebGL context at all.
-    await expect(tile.locator("canvas")).toHaveCount(0);
-  }
   const travel = page.locator('.object-subjects__tile[data-kind="travel"]');
   await travel.scrollIntoViewIfNeeded();
   await expect(travel.locator("canvas")).toHaveAttribute("data-renderer", "webgl", { timeout: 20_000 });

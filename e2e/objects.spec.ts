@@ -2,21 +2,7 @@ import { test, expect, waitForStable } from "./fixtures";
 import { playAnimationTime } from "./helpers";
 // The player: playback, fallbacks, theme changes and suspension. The renders themselves (every
 // subject in both themes at both widths, the budgets) are in ink.spec.ts.
-const built = ["contact", "tennis", "trading", "server", "travel"];
-
-test("ai and reading keep their labelled drawing until their subjects land", async ({ page }) => {
-  for (const [kind, title] of [
-    ["ai", "Agent session"],
-    ["reading", "Open book"],
-  ]) {
-    await page.goto(`/animations?story=${kind}`);
-    const canvas = page.locator(".uipack-object canvas");
-    await expect(canvas).toHaveAttribute("data-renderer", "fallback");
-    await expect(canvas).toHaveAttribute("data-subject", "none");
-    await expect(page.getByRole("img", { name: `${title} illustration` })).toBeVisible();
-    await expect(page.getByRole("button", { name: /motion$/ })).toHaveCount(0);
-  }
-});
+const built = ["ai", "contact", "tennis", "trading", "server", "travel", "reading"];
 
 test("object playback pauses, finishes, replays and opens one accessible canvas", async ({ page }) => {
   // Contact is the one scene that plays once and offers Replay (every other subject loops).

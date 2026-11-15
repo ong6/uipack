@@ -3,31 +3,22 @@
 // roles (src/objects/LOOK.md, "Adding a subject").
 import type * as THREE from "three";
 import { contact, tennis, trading, server, travel } from "./studio";
+import { ai } from "./studio-ai";
+import { reading } from "./studio-reading";
 
 export type ObjectKind = "ai" | "contact" | "tennis" | "trading" | "server" | "travel" | "reading";
 
 /** Builds one subject (called with no arguments; an optional palette parameter is fine). */
 export type SubjectBuilder = () => THREE.Group;
 
-/*
- * ---- SEAM: the `ai` and `reading` builders ------------------------------------------------------
- * Their subjects land as src/objects/studio-ai.ts (`ai`) and src/objects/studio-reading.ts
- * (`reading`). To wire them in:
- *   1. import { ai } from "./studio-ai";
- *      import { reading } from "./studio-reading";
- *   2. replace the two `null`s below with `ai` and `reading`.
- * Until then those two kinds show the labelled 2D fallback drawing: createObject returns null and
- * mount.ts creates no WebGL renderer for them.
- * --------------------------------------------------------------------------------------------------
- */
 const builders: Record<ObjectKind, SubjectBuilder | null> = {
   contact,
   tennis,
   trading,
   server,
   travel,
-  ai: null,
-  reading: null,
+  ai,
+  reading,
 };
 
 /** Build a kind's subject at its first frame, or null when it has none yet. */

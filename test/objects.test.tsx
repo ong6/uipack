@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import * as THREE from "three";
 import { createObject, disposeObject, type ObjectKind } from "../src/objects/scenes";
 import { inkify, inkRoleOf, INK_BUILD_PALETTE, type InkRole } from "../src/objects/ink";
@@ -14,16 +14,15 @@ const drawingContext = () =>
     { get: (_, name) => (name === "createLinearGradient" ? undefined : () => undefined) },
   ) as CanvasRenderingContext2D;
 const withCanvas = () => vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue(drawingContext());
-const built = ["contact", "tennis", "trading", "server", "travel"] as const satisfies readonly ObjectKind[];
+const built = ["ai", "contact", "tennis", "trading", "server", "travel", "reading"] as const satisfies readonly ObjectKind[];
 
 describe("the one style", () => {
   it("exports only the player, the scene list and the gallery", () => {
     expect(Object.keys(objects).sort()).toEqual(["AnimationWorkspace", "ObjectGallery", "ObjectScene", "objectScenes"]);
   });
 
-  it("ai and reading have no subject yet, so they keep their fallback drawing", () => {
-    expect(createObject("ai")).toBeNull();
-    expect(createObject("reading")).toBeNull();
+  it("every kind has a subject", () => {
+    expect([...built].sort()).toEqual(objects.objectScenes.map((scene) => scene.id).sort());
   });
 
   for (const kind of built)
@@ -223,7 +222,10 @@ describe("the player", () => {
     expect(document.querySelector('.uipack-object[data-art-direction="ink"]')).toBeInTheDocument();
   });
 
-  it("holds a preloaded scene's canvas while inactive, with no playback control", () => {
+  it("holds a preloaded scene's canvas while inactive, with no playback control", async () => {
+    // jsdom has no WebGL: three reports the failed context and the scene keeps its drawing. The
+    // build is asynchronous, so the test waits for it and the report lands inside this test.
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
     render(
       <div style={{ height: 320 }}>
         <ObjectScene kind="ai" label="Agent session" active={false} preload controls="playback" />
@@ -231,6 +233,7 @@ describe("the player", () => {
     );
     expect(document.querySelector("canvas")).toBeInTheDocument();
     expect(document.querySelector('[data-active="false"]')).toBeInTheDocument();
+    await waitFor(() => expect(document.querySelector("canvas")).toHaveAttribute("data-renderer", "fallback"));
     expect(screen.queryByRole("button", { name: /motion$/ })).toBeNull();
   });
 
@@ -246,7 +249,9 @@ describe("the player", () => {
 
   // Each mount listens for context loss once, so the listener count is the number of scenes built.
   // (AI has no subject yet, so jsdom never tries to open a WebGL context.)
-  it("a theme change recolours the scene in place instead of rebuilding it", () => {
+  it("a theme change recolours the scene in place instead of rebuilding it", async () => {
+    // jsdom has no WebGL: three reports the failed context; the mount count is what is tested.
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
     const listen = vi.spyOn(HTMLCanvasElement.prototype, "addEventListener");
     const mounts = () => listen.mock.calls.filter(([type]) => type === "webglcontextlost").length;
     const scene = (theme: "light" | "dark") => <ObjectScene kind="ai" label="Agent session" theme={theme} />;
@@ -255,5 +260,6 @@ describe("the player", () => {
     rerender(scene("dark"));
     rerender(scene("light"));
     expect(mounts()).toBe(1);
+    await waitFor(() => expect(document.querySelector("canvas")).toHaveAttribute("data-renderer", "fallback"));
   });
 });
