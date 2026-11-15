@@ -56,7 +56,7 @@ UiPack installs from the tarball attached to each GitHub release (ES modules onl
 
 <!-- generated:install -->
 ```sh
-npm install https://github.com/ong6/uipack/releases/download/v0.8.0/uipack-0.8.0.tgz
+npm install https://github.com/ong6/uipack/releases/download/v0.9.0/uipack-0.9.0.tgz
 ```
 <!-- /generated -->
 

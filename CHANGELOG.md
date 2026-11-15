@@ -7,6 +7,33 @@ release is cut and how a site moves to it.
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-11-16
+
+No picture stands in for a 3D scene while it loads, and the trading subject moves smoothly. The
+default placeholder changes what a page shows before a scene paints, so this is a minor release
+([version numbers](docs/releases.md#version-numbers)).
+
+### Added
+
+- **`ObjectScene` `placeholder`** (`"none"` by default, or `"drawing"`): what stands in where the
+  scene has not painted.
+
+### Changed
+
+- **No stand-in picture by default.** The labelled 2D drawing used to show until the scene painted
+  and was then swapped for it. Now nothing shows and the scene fades in on its own; the drawing
+  appears only when the scene cannot be drawn (no WebGL, a lost context, a kind with no subject,
+  scripting off). It stays in the page for screen readers.
+- **Trading scrolls continuously.** Each bead glides as the market moves. It used to hold every
+  bar and then move all twelve columns at once in a 140 ms tick, twice a second, which read as a
+  stutter (the owner: "lagging or janky").
+
+### Upgrading
+
+- A tile that never mounts a scene (`active={false}` with no `preload`) and should show the 2D
+  drawing sets `placeholder="drawing"`.
+- A site that hid the drawing with its own CSS can drop that rule.
+
 ## [0.8.0] - 2026-11-15
 
 Every 3D object is drawn in one style, ink line art, and the other art directions are gone (the
@@ -622,7 +649,8 @@ pinned before that (junxiong.dev at `e6b6ed7`, notes.junxiong.dev at `3886f0d`) 
    dark) and run tier 1 on them (`npx uipack-grade check <url>`), as
    [docs/releases.md](docs/releases.md#moving-a-site-to-a-release) describes.
 
-[Unreleased]: https://github.com/ong6/uipack/compare/v0.8.0...HEAD
+[Unreleased]: https://github.com/ong6/uipack/compare/v0.9.0...HEAD
+[0.9.0]: https://github.com/ong6/uipack/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/ong6/uipack/compare/v0.7.2...v0.8.0
 [0.7.2]: https://github.com/ong6/uipack/compare/v0.7.1...v0.7.2
 [0.7.1]: https://github.com/ong6/uipack/compare/v0.7.0...v0.7.1

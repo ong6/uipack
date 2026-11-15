@@ -55,7 +55,7 @@ lists their titles and descriptions as plain data (no Three.js).
 | --- | --- | --- | --- |
 | `contact` | Three source cards (an envelope, a speech bubble, a globe) route signals into one inbox tray | Plays once for 5.4 s, then offers Replay | The signals in flight and the inbox's status ring |
 | `tennis` | A racket resting on its butt and on a ball can, a ball bouncing on its strings, a second ball rolled out of the can | 6 s loop | The can's sleeve |
-| `trading` | A market abacus: per bar a wick sleeve and a bead slide on a rod; rising beads hollow (paper), falling ones toned (shade) | 30.7 s loop, the bars tick forward | The newest bar's bead |
+| `trading` | A market abacus: per bar a wick sleeve and a bead slide on a rod; rising beads hollow (paper), falling ones toned (shade) | 30.7 s loop, the market scrolls continuously and every bead glides | The newest bar's bead |
 | `server` | An inference rack hot-swapping its compute sled, fans spinning down and up, drive and link lights blinking | 8 s loop | The compute sled's face plate |
 | `travel` | A folded atlas that opens into a tent, takes a route and folds shut; its print redrawn as ink line work | 10 s loop | The route and the travelling pin |
 | `ai`, `reading` | Being built ([LOOK.md, the seam](../src/objects/LOOK.md#adding-a-subject)) | — | — |
@@ -70,7 +70,8 @@ built in code; there is no model file, texture download or font dependency.
 | --- | --- | --- |
 | `kind` | — | The subject. |
 | `label` | — | The accessible name; the fallback drawing is "`label` illustration". |
-| `active` | `true` | Plays. `false` shows the labelled SVG drawing, with no WebGL renderer or Three.js load. |
+| `placeholder` | `"none"` | What stands in where the scene has not painted. `"none"`: nothing, so no picture is swapped for the scene, and the 2D drawing shows only when the scene cannot be drawn (no WebGL, a lost context, scripting off). `"drawing"`: the drawing shows until the scene paints, for a tile that never mounts one (`active={false}` with no `preload`). |
+| `active` | `true` | Plays. `false` holds no WebGL renderer and loads no Three.js; with `placeholder="drawing"` it shows the labelled SVG drawing. |
 | `preload` | `false` | Builds the scene and paints its first frame while not `active`, and keeps it when `active` goes false. |
 | `theme` | `"light"` | The colour theme the stage resolves its roles in; a change recolours in place. |
 | `controls` | `"full"` | `"playback"` keeps Pause/Resume/Replay and drops Open canvas, for compact embeds. |

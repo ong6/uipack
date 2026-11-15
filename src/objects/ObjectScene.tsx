@@ -11,10 +11,17 @@ export interface ObjectSceneProps {
    * Build the scene and paint its first frame while it is not `active`, and keep it when `active`
    * goes false, so it is ready before a reader reaches it and plays at once when it turns active.
    * A page of several scenes sets it on the ones before and after the playing one, no more (each
-   * holds a WebGL context). Default false: an inactive
-   * scene shows its fallback drawing and holds no WebGL context.
+   * holds a WebGL context). Default false: an inactive scene holds no WebGL context.
    */
   preload?: boolean;
+  /**
+   * What stands in where the scene has not painted. `"none"` (default): nothing, so no picture is
+   * swapped for the scene; it fades in on its own, and the labelled 2D drawing shows only when the
+   * scene cannot be drawn (no WebGL, a lost context, scripting off). `"drawing"`: the 2D drawing
+   * shows until the scene paints; use it for a tile that never mounts a scene (`active={false}`
+   * with no `preload`), such as a catalogue thumbnail.
+   */
+  placeholder?: "none" | "drawing";
   /**
    * The colour theme the stage resolves its roles in. The scene is drawn in the page's paper, ink
    * and accent (`--object-paper`, `--object-ink`, `--object-accent`), re-read when this changes.
@@ -160,6 +167,7 @@ function ObjectStage({
   zoom = 1,
   controls = "full",
   surface = "styled",
+  placeholder = "none",
 }: ObjectSceneProps & { zoom?: number }) {
   const hostRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -247,6 +255,7 @@ function ObjectStage({
       ref={hostRef}
       data-theme={theme}
       data-surface={surface}
+      data-placeholder={placeholder}
       className={styles.scene}
       data-active={active ? "true" : "false"}
       data-kind={kind}
