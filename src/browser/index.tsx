@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { keepFocusedInView } from "../env";
+import { ALL, categories, filterAssets } from "./filter";
 
 export type AssetKind = "figure" | "part" | "icon" | "motion" | "background" | "mark";
 
@@ -41,8 +42,6 @@ export interface AssetBrowserProps {
   className?: string;
 }
 
-export const ALL = "All";
-
 async function copy(text: string): Promise<boolean> {
   try {
     if (typeof navigator !== "undefined" && navigator.clipboard) {
@@ -53,22 +52,6 @@ async function copy(text: string): Promise<boolean> {
     /* fall through */
   }
   return false;
-}
-
-/** Category names in manifest order, "All" first, with counts. */
-export function categories(assets: Asset[]): { name: string; count: number }[] {
-  const seen = new Map<string, number>();
-  for (const a of assets) seen.set(a.category, (seen.get(a.category) ?? 0) + 1);
-  return [{ name: ALL, count: assets.length }, ...[...seen].map(([name, count]) => ({ name, count }))];
-}
-
-export function filterAssets(assets: Asset[], category: string, query: string): Asset[] {
-  const q = query.trim().toLowerCase();
-  return assets.filter(
-    (a) =>
-      (category === ALL || a.category === category) &&
-      (!q || a.name.toLowerCase().includes(q) || a.id.includes(q) || (a.tags ?? []).some((t) => t.includes(q))),
-  );
 }
 
 /** One themed preview; an animated one swaps to its still under reduced motion. */

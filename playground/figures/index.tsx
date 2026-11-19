@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { Figure, Node } from "../../src";
-import { PRESETS } from "../../src/presets";
+import { PRESETS } from "../../src/presets/registry";
 import { HabitatFigure } from "../../examples/Habitat";
 import { DrillExample } from "../DrillSection";
 import { PartsFigure } from "./parts";

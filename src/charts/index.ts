@@ -1,8 +1,6 @@
 export { SpanChart, type SpanChartProps, type ChartHeadingLevel } from "./SpanChart";
 export {
   LayerStack,
-  buildLayerStack,
-  LAYER_STACK_LABELS,
   type LayerStackProps,
   type LayerStackLabels,
   type StackLayer,

@@ -1,12 +1,7 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { renderToString } from "react-dom/server";
-import {
-  SlideStarter,
-  estimateSpeechSeconds,
-  formatSpeechGuide,
-  renderSlideSvg,
-  type SlideStarterData,
-} from "../src/presentations";
+import { SlideStarter, renderSlideSvg, type SlideStarterData } from "../src/presentations";
+import { estimateSpeechSeconds, formatSpeechGuide } from "../src/presentations/SpeakerGuide";
 
 const opening: SlideStarterData = {
   id: "opening",

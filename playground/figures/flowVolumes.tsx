@@ -1,4 +1,5 @@
-import { Figure, Lane, hoverAttrs, isPointer, useFigureHover } from "../../src";
+import { Figure, Lane } from "../../src";
+import { hoverAttrs, isPointer, useFigureHover } from "../../src/hover";
 
 // A small Sankey: band thickness is the count. There is no Sankey part (a
 // candidate: docs/contributing.md), so the bars and bands are drawn here on the

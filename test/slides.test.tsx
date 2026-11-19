@@ -1,14 +1,8 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { onServer } from "./on-server";
-import {
-  SlidePlayer,
-  SlideScene,
-  clampStop,
-  harnessDive,
-  resolveNodePose,
-  slideStories,
-  validateSlideStory,
-} from "../src/slides";
+import { SlidePlayer, SlideScene, harnessDive, validateSlideStory } from "../src/slides";
+import { clampStop, resolveNodePose } from "../src/slides/model";
+import { slideStories } from "../src/slides/stories";
 
 describe("slide story contract", () => {
   it("ships valid, independently addressable stops", () => {

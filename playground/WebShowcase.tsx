@@ -23,7 +23,6 @@ import {
   ProductWindow,
   ItemList,
   type WebPageProps,
-  typeScale,
   type DemoStep,
   Aurora,
   BackgroundFrame,
@@ -38,7 +37,6 @@ import {
   Reveal,
   ScrollTransform,
   StarChart,
-  curvePath,
   TextScramble,
   TiltCard,
   withViewTransition,
@@ -56,6 +54,8 @@ import {
   headTagsToHtml,
   jsonLdTag,
 } from "../src/web";
+import { typeScale } from "../src/web/tokens";
+import { curvePath } from "../src/web/motif";
 import { tidyFaq, tidySeo } from "./web-seo";
 import "../src/web/fonts.css";
 import "../src/web/web.css";

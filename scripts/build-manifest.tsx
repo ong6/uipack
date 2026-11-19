@@ -12,7 +12,8 @@ import { Connector, Defs, Token, icons, marks, route, type IconName, type TokenK
 import type { Asset } from "../src/browser";
 
 const OUT = "docs/assets";
-import { DARK, LIGHT, renderStatic, type Palette, type StaticTheme } from "../src/static";
+import { renderStatic, type Palette, type StaticTheme } from "../src/static";
+import { DARK, LIGHT } from "../src/static/palette";
 const OUT_DARK = `${OUT}/dark`;
 
 // Every preview goes through the same static renderer the `uipack/static`

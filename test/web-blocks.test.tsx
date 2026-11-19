@@ -3,18 +3,8 @@ import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { Connector, Figure } from "../src";
 import { sectionOrder, uiStyles } from "../src/style";
-import {
-  ClosingCta,
-  FeatureGrid,
-  PricingPlans,
-  Proof,
-  Section,
-  SiteFooter,
-  StarHero,
-  WebPage,
-  WebSurface,
-  numberSections,
-} from "../src/web";
+import { ClosingCta, FeatureGrid, PricingPlans, Proof, Section, SiteFooter, StarHero, WebPage, WebSurface } from "../src/web";
+import { numberSections } from "../src/web/WebPage";
 import { readStyle } from "./style-values";
 
 const figure = (props: Partial<Parameters<typeof Figure>[0]> = {}) => (

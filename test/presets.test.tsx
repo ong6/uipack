@@ -1,6 +1,7 @@
 import { render } from "@testing-library/react";
-import { PRESETS, type PresetName } from "../src/presets";
-import { serviceMap, serviceMapParts, defaultServiceMap } from "../src/presets";
+import { PRESETS, type PresetName } from "../src/presets/registry";
+import { serviceMap } from "../src/presets";
+import { serviceMapParts, defaultServiceMap } from "../src/presets/serviceMap";
 
 describe("presets", () => {
   for (const name of Object.keys(PRESETS) as PresetName[]) {

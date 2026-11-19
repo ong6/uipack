@@ -16,8 +16,8 @@ import {
   marks,
   route,
   type IconName,
-  type MarkName,
 } from "../../src";
+import { type MarkName } from "../../src/marks";
 
 const iconNames = Object.keys(icons) as IconName[];
 const markNames = Object.keys(marks) as MarkName[];

@@ -1,4 +1,5 @@
-import { Badge, Bus, Connector, Defs, Figure, Label, Node, Token, useFigureMotion, type Point } from "../../src";
+import { Badge, Bus, Connector, Defs, Figure, Label, Node, Token, type Point } from "../../src";
+import { useFigureMotion } from "../../src/context";
 import { useHydrated } from "../../src/env";
 import { useFontFloor } from "../../src/scale";
 import { tidyFacts } from "../tidyFacts";

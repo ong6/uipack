@@ -1,17 +1,9 @@
 export { WebSurface, Grid, GridItem, type WebSurfaceProps, type GridProps, type GridItemProps } from "./Surface";
-export { WebPage, numberSections, type WebPageProps, type WebPageContext } from "./WebPage";
+export { WebPage, type WebPageProps, type WebPageContext } from "./WebPage";
 export { Eyebrow, Heading, Subhead, Body, type HeadingProps, type BodyProps } from "./Text";
 export { CtaButton, type CtaButtonProps } from "./CtaButton";
 export { GlassNav, type GlassNavProps, type GlassNavLink, type GlassNavCta } from "./GlassNav";
-export {
-  Section,
-  FeatureGrid,
-  SectionIndexContext,
-  sectionIndexLabel,
-  type SectionProps,
-  type Feature,
-  type FeatureGridProps,
-} from "./Section";
+export { Section, FeatureGrid, SectionIndexContext, type SectionProps, type Feature, type FeatureGridProps } from "./Section";
 export { SpotlightCard, type SpotlightCardProps } from "./SpotlightCard";
 export {
   Proof,
@@ -61,29 +53,10 @@ export {
 } from "./Worked";
 export { RevealText, type RevealTextProps } from "./RevealText";
 export { StarHero, type StarHeroProps } from "./StarHero";
-export {
-  StarChart,
-  RhymeIcon,
-  NoiseLayer,
-  curvePath,
-  DEFAULT_STAR_VALUES,
-  type StarChartProps,
-  type RhymeIconProps,
-} from "./motif";
+export { StarChart, RhymeIcon, NoiseLayer, DEFAULT_STAR_VALUES, type StarChartProps, type RhymeIconProps } from "./motif";
 export { DemoPlayer, type DemoPlayerProps } from "./DemoPlayer";
+export { DEFAULT_TIMING, type DemoStep, type DemoAction, type DemoTiming } from "./timeline";
 export {
-  demoFrame,
-  demoEnd,
-  demoCycle,
-  stepStart,
-  DEFAULT_TIMING,
-  type DemoStep,
-  type DemoAction,
-  type DemoTiming,
-  type DemoFrame,
-} from "./timeline";
-export {
-  typeScale,
   typeMetrics,
   typeRole,
   TYPE_FACES,
@@ -100,8 +73,6 @@ export {
 export {
   useInView,
   useScrollProgress,
-  useFinePointer,
-  scrollProgressOf,
   withViewTransition,
   withPaintTransition,
   type InViewOptions,
@@ -127,7 +98,6 @@ export {
 export {
   Reveal,
   TextScramble,
-  scrambleFrame,
   NumberTicker,
   Marquee,
   TiltCard,
@@ -146,10 +116,6 @@ export {
   useSmoothScroll,
   createSmoothScroll,
   smoothScrollTo,
-  followRate,
-  followStep,
-  easeOutExpo,
-  normalizeWheel,
   WHEEL_LINE_PX,
   WHEEL_PAGE_FRACTION,
   SMOOTH_SCROLL_ATTR,
@@ -160,12 +126,10 @@ export {
   type SmoothScrollTarget,
   type SmoothScrollController,
   type SmoothScrollHandle,
-  type WheelLike,
 } from "./SmoothScroll";
 export {
   pageMeta,
   headTagsToHtml,
-  headTagKey,
   fontPreloads,
   WEB_FONT_FILES,
   organization,
@@ -187,7 +151,6 @@ export {
   jsonLdTag,
   serializeJsonLd,
   ref,
-  slugify,
   type HeadTag,
   type PageMetaOptions,
   type FontPreloadOptions,
@@ -226,11 +189,9 @@ export {
   formatLastmod,
   rssFeed,
   AI_CRAWLERS,
-  type AiCrawler,
   type AiCrawlerAgent,
   type AiCrawlerPolicy,
   type AiCrawlerPreset,
-  type CrawlerPurpose,
   type CrawlRule,
   type CrawlPage,
   type CrawlFiles,

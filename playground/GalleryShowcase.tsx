@@ -7,11 +7,12 @@
  */
 import { pageReady } from "./page-ready";
 import { lazy, useMemo, useState, type ComponentType, type ReactNode } from "react";
-import { PRESETS } from "../src/presets";
-import { SlideThumbnail } from "../src/deck";
+import { PRESETS } from "../src/presets/registry";
+import { SlideThumbnail } from "../src/deck/player/Layer";
 import { renderSlideSvg } from "../src/presentations";
 import { ObjectScene, objectScenes } from "../src/objects";
-import { SlidePlayer, slideStories } from "../src/slides";
+import { SlidePlayer } from "../src/slides";
+import { slideStories } from "../src/slides/stories";
 import { VerificationGate } from "../src/mechanism";
 import manifest from "../assets/manifest.json";
 import { figureSections } from "./figures";
