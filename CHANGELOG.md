@@ -7,6 +7,12 @@ release is cut and how a site moves to it.
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-11-19
+
+Additions and fixes; nothing a site wrote needs to change. A playable simulation grid (`SimGrid`),
+a site's own 3D subject for `ObjectScene`, CI on React 18 and 19, and fixes for small text in slide
+previews and 3D labels, static chip fills, and `inert` on React 19.
+
 ### Added
 
 - `SimGrid` in `uipack`: a playable simulation drawn as a grid of identical cells (one SVG path per state), with live counters, the designs it compares on one control, option checkboxes, Play, Pause, Reset and Open canvas; the page supplies seeded per-cell start and end times ([simulation grid](docs/sim-grid.md)).
