@@ -9,14 +9,15 @@ reviewed point to pin instead of a bare commit.
 
 UiPack is installed from the tarball attached to its GitHub release (below), never from npm. The
 version in `package.json` is the latest release; a tag `vX.Y.Z` on main marks the commit it names.
-Before 1.0 the numbers mean:
+Since 1.0.0 (2026-11-19) the numbers mean:
 
 | Bump | When | Examples |
 | --- | --- | --- |
-| Minor (`0.2.0` → `0.3.0`) | A site that bumps its pin may have to change something, or will look different | An export, entry, prop, role or class name removed or renamed; a style or spec removed; a default that changes what a page draws; a docs path an agent or site links to moved |
-| Patch (`0.2.0` → `0.2.1`) | Nothing a site wrote needs to change | A bug fix, a tier-1 fix that keeps every API, a new optional prop or export, docs |
+| Major (`1.2.0` → `2.0.0`) | A site that bumps its pin may have to change something, or will look different | An export, entry, prop, role or class name removed or renamed; a style or spec removed; a default that changes what a page draws; a docs path an agent or site links to moved; a new required peer dependency |
+| Minor (`1.2.0` → `1.3.0`) | Something new a site may use; nothing it wrote changes | A new export, entry, optional prop, widget, figure pattern or optional peer |
+| Patch (`1.2.0` → `1.2.1`) | Nothing a site wrote needs to change, and nothing new to use | A bug fix, a tier-1 fix that keeps every API, docs |
 
-After 1.0 the usual rule applies: a breaking change is a major bump and an addition a minor one.
+Before 1.0, a breaking change was a minor bump and everything else a patch.
 When in doubt, take the larger bump and say why in the changelog.
 
 ## Cutting a release
