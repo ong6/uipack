@@ -296,8 +296,9 @@ function Drawing({ id, sources, bus, page, label, into, badge, words }: Layout) 
       {READ_ORDER.map((step, i) => (
         <g key={step.title}>
           <Node {...sources[i]} label={step.title} sub={step.path} icon={step.icon} size={14} />
-          <Badge cx={sources[i].x} cy={sources[i].y} text={String(i + 1)} accent r={badge} />
           {live && <Lit box={sources[i]} i={i} />}
+          {/* After the highlight: later siblings paint on top, so the badge is never under its outline. */}
+          <Badge cx={sources[i].x} cy={sources[i].y} text={String(i + 1)} accent r={badge} />
           {live && (
             <Ride
               i={i}

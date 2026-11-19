@@ -559,7 +559,9 @@ test.describe("Back returns the reader to where they were", () => {
     await page.goBack();
     await expect.poll(() => pageY(page), { timeout: 10_000 }).toBeGreaterThan(left.y - 8);
     await waitForStable(() => pageY(page));
-    expect(Math.abs((await pageY(page)) - left.y)).toBeLessThanOrEqual(8);
+    // Poll, not read once: the scroll holds still for a beat before the lazy parts mount and the
+    // site restores the position again (the CI flake read 141px off in that gap).
+    await expect.poll(async () => Math.abs((await pageY(page)) - left.y), { timeout: 10_000 }).toBeLessThanOrEqual(8);
     // The same place, once what is above it has mounted (a docs page's demos arrive after its text).
     await expect.poll(async () => Math.abs((await topOf(link)) - left.top)).toBeLessThanOrEqual(8);
     expect(Math.abs((await pageY(page)) - left.y)).toBeLessThanOrEqual(8);

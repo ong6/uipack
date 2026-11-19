@@ -166,13 +166,16 @@ test("reduced motion crossfades without scaling", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/drill");
   await drillNode(page, "checks").click();
-  const anims = await page.evaluate(() =>
-    document.getAnimations().map((a) => {
-      const e = a.effect as KeyframeEffect;
-      return { duration: e.getTiming().duration, props: e.getKeyframes().flatMap((k) => Object.keys(k)) };
-    }),
-  );
-  expect(anims.length).toBeGreaterThan(0);
+  // The click starts the crossfade a frame later: wait for it rather than reading at once.
+  const readAnims = () =>
+    page.evaluate(() =>
+      document.getAnimations().map((a) => {
+        const e = a.effect as KeyframeEffect;
+        return { duration: e.getTiming().duration, props: e.getKeyframes().flatMap((k) => Object.keys(k)) };
+      }),
+    );
+  await expect.poll(async () => (await readAnims()).length).toBeGreaterThan(0);
+  const anims = await readAnims();
   for (const a of anims) {
     expect(a.duration).toBe(160);
     expect(a.props).not.toContain("transform");

@@ -29,6 +29,11 @@ runs inside the components that use it; only the entry stops exporting it.
 - **`uipack/mechanism`** (100 → 29): `axisVector`, `AZIMUTH`, `boxCorners`, `cameraOf`, `circleIn`, `circleRing`, `coil`, `corners`, `cylinder`, `depthOf`, `dotGrid`, `Dots`, `ELEVATION`, `extrude`, `ExtrudeOptions`, `faceCircle`, `FaceText`, `Faded`, `FadeLineStyle`, `FitOptions`, `fitProjection`, `Flat`, `follow`, `GATE_CAPTION`, `haloOf`, `holdStill`, `insetPlan`, `iso`, `joinPaths`, `knurl`, `Line`, `lineOnTop`, `LineStyle`, `LineTone`, `onTop`, `pathOf`, `Plan`, `Plane`, `planOutline`, `pointsAt`, `prismOf`, `Projection`, `radialTicks`, `ring`, `ringOf`, `ringSeam`, `rise`, `roundedPlan`, `screenRise`, `segment`, `SHADES`, `sideArc`, `sideMatrix`, `sideRing`, `sideSeam`, `sideTicks`, `slabOf`, `Solid`, `SolidPaths`, `SolidStyle`, `spring`, `Spring`, `Ticks`, `Tone`, `topMatrix`, `topTicks`, `towardViewer`, `translateAlong`, `viewOf`, `Wire`, `WireStyle`.
 - **`uipack/grade`** (86 → 23): `assignOrders`, `briefMarkdown`, `CHECK_IDS`, `CHECK_TITLES`, `checkContrast`, `checkFaces`, `checkFocus`, `checkHeadingOrder`, `checkImages`, `checkMotion`, `checkOneH1`, `checkOverflow`, `checkRows`, `checkTargets`, `checkTextClip`, `checkTextOverlap`, `checkTextSize`, `ClipSample`, `contrastRatio`, `decodePng`, `DEFAULT_SPEC`, `diffBitmaps`, `evaluateView`, `Extras`, `faceAllowed`, `facesFromStyleSpec`, `findOverlaps`, `firstFamily`, `flatten`, `FocusSample`, `formatTally`, `HINT_PATTERNS`, `isLargeText`, `JUDGE_PROMPT`, `LedgerEntry`, `loadPlaywright`, `loadSpec`, `luminance`, `measureFocus`, `Measurements`, `measureMotion`, `measurePage`, `mergeSpec`, `MotionSample`, `over`, `PACKET_VIEWS`, `parseColor`, `PlatformFontUse`, `RegressionBrief`, `REPORT_VERSION`, `RGBA`, `RowSample`, `rubricVersion`, `sampleContrast`, `seeded`, `specFromStyleDoc`, `Spot`, `summarise`, `TargetSample`, `TextSample`, `UIPACK_SPEC`, `validateSpec`, `withQuery`.
 
+### Fixed
+
+- **Landing hero: the step number is no longer under its highlight.** While a step was lit, its
+  outline painted over the numbered badge on the box's corner; the badge now draws on top.
+
 ### Upgrading
 
 - Nothing to change: no site in the [registry](docs/specs/registry.md) imported any of these
