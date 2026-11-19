@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useId, useRef, useState, type CSSProperties } from "react";
 import { useIsoLayoutEffect } from "../env";
+import { inertProps } from "../inert";
 import type { DocsNavItem, DocsSection } from "./DocsLayout";
 import {
   flyNavMarker,
@@ -51,7 +52,6 @@ const hueStyle = (hue: string | undefined) => (hue ? ({ "--docs-hue": hue } as C
 /** The marker's track: its section's hue and, when the host sets one, the mark's dot colour. */
 const trackStyle = (hue: string | undefined, dot: string | undefined) =>
   ({ ...(hue ? { "--docs-hue": hue } : {}), ...(dot ? { "--docs-marker-dot": dot } : {}) }) as CSSProperties;
-const inert = (on: boolean) => (on ? ({ inert: "" } as object) : {});
 
 function NavigationItem({ item, activeHref }: { item: DocsNavItem; activeHref: string }) {
   return (
@@ -374,7 +374,7 @@ export function SectionNavigation({
                     <Chevron />
                   </button>
                 </h2>
-                <div className="uipack-docs__nav-body" id={bodyId} {...inert(!isOpen)}>
+                <div className="uipack-docs__nav-body" id={bodyId} {...inertProps(!isOpen)}>
                   <div>
                     <div className="uipack-docs__nav-inner">{runs}</div>
                   </div>

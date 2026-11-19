@@ -2,6 +2,7 @@ import { forwardRef, useCallback, useRef, useState } from "react";
 import { toneOf } from "../tone";
 import { flushSync } from "react-dom";
 import { useIsoLayoutEffect } from "../../env";
+import { inertProps } from "../../inert";
 import { DeckSlideContext } from "../parts";
 import { CANVAS_WIDTH } from "../transitions";
 import type { DeckSlide, DeckTheme } from "../types";
@@ -58,7 +59,7 @@ export const Layer = /*#__PURE__*/ forwardRef<HTMLDivElement, LayerProps>(functi
       aria-roledescription={thumbnail ? undefined : "slide"}
       aria-label={thumbnail ? undefined : `${index + 1} of ${count}: ${slide.title}`}
       aria-hidden={active ? undefined : true}
-      {...(active ? {} : ({ inert: "" } as object))}
+      {...inertProps(!active)}
     >
       <div className="uipack-deck-layer__bg" />
       <DeckSlideContext.Provider value={{ step, active, thumbnail, index, count }}>
