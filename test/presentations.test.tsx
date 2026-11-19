@@ -2,6 +2,8 @@ import { act, fireEvent, render, screen } from "@testing-library/react";
 import { renderToString } from "react-dom/server";
 import { SlideStarter, renderSlideSvg, type SlideStarterData } from "../src/presentations";
 import { estimateSpeechSeconds, formatSpeechGuide } from "../src/presentations/SpeakerGuide";
+import { renderSlideSvgWithFloor } from "../src/presentations/renderSlideSvg";
+import { presentationStarters } from "../playground/presentationExamples";
 
 const opening: SlideStarterData = {
   id: "opening",
@@ -104,5 +106,33 @@ describe("presentation starters", () => {
     expect(estimateSpeechSeconds("one two")).toBe(5);
     render(<SlideStarter slide={opening} showSpeech={false} />);
     expect(screen.queryByRole("complementary")).not.toBeInTheDocument();
+  });
+
+  it("raises every text to the floor and leaves the drawing alone below it", () => {
+    const sizes = (svg: string) => [...svg.matchAll(/font-size="(\d+)"/g)].map((m) => Number(m[1]));
+    for (const slide of presentationStarters) {
+      expect(renderSlideSvgWithFloor(slide, {}, 0)).toBe(renderSlideSvg(slide));
+      expect(renderSlideSvgWithFloor(slide, {}, 13)).toBe(renderSlideSvg(slide));
+      expect(Math.min(...sizes(renderSlideSvgWithFloor(slide, {}, 41)))).toBe(41);
+    }
+    // A step's mono detail that no longer fits one line wraps, inside a wider box.
+    const system = renderSlideSvgWithFloor(presentationStarters[2], {}, 41);
+    expect(system).toMatch(/>title and<\/text>/);
+    expect(system).toMatch(/<rect x="64" y="295" width="316"/);
+  });
+
+  it("wraps long text only under a floor", () => {
+    const context = "Shared type, colour and spacing for websites and slides, and for every deck too.";
+    const long: SlideStarterData = { ...opening, content: { ...opening.content, context } };
+    expect(renderSlideSvgWithFloor(long, {}, 0)).toContain(`>${context}</text>`);
+    expect(renderSlideSvgWithFloor(long, {}, 41)).not.toContain(`>${context}</text>`);
+  });
+
+  it("server-renders the preview for a desktop column before it is measured", () => {
+    const html = renderToString(<SlideStarter slide={opening} />);
+    // Unmeasured, so presentations.css's narrow fallback applies until the effect runs.
+    expect(html).not.toContain("data-measured");
+    // 12px at the 1088px a Figure assumes: 14 units, so the 13-unit footer is drawn at 14.
+    expect(html).toMatch(/font-size="14"[^>]*>01 \/ 03</);
   });
 });

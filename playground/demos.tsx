@@ -84,6 +84,11 @@ export const demos: Record<string, DemoDef> = {
     "ObjectSubjects",
     "Every 3D subject in the one style, ink line art, on the page: each held on its first frame, the chosen one playing.",
   ),
+  "object-site-subject": demo(
+    () => import("./ObjectsShowcase"),
+    "ObjectSiteSubject",
+    "A subject a site builds itself (it imports no three), drawn and played by ObjectScene.",
+  ),
   "mechanism-gate": demo(
     () => import("./MechanismShowcase"),
     "MechanismDemo",

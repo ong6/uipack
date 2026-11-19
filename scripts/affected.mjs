@@ -71,7 +71,7 @@ const AREAS = [
   [/^src\/article\//, ["article"]],
   [/^src\/deck\/consulting\//, ["deck-consulting"]],
   [/^src\/deck\//, ["deck"]],
-  [/^src\/presentations\//, ["deck", "showcase"]],
+  [/^src\/presentations\//, ["deck", "showcase", "slide-starter"]],
   [/^src\/mechanism\//, ["mechanism"]],
   [/^src\/web\//, ["web", "tier1"]],
   [
@@ -134,13 +134,13 @@ const AREAS = [
   // nav covers the routes on the dev server.
   [/^playground\/site\.ts$|^scripts\/(check-site|serve-site)|^vercel\.json$/, ["nav"]],
   // The /styles and /presentations pages (CatalogShowcase): slide starters and the style catalog demo.
-  [/^playground\/(CatalogShowcase|StylePreviews|presentations\.css)/, ["web", "page-audit", "showcase"]],
+  [/^playground\/(CatalogShowcase|StylePreviews|presentations\.css)/, ["web", "page-audit", "showcase", "slide-starter"]],
   // Component demos embedded in their docs pages.
   [/^playground\/(ArticleShowcase|article-showcase)/, ["article"]],
   [/^playground\/FiguresShowcase/, [...FIGURES, "charts", "assets"]],
   [/^playground\/(MechanismShowcase|mechanism-showcase)/, ["mechanism"]],
   [/^playground\/(SlideShowcase|slides-showcase)/, ["slides", "objects"]],
-  [/^playground\/(ObjectsShowcase|objects-showcase)/, ["ink"]],
+  [/^playground\/(ObjectsShowcase|objects-showcase|siteSubject)/, ["ink"]],
   // The figure geometry check a site runs; geometry.spec runs it on every figure of the diagrams page.
   [/^bin\/(uipack-figure-check|figure-check-cli)/, ["geometry"]],
   // dist/ is built, not committed: what changes the build (and the page that loads it) runs the smoke

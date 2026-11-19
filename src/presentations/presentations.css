@@ -42,18 +42,19 @@
   font-weight: var(--ui-display-weight);
   letter-spacing: var(--ui-display-tracking);
 }
-/* A narrow preview draws the 1200-unit slide at a third of its size or less. Its fine print keeps
-   about 10px on screen (34 units at a 358px preview); text inside a fixed box stops at 32 so it
-   still fits the box. Headlines are large enough already. */
+/* SlideStarter measures the preview and draws every text at 12px or more (renderSlideSvg.ts), so a
+   measured preview ([data-measured]) takes no font-size here: it would override the drawing's own.
+   Before that (server rendering, no script) the drawing assumes a desktop column, so a narrow
+   preview's fine print keeps about 10px (34 units at 358px), box text 32 units. */
 .uipack-slide-starter__preview {
   container-type: inline-size;
 }
 @container (max-width: 640px) {
-  .uipack-slide-starter__preview .uipack-slide-starter__label,
-  .uipack-slide-starter__preview .uipack-slide-starter__fine {
+  .uipack-slide-starter__preview:not([data-measured]) .uipack-slide-starter__label,
+  .uipack-slide-starter__preview:not([data-measured]) .uipack-slide-starter__fine {
     font-size: 34px;
   }
-  .uipack-slide-starter__preview .uipack-slide-starter__boxed {
+  .uipack-slide-starter__preview:not([data-measured]) .uipack-slide-starter__boxed {
     font-size: 32px;
   }
 }

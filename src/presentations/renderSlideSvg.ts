@@ -58,13 +58,41 @@ function accessibleTitle(slide: SlideStarterData): string {
 }
 
 /**
- * Fine print on the 1200-unit slide. At 390px the slide is drawn at about 0.3x, so an 18-unit footer
- * would be 5px; presentations.css raises each role to a readable size in a narrow preview.
- * "label": mono labels (eyebrow, footer); "boxed": mono text inside a fixed box; "fine": small copy.
+ * Role classes on the drawing's small text: "label" (mono eyebrow, footer, box title), "boxed" (text
+ * inside a fixed box) and "fine" (small copy). Headlines carry none; presentations.css styles them.
  */
 type FineRole = "label" | "boxed" | "fine";
 
+/** IBM Plex Mono's advance, in em: exact, so mono text in a box wraps by character count. */
+const MONO_EM = 0.6;
+/** Plex Sans is proportional: an upper bound per character (the starters measure 0.42–0.46em). */
+const SANS_EM = 0.5;
+const SANS_BOLD_EM = 0.52;
+
+/** Greedy word wrap to at most `chars` characters a line (a longer word keeps its own line). */
+function wrap(value: string, chars: number): string[] {
+  const lines: string[] = [];
+  for (const word of value.split(/\s+/).filter(Boolean)) {
+    const last = lines.length - 1;
+    if (last >= 0 && lines[last].length + 1 + word.length <= chars) lines[last] += ` ${word}`;
+    else lines.push(word);
+  }
+  return lines.length ? lines : [value];
+}
+
 export function renderSlideSvg(slide: SlideStarterData, options: RenderSlideSvgOptions = {}): string {
+  return renderSlideSvgWithFloor(slide, options, 0);
+}
+
+/**
+ * renderSlideSvg with a text floor in slide units (internal; SlideStarter passes the floor for the
+ * width it is shown at). Every text is drawn at least `floor` units tall. Where the larger text no
+ * longer fits the 1200-unit layout, the layout makes room: System's steps widen, their detail wraps
+ * and the boxes grow; Explanation's box narrows so the right column fits, and its detail wraps.
+ * Only a floor adapts the layout: at floor 0 the drawing is renderSlideSvg's as it always was, and
+ * at a floor below every default size it is the same drawing.
+ */
+export function renderSlideSvgWithFloor(slide: SlideStarterData, options: RenderSlideSvgOptions, floor: number): string {
   const theme = options.theme ?? "light";
   const css = options.paint === "css";
   const colors = css ? cssColors : palettes[theme];
@@ -76,6 +104,10 @@ export function renderSlideSvg(slide: SlideStarterData, options: RenderSlideSvgO
       : `${p.font ? ` font-family="${p.font}"` : ""}${p.fill ? ` fill="${p.fill}"` : ""}${p.stroke ? ` stroke="${p.stroke}"` : ""}`;
   const width = options.width ?? 1200;
   const height = Math.round((width * 9) / 16);
+  /** A designed size, raised to the floor. */
+  const sz = (size: number) => Math.max(size, floor);
+  /** Wrap only under a floor; without one, renderSlideSvg keeps drawing one line. */
+  const fit = (value: string, chars: number) => (floor > 0 ? wrap(value, chars) : [value]);
   const text = (
     x: number,
     y: number,
@@ -88,7 +120,10 @@ export function renderSlideSvg(slide: SlideStarterData, options: RenderSlideSvgO
     role?: FineRole,
     tracking?: number,
   ) =>
-    `<text x="${x}" y="${y}"${anchor === "end" ? ' text-anchor="end"' : ""}${role ? ` class="uipack-slide-starter__${role}"` : ""} ${css ? "" : paint({ font: mono ? faces.mono : faces.sans })} font-size="${size}"${paint(css ? { fill: color, font: mono ? faces.mono : faces.sans } : { fill: color })} font-weight="${weight}"${tracking ? ` letter-spacing="${tracking}em"` : ""}>${escapeSvgText(tracking ? value.toUpperCase() : value)}</text>`;
+    `<text x="${x}" y="${y}"${anchor === "end" ? ' text-anchor="end"' : ""}${role ? ` class="uipack-slide-starter__${role}"` : ""} ${css ? "" : paint({ font: mono ? faces.mono : faces.sans })} font-size="${sz(size)}"${paint(css ? { fill: color, font: mono ? faces.mono : faces.sans } : { fill: color })} font-weight="${weight}"${tracking ? ` letter-spacing="${tracking}em"` : ""}>${escapeSvgText(tracking ? value.toUpperCase() : value)}</text>`;
+  /** Wrapped text: `draw` each line, `step` units below the one before. */
+  const lines = (values: string[], step: number, draw: (value: string, dy: number) => string) =>
+    values.map((value, i) => draw(value, i * step)).join("");
   // The deck's optional eyebrow and footer (deck.css .uipack-deck-eyebrow, .uipack-deck-footer), scaled from
   // its 1920 canvas to this 1200 one: tracked mono caps, the eyebrow in the accent.
   const eyebrow = (value?: string) => (value ? text(64, 105, value, 15, colors.accent, 600, true, "start", "label", 0.14) : "");
@@ -104,37 +139,71 @@ export function renderSlideSvg(slide: SlideStarterData, options: RenderSlideSvgO
 
   let body = "";
   if (slide.layout === "opening") {
+    // The context wraps across the 1072 units between the margins; there is room down to the footer.
+    const context = sz(28);
     body =
       eyebrow(slide.content.eyebrow) +
       text(64, 277, slide.content.headline[0], 78, colors.ink, 600) +
       text(64, 371, slide.content.headline[1], 78, colors.ink, 600) +
-      text(64, 457, slide.content.context, 28, colors.muted, 400, false, "start", "fine");
+      lines(fit(slide.content.context, Math.floor(1072 / (SANS_EM * context))), Math.round(1.2 * context), (line, dy) =>
+        text(64, 457 + dy, line, 28, colors.muted, 400, false, "start", "fine"),
+      );
   } else if (slide.layout === "explanation") {
-    const [first, second] = slide.content.applications;
+    const { foundation, applications } = slide.content;
+    const [first, second] = applications;
+    const [appTitle, appDetail, detail] = [sz(30), sz(24), sz(30)];
+    // The right column starts at 568 while it fits before the 1136 margin; else the box narrows to 400.
+    const columnWidth = Math.max(
+      ...applications.flatMap((a) => [a.title.length * SANS_BOLD_EM * appTitle, a.detail.length * SANS_EM * appDetail]),
+    );
+    const boxWidth = floor > 0 && 568 + columnWidth > 1136 ? 400 : 440;
+    const column = boxWidth === 440 ? 568 : 64 + boxWidth + 48;
+    // The box's detail wraps inside its 32-unit left and 24-unit right padding.
+    const detailLines = fit(foundation.detail, Math.floor((boxWidth - 56) / (SANS_BOLD_EM * detail)));
+    const detailStep = Math.round(1.2 * detail);
+    const boxHeight = Math.max(256, 399 + (detailLines.length - 1) * detailStep + 40 - 264);
+    const gap = Math.max(48, Math.round(1.2 * appDetail));
+    const second0 = 310 + gap + Math.max(84, Math.round(1.8 * appTitle));
     body =
       eyebrow(slide.content.eyebrow) +
       text(64, 196, slide.content.headline, 52, colors.ink, 600) +
-      `<rect x="64" y="264" width="440" height="256"${paint({ fill: colors.surface, stroke: colors.rule })}/>` +
-      text(96, 328, slide.content.foundation.title, 22, colors.accent, 700, true, "start", "label") +
-      text(96, 399, slide.content.foundation.detail, 30, colors.ink, 600, false, "start", "boxed") +
-      text(568, 310, first.title, 30, colors.ink, 600, false, "start", "boxed") +
-      text(568, 358, first.detail, 24, colors.muted, 400, false, "start", "fine") +
-      text(568, 442, second.title, 30, colors.ink, 600, false, "start", "boxed") +
-      text(568, 490, second.detail, 24, colors.muted, 400, false, "start", "fine");
+      `<rect x="64" y="264" width="${boxWidth}" height="${boxHeight}"${paint({ fill: colors.surface, stroke: colors.rule })}/>` +
+      text(96, 328, foundation.title, 22, colors.accent, 700, true, "start", "label") +
+      lines(detailLines, detailStep, (line, dy) => text(96, 399 + dy, line, 30, colors.ink, 600, false, "start", "boxed")) +
+      text(column, 310, first.title, 30, colors.ink, 600, false, "start", "boxed") +
+      text(column, 310 + gap, first.detail, 24, colors.muted, 400, false, "start", "fine") +
+      text(column, second0, second.title, 30, colors.ink, 600, false, "start", "boxed") +
+      text(column, second0 + gap, second.detail, 24, colors.muted, 400, false, "start", "fine");
   } else {
+    const { steps } = slide.content;
+    const detail = sz(20);
+    // Three 288-unit boxes 104 apart while every detail fits one line inside 24 + 12 units of
+    // padding; else 316-unit boxes 62 apart (still 1072 across) and the detail wraps.
+    const chars = (box: number) => Math.floor((box - 36) / (MONO_EM * detail));
+    const wide = floor === 0 || steps.every((step) => step.detail.length <= chars(288));
+    const [boxWidth, gap] = wide ? [288, 104] : [316, 62];
+    const stepLines = steps.map((step) => fit(step.detail, chars(boxWidth)));
+    const detailY = 351 + Math.max(43, Math.round(1.15 * detail));
+    const detailStep = Math.round(1.2 * detail);
+    const boxBottom = detailY + (Math.max(...stepLines.map((l) => l.length)) - 1) * detailStep + 39;
+    const boxHeight = boxBottom - 295;
+    const arrowY = 295 + boxHeight / 2;
     body = eyebrow(slide.content.eyebrow) + text(64, 196, slide.content.headline, 52, colors.ink, 600);
-    slide.content.steps.forEach((step, index) => {
-      const x = 64 + index * 392;
+    steps.forEach((step, index) => {
+      const x = 64 + index * (boxWidth + gap);
       body +=
-        `<rect x="${x}" y="295" width="288" height="138"${paint({ fill: colors.surface, stroke: colors.rule })} stroke-width="2"/>` +
+        `<rect x="${x}" y="295" width="${boxWidth}" height="${boxHeight}"${paint({ fill: colors.surface, stroke: colors.rule })} stroke-width="2"/>` +
         text(x + 24, 351, step.title, 30, colors.ink, 600, false, "start", "boxed") +
-        text(x + 24, 394, step.detail, 20, colors.muted, 400, true, "start", "boxed");
-      if (index < slide.content.steps.length - 1) {
-        const arrow = x + 302;
-        body += `<path d="M${arrow} 364h70m-10-8 10 8-10 8" fill="none"${paint({ stroke: colors.accent })} stroke-width="3"/>`;
+        lines(stepLines[index], detailStep, (line, dy) =>
+          text(x + 24, detailY + dy, line, 20, colors.muted, 400, true, "start", "boxed"),
+        );
+      if (index < steps.length - 1) {
+        const [start, length] = wide ? [x + 302, 70] : [x + boxWidth + 10, gap - 22];
+        body += `<path d="M${start} ${arrowY}h${length}m-10-8 10 8-10 8" fill="none"${paint({ stroke: colors.accent })} stroke-width="3"/>`;
       }
     });
-    body += text(64, 521, slide.content.caption, 27, colors.muted, 400, false, "start", "fine");
+    const caption = Math.max(521, boxBottom + Math.round(0.72 * sz(27)) + 40);
+    body += text(64, caption, slide.content.caption, 27, colors.muted, 400, false, "start", "fine");
   }
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 1200 675" role="img"><title>${escapeSvgText(`${slide.title}: ${accessibleTitle(slide)}`)}</title><desc>${escapeSvgText(slide.description)}</desc><rect width="1200" height="675"${paint({ fill: colors.paper })}/>${body}${footer}</svg>`;

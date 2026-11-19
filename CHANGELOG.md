@@ -10,6 +10,18 @@ release is cut and how a site moves to it.
 ### Added
 
 - `SimGrid` in `uipack`: a playable simulation drawn as a grid of identical cells (one SVG path per state), with live counters, the designs it compares on one control, option checkboxes, Play, Pause, Reset and Open canvas; the page supplies seeded per-cell start and end times ([simulation grid](docs/sim-grid.md)).
+- CI builds the consumers (`examples/web-starter`, the dist smoke page) against React 18 and React 19
+  (the `react-majors` job, `scripts/react-majors.tsx`), so a change that breaks either major fails
+  the pull request.
+- `ObjectScene` takes `subject` (type `ObjectSceneSubject`: `id`, `build({ THREE })`, optional fallback
+  `drawing`), a site's own scene builder for a subject uipack lacks, played with a kind's lifecycle;
+  `kind` is now optional. No `three` types enter uipack's `.d.ts`: a site with `@types/three` types its
+  own builder ([a site's own subject](docs/objects.md#a-sites-own-subject)).
+
+### Fixed
+
+- `SlideStarter` previews keep every text at 12px or more from about 320px wide (it was 7.3px at
+  680px and about 10px on phones); `renderSlideSvg`'s output is unchanged.
 
 ## [1.0.0] - 2026-11-19
 
