@@ -1,5 +1,6 @@
 import { render } from "@testing-library/react";
-import { DeckSlideContext, STORYLINE_TEMPLATES, lintDeck, starterDeck } from "../src/deck";
+import { STORYLINE_TEMPLATES, lintDeck, starterDeck } from "../src/deck";
+import { DeckSlideContext } from "../src/deck/parts";
 import { deckExamples } from "../playground/deckExamples";
 import { headlineDrift } from "../src/deck/player/headline";
 import { findings as starterFindings, slides as starterSlides } from "../examples/deckStarter";

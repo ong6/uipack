@@ -2,12 +2,12 @@ import { fireEvent, render, screen, within } from "@testing-library/react";
 import {
   DocsLayout,
   docsSearchEntries,
-  groupDocsResults,
   packDocsSearchIndex,
   searchDocs,
   unpackDocsSearchIndex,
   type DocsSection,
 } from "../src/docs";
+import { groupDocsResults } from "../src/docs/search";
 import {
   HOP_LIFT,
   HOP_LIFT_LEFT,

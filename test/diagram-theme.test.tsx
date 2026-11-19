@@ -22,10 +22,10 @@ import {
   diagramColors,
   diagramThemeCss,
   diagramThemeVars,
-  isDiagramTheme,
-  DIAGRAM_CARRIERS,
 } from "../src";
-import { DARK, LIGHT, renderStatic, resolvePalette, themePalette } from "../src/static";
+import { isDiagramTheme, DIAGRAM_CARRIERS } from "../src/diagram-theme";
+import { renderStatic } from "../src/static";
+import { DARK, LIGHT, resolvePalette, themePalette } from "../src/static/palette";
 import { technicalValues } from "../src/styles/technical-values";
 
 const paper = defineDiagramTheme({

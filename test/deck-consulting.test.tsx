@@ -3,10 +3,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import {
   BarChart,
-  CX_TYPE,
   ConsultingSlide,
-  DeckSlideContext,
-  HarveyBall,
   HarveyTable,
   KpiTiles,
   LineChart,
@@ -23,15 +20,16 @@ import {
   harveyWedge,
   linearScale,
   lintDeck,
-  niceStep,
   niceTicks,
   spreadLabels,
   stackSegments,
   storylineOf,
   waterfallBars,
   wrapToWidth,
-  textWidth,
 } from "../src/deck";
+import { CX_TYPE, niceStep, textWidth } from "../src/deck/consulting/scale";
+import { HarveyBall } from "../src/deck/consulting/HarveyTable";
+import { DeckSlideContext } from "../src/deck/parts";
 import { consultingDeck, consultingDeckLint } from "../playground/consultingDeck";
 
 const size = { width: 600, height: 360 };

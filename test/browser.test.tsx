@@ -1,5 +1,6 @@
 import { fireEvent, render, screen, act } from "@testing-library/react";
-import { AssetBrowser, categories, filterAssets, type AssetManifest } from "../src/browser";
+import { AssetBrowser, type AssetManifest } from "../src/browser";
+import { categories, filterAssets } from "../src/browser/filter";
 
 const manifest: AssetManifest = {
   version: 1,

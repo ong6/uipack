@@ -15,7 +15,7 @@ import { DocsLayout, DocsMarkdown } from "../src/docs";
 import { VerificationGate } from "../src/mechanism";
 import { ObjectScene } from "../src/objects";
 import { SlideStarter } from "../src/presentations";
-import { PRESETS } from "../src/presets";
+import { PRESETS } from "../src/presets/registry";
 import { SlidePlayer, harnessDive } from "../src/slides";
 import { renderStatic } from "../src/static";
 import { CtaButton, FAQ, HeadTags, Section, SmoothScroll, StarHero, WebSurface, pageMeta } from "../src/web";

@@ -7,10 +7,37 @@ release is cut and how a site moves to it.
 
 ## [Unreleased]
 
+The public API is trimmed before 1.0: each entry exports only what its docs name and what the
+registry's sites import, plus the types those exports' signatures use. After 1.0 a removal needs a
+major version, so internals exported now would stay forever.
+
+### Removed
+
+Names no longer exported, per entry (export count before → after). The code is unchanged and still
+runs inside the components that use it; only the entry stops exporting it.
+
+- **`uipack`** (178 → 138): `connectorStroke`, `curveSegments`, `DEFAULT_RENDER_WIDTH`, `DIAGRAM_CARRIERS`, `DIAGRAM_COLOR_ROLES`, `DRILL_GROW`, `drillMotion`, `easeInOutCubic`, `FigureChromeContext`, `FigureHover`, `FigureHoverContext`, `FigureMotion`, `FigureMotionContext`, `FigureScale`, `FigureScaleProvider`, `flowList`, `fontFloor`, `hoverAttrs`, `innerClipStart`, `isDiagramTheme`, `isPointer`, `isUiStyle`, `MarkName`, `NODE_STRIP`, `PACKET_POP`, `PACKET_SINK`, `packetScaleKeys`, `sharedSectionOrder`, `smoothstep`, `TOKEN_SHAPE`, `tokenColor`, `useFigureHover`, `useFigureMotion`, `usePrefersReducedMotion`, `zoomFrame`, `ZoomFrame`, `ZoomRect`, `ZoomSample`, `ZoomSampleOptions`, `zoomSamples`.
+- **`uipack/presets`** (42 → 21): `beforeAfterParts`, `defaultAgentLoop`, `defaultBeforeAfter`, `defaultPipeline`, `defaultRagPipeline`, `defaultServiceMap`, `defaultSkillLifecycle`, `defaultSyncLoop`, `NARROW_W`, `presetFigure`, `PresetFigure`, `PresetFigureProps`, `PresetName`, `PRESETS`, `ragPipelineParts`, `serviceMapParts`, `skillLifecycleParts`, `Stack`, `stackHeight`, `StackStep`, `toFigure`.
+- **`uipack/browser`** (8 → 5): `ALL`, `categories`, `filterAssets`.
+- **`uipack/static`** (12 → 6): `DARK`, `inlineVars`, `LIGHT`, `resolvePalette`, `themePalette`, `wrapText`.
+- **`uipack/slides`** (26 → 20): `clampStop`, `ResolvedNodePose`, `resolveNodePose`, `SlidePalette`, `slidePalettes`, `slideStories`.
+- **`uipack/presentations`** (17 → 14): `escapeSvgText`, `estimateSpeechSeconds`, `formatSpeechGuide`.
+- **`uipack/web`** (243 → 222): `AiCrawler`, `CrawlerPurpose`, `curvePath`, `demoCycle`, `demoEnd`, `demoFrame`, `DemoFrame`, `easeOutExpo`, `followRate`, `followStep`, `headTagKey`, `normalizeWheel`, `numberSections`, `scrambleFrame`, `scrollProgressOf`, `sectionIndexLabel`, `slugify`, `stepStart`, `typeScale`, `useFinePointer`, `WheelLike`.
+- **`uipack/docs`** (24 → 22): `groupDocsResults`, `slugifyDocsHeading`.
+- **`uipack/charts`** (29 → 27): `buildLayerStack`, `LAYER_STACK_LABELS`.
+- **`uipack/deck`** (141 → 115): `bentoCamera`, `bentoFocusAt`, `CX_TYPE`, `DeckSlideContext`, `DeckSlideState`, `formatStoryline`, `getStorylineTemplate`, `HarveyBall`, `harveyQuarters`, `MAX_POINTS`, `MAX_TITLE_WORDS`, `niceStep`, `Rect`, `REPEATABLE_ROLES`, `SLIDE_ROLES`, `SlideRoleInfo`, `SlideThumbnail`, `slotLines`, `slotSentences`, `slotWords`, `talkSeconds`, `textWidth`, `toneOf`, `useDeckSlide`, `WORDS_PER_MINUTE`, `zeroBasedDomain`.
+- **`uipack/mechanism`** (100 → 29): `axisVector`, `AZIMUTH`, `boxCorners`, `cameraOf`, `circleIn`, `circleRing`, `coil`, `corners`, `cylinder`, `depthOf`, `dotGrid`, `Dots`, `ELEVATION`, `extrude`, `ExtrudeOptions`, `faceCircle`, `FaceText`, `Faded`, `FadeLineStyle`, `FitOptions`, `fitProjection`, `Flat`, `follow`, `GATE_CAPTION`, `haloOf`, `holdStill`, `insetPlan`, `iso`, `joinPaths`, `knurl`, `Line`, `lineOnTop`, `LineStyle`, `LineTone`, `onTop`, `pathOf`, `Plan`, `Plane`, `planOutline`, `pointsAt`, `prismOf`, `Projection`, `radialTicks`, `ring`, `ringOf`, `ringSeam`, `rise`, `roundedPlan`, `screenRise`, `segment`, `SHADES`, `sideArc`, `sideMatrix`, `sideRing`, `sideSeam`, `sideTicks`, `slabOf`, `Solid`, `SolidPaths`, `SolidStyle`, `spring`, `Spring`, `Ticks`, `Tone`, `topMatrix`, `topTicks`, `towardViewer`, `translateAlong`, `viewOf`, `Wire`, `WireStyle`.
+- **`uipack/grade`** (86 → 23): `assignOrders`, `briefMarkdown`, `CHECK_IDS`, `CHECK_TITLES`, `checkContrast`, `checkFaces`, `checkFocus`, `checkHeadingOrder`, `checkImages`, `checkMotion`, `checkOneH1`, `checkOverflow`, `checkRows`, `checkTargets`, `checkTextClip`, `checkTextOverlap`, `checkTextSize`, `ClipSample`, `contrastRatio`, `decodePng`, `DEFAULT_SPEC`, `diffBitmaps`, `evaluateView`, `Extras`, `faceAllowed`, `facesFromStyleSpec`, `findOverlaps`, `firstFamily`, `flatten`, `FocusSample`, `formatTally`, `HINT_PATTERNS`, `isLargeText`, `JUDGE_PROMPT`, `LedgerEntry`, `loadPlaywright`, `loadSpec`, `luminance`, `measureFocus`, `Measurements`, `measureMotion`, `measurePage`, `mergeSpec`, `MotionSample`, `over`, `PACKET_VIEWS`, `parseColor`, `PlatformFontUse`, `RegressionBrief`, `REPORT_VERSION`, `RGBA`, `RowSample`, `rubricVersion`, `sampleContrast`, `seeded`, `specFromStyleDoc`, `Spot`, `summarise`, `TargetSample`, `TextSample`, `UIPACK_SPEC`, `validateSpec`, `withQuery`.
+
 ### Fixed
 
 - **Landing hero: the step number is no longer under its highlight.** While a step was lit, its
   outline painted over the numbered badge on the box's corner; the badge now draws on top.
+
+### Upgrading
+
+- Nothing to change: no site in the [registry](docs/specs/registry.md) imported any of these
+  names. They were internal helpers, constants, contexts and hooks; there is no replacement import.
 
 ## [0.9.0] - 2026-11-16
 

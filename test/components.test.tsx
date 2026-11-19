@@ -14,12 +14,12 @@ import {
   Legend,
   Node,
   Packet,
-  packetScaleKeys,
   Wall,
   busStubs,
-  useFigureMotion,
   wallSegments,
 } from "../src";
+import { packetScaleKeys } from "../src/Packet";
+import { useFigureMotion } from "../src/context";
 
 const wrap = (ui: React.ReactNode, props: Partial<React.ComponentProps<typeof Figure>> = {}) =>
   render(

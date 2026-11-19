@@ -38,26 +38,21 @@ export {
   type StackedBarProps,
   type WaterfallProps,
 } from "./charts";
-export { HarveyBall, HarveyTable, type HarveyColumn, type HarveyRow, type HarveyTableProps } from "./HarveyTable";
+export { HarveyTable, type HarveyColumn, type HarveyRow, type HarveyTableProps } from "./HarveyTable";
 export {
-  CX_TYPE,
   MIN_TEXT_PX,
   bandLayout,
   barPath,
   bubbleRadius,
   formatValue,
   formatter,
-  harveyQuarters,
   harveyWedge,
   linearScale,
-  niceStep,
   niceTicks,
   spreadLabels,
   stackSegments,
-  textWidth,
   waterfallBars,
   wrapToWidth,
-  zeroBasedDomain,
   type Band,
   type FormatOptions,
   type LinearScale,

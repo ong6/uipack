@@ -17,12 +17,12 @@ import {
   ScrollTransform,
   TextScramble,
   TiltCard,
-  scrambleFrame,
-  scrollProgressOf,
   withViewTransition,
   withPaintTransition,
   DriftingGutters,
 } from "../src/web";
+import { scrambleFrame } from "../src/web/motion";
+import { scrollProgressOf } from "../src/web/hooks";
 import { paintTransitionCss } from "../src/web/hooks";
 
 // Runs fake timers inside act. A block body: act on a non-void callback returns a promise.

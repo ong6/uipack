@@ -7,21 +7,20 @@ import {
   BentoCell,
   Build,
   DeckPlayer,
-  bentoCamera,
-  bentoFocusAt,
   deckMotion,
   Morph,
   Slide,
-  DeckSlideContext,
   endSlide,
   factSlide,
   pointsSlide,
   lintDeck,
   quoteSlide,
   sectionSlide,
-  toneOf,
   type DeckSlide,
 } from "../src/deck";
+import { bentoCamera, bentoFocusAt } from "../src/deck/bento";
+import { DeckSlideContext } from "../src/deck/parts";
+import { toneOf } from "../src/deck/tone";
 import { headlineDrift } from "../src/deck/player/headline";
 // Internal to the player: tested at their module, not exported from uipack/deck.
 import { flipFrom, resolveTransition, slideZoomFrame, slideZoomSamples, slideZoomWindow } from "../src/deck/transitions";

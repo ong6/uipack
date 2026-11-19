@@ -1,12 +1,10 @@
 export { Figure, type FigureProps } from "./Figure";
 export {
   uiStyles,
-  isUiStyle,
   styleBootScript,
   styleBootPlugin,
   readStyle,
   sectionOrder,
-  sharedSectionOrder,
   type UiStyleId,
   type UiStyleMeta,
   type StyleBootOptions,
@@ -15,24 +13,16 @@ export {
 export { Legend, type LegendItem, type LegendProps } from "./Legend";
 export { Lane, type LaneProps } from "./Lane";
 export { Group, type GroupProps } from "./Group";
-export { Node, NODE_STRIP, type NodeProps, type NodeStrip } from "./Node";
+export { Node, type NodeProps, type NodeStrip } from "./Node";
 export { Chip, type ChipProps } from "./Chip";
-export { Connector, connectorStroke, type ConnectorProps, type ConnectorKind } from "./Connector";
+export { Connector, type ConnectorProps, type ConnectorKind } from "./Connector";
 export { Bus, busStub, busStubs, type BusProps, type BusStub } from "./Bus";
-export { Packet, packetScaleKeys, PACKET_POP, PACKET_SINK, type PacketProps } from "./Packet";
+export { Packet, type PacketProps } from "./Packet";
 export { Badge, type BadgeProps } from "./Badge";
 export { Wall, wallSegments, type WallProps } from "./Wall";
 export { Cross, type CrossProps } from "./Cross";
 export { TreeRail, FolderMark, FileMark, Sheet, type TreeRailProps, type TreeMarkProps, type SheetProps } from "./Tree";
-export {
-  CurvePlot,
-  curveAt,
-  curveSegments,
-  type CurvePlotProps,
-  type CurvePoint,
-  type CurveNote,
-  type CurveMeasure,
-} from "./CurvePlot";
+export { CurvePlot, curveAt, type CurvePlotProps, type CurvePoint, type CurveNote, type CurveMeasure } from "./CurvePlot";
 export { Label, type LabelProps } from "./Label";
 export {
   Actor,
@@ -69,10 +59,7 @@ export {
   diagramThemeCss,
   diagramThemeVars,
   diagramColors,
-  isDiagramTheme,
   DiagramThemeScope,
-  DIAGRAM_COLOR_ROLES,
-  DIAGRAM_CARRIERS,
   type DiagramTheme,
   type DiagramThemeInput,
   type DiagramColors,
@@ -83,9 +70,9 @@ export {
   type DiagramThemeScopeProps,
 } from "./diagram-theme";
 export { Defs, type DefsProps } from "./Defs";
-export { Token, tokenColor, TOKEN_SHAPE, type TokenKind, type TokenShape, type TokenProps } from "./tokens";
+export { Token, type TokenKind, type TokenShape, type TokenProps } from "./tokens";
 export { icons, type IconName } from "./icons";
-export { marks, Wordmark, type MarkCell, type MarkName } from "./marks";
+export { marks, Wordmark, type MarkCell } from "./marks";
 export {
   anchor,
   route,
@@ -99,29 +86,19 @@ export {
   type Side,
   type Box,
 } from "./geometry";
-export { useFigureHover, FigureHoverContext, hoverAttrs, flowList, isPointer, type FigureHover, type Flow } from "./hover";
-export { useFontFloor, fontFloor, FigureScaleProvider, DEFAULT_RENDER_WIDTH, type FigureScale } from "./scale";
-export {
-  useFigureMotion,
-  FigureMotionContext,
-  FigureChromeContext,
-  FigureLayoutWidthContext,
-  type FigureMotion,
-  type FigureChrome,
-} from "./context";
-export { usePrefersReducedMotion } from "./env";
+export { type Flow } from "./hover";
+export { useFontFloor } from "./scale";
+export { FigureLayoutWidthContext, type FigureChrome } from "./context";
 export {
   DrillFigure,
   DrillNode,
   drillStatic,
-  drillMotion,
   drillReducer,
   normalizeDrillPath,
   drillMove,
   drillFocusTarget,
   drillAnnouncement,
   drillBox,
-  DRILL_GROW,
   type DrillFigureProps,
   type DrillNodeProps,
   type DrillStaticFigure,
@@ -132,14 +109,3 @@ export {
   type DrillMove,
   type DrillFocus,
 } from "./drill";
-export {
-  zoomFrame,
-  zoomSamples,
-  innerClipStart,
-  easeInOutCubic,
-  smoothstep,
-  type Rect as ZoomRect,
-  type ZoomFrame,
-  type ZoomSample,
-  type ZoomSampleOptions,
-} from "./zoom-math";

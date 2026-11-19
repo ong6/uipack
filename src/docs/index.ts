@@ -2,7 +2,6 @@ export { DocsLayout, type DocsLayoutProps, type DocsNavItem, type DocsSection, t
 export {
   DocsMarkdown,
   extractDocsHeadings,
-  slugifyDocsHeading,
   type DocsMarkdownBlock,
   type DocsMarkdownProps,
   type ExtractDocsHeadingsOptions,
@@ -12,7 +11,6 @@ export { type DocsMarkerCell, type DocsMarkerMorph, type DocsMarkerShape } from 
 export { type DocsSearchOptions } from "./DocsSearch";
 export {
   docsSearchEntries,
-  groupDocsResults,
   packDocsSearchIndex,
   searchDocs,
   unpackDocsSearchIndex,
