@@ -17,6 +17,11 @@ release is cut and how a site moves to it.
 
 - **The docs search runs on the command menu** (cmdk), with the same look, keys and behaviour. `uipack/docs` now needs `cmdk` installed beside `react-markdown` and `remark-gfm`.
 
+### Fixed
+
+- **Landing hero: the step number is no longer under its highlight.** While a step was lit, its
+  outline painted over the numbered badge on the box's corner; the badge now draws on top.
+
 ### Upgrading
 
 - A site that imports `uipack/docs` installs `cmdk@^1.1.0`.
