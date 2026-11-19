@@ -71,12 +71,18 @@ jobs:
       - name: Install system dependencies and Mesa
         timeout-minutes: 10
         run: scripts/ci-apt.sh bash -c 'npx playwright install-deps chromium && sudo apt-get install -y xvfb libgl1-mesa-dri libegl-mesa0'
-      # Saved straight after the install, so a later test failure still keeps the debs.
+      # Saved straight after the install, so a later test failure still keeps the debs. An install
+      # that timed out saves what it fetched under a partial key, which the next run restores.
       - uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         if: steps.apt.outputs.cache-hit != 'true'
         with:
           path: ~/.cache/apt-debs
           key: apt-site-${{ steps.playwright.outputs.image }}-${{ steps.playwright.outputs.version }}
+      - uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        if: (failure() || cancelled()) && steps.apt.outputs.cache-hit != 'true'
+        with:
+          path: ~/.cache/apt-debs
+          key: apt-site-${{ steps.playwright.outputs.image }}-${{ steps.playwright.outputs.version }}-partial-${{ github.run_id }}-${{ github.run_attempt }}
       - name: Crawl every route with vercel.json's headers
         run: xvfb-run --auto-servernum npm run check:site -- --theme ${{ matrix.theme }}
         env: { CI: "1" }
@@ -126,12 +132,18 @@ jobs:
       - name: Install system dependencies, Roboto and (Chromium) Mesa
         timeout-minutes: 10
         run: scripts/ci-apt.sh bash -c 'npx playwright install-deps ${{ matrix.browser }} && sudo apt-get install -y fonts-roboto ${{ matrix.browser == 'chromium' && 'xvfb libgl1-mesa-dri libegl-mesa0' || '' }}'
-      # Saved straight after the install, so a later test failure still keeps the debs.
+      # Saved straight after the install, so a later test failure still keeps the debs. An install
+      # that timed out saves what it fetched under a partial key, which the next run restores.
       - uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         if: steps.apt.outputs.cache-hit != 'true'
         with:
           path: ~/.cache/apt-debs
           key: apt-e2e-${{ matrix.browser }}-${{ steps.playwright.outputs.image }}-${{ steps.playwright.outputs.version }}
+      - uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        if: (failure() || cancelled()) && steps.apt.outputs.cache-hit != 'true'
+        with:
+          path: ~/.cache/apt-debs
+          key: apt-e2e-${{ matrix.browser }}-${{ steps.playwright.outputs.image }}-${{ steps.playwright.outputs.version }}-partial-${{ github.run_id }}-${{ github.run_attempt }}
       - name: Check Chromium spec coverage
         if: matrix.browser == 'chromium'
         run: node scripts/check-e2e-shards.mjs

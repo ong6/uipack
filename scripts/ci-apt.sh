@@ -20,7 +20,12 @@ shopt -s nullglob
 debs=("$dir"/*.deb)
 echo "apt cache: ${#debs[@]} restored .deb files"
 if ((${#debs[@]})); then sudo cp "${debs[@]}" /var/cache/apt/archives/; fi
+# Copy back on any exit, so a run the slow mirror times out still keeps what it fetched; the
+# workflow saves that under a partial key the next run restores from.
+keep() {
+  sudo find /var/cache/apt/archives -maxdepth 1 -name '*.deb' -exec cp -u {} "$dir"/ \;
+  sudo chown -R "$(id -u):$(id -g)" "$dir"
+  echo "apt cache: $(find "$dir" -name '*.deb' | wc -l | tr -d ' ') .deb files to save"
+}
+trap keep EXIT
 "$@"
-sudo find /var/cache/apt/archives -maxdepth 1 -name '*.deb' -exec cp -u {} "$dir"/ \;
-sudo chown -R "$(id -u):$(id -g)" "$dir"
-echo "apt cache: $(find "$dir" -name '*.deb' | wc -l | tr -d ' ') .deb files to save"
