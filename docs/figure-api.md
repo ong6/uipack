@@ -146,8 +146,9 @@ for (const mode of ["light", "dark"] as const)
 
 A diagram theme draws its own canvas ground (`grid`, `dots`, `plain`); the older forms keep the dot
 grid. Faces given as `var(--…)` fall back to Technical's stacks in a static file, which cannot read
-the page. A variable the theme does not set takes the part's own fallback, as it does live: a filled
-`Chip` prints its 55% wash in light and the 28% one in dark.
+the page. A variable the theme does not set takes the part's own fallback, as it does live, and a
+dark file carries the dark chip wash: a filled `Chip` prints its 55% wash in light (the fallback) and
+28% in dark.
 
 | Option | Default | Does |
 |---|---|---|
