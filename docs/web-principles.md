@@ -126,7 +126,10 @@ takes the spec's.
    competes with the headline. `StarHero` fades its visual in below the copy and out towards its low start, where the proof's steps and controls sit (those also sit on an opaque surface); `StarChart` takes
    `values` from your story (the example plots messages handled, 0 → 37). (SMWD-6) For a heavyweight
    star, use a `uipack/objects` 3D scene: design image concepts first, reuse the hero asset down the
-   page, pause rendering off-screen, and ship a still image on mobile. (CA)
+   page, pause rendering off-screen, and ship a still image on mobile. (CA) The star is the page's
+   one standout moment, the thing a reader remembers: every other section stays quiet around it. A
+   second showpiece (another demo, a second 3D object) competes with the first; move it to its own
+   page or calm it down.
 4. **Visual rhyming.** Repeat one shape motif from the star down the page. `RhymeIcon` draws feature
    icons from the hero's own curve. (SMWD-6)
 5. **Quiet depth.** Noise at 6–8% opacity and glass (backdrop blur 14px, 1px hairline at 12% ink),
@@ -173,9 +176,6 @@ takes the spec's.
     transform, opacity and filter, and reserve final sizes (`TextScramble` and `NumberTicker` lay the
     final text under the live one), so nothing shifts. Moving content that runs longer than 5 s
     gets a Pause control (`Marquee`). (RN, CA)
-15. **One standout moment per page.** One thing a reader remembers (the demo, the star, the 3D object):
-    every other section stays quiet around it. A second showpiece competes with the first; move it to its
-    own page or calm it down.
 
 ## Ambient motion and backgrounds
 

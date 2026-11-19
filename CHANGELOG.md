@@ -7,6 +7,11 @@ release is cut and how a site moves to it.
 
 ## [Unreleased]
 
+### Fixed
+
+- Web principles: 0.10.0 numbered two rules 15. "One standout moment per page" is now part of rule 3
+  (one star of the show), so the ambient-motion rules keep their numbers.
+
 ## [0.10.0] - 2026-11-19
 
 The release candidate for 1.0. Widgets come from libraries (a registry, and `uipack/widgets` for the

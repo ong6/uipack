@@ -75,7 +75,7 @@ starts from.
 6. **Widgets from the registry.** A toast, command menu, dialog, sheet, menu or live number comes
    from its library in the [widget registry](../../docs/components/widgets.md) (skinned in
    `uipack/widgets` where listed), never hand-built. One standout moment per page
-   ([web principles](../../docs/web-principles.md), rule 15).
+   ([web principles](../../docs/web-principles.md), rule 3).
 
 ## Check
 
