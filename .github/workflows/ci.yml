@@ -47,22 +47,42 @@ jobs:
       - run: npm ci
       - name: Build the docs site
         run: npm run build:site
-      - name: Read installed Playwright version
+      - name: Read installed Playwright version and runner image
         id: playwright
-        run: node -p "'version=' + require('./node_modules/@playwright/test/package.json').version" >> "$GITHUB_OUTPUT"
+        run: |
+          node -p "'version=' + require('./node_modules/@playwright/test/package.json').version" >> "$GITHUB_OUTPUT"
+          echo "image=$ImageOS-$ImageVersion" >> "$GITHUB_OUTPUT"
       - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         id: browsers
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-chromium-${{ steps.playwright.outputs.version }}
-      - name: Install browser and system dependencies
+      # scripts/ci-apt.sh explains the deb cache. A new runner image saves a fresh copy; the
+      # restore key starts it from the last one, so apt fetches only what changed.
+      - uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        id: apt
+        with:
+          path: ~/.cache/apt-debs
+          key: apt-site-${{ steps.playwright.outputs.image }}-${{ steps.playwright.outputs.version }}
+          restore-keys: apt-site-
+      - name: Install browser
         if: steps.browsers.outputs.cache-hit != 'true'
-        run: npx playwright install --with-deps chromium
-      - name: Install system dependencies for cached browser
-        if: steps.browsers.outputs.cache-hit == 'true'
-        run: npx playwright install-deps chromium
-      - name: Install Mesa for Chromium
-        run: sudo apt-get install -y xvfb libgl1-mesa-dri libegl-mesa0
+        run: npx playwright install chromium
+      - name: Install system dependencies and Mesa
+        timeout-minutes: 10
+        run: scripts/ci-apt.sh bash -c 'npx playwright install-deps chromium && sudo apt-get install -y xvfb libgl1-mesa-dri libegl-mesa0'
+      # Saved straight after the install, so a later test failure still keeps the debs. An install
+      # that timed out saves what it fetched under a partial key, which the next run restores.
+      - uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        if: steps.apt.outputs.cache-hit != 'true'
+        with:
+          path: ~/.cache/apt-debs
+          key: apt-site-${{ steps.playwright.outputs.image }}-${{ steps.playwright.outputs.version }}
+      - uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        if: (failure() || cancelled()) && steps.apt.outcome == 'success' && steps.apt.outputs.cache-hit != 'true'
+        with:
+          path: ~/.cache/apt-debs
+          key: apt-site-${{ steps.playwright.outputs.image }}-${{ steps.playwright.outputs.version }}-partial-${{ github.run_id }}-${{ github.run_attempt }}
       - name: Crawl every route with vercel.json's headers
         run: xvfb-run --auto-servernum npm run check:site -- --theme ${{ matrix.theme }}
         env: { CI: "1" }
@@ -88,31 +108,49 @@ jobs:
       # e2e/dist-smoke.spec.ts serves playground/dist-smoke, which imports the built dist/.
       - name: Build dist/
         run: npm run build
-      - name: Read installed Playwright version
+      - name: Read installed Playwright version and runner image
         id: playwright
-        run: node -p "'version=' + require('./node_modules/@playwright/test/package.json').version" >> "$GITHUB_OUTPUT"
+        run: |
+          node -p "'version=' + require('./node_modules/@playwright/test/package.json').version" >> "$GITHUB_OUTPUT"
+          echo "image=$ImageOS-$ImageVersion" >> "$GITHUB_OUTPUT"
       - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         id: browsers
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ matrix.browser }}-${{ steps.playwright.outputs.version }}
-      - name: Install browser and system dependencies
+      # scripts/ci-apt.sh explains the deb cache. A new runner image saves a fresh copy; the
+      # restore key starts it from the last one, so apt fetches only what changed.
+      - uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        id: apt
+        with:
+          path: ~/.cache/apt-debs
+          key: apt-e2e-${{ matrix.browser }}-${{ steps.playwright.outputs.image }}-${{ steps.playwright.outputs.version }}
+          restore-keys: apt-e2e-${{ matrix.browser }}-
+      - name: Install browser
         if: steps.browsers.outputs.cache-hit != 'true'
-        run: npx playwright install --with-deps ${{ matrix.browser }}
-      - name: Install system dependencies for cached browser
-        if: steps.browsers.outputs.cache-hit == 'true'
-        run: npx playwright install-deps ${{ matrix.browser }}
+        run: npx playwright install ${{ matrix.browser }}
+      - name: Install system dependencies, Roboto and (Chromium) Mesa
+        timeout-minutes: 10
+        run: scripts/ci-apt.sh bash -c 'npx playwright install-deps ${{ matrix.browser }} && sudo apt-get install -y fonts-roboto ${{ matrix.browser == 'chromium' && 'xvfb libgl1-mesa-dri libegl-mesa0' || '' }}'
+      # Saved straight after the install, so a later test failure still keeps the debs. An install
+      # that timed out saves what it fetched under a partial key, which the next run restores.
+      - uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        if: steps.apt.outputs.cache-hit != 'true'
+        with:
+          path: ~/.cache/apt-debs
+          key: apt-e2e-${{ matrix.browser }}-${{ steps.playwright.outputs.image }}-${{ steps.playwright.outputs.version }}
+      - uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        if: (failure() || cancelled()) && steps.apt.outcome == 'success' && steps.apt.outputs.cache-hit != 'true'
+        with:
+          path: ~/.cache/apt-debs
+          key: apt-e2e-${{ matrix.browser }}-${{ steps.playwright.outputs.image }}-${{ steps.playwright.outputs.version }}-partial-${{ github.run_id }}-${{ github.run_attempt }}
       - name: Check Chromium spec coverage
         if: matrix.browser == 'chromium'
         run: node scripts/check-e2e-shards.mjs
       - name: Map the system font to Roboto (e2e/ci-fonts.conf explains why)
         run: |
-          sudo apt-get install -y fonts-roboto
           mkdir -p ~/.config/fontconfig && cp e2e/ci-fonts.conf ~/.config/fontconfig/fonts.conf
           fc-cache -f && fc-match system-ui
-      - name: Install Mesa for Chromium
-        if: matrix.browser == 'chromium'
-        run: sudo apt-get install -y xvfb libgl1-mesa-dri libegl-mesa0
       - name: Test Chromium with Mesa
         if: matrix.browser == 'chromium'
         run: xvfb-run --auto-servernum npm run test:e2e -- $(node scripts/check-e2e-shards.mjs --group ${{ matrix.group }}) --project=chromium --workers=${{ matrix.workers }} --shard=${{ matrix.shard }}/${{ matrix.shards }}
