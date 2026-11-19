@@ -132,6 +132,9 @@ if (
   !robots.text.includes(`Sitemap: ${SITE_ORIGIN}/sitemap.xml`)
 )
   fail("robots.txt", `${robots.status} ${robots.type}, no Sitemap line for ${SITE_ORIGIN}`);
+// Search engines leave the site out (docs/specs/docs-site.md, Search engines); agents still fetch it.
+const home = await context.request.get(`${base}/`, { maxRedirects: 0, timeout: PAGE_TIMEOUT_MS });
+if (!(home.headers()["x-robots-tag"] ?? "").includes("noindex")) fail("x-robots-tag", `/ has no X-Robots-Tag: noindex`);
 const sitemap = await get(`${base}/sitemap.xml`);
 const locs = [...sitemap.text.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
 if (sitemap.status !== 200 || locs.length < 10) fail("sitemap.xml", `${sitemap.status}, ${locs.length} URLs`);

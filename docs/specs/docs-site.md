@@ -509,6 +509,14 @@ the Style contract page show the site's own values whole, in both halves. Genera
 | `--ui-band-fill` | `#0b2748` | `#0b0c0e` |
 <!-- /generated -->
 
+## Search engines
+
+Search engines leave the site out: every response carries `X-Robots-Tag: noindex` (`vercel.json`;
+`npm run check:site` fails without it), decided 2026-11-19 because the site is for the owner and
+their agents, not for search traffic. `robots.txt` still allows every agent, so a fetch an agent or
+a reader's assistant makes still reads the pages, `llms.txt` and the Markdown files; the canonical
+and Open Graph tags stay for link previews.
+
 ## Reuse
 
 Extends `technical`. No other site reuses this spec; a site that wants the UiPack docs site's look,
