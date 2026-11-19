@@ -7,6 +7,13 @@ release is cut and how a site moves to it.
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-11-19
+
+The first stable release: 0.10.0's API, unchanged. From here a removed or renamed export, entry,
+prop, role or class name is a major version, and an addition a minor one
+([version numbers](docs/releases.md#version-numbers)). Nothing in `dist/` changed since 0.10.0
+apart from the version, so a site on 0.10.0 moves by changing its pin.
+
 ### Changed
 
 - The docs site (ui.junxiong.dev) asks search engines not to index it (`X-Robots-Tag: noindex` on
@@ -21,6 +28,10 @@ release is cut and how a site moves to it.
 
 - Web principles: 0.10.0 numbered two rules 15. "One standout moment per page" is now part of rule 3
   (one star of the show), so the ambient-motion rules keep their numbers.
+
+### Upgrading
+
+- From 0.10.0: change the pin; nothing else. From earlier versions: each version's Upgrading section, oldest first.
 
 ## [0.10.0] - 2026-11-19
 
