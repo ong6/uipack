@@ -1,6 +1,8 @@
 import { Connector, Defs, Node, Packet } from "../src";
 import { agentLoop } from "../src/presets";
-import { DARK, LIGHT, inlineVars, renderStatic, resolvePalette, wrapText } from "../src/static";
+import { renderStatic } from "../src/static";
+import { DARK, LIGHT, inlineVars, resolvePalette } from "../src/static/palette";
+import { wrapText } from "../src/static/wrap";
 
 const drawing = (
   <>

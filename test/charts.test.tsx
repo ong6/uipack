@@ -4,7 +4,6 @@ import { renderToStaticMarkup } from "react-dom/server";
 import {
   LayerStack,
   SpanChart,
-  buildLayerStack,
   buildSpanModel,
   enhanceLayerStack,
   enhanceSpanChart,
@@ -12,6 +11,7 @@ import {
   type SpanItem,
   type SpanLayer,
 } from "../src/charts";
+import { buildLayerStack } from "../src/charts/LayerStack";
 import {
   cssIdent,
   LABEL_GAP,

@@ -3,12 +3,12 @@ import { afterAll, beforeAll, vi } from "vitest";
 import {
   DocsLayout,
   docsSearchEntries,
-  groupDocsResults,
   packDocsSearchIndex,
   searchDocs,
   unpackDocsSearchIndex,
   type DocsSection,
 } from "../src/docs";
+import { groupDocsResults } from "../src/docs/search";
 import {
   HOP_LIFT,
   HOP_LIFT_LEFT,

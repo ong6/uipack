@@ -46,7 +46,7 @@ Levels are a flat list; the first is the root unless `root` names another. Paren
 
 `DrillNode` takes every `Node` prop except `href`, plus `drill`, optional `label` (defaults to the child level's label), `grow` (height step, default 8 units about the centre: a 56-unit box draws 64) and `preview` (default true). Attach connectors to the drawn box: `drillBox(box)` returns it. Outside a `DrillFigure` it renders a plain `Node`.
 
-Pure helpers are exported for hosts and tests: `drillReducer` (open, up, to depth, set), `normalizeDrillPath`, `drillMove` (in, out, jump), `drillFocusTarget` and `drillAnnouncement`. The zoom maths lives in `src/zoom-math.ts` (`zoomFrame`, `innerClipStart`, `zoomSamples`), shared with the deck player's zoom.
+Pure helpers are exported for hosts and tests: `drillReducer` (open, up, to depth, set), `normalizeDrillPath`, `drillMove` (in, out, jump), `drillFocusTarget` and `drillAnnouncement`. The zoom maths stays internal, in `src/zoom-math.ts` (`zoomFrame`, `innerClipStart`, `zoomSamples`), shared with the deck player's zoom.
 
 ## Affordance
 

@@ -1,14 +1,6 @@
 import { render } from "@testing-library/react";
-import {
-  SMOOTH_SCROLL_ATTR,
-  SmoothScroll,
-  WHEEL_LINE_PX,
-  createSmoothScroll,
-  easeOutExpo,
-  followRate,
-  followStep,
-  normalizeWheel,
-} from "../src/web";
+import { SMOOTH_SCROLL_ATTR, SmoothScroll, WHEEL_LINE_PX, createSmoothScroll } from "../src/web";
+import { easeOutExpo, followRate, followStep, normalizeWheel } from "../src/web/SmoothScroll";
 
 describe("smooth scroll easing", () => {
   it("closes the lerp share of the gap per 1/60 s", () => {

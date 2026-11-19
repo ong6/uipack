@@ -9,15 +9,13 @@ import {
   SpotlightCard,
   StarHero,
   WebSurface,
-  demoEnd,
-  demoFrame,
-  stepStart,
   typeMetrics,
   typeRole,
-  typeScale,
   TYPE_FACES,
   type DemoStep,
 } from "../src/web";
+import { demoEnd, demoFrame, stepStart } from "../src/web/timeline";
+import { typeScale } from "../src/web/tokens";
 import { fontFiles } from "../scripts/css-bundles";
 import { uiStyles } from "../src/style";
 import { onServer } from "./on-server";

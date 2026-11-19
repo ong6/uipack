@@ -93,7 +93,10 @@ it("dist holds no CommonJS files", () => {
 // bundler drops them with the rest of the unused code.
 it("importing one constant from the built deck entry leaves the storyline heuristics behind", async () => {
   const result = await build({
-    stdin: { contents: 'import { WORDS_PER_MINUTE } from "./dist/deck.js"; console.log(WORDS_PER_MINUTE);', resolveDir: "." },
+    stdin: {
+      contents: 'import { STORYLINE_TEMPLATES } from "./dist/deck.js"; console.log(STORYLINE_TEMPLATES);',
+      resolveDir: ".",
+    },
     bundle: true,
     minify: true,
     format: "esm",

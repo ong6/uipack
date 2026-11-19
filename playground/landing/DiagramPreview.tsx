@@ -2,7 +2,8 @@
 // tile's width with quiet chrome (no title, no Open canvas), its packets running, hover live.
 import { useId } from "react";
 import { Figure } from "../../src";
-import { agentLoopParts, defaultAgentLoop } from "../../src/presets";
+import { agentLoopParts } from "../../src/presets";
+import { defaultAgentLoop } from "../../src/presets/agentLoop";
 import "../../src/theme.css";
 
 export default function DiagramPreview() {

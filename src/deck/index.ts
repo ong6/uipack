@@ -1,8 +1,7 @@
 // uipack/deck: the deck player, its slide parts, the storyline checks and the consulting slides.
 // Every export is listed by name, so a new module cannot shadow or collide with an existing name.
 export { DeckPlayer, type DeckPlayerProps } from "./DeckPlayer";
-export { SlideThumbnail } from "./player/Layer";
-export { Build, Morph, Slide, DeckSlideContext, useDeckSlide, type DeckSlideState } from "./parts";
+export { Build, Morph, Slide } from "./parts";
 export {
   PointsSlide,
   SectionSlide,
@@ -21,39 +20,26 @@ export {
   type EndSlideProps,
 } from "./archetypes";
 export {
-  MAX_POINTS,
   SLOT_BUDGETS,
   TITLE_WORDS,
-  slotLines,
   slotProblems,
-  slotSentences,
-  slotWords,
   type DeckMode,
   type SlotBudget,
   type SlotName,
   type SlotOverflow,
 } from "./budgets";
-export { toneOf } from "./tone";
-export { CANVAS_HEIGHT, CANVAS_WIDTH, deckMotion, type Rect, type TransitionKind } from "./transitions";
+export { CANVAS_HEIGHT, CANVAS_WIDTH, deckMotion, type TransitionKind } from "./transitions";
 export {
   LINT_RULES,
-  MAX_TITLE_WORDS,
-  REPEATABLE_ROLES,
-  SLIDE_ROLES,
   STORYLINE_TEMPLATES,
-  WORDS_PER_MINUTE,
-  formatStoryline,
-  getStorylineTemplate,
   lintDeck,
   storylineOf,
-  talkSeconds,
   templateOutline,
   type LintFinding,
   type LintOptions,
   type LintRule,
   type LintSeverity,
   type SlideRole,
-  type SlideRoleInfo,
   type StoryBeat,
   type StoryMove,
   type StorySlide,
@@ -61,7 +47,7 @@ export {
   type StorylineTemplate,
   type StorylineTemplateId,
 } from "./storyline";
-export { Bento, BentoCell, bentoCamera, bentoFocusAt, type BentoProps, type BentoCellProps } from "./bento";
+export { Bento, BentoCell, type BentoProps, type BentoCellProps } from "./bento";
 export { starterDeck } from "./starter";
 export {
   // Consulting slides: frame and panels
@@ -78,7 +64,6 @@ export {
   // Charts
   Annotation,
   BarChart,
-  HarveyBall,
   HarveyTable,
   KpiTiles,
   LineChart,
@@ -106,24 +91,19 @@ export {
   type StackedBarProps,
   type WaterfallProps,
   // Chart maths
-  CX_TYPE,
   MIN_TEXT_PX,
   bandLayout,
   barPath,
   bubbleRadius,
   formatValue,
   formatter,
-  harveyQuarters,
   harveyWedge,
   linearScale,
-  niceStep,
   niceTicks,
   spreadLabels,
   stackSegments,
-  textWidth,
   waterfallBars,
   wrapToWidth,
-  zeroBasedDomain,
   type Band,
   type FormatOptions,
   type LinearScale,
