@@ -66,7 +66,9 @@
 }
 
 .uipack-command [cmdk-item][data-selected="true"] {
-  background: var(--ui-accent-surface, color-mix(in srgb, var(--ui-accent) 12%, transparent));
+  /* A tint, not --ui-accent-surface: that role is a solid fill in some styles, and the label must stay ink. */
+  background: color-mix(in srgb, var(--ui-accent) 12%, transparent);
+  color: var(--ui-ink);
   border-left-color: var(--ui-accent);
 }
 
@@ -172,4 +174,11 @@
   background: var(--ui-surface-raised);
   border-color: var(--ui-line);
   color: var(--ui-ink-2);
+}
+
+@media (pointer: coarse) {
+  [data-sonner-toaster].uipack-toaster [data-sonner-toast].uipack-toast [data-button] {
+    min-height: 44px;
+    padding: 0 14px;
+  }
 }
