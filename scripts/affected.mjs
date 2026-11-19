@@ -93,7 +93,7 @@ const AREAS = [
   [/^src\/grade\/|^scripts\/grade/, ["grade", "tier1"]],
   [
     /^src\/docs\/|^src\/widgets\/|^playground\/(Docs|Widgets|widgets-)/,
-    ["docs", "docs-shell", "site-consistency", "foundations", "nav", "tier1", "charts", "geometry", "canvas"],
+    ["docs", "docs-shell", "widgets", "site-consistency", "foundations", "nav", "tier1", "charts", "geometry", "canvas"],
   ],
   // The docs site: its manifest, the Markdown page, demos, links and generated blocks.
   [
