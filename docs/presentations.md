@@ -35,6 +35,8 @@ const slide: SlideStarterData = {
 
 Write the slide words and the speech the way [Talks and slides](system/writing/talks.md) describes for a presented deck: a short headline (the eyebrow is optional and off by default), fragments on screen, and `say` as a few cue lines rather than a script.
 
+The preview keeps every text at 12px or more at any width from about 320px: `SlideStarter` measures it and raises small text (footer, eyebrow, box text) to that floor, and where the larger text needs room the layout gives it (System's steps widen and their detail wraps; Explanation's box narrows and its detail wraps). Before it is measured (server rendering) it draws for a 1088px column. Keep box text short, a few words, so it still fits a phone.
+
 `SpeakerGuide` can be used separately. It derives a rough duration at 135 words per minute, copies the full talk track, announces copy success without moving focus, and does not render the script into the SVG. `showSpeech={false}` produces an audience-only preview.
 
 For file generation, call `renderSlideSvg(slide, { theme, width })`. It returns self-contained SVG with a descriptive `<title>` and `<desc>`. Text is XML-escaped. The default is 1200×675; another width preserves 16:9.
