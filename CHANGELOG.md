@@ -7,6 +7,13 @@ release is cut and how a site moves to it.
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-11-19
+
+The release candidate for 1.0. Widgets come from libraries (a registry, and `uipack/widgets` for the
+command menu and toasts), the docs search runs on the command menu, and the public API is trimmed
+before 1.0. Names are removed and `uipack/docs` needs one more peer, so this is a minor release
+([version numbers](docs/releases.md#version-numbers)).
+
 The public API is trimmed before 1.0: each entry exports only what its docs name and what the
 registry's sites import, plus the types those exports' signatures use. After 1.0 a removal needs a
 major version, so internals exported now would stay forever.
