@@ -4,8 +4,10 @@ import * as THREE from "three";
 import { createObject, disposeObject, type ObjectKind } from "../src/objects/scenes";
 import { inkify, inkRoleOf, INK_BUILD_PALETTE, type InkRole } from "../src/objects/ink";
 import { paceFrame } from "../src/objects/mount";
-import { ObjectScene, objectScenes } from "../src/objects";
+import { readFileSync } from "node:fs";
+import { ObjectScene, objectScenes, type ObjectSceneSubject } from "../src/objects";
 import * as objects from "../src/objects";
+import { mugSubject } from "../playground/siteSubject";
 
 afterEach(() => vi.restoreAllMocks());
 const drawingContext = () =>
@@ -303,5 +305,109 @@ describe("the player", () => {
     rerender(scene("light"));
     expect(mounts()).toBe(1);
     await waitFor(() => expect(document.querySelector("canvas")).toHaveAttribute("data-renderer", "fallback"));
+  });
+});
+
+describe("a site's own subject", () => {
+  // junxiong.dev's scripts/check-ui-ownership.mjs, copied: a site file may not draw a canvas or import three.
+  const ownsRenderer = /<canvas\b|(?:from\s*|import\s*\(|require\s*\()\s*['"]three(?:\/[^'"]*)?['"]/;
+  const subjectWith = (build: ObjectSceneSubject["build"], id = "site-thing"): ObjectSceneSubject => ({ id, build });
+  const mounts = (listen: { mock: { calls: unknown[][] } }) =>
+    listen.mock.calls.filter(([type]) => type === "webglcontextlost").length;
+
+  it("the docs example and the demo's builder pass the no-local-renderer check", () => {
+    const doc = readFileSync("docs/objects.md", "utf8");
+    const example = /## A site's own subject[\s\S]*?```tsx\n([\s\S]*?)```/.exec(doc)?.[1];
+    expect(example).toContain("subject={coffee}");
+    expect(example).not.toMatch(ownsRenderer);
+    expect(readFileSync("playground/siteSubject.tsx", "utf8")).not.toMatch(ownsRenderer);
+    // The check bites: the forms it exists to catch fail it.
+    for (const local of [
+      'import * as THREE from "three";',
+      "import type { Group } from 'three';",
+      'await import("three/addons/x.js")',
+      "<canvas />",
+    ])
+      expect(local).toMatch(ownsRenderer);
+  });
+
+  it("uipack/objects' public types import nothing from three (built dist/)", () => {
+    // A TypeScript site without @types/three must pass with skipLibCheck: false, so the entry's
+    // declarations and every declaration chunk they pull in stay free of three.
+    const seen = new Set<string>();
+    const visit = (file: string) => {
+      if (seen.has(file)) return;
+      seen.add(file);
+      const source = readFileSync(`dist/${file}`, "utf8");
+      expect(source, file).not.toMatch(/(?:from\s*|import\s*\()\s*['"]three(?:\/[^'"]*)?['"]/);
+      for (const [, next] of source.matchAll(/from\s*['"]\.\/([^'"]+?)(?:\.js)?['"]/g)) visit(`${next}.d.ts`);
+    };
+    visit("objects.d.ts");
+    expect(seen.size).toBeGreaterThan(0);
+  });
+
+  it("is built with uipack's Three.js module and set up like a built-in subject", () => {
+    withCanvas();
+    const build = vi.fn(mugSubject.build);
+    const object = createObject(build, THREE)!;
+    expect(build).toHaveBeenCalledTimes(1);
+    expect(build.mock.calls[0][0].THREE).toBe(THREE);
+    expect(object.userData.style).toBe("ink");
+    // The demo's subject keeps the contract a built-in one is tested for: every mesh tagged, one accent.
+    const roles: (InkRole | undefined)[] = [];
+    object.traverse((item) => {
+      if ((item as THREE.Mesh).isMesh)
+        roles.push(item.userData.inkRole ?? (item as THREE.Mesh<THREE.BufferGeometry, THREE.Material>).material.userData.inkRole);
+    });
+    expect(roles.every(Boolean)).toBe(true);
+    expect(roles.filter((role) => role === "accent")).toHaveLength(1);
+    disposeObject(object);
+  });
+
+  it("shows its own labelled drawing as the fallback, or the label alone without one", () => {
+    const { container, rerender } = render(
+      <ObjectScene subject={mugSubject} label="Coffee" active={false} placeholder="drawing" />,
+    );
+    const stage = container.querySelector(".uipack-object")!;
+    expect(stage).toHaveAttribute("data-kind", "coffee");
+    expect(screen.getByRole("img", { name: "Coffee illustration" }).querySelector("svg path")).toBeInTheDocument();
+    rerender(<ObjectScene subject={{ id: "bare", build: mugSubject.build }} label="Bare" active={false} placeholder="drawing" />);
+    expect(screen.getByRole("img", { name: "Bare illustration" }).querySelector("svg")?.childElementCount).toBe(0);
+    // A subject wins over a kind: no built-in drawing or caption leaks in.
+    rerender(<ObjectScene kind="trading" subject={{ id: "bare", build: mugSubject.build }} label="Bare" active={false} />);
+    expect(container.querySelector(".uipack-object__fallback-caption")).toBeNull();
+  });
+
+  it("an inline subject rebuilt on every render builds once; a new id builds again", async () => {
+    // jsdom has no WebGL: three reports the failed context; the mounts and builds are what is tested.
+    withCanvas();
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const listen = vi.spyOn(HTMLCanvasElement.prototype, "addEventListener");
+    const build = vi.fn(mugSubject.build);
+    // A new object and a new arrow function on every render, as an inline prop is.
+    const scene = (id: string, theme: "light" | "dark") => (
+      <ObjectScene subject={subjectWith((kit) => build(kit), id)} label="Coffee" theme={theme} />
+    );
+    const { rerender } = render(scene("coffee", "light"));
+    rerender(scene("coffee", "dark"));
+    rerender(scene("coffee", "light"));
+    await waitFor(() => expect(document.querySelector("canvas")).toHaveAttribute("data-renderer", "fallback"));
+    expect(mounts(listen)).toBe(1);
+    expect(build).toHaveBeenCalledTimes(1);
+    expect(document.querySelector("canvas")).toHaveAttribute("data-subject", "site");
+    rerender(scene("tea", "light"));
+    expect(mounts(listen)).toBe(2);
+    await waitFor(() => expect(build).toHaveBeenCalledTimes(2));
+  });
+
+  it("a builder that throws keeps the labelled fallback and says which subject failed", async () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const broken = subjectWith(() => {
+      throw new Error("no such part");
+    }, "broken");
+    render(<ObjectScene subject={broken} label="Broken" />);
+    await waitFor(() => expect(document.querySelector("canvas")).toHaveAttribute("data-renderer", "fallback"));
+    expect(error).toHaveBeenCalledWith('uipack ObjectScene: the subject "broken" failed to build', expect.any(Error));
+    expect(screen.getByRole("img", { name: "Broken illustration" })).toBeInTheDocument();
   });
 });

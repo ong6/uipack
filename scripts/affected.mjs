@@ -138,7 +138,7 @@ const AREAS = [
   [/^playground\/FiguresShowcase/, [...FIGURES, "charts", "assets"]],
   [/^playground\/(MechanismShowcase|mechanism-showcase)/, ["mechanism"]],
   [/^playground\/(SlideShowcase|slides-showcase)/, ["slides", "objects"]],
-  [/^playground\/(ObjectsShowcase|objects-showcase)/, ["ink"]],
+  [/^playground\/(ObjectsShowcase|objects-showcase|siteSubject)/, ["ink"]],
   // The figure geometry check a site runs; geometry.spec runs it on every figure of the diagrams page.
   [/^bin\/(uipack-figure-check|figure-check-cli)/, ["geometry"]],
   // dist/ is built, not committed: what changes the build (and the page that loads it) runs the smoke
