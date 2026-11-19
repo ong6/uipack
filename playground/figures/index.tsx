@@ -17,6 +17,7 @@ import { LayeredChecksFigure } from "./layeredChecks";
 import { FlowVolumesFigure } from "./flowVolumes";
 import { FileTreeFigure } from "./fileTree";
 import { AnnotatedCurveFigure } from "./annotatedCurve";
+import { SimGridFigure } from "./simGrid";
 import { figureEntries, type FigureId } from "../catalog";
 
 /** One section of the diagrams page. Its h2 is the catalog title of the same id (`figureEntries`). */
@@ -196,6 +197,11 @@ const figureDetails: Record<FigureId, Omit<FigureSection, "id">> = {
     intro:
       "Use when one part of a figure has a figure of its own. Built from DrillFigure levels and DrillNode: click, tap or press Enter on a glowing node to zoom into it; Back, Escape or the breadcrumb go up.",
     render: (n) => <DrillExample number={n} />,
+  },
+  "sim-grid": {
+    intro:
+      "Use when many identical agents run the same job and when each one finishes is the point, compared across designs. Built from SimGrid: the page supplies a seeded simulation (each cell's start and end time per design and option set); SimGrid plays it as one path per state, with role colours and a shape per state, title-block counters, Play, Pause and Reset.",
+    render: (n) => <SimGridFigure number={n} />,
   },
 };
 

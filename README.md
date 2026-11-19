@@ -73,7 +73,7 @@ optional peers, used only by `uipack/objects` and `uipack/slides`. `react-markdo
 
 | Import | What it draws | Reference |
 | --- | --- | --- |
-| `uipack` + `uipack/theme.css` | Figure parts: frame, lanes, groups, nodes, connectors, moving packets, drill-down | [Figure parts API](docs/figure-api.md), [catalogue](docs/diagrams.md), [drill](docs/drill.md) |
+| `uipack` + `uipack/theme.css` | Figure parts: frame, lanes, groups, nodes, connectors, moving packets, drill-down, simulation grid | [Figure parts API](docs/figure-api.md), [catalogue](docs/diagrams.md), [drill](docs/drill.md), [simulation grid](docs/sim-grid.md) |
 | `uipack/presets` | Seven ready figures from a typed spec | [Presets](docs/figure-api.md#presets) |
 | `uipack/static` | One self-contained SVG file from a figure | [Static export](docs/figure-api.md#static-export) |
 | `uipack/charts` + `.css` | SpanChart and LayerStack, static HTML | [Charts](docs/charts.md) |

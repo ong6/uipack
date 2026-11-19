@@ -56,6 +56,7 @@ Install (ES modules only; not on npm): `npm install https://github.com/ong6/uipa
 
 - [Architecture diagrams](docs/diagrams.md): The diagram catalogue: each figure pattern once, from the bare canvas to a figure you drill into, with the parts it is built from.
 - [Drill-down figures](docs/drill.md): A stack of figures where a node zooms open into its own figure: the parts, keyboard, reduced motion and export.
+- [Simulation grid](docs/sim-grid.md): A playable simulation drawn as a grid of identical cells, with live counters and the designs it compares: the props, playback, reduced motion and performance.
 - [Figure parts API](docs/figure-api.md): Every figure part and its props, the connector rule, hover, motion, theming, the seven presets and static SVG export.
 - [Charts](docs/charts.md): SpanChart and LayerStack: layered and comparative charts for articles, static HTML with no JavaScript.
 - [Article parts](docs/article.md): The labelled blocks of a long article section, with their HTML and class contract.

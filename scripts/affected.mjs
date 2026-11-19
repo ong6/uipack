@@ -40,6 +40,7 @@ const FIGURES = [
   "canvas",
   "canvas-gestures",
   "drill",
+  "sim-grid",
   "reduced",
   "static",
 ];
@@ -87,6 +88,7 @@ const AREAS = [
   // The marks: the docs site's header draws the wordmark, its dot on the page's section.
   [/^src\/marks\//, ["brand-mark", "assets"]],
   [/^src\/drill\//, ["drill", "geometry"]],
+  [/^src\/sim\//, ["sim-grid", "geometry"]],
   [/^src\/static\//, ["static"]],
   // The grader: its browser spec runs the checks on a page with planted defects.
   // tier1 runs it on a few docs-site pages.

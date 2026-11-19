@@ -69,6 +69,11 @@ export const demos: Record<string, DemoDef> = {
   ),
   "span-chart": demo(figures, "SpanChartFramed", "The span chart at a host's figure width, with its filters."),
   "layer-stack-chart": demo(figures, "LayerStackFramed", "The layer stack at a host's figure width."),
+  "sim-grid": demo(
+    () => import("./figures/simGrid"),
+    "SimGridDemo",
+    "A thousand writers under three commit designs, playable, with its options and counters.",
+  ),
   "asset-browser": demo(figures, "AssetsDemo", "Search, preview and copy every icon, mark, background and token."),
   "article-parts": demo(() => import("./ArticleShowcase"), "ArticleParts", "Every article part inside a host's prose column."),
   "deck-player": demo(() => import("./DeckShowcase"), "DeckDemo", "The example deck the address names, playable."),

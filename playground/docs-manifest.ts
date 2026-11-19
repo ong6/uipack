@@ -410,6 +410,14 @@ export const docsManifest = [
         intro: "A stack of figures where a node zooms open into its own figure: the parts, keyboard, reduced motion and export.",
       },
       {
+        id: "sim-grid",
+        label: "Simulation grid",
+        path: "/components/sim-grid",
+        file: "docs/sim-grid.md",
+        intro:
+          "A playable simulation drawn as a grid of identical cells, with live counters and the designs it compares: the props, playback, reduced motion and performance.",
+      },
+      {
         id: "figure-api",
         label: "Figure parts API",
         path: "/components/figure-api",

@@ -7,6 +7,7 @@
 - `speech.ts`: `SpeechGuide` (a slide's talk track) and `WORDS_PER_MINUTE`, shared by `presentations/` and `deck/` so neither imports the other.
 - `flight.ts`: `useLayerFlight`, the two-layer flight lifetime both share (cancel on settle and unmount, land only when the latest flight finishes).
 - `drill/`: `DrillFigure` and `DrillNode`, a figure whose nodes zoom open into their own figures (exported from the root entry). `DrillFigure.tsx` composes `useDrillPath` and the stage hooks (`hooks.ts`), the move between levels (`useDrillFlight.ts`), the layers (`DrillLayer.tsx`) and the header (`DrillHead.tsx`). See [drill-down figures](../docs/drill.md).
+- `sim/`: `SimGrid`, a playable simulation drawn as a grid of cells (exported from the root entry). `model.ts` is the truth (a run prepared for reading at any moment, the grid geometry, one path per state); `SimGrid.tsx` owns the frame and the playback loop. See [simulation grid](../docs/sim-grid.md).
 - `canvas-gestures.ts`: scoped trackpad/touch inputs, anchored SVG zoom, bounded camera zoom, and reset.
 - `CanvasView.tsx` and `canvas.css`: shared modal canvas workspace. Build appends its CSS to both distributed theme files.
 - `presets/`: typed SVG scene builders with wide and narrow drawings.

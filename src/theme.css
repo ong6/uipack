@@ -736,3 +736,244 @@
     animation: uipack-enter 420ms cubic-bezier(0.22, 1, 0.36, 1) var(--uipack-d, 0ms) backwards;
   }
 }
+
+/* SimGrid (src/sim/): a playable simulation as a grid of cells, one SVG path per state, with the
+   designs it compares, its options, Play and Reset, the key and a title block of counters. Shape
+   carries the state as well as colour: waiting is a hollow outline, running a small square in the
+   request colour (the main flow), done the full square in the response colour. */
+.uipack-sim .uipack__head {
+  grid-template-columns: 1fr;
+}
+.uipack-sim__bar {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px 24px;
+  margin-top: 12px;
+}
+.uipack-sim__bar fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+.uipack-sim__group {
+  margin-bottom: 6px;
+  padding: 0;
+  font: var(--show-eyebrow-font, 600 12px/1.3 var(--uipack-mono));
+  letter-spacing: var(--show-eyebrow-tracking, 0.08em);
+  text-transform: uppercase;
+  color: var(--uipack-muted);
+}
+.uipack-sim__segments {
+  display: flex;
+  flex-wrap: wrap;
+}
+.uipack-sim__segment {
+  position: relative;
+  display: inline-flex;
+}
+.uipack-sim__segment input,
+.uipack-sim__option input {
+  margin: 0;
+}
+.uipack-sim__segment input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.uipack-sim__segment span {
+  min-height: 44px;
+  padding: 0 14px;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--uipack-border);
+  background: var(--uipack-surface);
+  color: var(--uipack-fg);
+  font: 400 12px/1 var(--uipack-mono);
+  white-space: nowrap;
+}
+.uipack-sim__segment + .uipack-sim__segment span {
+  margin-left: -1px;
+}
+.uipack-sim__segment:first-child span {
+  border-radius: var(--uipack-ctl-radius, 6px) 0 0 var(--uipack-ctl-radius, 6px);
+}
+.uipack-sim__segment:last-child span {
+  border-radius: 0 var(--uipack-ctl-radius, 6px) var(--uipack-ctl-radius, 6px) 0;
+}
+/* The chosen design: an ink frame and the raised fill, plus a bar under the label, so it reads
+   without colour. */
+.uipack-sim__segment input:checked + span {
+  position: relative;
+  z-index: 1;
+  border-color: var(--uipack-fg);
+  background: var(--uipack-surface-raised);
+  font-weight: 600;
+  box-shadow: inset 0 -3px 0 var(--uipack-accent);
+}
+.uipack-sim__segment input:focus-visible + span {
+  z-index: 2;
+  outline: 2px solid var(--uipack-accent);
+  outline-offset: 2px;
+}
+.uipack-sim__options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 16px;
+}
+.uipack-sim__option {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font: 400 13px/1.3 var(--uipack-sans);
+  cursor: pointer;
+}
+.uipack-sim__option input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--uipack-fg);
+  cursor: pointer;
+}
+.uipack-sim__option input:focus-visible {
+  outline: 2px solid var(--uipack-accent);
+  outline-offset: 2px;
+}
+.uipack-sim__play {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+.uipack-sim__legend svg path {
+  stroke-width: 1;
+}
+.uipack-sim__legend li[data-sim="waiting"] path {
+  fill: none;
+  stroke: var(--uipack-muted);
+}
+.uipack-sim__legend li[data-sim="running"] path {
+  fill: var(--uipack-token-request);
+}
+.uipack-sim__legend li[data-sim="done"] path {
+  fill: var(--uipack-token-response);
+}
+
+/* The counters: a title block of ruled cells, label first in tracked mono caps, the figure in the
+   heading face with tabular digits, each value's widest text reserved so nothing shifts. */
+.uipack-sim__readout {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0;
+  border-top: 1px solid var(--uipack-border);
+}
+.uipack-sim__readout > div {
+  padding: 12px 32px 14px;
+  min-width: 0;
+}
+.uipack-sim__readout > div + div {
+  border-left: 1px solid var(--uipack-border);
+}
+.uipack-sim__readout dt {
+  font: var(--show-eyebrow-font, 600 12px/1.3 var(--uipack-mono));
+  letter-spacing: var(--show-eyebrow-tracking, 0.08em);
+  text-transform: uppercase;
+  color: var(--uipack-muted);
+}
+.uipack-sim__readout dd {
+  margin: 6px 0 0;
+  font: 600 22px/1.15 var(--uipack-diagram-font-heading, var(--ui-font-heading, inherit));
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.uipack-sim__readout dd > span:first-child {
+  display: inline-block;
+}
+/* The count sits against its total: right-aligned in its reserved width. */
+.uipack-sim__readout dd > span:first-child:not(:only-child) {
+  text-align: right;
+}
+.uipack-sim__total {
+  color: var(--uipack-muted);
+  font-weight: 400;
+}
+
+/* The grid scales to the frame at every width (its narrow shape is its own), so it never keeps the
+   800px floor a drawing without a narrow version has. */
+.uipack.uipack-sim .uipack-sim__canvas > svg {
+  min-width: 0;
+}
+.uipack-sim__cells[data-sim="waiting"] {
+  fill: none;
+  stroke: var(--uipack-muted);
+  stroke-width: 1;
+  stroke-opacity: 0.55;
+}
+.uipack-sim__cells[data-sim="running"] {
+  fill: var(--uipack-token-request);
+}
+.uipack-sim__cells[data-sim="done"] {
+  fill: var(--uipack-token-response);
+}
+/* Hover on a key entry: its cells stay, the rest fade (pointer devices only). */
+@media (hover: hover) {
+  .uipack-sim__cells,
+  .uipack-sim__legend li {
+    transition: opacity 160ms ease;
+  }
+  .uipack-sim__cells[data-state="dim"],
+  .uipack-sim__legend li[data-state="dim"] {
+    opacity: 0.35;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .uipack-sim__cells,
+  .uipack-sim__legend li {
+    transition: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .uipack-sim__play {
+    margin-left: 0;
+  }
+  /* The designs stay one joined row across the frame; a long name wraps inside its segment. */
+  .uipack-sim__designs {
+    flex: 1 1 100%;
+  }
+  .uipack-sim__segments {
+    flex-wrap: nowrap;
+  }
+  .uipack-sim__segment {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+  .uipack-sim__segment span {
+    width: 100%;
+    justify-content: center;
+    padding: 4px 8px;
+    text-align: center;
+    white-space: normal;
+    line-height: 1.25;
+  }
+  .uipack-sim__readout {
+    grid-template-columns: 1fr;
+  }
+  .uipack-sim__readout > div {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 16px;
+  }
+  .uipack-sim__readout > div + div {
+    border-left: 0;
+    border-top: 1px solid var(--uipack-border);
+  }
+  .uipack-sim__readout dd {
+    margin: 0;
+    font-size: 18px;
+  }
+}

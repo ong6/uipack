@@ -7,6 +7,10 @@ release is cut and how a site moves to it.
 
 ## [Unreleased]
 
+### Added
+
+- `SimGrid` in `uipack`: a playable simulation drawn as a grid of identical cells (one SVG path per state), with live counters, the designs it compares on one control, option checkboxes, Play, Pause and Reset; the page supplies seeded per-cell start and end times ([simulation grid](docs/sim-grid.md)).
+
 ## [1.0.0] - 2026-11-19
 
 The first stable release: 0.10.0's API, unchanged. From here a removed or renamed export, entry,
