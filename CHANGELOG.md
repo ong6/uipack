@@ -7,6 +7,11 @@ release is cut and how a site moves to it.
 
 ## [Unreleased]
 
+### Changed
+
+- The docs site (ui.junxiong.dev) asks search engines not to index it (`X-Robots-Tag: noindex` on
+  every response); `robots.txt` still lets agents fetch every page.
+
 ## [0.10.0] - 2026-11-19
 
 The release candidate for 1.0. Widgets come from libraries (a registry, and `uipack/widgets` for the
