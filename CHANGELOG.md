@@ -20,6 +20,9 @@ release is cut and how a site moves to it.
 
 ### Fixed
 
+- On React 19, a deck's inactive slides (`DeckPlayer`'s outgoing slide, thumbnails and printout) and a
+  closed `DocsLayout` navigation section are now inert: React 19 read the `inert=""` they were given
+  as false, so their links and buttons stayed focusable. They now render `inert` on React 18 and 19.
 - `SlideStarter` previews keep every text at 12px or more from about 320px wide (it was 7.3px at
   680px and about 10px on phones); `renderSlideSvg`'s output is unchanged.
 - 3D scene labels (`uipack/slides`) draw their detail line at 12px, not 11px, so every scene label
