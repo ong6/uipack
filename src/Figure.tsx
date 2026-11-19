@@ -103,7 +103,7 @@ export function placeNote(canvas: HTMLElement, note: HTMLElement, anchor: Elemen
 }
 
 /** Rendered width of each drawing, measured by ResizeObserver; 0 while hidden. */
-function useRenderedWidth(ref: React.RefObject<SVGSVGElement>, fixed?: number, layoutKey?: boolean): number {
+function useRenderedWidth(ref: React.RefObject<SVGSVGElement | null>, fixed?: number, layoutKey?: boolean): number {
   const [w, setW] = useState(fixed ?? DEFAULT_RENDER_WIDTH);
   useEffect(() => {
     if (fixed != null) return;

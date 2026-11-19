@@ -11,16 +11,19 @@ type Point = { x: number; y: number };
 type GestureEvent = Event & { scale: number; clientX: number; clientY: number };
 
 /** Native input adapter shared by SVG sizing and real 3D camera zoom. */
-export function useCanvasGestures(ref: RefObject<HTMLDivElement>, open: boolean, zoom: CanvasZoom) {
+export function useCanvasGestures(ref: RefObject<HTMLDivElement | null>, open: boolean, zoom: CanvasZoom) {
   const latestRef = useLatest(zoom);
-  const pending = useRef<{
-    surface: HTMLElement;
-    x: number;
-    y: number;
-    point: Point;
-    scale: number;
-    inset: Point;
-  }>();
+  const pending = useRef<
+    | {
+        surface: HTMLElement;
+        x: number;
+        y: number;
+        point: Point;
+        scale: number;
+        inset: Point;
+      }
+    | undefined
+  >(undefined);
   const queued = useRef(zoom.value);
   const frame = useRef(0);
 

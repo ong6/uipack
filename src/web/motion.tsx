@@ -326,11 +326,22 @@ export function TiltCard({ children, max = 5, href, className = "" }: TiltCardPr
   const cls = `uipack-web-tilt ${className}`.trim();
   const props = { className: cls, onPointerMove, onPointerLeave };
   return href ? (
-    <a ref={(n) => (ref.current = n)} href={href} {...props}>
+    <a
+      ref={(n) => {
+        ref.current = n;
+      }}
+      href={href}
+      {...props}
+    >
       {children}
     </a>
   ) : (
-    <div ref={(n) => (ref.current = n)} {...props}>
+    <div
+      ref={(n) => {
+        ref.current = n;
+      }}
+      {...props}
+    >
       {children}
     </div>
   );
@@ -355,7 +366,9 @@ export function MagneticButton({ strength = 6, ...button }: MagneticButtonProps)
   );
   return (
     <span
-      ref={(n) => (ref.current = n)}
+      ref={(n) => {
+        ref.current = n;
+      }}
       className="uipack-web-magnetic"
       onPointerMove={onPointerMove}
       onPointerLeave={onPointerLeave}

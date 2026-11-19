@@ -50,15 +50,24 @@ export function themePalette(theme: DiagramThemeInput, mode: DiagramMode = "ligh
   };
 }
 
-export function resolvePalette(theme: StaticOptions["theme"], mode: DiagramMode = "light"): Palette {
-  let p: Palette;
+/**
+ * A palette plus the chip washes (`Chip`'s fill-opacity). Light leaves them unset, so the chip's own
+ * fallbacks (0.55, soft 0.2) apply as they do live; dark sets the 28% and 12% washes theme.css and a
+ * diagram theme's dark rule give a live figure, which keep a chip's pale label at 4.5:1.
+ */
+export type StaticPalette = Palette & { "chip-tint"?: string; "chip-soft"?: string };
+
+const DARK_CHIPS = { "chip-tint": "0.28", "chip-soft": "0.12" };
+
+export function resolvePalette(theme: StaticOptions["theme"], mode: DiagramMode = "light"): StaticPalette {
+  let p: StaticPalette;
   if (!theme || theme === "light") p = LIGHT;
-  else if (theme === "dark") p = DARK;
-  else if (isDiagramTheme(theme)) p = themePalette(theme, mode);
+  else if (theme === "dark") p = { ...DARK, ...DARK_CHIPS };
+  else if (isDiagramTheme(theme)) p = { ...themePalette(theme, mode), ...(mode === "dark" ? DARK_CHIPS : {}) };
   else {
     const rest = stripBase(theme);
     // An older palette that sets its accent and not the accent ink means both.
-    p = { ...(theme.base === "dark" ? DARK : LIGHT), ...rest };
+    p = { ...(theme.base === "dark" ? { ...DARK, ...DARK_CHIPS } : LIGHT), ...rest };
     if (rest.accent && !rest["accent-ink"]) p["accent-ink"] = rest.accent;
   }
   // Font stacks land inside attribute values; a double quote there breaks the XML.
@@ -70,10 +79,16 @@ function stripBase(t: LegacyPalette): Partial<Palette> {
   return rest;
 }
 
-/** Replace every `var(--uipack-x)` with the palette literal. Unknown names fall back to currentColor. */
+/**
+ * Replace every `var(--uipack-x, fallback)` with the palette literal. A name the palette lacks takes
+ * its declared fallback, as the browser does when the property is unset; with no fallback (or one
+ * that still reads the page) it falls back to currentColor.
+ */
 export function inlineVars(markup: string, p: Palette): string {
-  return markup.replace(
-    /var\(--uipack-([a-z-]+)(?:,\s*(?:[^()]|\([^()]*\))*)?\)/g,
-    (_, k: string) => (p as unknown as Record<string, string>)[k] ?? "currentColor",
-  );
+  return markup.replace(/var\(--uipack-([a-z-]+)(?:,\s*((?:[^()]|\([^()]*\))*))?\)/g, (_, k: string, fallback?: string) => {
+    const known = (p as unknown as Record<string, string | undefined>)[k];
+    if (known !== undefined) return known;
+    const own = fallback?.trim() ? inlineVars(fallback.trim(), p) : "";
+    return own && !own.includes("var(") ? own : "currentColor";
+  });
 }

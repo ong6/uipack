@@ -22,6 +22,14 @@ release is cut and how a site moves to it.
 
 - `SlideStarter` previews keep every text at 12px or more from about 320px wide (it was 7.3px at
   680px and about 10px on phones); `renderSlideSvg`'s output is unchanged.
+- 3D scene labels (`uipack/slides`) draw their detail line at 12px, not 11px, so every scene label
+  meets the 12px text floor the grader checks.
+- `useInView` and `useScrollProgress` (`uipack/web`) take a `RefObject<Element | null>`, so a site on
+  React 19 types can pass `useRef<HTMLDivElement>(null)`; uipack's own source now type-checks on React
+  18 and 19. No runtime change.
+- `renderStatic` (`uipack/static`) prints a filled `Chip` with the wash it has live (55% in light, 28%
+  in dark; soft 20% and 12%) instead of a solid fill: a `var(--uipack-…)` the palette lacks now takes
+  its declared fallback rather than `currentColor`, and dark palettes carry the dark chip washes.
 
 ## [1.0.0] - 2026-11-19
 

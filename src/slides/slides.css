@@ -181,7 +181,7 @@
 .uipack-slide-label span {
   display: block;
   margin-top: 3px;
-  font: 11px/1.45 var(--slide-mono);
+  font: 12px/1.45 var(--slide-mono);
   color: var(--slide-muted);
 }
 .uipack-slide-label[data-tone="request"] {

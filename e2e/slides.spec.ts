@@ -129,3 +129,20 @@ test("new motion stories settle after forward, reverse, and interrupted navigati
   await expect(viewport).toHaveAttribute("data-settled-stop", "after");
   await expect(page.locator("canvas[data-slide-canvas]")).toHaveCount(1);
 });
+
+test("scene labels keep every line at the 12px floor, the detail line included", async ({ page }) => {
+  // The grader's text-size check (12px for HTML text) on /presentations caught the label's mono
+  // detail line at 11px. Computed sizes, so the hidden labels of other stops are checked too.
+  await page.goto("/presentations");
+  const labels = page.locator(`${scene} .uipack-slide-label`);
+  await expect(labels.first()).toBeAttached();
+  const sizes = await labels.evaluateAll((els) =>
+    els.flatMap((el) =>
+      [el, ...el.querySelectorAll("*")]
+        .filter((e) => e.textContent?.trim())
+        .map((e) => ({ text: e.textContent!.trim(), px: parseFloat(getComputedStyle(e).fontSize) })),
+    ),
+  );
+  expect(sizes.length).toBeGreaterThan(0);
+  expect(sizes.filter((s) => s.px < 12)).toEqual([]);
+});
