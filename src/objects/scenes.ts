@@ -23,16 +23,22 @@ const builders: Record<ObjectKind, SubjectBuilder | null> = {
 
 /**
  * A site's own builder (ObjectScene's `subject`): the same contract as a built-in one, but handed
- * the Three.js module uipack loaded, so the site never imports three or owns a renderer.
+ * the Three.js module uipack loaded, so the site never imports three or owns a renderer. Untyped
+ * on the site's side (ObjectSceneSubject), so it is trusted to return a group.
  */
-export type SiteSubjectBuilder = (kit: { THREE: typeof THREE }) => THREE.Group;
+export type SiteSubjectBuilder = (kit: { THREE: typeof THREE }) => object;
 
 /**
  * Build a subject at its first frame: a kind's, or a site's from its builder (given `three`, the
  * loaded module). Null when there is none (a kind without a subject yet, or neither given).
  */
 export function createObject(subject: ObjectKind | SiteSubjectBuilder | undefined, three?: typeof THREE): THREE.Group | null {
-  const build = typeof subject === "function" ? three && (() => subject({ THREE: three })) : subject ? builders[subject] : null;
+  const build =
+    typeof subject === "function"
+      ? three && (() => subject({ THREE: three }) as THREE.Group)
+      : subject
+        ? builders[subject]
+        : null;
   if (!build) return null;
   const object = build();
   object.userData.style ??= "ink";

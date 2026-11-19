@@ -331,6 +331,21 @@ describe("a site's own subject", () => {
       expect(local).toMatch(ownsRenderer);
   });
 
+  it("uipack/objects' public types import nothing from three (built dist/)", () => {
+    // A TypeScript site without @types/three must pass with skipLibCheck: false, so the entry's
+    // declarations and every declaration chunk they pull in stay free of three.
+    const seen = new Set<string>();
+    const visit = (file: string) => {
+      if (seen.has(file)) return;
+      seen.add(file);
+      const source = readFileSync(`dist/${file}`, "utf8");
+      expect(source, file).not.toMatch(/(?:from\s*|import\s*\()\s*['"]three(?:\/[^'"]*)?['"]/);
+      for (const [, next] of source.matchAll(/from\s*['"]\.\/([^'"]+?)(?:\.js)?['"]/g)) visit(`${next}.d.ts`);
+    };
+    visit("objects.d.ts");
+    expect(seen.size).toBeGreaterThan(0);
+  });
+
   it("is built with uipack's Three.js module and set up like a built-in subject", () => {
     withCanvas();
     const build = vi.fn(mugSubject.build);

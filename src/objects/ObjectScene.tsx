@@ -2,7 +2,7 @@ import { useEffect, useReducer, useRef, useState, type ReactNode } from "react";
 import { CanvasView } from "../CanvasView";
 import { useLatest, usePrefersReducedMotion } from "../env";
 import { mountObjectScene, type ObjectSceneHandle, type ObjectStageFlags } from "./mount";
-import type { ObjectKind, SiteSubjectBuilder } from "./scenes";
+import type { ObjectKind } from "./scenes";
 
 /**
  * A subject a site builds itself, for one uipack does not have. The site writes the builder;
@@ -17,8 +17,12 @@ export interface ObjectSceneSubject {
    * `THREE.Group` sitting on y = -1, every mesh tagged with `userData.inkRole`, one accent part,
    * motion in `userData.animate(ms)`. It is handed the Three.js module uipack loaded, so the site
    * imports no `three`. Called once per scene build, read when the scene builds.
+   *
+   * Deliberately untyped (`THREE: any`, returns `object`): uipack's types never import `three`, so a
+   * TypeScript site without `@types/three` keeps passing with `skipLibCheck: false`. A site with
+   * `@types/three` types its own builder (docs/objects.md, "A site's own subject").
    */
-  build: SiteSubjectBuilder;
+  build: (kit: { THREE: any }) => object;
   /**
    * The labelled 2D fallback's marks: SVG children in a 360 × 214 viewBox, stroked in the ink
    * colour (`className="soft"` for the faint lines). Without it the fallback is the label alone.

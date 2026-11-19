@@ -187,10 +187,23 @@ A subject built outside uipack, which imports no three, drawn and played by Obje
   `data-kind` is the `id` and the canvas reports `data-subject="site"`.
 - **A builder that throws** logs `uipack ObjectScene: the subject "<id>" failed to build` and keeps
   the fallback drawing.
-- **Types.** `ObjectSceneSubject` types `THREE` with three's own declarations, so `uipack/objects`'
-  `.d.ts` imports types from `three`. A TypeScript site that imports `uipack/objects` installs
-  `@types/three` (three ships no types); without it, `skipLibCheck: true` leaves `THREE` as `any`
-  and `skipLibCheck: false` fails on `objects.d.ts`. Plain JavaScript sites are unaffected.
+- **Types.** uipack's types never import `three`: `build` is typed loosely (`kit.THREE` is `any`, it
+  returns `object`), so a TypeScript site without `@types/three` passes with `skipLibCheck: false`
+  whether it uses `kind` or `subject`. A site with `@types/three` that may import three's types
+  types its own builder, with no change on uipack's side:
+
+  ```ts
+  import type * as Three from "three";
+  import type { ObjectSceneSubject } from "uipack/objects";
+
+  // Annotate the kit: THREE is the full three namespace, and the builder must return a Group.
+  const build = ({ THREE }: { THREE: typeof Three }): Three.Group => new THREE.Group();
+  const coffee: ObjectSceneSubject = { id: "coffee", build };
+  // Or cast inside an inline builder: build: (kit) => { const THREE = kit.THREE as typeof Three; … }
+  ```
+
+  A site under a no-local-renderer check that also bans type imports from `three` (junxiong.dev's
+  does) keeps `THREE` as `any` in those files.
 
 ## Adding a subject
 
