@@ -93,6 +93,11 @@ Only otherwise is the role read from the mesh's original material colour.
 4. **Docs:** its row in [docs/objects.md](../../docs/objects.md#subjects) and its description in
    `scene-list.ts`.
 
+A site may build a subject of its own outside uipack (ObjectScene's `subject`,
+[docs/objects.md](../../docs/objects.md#a-sites-own-subject)): the same contract, with the builder
+handed the loaded Three.js module (`build({ THREE })`) instead of importing it. Moving one in is
+step 1 with `THREE` imported, plus the steps above.
+
 ## Budget
 
 Under 100 draw calls, 100,000 triangles and 10 shader programs per subject at rest

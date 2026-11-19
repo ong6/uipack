@@ -3,7 +3,7 @@
 // and tears all of it down again. No React: ObjectStage calls it from an effect and drives it
 // through the returned handle, and the loop reads the stage's live flags (active, paused, reduced…)
 // from the object it is given, each frame.
-import type { ObjectKind } from "./scenes";
+import type { ObjectKind, SiteSubjectBuilder } from "./scenes";
 import { REDUCED_MOTION_QUERY } from "../env";
 
 const REST_START_MS = 5400;
@@ -37,7 +37,9 @@ export interface ObjectStageFlags {
 }
 
 export interface ObjectSceneOptions {
-  kind: ObjectKind;
+  kind?: ObjectKind;
+  /** A site's own subject (ObjectScene's `subject`), built instead of `kind`'s. */
+  subject?: { id: string; build: SiteSubjectBuilder };
   flags: ObjectStageFlags;
   /** The stage's root: the scene reads its colours there and mirrors the scene's phase on it. */
   host: () => HTMLElement | null;
@@ -129,7 +131,7 @@ function buildTurn(flags: ObjectStageFlags): { ready: Promise<void>; release: ()
 }
 
 export function mountObjectScene(canvas: HTMLCanvasElement, options: ObjectSceneOptions): ObjectSceneHandle {
-  const { kind, flags, host, onReady, onCompleted, onReplayed, onReducedMotion } = options;
+  const { kind, subject: site, flags, host, onReady, onCompleted, onReplayed, onReducedMotion } = options;
   const startedAt = performance.now();
   let disposed = false;
   let contextLost = false;
@@ -168,7 +170,17 @@ export function mountObjectScene(canvas: HTMLCanvasElement, options: ObjectScene
     .then(async ([THREE, { createObject, disposeObject }, look, ink]) => {
       if (disposed) return;
       freeScene = disposeObject;
-      const object = createObject(kind);
+      const build = () => {
+        try {
+          return createObject(site ? site.build : kind, THREE);
+        } catch (error) {
+          // A site's builder failing is a bug in the site: say so, then keep the fallback drawing.
+          if (site) console.error(`uipack ObjectScene: the subject "${site.id}" failed to build`, error);
+          throw error;
+        }
+      };
+      const object = build();
+      if (site) canvas.dataset.subject = "site";
       // A kind with no subject yet keeps its labelled fallback drawing and never opens a context.
       if (!object) {
         canvas.dataset.subject = "none";
@@ -231,9 +243,10 @@ export function mountObjectScene(canvas: HTMLCanvasElement, options: ObjectScene
         frames += 1;
         canvas.dataset.frames = String(frames);
         restPainted = flags.reduced;
-        const phase = flags.reduced ? "rest" : object.userData.phase;
+        // A site's subject may set neither: the mirrors still read as numbers and a phase.
+        const phase = flags.reduced ? "rest" : (object.userData.phase ?? "play");
         canvas.dataset.phase = phase;
-        canvas.dataset.pose = object.userData.pose.toFixed(3);
+        canvas.dataset.pose = Number(object.userData.pose ?? 0).toFixed(3);
         const stage = host();
         if (stage) stage.dataset.phase = phase;
       };

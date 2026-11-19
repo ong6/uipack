@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ObjectScene, objectScenes, type ObjectKind } from "../src/objects";
 import "../src/objects/objects.css";
 import { useShowcaseTheme } from "./ShowcaseShell";
+import { mugSubject } from "./siteSubject";
 import "./objects-showcase.css";
 
 /**
@@ -38,5 +39,23 @@ export function ObjectSubjects() {
         );
       })}
     </div>
+  );
+}
+
+/**
+ * `object-site-subject` (docs/objects.md, "A site's own subject"): a subject built outside uipack
+ * (siteSubject.tsx, which imports no `three`) in the same player, style and lifecycle.
+ */
+export function ObjectSiteSubject() {
+  const { theme } = useShowcaseTheme();
+  return (
+    <figure className="object-site-subject" data-kind={mugSubject.id}>
+      <div className="object-site-subject__stage">
+        <ObjectScene subject={mugSubject} label="Coffee, a site's own subject" theme={theme} surface="page" controls="playback" />
+      </div>
+      <figcaption>
+        <small>Built by the page, drawn and played by uipack: a mug of coffee, steam rising in a 6 s loop.</small>
+      </figcaption>
+    </figure>
   );
 }

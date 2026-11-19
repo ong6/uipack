@@ -1,10 +1,36 @@
-import { useEffect, useReducer, useRef, useState } from "react";
+import { useEffect, useReducer, useRef, useState, type ReactNode } from "react";
 import { CanvasView } from "../CanvasView";
-import { usePrefersReducedMotion } from "../env";
+import { useLatest, usePrefersReducedMotion } from "../env";
 import { mountObjectScene, type ObjectSceneHandle, type ObjectStageFlags } from "./mount";
-import type { ObjectKind } from "./scenes";
+import type { ObjectKind, SiteSubjectBuilder } from "./scenes";
+
+/**
+ * A subject a site builds itself, for one uipack does not have. The site writes the builder;
+ * uipack loads Three.js, owns the canvas and renderer, draws it in ink line art and plays it like
+ * a built-in subject. When a second site needs the subject, the builder moves into uipack as a kind.
+ */
+export interface ObjectSceneSubject {
+  /** Names the subject (the stage's `data-kind`). Keep it stable: a new id builds a new scene. */
+  id: string;
+  /**
+   * Builds the subject under the built-in contract (src/objects/LOOK.md, "Adding a subject"): a
+   * `THREE.Group` sitting on y = -1, every mesh tagged with `userData.inkRole`, one accent part,
+   * motion in `userData.animate(ms)`. It is handed the Three.js module uipack loaded, so the site
+   * imports no `three`. Called once per scene build, read when the scene builds.
+   */
+  build: SiteSubjectBuilder;
+  /**
+   * The labelled 2D fallback's marks: SVG children in a 360 × 214 viewBox, stroked in the ink
+   * colour (`className="soft"` for the faint lines). Without it the fallback is the label alone.
+   */
+  drawing?: ReactNode;
+}
+
 export interface ObjectSceneProps {
-  kind: ObjectKind;
+  /** A built-in subject. Pass `kind` or `subject`. */
+  kind?: ObjectKind;
+  /** A subject the site builds itself; it takes precedence over `kind`. */
+  subject?: ObjectSceneSubject;
   label: string;
   active?: boolean;
   /**
@@ -39,7 +65,7 @@ const styles = {
   fallbackSvg: "uipack-object__illustration",
   pause: "uipack-object__motion",
 };
-const Fallback = ({ kind, label }: { kind: ObjectKind; label: string }) => {
+const Fallback = ({ kind, drawing, label }: { kind?: ObjectKind; drawing?: ReactNode; label: string }) => {
   const scenes = {
     ai: (
       <>
@@ -137,9 +163,9 @@ const Fallback = ({ kind, label }: { kind: ObjectKind; label: string }) => {
         strokeLinecap="round"
         strokeLinejoin="round"
       >
-        {scenes[kind]}
+        {drawing ?? (kind && scenes[kind])}
       </svg>
-      {captions[kind] && (
+      {!drawing && kind && captions[kind] && (
         <span className="uipack-object__fallback-caption" aria-hidden="true">
           {captions[kind]}
         </span>
@@ -159,7 +185,8 @@ const ControlIcon = ({ name }: { name: "pause" | "play" | "replay" | "expand" })
 );
 
 function ObjectStage({
-  kind,
+  kind: builtIn,
+  subject,
   label,
   active = true,
   preload = false,
@@ -184,6 +211,11 @@ function ObjectStage({
   const sceneRef = useRef<ObjectSceneHandle | null>(null);
   // The scene exists while it plays or is held ready; the loop runs only while `active`.
   const mounted = active || preload;
+  // A site's subject is keyed by its id, and its builder read when the scene builds: a page that
+  // passes a new object (or an inline builder) on every render never rebuilds the scene.
+  const kind = subject ? undefined : builtIn;
+  const subjectId = subject?.id;
+  const latestSubject = useLatest(subject);
 
   useEffect(() => {
     flagsRef.current.zoom = zoom;
@@ -223,6 +255,7 @@ function ObjectStage({
     setCompleted(false);
     const scene = mountObjectScene(canvas, {
       kind,
+      subject: latestSubject.current,
       flags: flagsRef.current,
       host: () => hostRef.current,
       onReady: setReady,
@@ -238,7 +271,8 @@ function ObjectStage({
       sceneRef.current = null;
       scene.dispose();
     };
-  }, [mounted, kind]);
+    // latestSubject is the same ref on every render: the subject's id decides a rebuild.
+  }, [mounted, kind, subjectId, latestSubject]);
 
   const togglePaused = () => {
     const flags = flagsRef.current;
@@ -258,11 +292,11 @@ function ObjectStage({
       data-placeholder={placeholder}
       className={styles.scene}
       data-active={active ? "true" : "false"}
-      data-kind={kind}
+      data-kind={subjectId ?? kind}
       data-art-direction="ink"
       data-controls={controls}
     >
-      <Fallback kind={kind} label={label} />
+      <Fallback kind={kind} drawing={subject?.drawing} label={label} />
       {mounted && <canvas ref={canvasRef} className={styles.canvas} data-ready={ready ? "true" : "false"} aria-hidden="true" />}
 
       {ready && active && !reduced && (
@@ -303,7 +337,7 @@ export function ObjectScene(props: ObjectSceneProps) {
         restoreFocus={() => opener.current?.focus()}
         zoom={{ value: zoom, min: 0.75, max: 2, onChange: setZoom }}
       >
-        <ObjectStage key={props.kind} {...props} zoom={zoom} />
+        <ObjectStage key={props.subject ? `subject:${props.subject.id}` : props.kind} {...props} zoom={zoom} />
       </CanvasView>
     </div>
   );

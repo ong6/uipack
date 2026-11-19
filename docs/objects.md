@@ -68,7 +68,8 @@ built in code; there is no model file, texture download or font dependency.
 
 | Prop | Default | Does |
 | --- | --- | --- |
-| `kind` | — | The subject. |
+| `kind` | — | The built-in subject. Pass `kind` or `subject`. |
+| `subject` | — | A subject the site builds itself ([a site's own subject](#a-sites-own-subject)); it takes precedence over `kind`. |
 | `label` | — | The accessible name; the fallback drawing is "`label` illustration". |
 | `placeholder` | `"none"` | What stands in where the scene has not painted. `"none"`: nothing, so no picture is swapped for the scene, and the 2D drawing shows only when the scene cannot be drawn (no WebGL, a lost context, scripting off). `"drawing"`: the drawing shows until the scene paints, for a tile that never mounts one (`active={false}` with no `preload`). |
 | `active` | `true` | Plays. `false` holds no WebGL renderer and loads no Three.js; with `placeholder="drawing"` it shows the labelled SVG drawing. |
@@ -132,6 +133,64 @@ Cold is the median of three loads with every shader made unique (so no cache ser
 building the subject to the first frame read back; the Studio column was measured the same way
 (2026-11-15), without its environment and shadow-map programs, so it is under-counted. Triangles
 include the silhouette pass, which draws each part's geometry a second time.
+
+## A site's own subject
+
+For a subject uipack does not have, a site passes `subject` instead of `kind`: an `id`, a `build`
+function and, optionally, the fallback `drawing` (SVG children in the same 360 × 214 frame). The
+builder stays in the site; when a second site needs the subject, it moves into uipack as a kind
+(decided 2026-11-19).
+
+```tsx
+import { ObjectScene, type ObjectSceneSubject } from "uipack/objects";
+
+const coffee: ObjectSceneSubject = {
+  id: "coffee",
+  build: ({ THREE }) => {
+    const root = new THREE.Group();
+    const paper = new THREE.MeshBasicMaterial();
+    paper.userData.inkRole = "paper";
+    const mug = new THREE.Mesh(new THREE.CylinderGeometry(0.72, 0.64, 1.45, 48), paper);
+    mug.position.y = -0.275; // standing on the shared tabletop, y = -1
+    root.add(mug); // …the saucer, the handle, one accent part
+    root.userData.loopDuration = 6000;
+    root.userData.animate = (ms: number) => {
+      mug.rotation.y = Math.sin((ms / 6000) * Math.PI * 2) * 0.12;
+    };
+    return root;
+  },
+  drawing: <path d="M128 70h88l-6 98h-76z" />,
+};
+
+<ObjectScene subject={coffee} label="Coffee" />;
+```
+
+```uipack-demo object-site-subject
+A subject built outside uipack, which imports no three, drawn and played by ObjectScene.
+```
+
+- **The site owns no renderer.** `build` is handed the Three.js module uipack loaded (`{ THREE }`),
+  so the site imports no `three` (not even its types) and draws no canvas: it passes a
+  no-local-renderer check such as junxiong.dev's `scripts/check-ui-ownership.mjs`. That check also
+  blocks `three/addons`, so a builder uses core Three.js only.
+- **Same contract as a built-in subject.** The group follows the [role contract and recipe in
+  LOOK.md](../src/objects/LOOK.md#adding-a-subject): every mesh tagged with `userData.inkRole`, one
+  accent part, sitting on `y = -1`, motion in `userData.animate(ms)` with `loopDuration` (or a
+  play-once subject), `restTime` for reduced motion, `look` for the lens. It is drawn in ink line art
+  in the page's colours like every subject; there is no other look.
+- **Same lifecycle.** `active`, `preload`, the one-at-a-time build queue, the off-screen and
+  hidden-tab pause, reduced motion, recolouring on a theme change, the labelled fallback on context
+  loss or no WebGL, and disposal on unmount all work as for a `kind`. Without `drawing` the fallback
+  is the label alone.
+- **Identity is the `id`.** The builder is read when the scene builds, so a new `subject` object or
+  an inline `build` on every render never rebuilds the scene; a new `id` does. The stage's
+  `data-kind` is the `id` and the canvas reports `data-subject="site"`.
+- **A builder that throws** logs `uipack ObjectScene: the subject "<id>" failed to build` and keeps
+  the fallback drawing.
+- **Types.** `ObjectSceneSubject` types `THREE` with three's own declarations, so `uipack/objects`'
+  `.d.ts` imports types from `three`. A TypeScript site that imports `uipack/objects` installs
+  `@types/three` (three ships no types); without it, `skipLibCheck: true` leaves `THREE` as `any`
+  and `skipLibCheck: false` fails on `objects.d.ts`. Plain JavaScript sites are unaffected.
 
 ## Adding a subject
 

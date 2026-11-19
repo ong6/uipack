@@ -73,6 +73,26 @@ test("the docs page shows every subject in the one style, one playing", async ({
   await expect(travel.locator('.uipack-object[data-active="false"]')).toHaveCount(1);
 });
 
+test("a site's own subject plays in the same player, within the budgets, and rests under reduced motion", async ({ page }) => {
+  test.setTimeout(60_000);
+  const errors: string[] = [];
+  page.on("pageerror", (e) => errors.push(e.message));
+  await page.goto("/components/objects");
+  const tile = page.locator(".object-site-subject");
+  await tile.scrollIntoViewIfNeeded();
+  const canvas = tile.locator("canvas");
+  await expect(canvas).toHaveAttribute("data-renderer", "webgl", { timeout: 20_000 });
+  await expect(canvas).toHaveAttribute("data-subject", "site");
+  await expect(tile.locator('.uipack-object[data-kind="coffee"]')).toHaveCount(1);
+  await expect(canvas).toHaveAttribute("data-phase", "steam");
+  expect(Number(await canvas.getAttribute("data-draw-calls"))).toBeLessThan(100);
+  expect(Number(await canvas.getAttribute("data-programs"))).toBeLessThan(10);
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await expect(canvas).toHaveAttribute("data-phase", "rest");
+  await expect(tile.getByRole("button", { name: /motion$/ })).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
 timingTest("context loss keeps the labelled fallback", async ({ page }) => {
   await page.goto("/animations?story=travel");
   const canvas = page.locator(".uipack-object canvas");

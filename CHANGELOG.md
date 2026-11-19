@@ -12,6 +12,10 @@ release is cut and how a site moves to it.
 - CI builds the consumers (`examples/web-starter`, the dist smoke page) against React 18 and React 19
   (the `react-majors` job, `scripts/react-majors.tsx`), so a change that breaks either major fails
   the pull request.
+- `ObjectScene` takes `subject` (type `ObjectSceneSubject`: `id`, `build({ THREE })`, optional fallback
+  `drawing`), a site's own scene builder for a subject uipack lacks, played with a kind's lifecycle;
+  `kind` is now optional. No `three` types enter uipack's `.d.ts`: a site with `@types/three` types its
+  own builder ([a site's own subject](docs/objects.md#a-sites-own-subject)).
 
 ## [1.0.0] - 2026-11-19
 
