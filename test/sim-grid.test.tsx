@@ -106,7 +106,7 @@ const simulate = vi.fn(({ design, options }: SimChoice): SimRun => {
 const grid = (props: Partial<Parameters<typeof SimGrid>[0]> = {}) => (
   <SimGrid title="Writers" alt="Four writers" designs={designs} options={options} simulate={simulate} duration={4} {...props} />
 );
-const counters = () => [...document.querySelectorAll(".uipack-sim__readout dd > span:first-child")].map((s) => s.textContent);
+const counters = () => [...document.querySelectorAll(".uipack-sim__readout .uipack-sim__value")].map((s) => s.textContent);
 const pathOf = (state: string) => document.querySelector(`.uipack-sim__cells[data-sim="${state}"]`)!.getAttribute("d")!;
 
 describe("SimGrid", () => {
@@ -137,7 +137,8 @@ describe("SimGrid", () => {
       );
     });
     expect(html).toContain("4.0 s");
-    expect(html).toMatch(/>4<\/span><span class="uipack-sim__total">/);
+    expect(html).toMatch(/class="uipack-sim__value">4<\/span><span class="uipack-sim__total">/);
+    expect(html).toContain('<span class="uipack-sim__ghost" aria-hidden="true">4 / 4</span>');
     expect(html).toContain('data-sim-state="finished"');
     expect(html).toContain("Simulated time");
     expect(html).toContain("Play</button>");

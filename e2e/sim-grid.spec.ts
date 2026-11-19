@@ -6,7 +6,7 @@ import { playAnimationTime } from "./helpers";
 // exact however loaded the machine is.
 
 const fig = (page: Page) => page.locator(".uipack-sim").first();
-const counter = (page: Page, n: number) => fig(page).locator(".uipack-sim__readout dd > span:first-child").nth(n);
+const counter = (page: Page, n: number) => fig(page).locator(".uipack-sim__readout .uipack-sim__value").nth(n);
 const cells = (page: Page, state: string) =>
   fig(page)
     .locator(`.uipack-sim__cells[data-sim="${state}"]`)
@@ -65,12 +65,27 @@ test.describe("simulation grid", () => {
     await expect(fig(page)).toHaveAttribute("data-sim-state", "idle");
     await expect(counter(page, 2)).toHaveText("0");
     expect(await cells(page, "waiting")).toBe(1000);
+    // Each value starts flush under its label, and its box keeps its size from 0 to the end.
+    const boxes = () =>
+      fig(page)
+        .locator(".uipack-sim__readout > div")
+        .evaluateAll((divs) =>
+          divs.map((d) => {
+            const dt = d.querySelector("dt")!.getBoundingClientRect();
+            const dd = d.querySelector("dd")!.getBoundingClientRect();
+            const value = d.querySelector(".uipack-sim__value")!.getBoundingClientRect();
+            return { indent: Math.round(value.left - dt.left), w: Math.round(dd.width), h: Math.round(dd.height) };
+          }),
+        );
+    const idle = await boxes();
+    expect(idle.map((b) => b.indent)).toEqual([0, 0, 0]);
 
     await fig(page).getByRole("button", { name: "Play" }).click();
     await playAnimationTime(page, 9000);
     await expect(fig(page)).toHaveAttribute("data-sim-state", "finished");
     await expect(counter(page, 2)).toHaveText("1,000");
     expect(await cells(page, "done")).toBe(1000);
+    expect(await boxes()).toEqual(idle);
     await expect(fig(page).getByRole("status")).toContainText("Finished. 1,000 of 1,000 writers done");
     await expect(fig(page).getByRole("button", { name: "Play" })).toBeVisible();
   });
@@ -161,13 +176,13 @@ test.describe("simulation grid", () => {
     const dialog = page.getByRole("dialog");
     await expect(dialog).toBeVisible();
     const inDialog = dialog.locator(".uipack-sim");
-    await expect(inDialog.locator(".uipack-sim__readout dd > span:first-child").first()).toHaveText(time!);
+    await expect(inDialog.locator(".uipack-sim__readout .uipack-sim__value").first()).toHaveText(time!);
     // Wide in the canvas, even on a phone: 50 columns for 1,000 cells, at least 800px across.
     await expect(inDialog.locator("svg[role=img]")).toHaveAttribute("data-columns", "50");
     expect((await inDialog.locator("svg[role=img]").boundingBox())!.width).toBeGreaterThanOrEqual(800);
     await inDialog.getByRole("button", { name: "Play" }).click();
     await playAnimationTime(page, 500);
-    await expect(inDialog.locator(".uipack-sim__readout dd > span:first-child").first()).not.toHaveText(time!);
+    await expect(inDialog.locator(".uipack-sim__readout .uipack-sim__value").first()).not.toHaveText(time!);
     await page.keyboard.press("Escape");
     await expect(dialog).toHaveCount(0);
     await expect(fig(page).getByRole("button", { name: "Open canvas" })).toBeFocused();

@@ -890,18 +890,22 @@
   text-transform: uppercase;
   color: var(--uipack-muted);
 }
+/* The live value over an invisible copy of its widest text, in one grid cell: the box never
+   changes size, and the value starts flush with its label. */
 .uipack-sim__readout dd {
+  display: grid;
+  justify-items: start;
   margin: 6px 0 0;
   font: 600 22px/1.15 var(--uipack-diagram-font-heading, var(--ui-font-heading, inherit));
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
-.uipack-sim__readout dd > span:first-child {
-  display: inline-block;
+.uipack-sim__ghost,
+.uipack-sim__live {
+  grid-area: 1 / 1;
 }
-/* The count sits against its total: right-aligned in its reserved width. */
-.uipack-sim__readout dd > span:first-child:not(:only-child) {
-  text-align: right;
+.uipack-sim__ghost {
+  visibility: hidden;
 }
 .uipack-sim__total {
   color: var(--uipack-muted);
@@ -980,7 +984,9 @@
     border-left: 0;
     border-top: 1px solid var(--uipack-border);
   }
+  /* Stacked rows: label at the start, value at the end, the values flush with each other. */
   .uipack-sim__readout dd {
+    justify-items: end;
     margin: 0;
     font-size: 18px;
   }

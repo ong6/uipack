@@ -5,17 +5,7 @@
 // three elements; the loop rewrites them only when a count changes and writes the counters in place,
 // without a React render per frame. Its resting frame is the finished run (server HTML, reduced
 // motion, `static`); as it nears the viewport it rewinds and plays once, and it pauses off screen.
-import {
-  createElement,
-  useContext,
-  useEffect,
-  useId,
-  useMemo,
-  useRef,
-  useState,
-  useSyncExternalStore,
-  type CSSProperties,
-} from "react";
+import { createElement, useContext, useEffect, useId, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { CanvasView } from "../CanvasView";
 import { FigureChromeContext } from "../context";
 import { useFigureEntrance } from "../entrance";
@@ -388,7 +378,13 @@ export function SimGrid({
   const motion = !reduced;
   const finishedText = formatTime(run.finish);
   // Reserve each counter's widest text, so nothing shifts while the numbers change.
-  const reserve = (text: string) => ({ minWidth: `${text.length}ch` }) as CSSProperties;
+  // Each value lays its widest text (the finished run's) under the live one, invisible, as
+  // NumberTicker does: the value starts flush under its label and nothing beside it moves.
+  const ghost = (text: string) => (
+    <span className="uipack-sim__ghost" aria-hidden="true">
+      {text}
+    </span>
+  );
   const done = snap.done >= run.count && run.count > 0;
 
   return (
@@ -511,26 +507,35 @@ export function SimGrid({
           <div>
             <dt>{labels.time}</dt>
             <dd>
-              <span ref={timeEl} style={reserve(finishedText)}>
-                {formatTime(shown)}
+              {ghost(finishedText)}
+              <span className="uipack-sim__live">
+                <span ref={timeEl} className="uipack-sim__value">
+                  {formatTime(shown)}
+                </span>
               </span>
             </dd>
           </div>
           <div>
             <dt>{labels.mean}</dt>
             <dd>
-              <span ref={meanEl} style={reserve(formatTime(run.longest))}>
-                {meanText(snap)}
+              {ghost(formatTime(run.longest))}
+              <span className="uipack-sim__live">
+                <span ref={meanEl} className="uipack-sim__value">
+                  {meanText(snap)}
+                </span>
               </span>
             </dd>
           </div>
           <div>
             <dt>{labels.count}</dt>
             <dd>
-              <span ref={doneEl} style={reserve(formatCount(run.count))}>
-                {formatCount(snap.done)}
+              {ghost(`${formatCount(run.count)} / ${formatCount(run.count)}`)}
+              <span className="uipack-sim__live">
+                <span ref={doneEl} className="uipack-sim__value">
+                  {formatCount(snap.done)}
+                </span>
+                <span className="uipack-sim__total"> / {formatCount(run.count)}</span>
               </span>
-              <span className="uipack-sim__total"> / {formatCount(run.count)}</span>
             </dd>
           </div>
         </dl>
