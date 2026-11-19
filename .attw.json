@@ -13,6 +13,7 @@
     "./mechanism.css",
     "./web.css",
     "./web-gutters.css",
-    "./docs.css"
+    "./docs.css",
+    "./widgets.css"
   ]
 }

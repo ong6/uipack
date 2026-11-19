@@ -28,6 +28,7 @@ export const cssBundles: { out: string; from: string[] }[] = [
   { out: "web.css", from: withRoles("src/web/web.css", "src/web/web-styles.css", "src/web/gutters.css") },
   { out: "web-gutters.css", from: withRoles("src/web/gutters.css") },
   { out: "docs.css", from: withRoles("src/docs/docs.css") },
+  { out: "widgets.css", from: withRoles("src/widgets/widgets.css") },
   { out: "charts.css", from: withRoles("src/charts/charts.css") },
   { out: "article.css", from: withRoles("src/article/article.css") },
   {

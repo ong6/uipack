@@ -197,3 +197,97 @@ export const COMPONENTS = [
     ],
   },
 ] as const satisfies readonly Component[];
+
+/**
+ * The widget registry (docs/components/widgets.md): for each widget a page needs, the one library to
+ * take it from, so an agent never hand-builds a toast, menu, sheet or dialog. `uipack/widgets` skins
+ * the ones it lists in `exports`; the rest are used straight from their library, styled on the site's
+ * roles. A widget enters the registry when a site needs it; one library per need, and a replacement
+ * takes the old row's place. Checked 2026-11-19 (React 18 and 19 peer ranges, last release).
+ */
+export interface Widget {
+  readonly id: string;
+  readonly need: string;
+  /** The npm package and the range a site installs. */
+  readonly library: string;
+  readonly range: string;
+  /** What `uipack/widgets` exports for it; empty when a site uses the library directly. */
+  readonly exports: readonly string[];
+  readonly use: string;
+  readonly avoid: string;
+  /** The library to swap to if this one is abandoned. */
+  readonly fallback: string;
+}
+
+export const WIDGETS = [
+  {
+    id: "command-menu",
+    need: "Command menu, ⌘K search",
+    library: "cmdk",
+    range: "^1.1.0",
+    exports: [
+      "CommandMenu",
+      "CommandDialog",
+      "CommandInput",
+      "CommandList",
+      "CommandGroup",
+      "CommandItem",
+      "CommandEmpty",
+      "useCommandShortcut",
+    ],
+    use: "Jumping to a page or action from the keyboard; searching a long list of places",
+    avoid: "Choosing one of a few values in a form (a select)",
+    fallback: "Base UI Combobox",
+  },
+  {
+    id: "toast",
+    need: "Toasts",
+    library: "sonner",
+    range: "^2.0.0",
+    exports: ["Toaster", "toast"],
+    use: "Saying a background action finished (saved, sent), with Undo where it can be undone",
+    avoid:
+      "An error the reader must fix (say it beside the field); anything that needs a decision (a dialog); a result the control itself can show (a copy button's inline “Copied”)",
+    fallback: "Base UI Toast",
+  },
+  {
+    id: "dialog",
+    need: "Dialog, alert dialog",
+    library: "@base-ui/react",
+    range: "^1.9.0",
+    exports: [],
+    use: "A decision or a short form that has to be answered before the page goes on",
+    avoid: "Content a reader browses or comes back to (give it a page or a sheet)",
+    fallback: "The browser's `<dialog>`, as `CommandDialog` uses it",
+  },
+  {
+    id: "popover-menu",
+    need: "Popover, menu, select, tabs, tooltip",
+    library: "@base-ui/react",
+    range: "^1.9.0",
+    exports: [],
+    use: "Any of these with keyboard, focus and screen-reader behaviour a reader expects",
+    avoid: "A tooltip that holds the only copy of something a touch reader needs",
+    fallback: "Radix Primitives",
+  },
+  {
+    id: "sheet",
+    need: "Bottom sheet, drawer",
+    library: "@base-ui/react",
+    range: "^1.9.0",
+    exports: [],
+    use: "Phone-first panels: filters, a menu, details for a row (Base UI Drawer). Not Vaul: its README says it is unmaintained (checked 2026-11-19)",
+    avoid: "Desktop navigation that fits in the page",
+    fallback: "Base UI Dialog styled as a sheet",
+  },
+  {
+    id: "live-number",
+    need: "A number that keeps changing",
+    library: "@number-flow/react",
+    range: "^0.6.0",
+    exports: [],
+    use: "Prices, counters and totals that update while the reader watches",
+    avoid: "A proof stat that counts up once on scroll (that is `NumberTicker` in `uipack/web`)",
+    fallback: "`NumberTicker`",
+  },
+] as const satisfies readonly Widget[];

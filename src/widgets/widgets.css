@@ -1,0 +1,184 @@
+/* uipack/widgets: skins for the library widgets (docs/components/widgets.md). Each reads the site's
+   roles (--ui-*) and nothing else, so a site changes its roles, never these rules. cmdk parts are
+   styled by their cmdk-* attributes; Sonner by its data-sonner-* attributes, specific enough to win
+   over the stylesheet Sonner injects. */
+
+.uipack-command,
+.uipack-command *,
+.uipack-command-dialog,
+.uipack-command-dialog * {
+  box-sizing: border-box;
+}
+
+.uipack-command {
+  background: var(--ui-paper);
+  color: var(--ui-ink);
+  display: flex;
+  flex-direction: column;
+  font-family: var(--ui-font-text);
+  min-height: 0;
+  width: 100%;
+}
+
+.uipack-command [cmdk-input] {
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--ui-line-soft);
+  color: var(--ui-ink);
+  font: 400 16px / 1.3 var(--ui-font-text);
+  height: 56px;
+  min-width: 0;
+  outline: none;
+  padding: 0 16px;
+  width: 100%;
+}
+
+.uipack-command [cmdk-input]::placeholder {
+  color: var(--ui-ink-3);
+}
+
+.uipack-command [cmdk-list] {
+  max-height: min(420px, calc(100dvh - 200px));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0 8px 12px;
+}
+
+.uipack-command [cmdk-group-heading] {
+  color: var(--ui-ink);
+  font: 600 12px / 1 var(--ui-font-label);
+  letter-spacing: var(--ui-label-tracking, 0.08em);
+  margin: 14px 8px 6px;
+  text-transform: uppercase;
+}
+
+.uipack-command [cmdk-item] {
+  border-left: 3px solid transparent;
+  border-radius: var(--ui-radius-sm, 4px);
+  color: var(--ui-ink);
+  cursor: pointer;
+  display: grid;
+  font-size: 14px;
+  gap: 3px;
+  padding: 9px 10px 9px 12px;
+  text-decoration: none;
+  user-select: none;
+}
+
+.uipack-command [cmdk-item][data-selected="true"] {
+  /* A tint, not --ui-accent-surface: that role is a solid fill in some styles, and the label must stay ink. */
+  background: color-mix(in srgb, var(--ui-accent) 12%, transparent);
+  color: var(--ui-ink);
+  border-left-color: var(--ui-accent);
+}
+
+.uipack-command [cmdk-item][data-disabled="true"] {
+  color: var(--ui-ink-3);
+  cursor: default;
+}
+
+.uipack-command [cmdk-empty],
+.uipack-command [cmdk-loading] {
+  color: var(--ui-ink-2);
+  font: 400 12px / 1.4 var(--ui-font-label);
+  padding: 14px 8px 6px;
+}
+
+.uipack-command [cmdk-separator] {
+  background: var(--ui-line-soft);
+  height: 1px;
+  margin: 6px 0;
+}
+
+.uipack-command-dialog {
+  background: var(--ui-paper);
+  border: 1px solid var(--ui-line);
+  border-radius: var(--ui-radius-sm, 4px);
+  box-shadow: 0 24px 64px rgb(0 0 0 / 0.28);
+  color: var(--ui-ink);
+  margin: 72px auto auto;
+  max-height: min(600px, calc(100dvh - 96px));
+  max-width: none;
+  padding: 0;
+  width: min(660px, calc(100vw - 32px));
+}
+
+.uipack-command-dialog[open] {
+  display: flex;
+}
+
+.uipack-command-dialog::backdrop {
+  background: rgb(0 0 0 / 0.45);
+}
+
+@media (max-width: 600px) {
+  .uipack-command-dialog {
+    border: 0;
+    border-radius: 0;
+    height: 100dvh;
+    margin: 0;
+    max-height: none;
+    width: 100vw;
+  }
+
+  .uipack-command [cmdk-list] {
+    max-height: none;
+  }
+}
+
+@media (pointer: coarse) {
+  .uipack-command [cmdk-item] {
+    min-height: 44px;
+  }
+}
+
+/* Sonner. */
+[data-sonner-toaster][data-sonner-theme].uipack-toaster {
+  --normal-bg: var(--ui-surface-raised);
+  --normal-border: var(--ui-line);
+  --normal-text: var(--ui-ink);
+  --success-bg: var(--ui-surface-raised);
+  --success-border: var(--ui-line);
+  --success-text: var(--ui-ink);
+  --error-bg: var(--ui-surface-raised);
+  --error-border: var(--ui-alert);
+  --error-text: var(--ui-ink);
+  --warning-bg: var(--ui-surface-raised);
+  --warning-border: var(--ui-warn);
+  --warning-text: var(--ui-ink);
+  --info-bg: var(--ui-surface-raised);
+  --info-border: var(--ui-line);
+  --info-text: var(--ui-ink);
+  --border-radius: var(--ui-radius-sm, 4px);
+  font-family: var(--ui-font-text);
+}
+
+[data-sonner-toaster].uipack-toaster [data-sonner-toast].uipack-toast {
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.12);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+[data-sonner-toaster].uipack-toaster [data-sonner-toast].uipack-toast [data-description] {
+  color: var(--ui-ink-2);
+}
+
+[data-sonner-toaster].uipack-toaster [data-sonner-toast].uipack-toast [data-button] {
+  background: var(--ui-ink);
+  border-radius: var(--ui-radius-sm, 4px);
+  color: var(--ui-paper);
+  font: 500 12px / 1 var(--ui-font-label);
+}
+
+[data-sonner-toaster].uipack-toaster [data-sonner-toast].uipack-toast [data-close-button] {
+  background: var(--ui-surface-raised);
+  border-color: var(--ui-line);
+  color: var(--ui-ink-2);
+}
+
+@media (pointer: coarse) {
+  [data-sonner-toaster].uipack-toaster [data-sonner-toast].uipack-toast [data-button] {
+    min-height: 44px;
+    padding: 0 14px;
+  }
+}

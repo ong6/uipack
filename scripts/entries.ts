@@ -14,6 +14,7 @@ export const entries: Record<string, string> = {
   article: "src/article/index.ts",
   deck: "src/deck/index.ts",
   mechanism: "src/mechanism/index.ts",
+  widgets: "src/widgets/index.ts",
   // Node only: the grading CLI and library (docs/grading/README.md).
   grade: "src/grade/index.ts",
 };

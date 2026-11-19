@@ -11,6 +11,16 @@ The public API is trimmed before 1.0: each entry exports only what its docs name
 registry's sites import, plus the types those exports' signatures use. After 1.0 a removal needs a
 major version, so internals exported now would stay forever.
 
+### Added
+
+- **`uipack/widgets`** and `uipack/widgets.css`: skinned library widgets on the site's roles. `CommandMenu`, cmdk's parts under uipack names, `CommandDialog` and `useCommandShortcut` (on cmdk); `Toaster` and `toast` (on Sonner). `cmdk` and `sonner` are optional peer dependencies.
+- **The widget registry** ([docs/components/widgets.md](docs/components/widgets.md), from `WIDGETS` in `scripts/site-model.ts`): one library per widget need (command menu, toasts, dialogs, menus, sheets, live numbers), with when to use it, when not, and a fallback. The page, review and copy skills point to it.
+- Web principles rule 15, one standout moment per page; writing rules for widget text (`docs/system/writing/web.md#widget-wording`).
+
+### Changed
+
+- **The docs search runs on the command menu** (cmdk), with the same look, keys and behaviour. `uipack/docs` now needs `cmdk` installed beside `react-markdown` and `remark-gfm`.
+
 ### Removed
 
 Names no longer exported, per entry (export count before → after). The code is unchanged and still
@@ -36,7 +46,8 @@ runs inside the components that use it; only the entry stops exporting it.
 
 ### Upgrading
 
-- Nothing to change: no site in the [registry](docs/specs/registry.md) imported any of these
+- A site that imports `uipack/docs` installs `cmdk@^1.1.0`.
+- The removed names: nothing to change. No site in the [registry](docs/specs/registry.md) imported any of these
   names. They were internal helpers, constants, contexts and hooks; there is no replacement import.
 
 ## [0.9.0] - 2026-11-16

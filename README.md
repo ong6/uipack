@@ -68,8 +68,8 @@ export function RequestFlow() {
 ## Entries
 
 Each entry is imported on its own, so a page loads only what it draws. Three.js and GSAP are
-optional peers, used only by `uipack/objects` and `uipack/slides`. `react-markdown` and
-`remark-gfm` are optional peers, used only by `uipack/docs`.
+optional peers, used only by `uipack/objects` and `uipack/slides`. `react-markdown`,
+`remark-gfm` and `cmdk` are optional peers, used only by `uipack/docs`; `cmdk` and `sonner` by `uipack/widgets`.
 
 | Import | What it draws | Reference |
 | --- | --- | --- |
@@ -85,6 +85,7 @@ optional peers, used only by `uipack/objects` and `uipack/slides`. `react-markdo
 | `uipack/objects` + `.css` | Lazy 3D object scenes, drawn in ink line art from the page's colours | [3D object scenes](docs/objects.md) |
 | `uipack/slides` + `.css` | 3D camera stories (`SlidePlayer`). The name is historical and kept for existing imports | [3D stories](docs/slides.md) |
 | `uipack/docs` + `.css` | A documentation shell and Markdown renderer | [Docs layout](docs/docs-layout.md) |
+| `uipack/widgets` + `.css` | Skinned library widgets: the command menu (cmdk) and toasts (Sonner) | [Widgets](docs/components/widgets.md) |
 | `uipack/browser` + `.css` | The asset browser | [Icons and marks](docs/icons-and-marks.md) |
 | `uipack/grade` | Tier-1 page checks, judge packets and tallies (Node only; CLI `npx uipack-grade`) | [How to grade](docs/grading/README.md) |
 | `uipack/styles.css` | The role layer alone | [Style contract](docs/system/style.md) |

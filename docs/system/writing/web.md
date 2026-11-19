@@ -46,6 +46,17 @@ approvals and approvers' names stay off the page.
 - Keep the trade-offs the reader will feel, as their own section (a higher error rate, a slower
   start).
 
+## Widget wording
+
+The words inside widgets ([widget registry](../../components/widgets.md)) are short and say what happened or what to do.
+
+- **Toast:** what happened, past tense, one line ("Link copied", "Draft saved"). Undo is the only action a toast offers; never "Success!" or an exclamation mark.
+- **Error:** what went wrong and the next step, beside the thing that failed ("Card declined. Try another card."). Never a toast, never "Oops" or "Something went wrong" alone.
+- **Confirm dialog:** the title asks the question with its verb ("Delete this draft?"); the buttons repeat the verb ("Delete", "Keep it"), never "OK" and "Cancel". Say what can't be undone.
+- **Empty state:** why it is empty and the one way to fill it ("No saved searches yet. Save one from any results page.").
+- **Command menu:** the placeholder names what it searches ("Search docs", "Jump to a page"); an empty result repeats the query ("No results for “grade”.").
+- **Button labels:** a verb and its object ("Copy link", "Download PDF"), sentence case.
+
 ## FAQ
 
 Answer real objections in the asker's words. The answers and their structured data share one

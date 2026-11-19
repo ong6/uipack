@@ -72,6 +72,10 @@ starts from.
    [Where code still fixes a layout](../../docs/system/layout/README.md#where-code-still-fixes-a-layout).
 5. **Shared shell.** On a site with a header, nav, footer and theme already built, reuse them. On a
    multi-page build split across agents, follow [docs/agents/multi-agent-build.md](../../docs/agents/multi-agent-build.md).
+6. **Widgets from the registry.** A toast, command menu, dialog, sheet, menu or live number comes
+   from its library in the [widget registry](../../docs/components/widgets.md) (skinned in
+   `uipack/widgets` where listed), never hand-built. One standout moment per page
+   ([web principles](../../docs/web-principles.md), rule 15).
 
 ## Check
 

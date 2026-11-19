@@ -75,6 +75,7 @@ Install (ES modules only; not on npm): `npm install https://github.com/ong6/uipa
 - [Diagram look and themes](docs/components/diagrams.md): The Blueprint look and diagram themes: one grammar on every site, colours, faces and ground from a theme; the theme API, the user-flow and sequence parts, the node strip.
 - [3D looks](docs/components/3d.md): The one 3D look, ink line art, and how it takes the site's paper, ink and accent.
 - [Mechanism look](docs/components/mechanism.md): The isometric machine look: its fixed drawing and the roles it takes from the site.
+- [Widgets](docs/components/widgets.md): Which library each widget comes from (command menu, toasts, dialogs, sheets, menus, live numbers), and the skins in uipack/widgets.
 
 ## Build · Examples
 

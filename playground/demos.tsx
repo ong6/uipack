@@ -84,6 +84,11 @@ export const demos: Record<string, DemoDef> = {
     "MechanismDemo",
     "The verification gate, its poses and thumbnails.",
   ),
+  widgets: demo(
+    () => import("./WidgetsShowcase"),
+    "WidgetsDemo",
+    "The command menu as a site's skin draws it, and a toast with Undo.",
+  ),
   "docs-layout": demo(() => import("./DocsShowcase"), "DocsLayoutDemo", "An example product's docs page in DocsLayout."),
   // Examples
   "web-sample": demo(web, "WebSample", "The Tidy sample landing page, with its generated head and crawl files."),
