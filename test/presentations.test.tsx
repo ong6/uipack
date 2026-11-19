@@ -121,8 +121,17 @@ describe("presentation starters", () => {
     expect(system).toMatch(/<rect x="64" y="295" width="316"/);
   });
 
+  it("wraps long text only under a floor", () => {
+    const context = "Shared type, colour and spacing for websites and slides, and for every deck too.";
+    const long: SlideStarterData = { ...opening, content: { ...opening.content, context } };
+    expect(renderSlideSvgWithFloor(long, {}, 0)).toContain(`>${context}</text>`);
+    expect(renderSlideSvgWithFloor(long, {}, 41)).not.toContain(`>${context}</text>`);
+  });
+
   it("server-renders the preview for a desktop column before it is measured", () => {
     const html = renderToString(<SlideStarter slide={opening} />);
+    // Unmeasured, so presentations.css's narrow fallback applies until the effect runs.
+    expect(html).not.toContain("data-measured");
     // 12px at the 1088px a Figure assumes: 14 units, so the 13-unit footer is drawn at 14.
     expect(html).toMatch(/font-size="14"[^>]*>01 \/ 03</);
   });

@@ -89,7 +89,8 @@ export function renderSlideSvg(slide: SlideStarterData, options: RenderSlideSvgO
  * width it is shown at). Every text is drawn at least `floor` units tall. Where the larger text no
  * longer fits the 1200-unit layout, the layout makes room: System's steps widen, their detail wraps
  * and the boxes grow; Explanation's box narrows so the right column fits, and its detail wraps.
- * At floor 0 (and at any floor below every default size) the drawing is renderSlideSvg's.
+ * Only a floor adapts the layout: at floor 0 the drawing is renderSlideSvg's as it always was, and
+ * at a floor below every default size it is the same drawing.
  */
 export function renderSlideSvgWithFloor(slide: SlideStarterData, options: RenderSlideSvgOptions, floor: number): string {
   const theme = options.theme ?? "light";
@@ -105,6 +106,8 @@ export function renderSlideSvgWithFloor(slide: SlideStarterData, options: Render
   const height = Math.round((width * 9) / 16);
   /** A designed size, raised to the floor. */
   const sz = (size: number) => Math.max(size, floor);
+  /** Wrap only under a floor; without one, renderSlideSvg keeps drawing one line. */
+  const fit = (value: string, chars: number) => (floor > 0 ? wrap(value, chars) : [value]);
   const text = (
     x: number,
     y: number,
@@ -136,11 +139,15 @@ export function renderSlideSvgWithFloor(slide: SlideStarterData, options: Render
 
   let body = "";
   if (slide.layout === "opening") {
+    // The context wraps across the 1072 units between the margins; there is room down to the footer.
+    const context = sz(28);
     body =
       eyebrow(slide.content.eyebrow) +
       text(64, 277, slide.content.headline[0], 78, colors.ink, 600) +
       text(64, 371, slide.content.headline[1], 78, colors.ink, 600) +
-      text(64, 457, slide.content.context, 28, colors.muted, 400, false, "start", "fine");
+      lines(fit(slide.content.context, Math.floor(1072 / (SANS_EM * context))), Math.round(1.2 * context), (line, dy) =>
+        text(64, 457 + dy, line, 28, colors.muted, 400, false, "start", "fine"),
+      );
   } else if (slide.layout === "explanation") {
     const { foundation, applications } = slide.content;
     const [first, second] = applications;
@@ -149,10 +156,10 @@ export function renderSlideSvgWithFloor(slide: SlideStarterData, options: Render
     const columnWidth = Math.max(
       ...applications.flatMap((a) => [a.title.length * SANS_BOLD_EM * appTitle, a.detail.length * SANS_EM * appDetail]),
     );
-    const boxWidth = 568 + columnWidth > 1136 ? 400 : 440;
+    const boxWidth = floor > 0 && 568 + columnWidth > 1136 ? 400 : 440;
     const column = boxWidth === 440 ? 568 : 64 + boxWidth + 48;
     // The box's detail wraps inside its 32-unit left and 24-unit right padding.
-    const detailLines = wrap(foundation.detail, Math.floor((boxWidth - 56) / (SANS_BOLD_EM * detail)));
+    const detailLines = fit(foundation.detail, Math.floor((boxWidth - 56) / (SANS_BOLD_EM * detail)));
     const detailStep = Math.round(1.2 * detail);
     const boxHeight = Math.max(256, 399 + (detailLines.length - 1) * detailStep + 40 - 264);
     const gap = Math.max(48, Math.round(1.2 * appDetail));
@@ -173,9 +180,9 @@ export function renderSlideSvgWithFloor(slide: SlideStarterData, options: Render
     // Three 288-unit boxes 104 apart while every detail fits one line inside 24 + 12 units of
     // padding; else 316-unit boxes 62 apart (still 1072 across) and the detail wraps.
     const chars = (box: number) => Math.floor((box - 36) / (MONO_EM * detail));
-    const wide = steps.every((step) => step.detail.length <= chars(288));
+    const wide = floor === 0 || steps.every((step) => step.detail.length <= chars(288));
     const [boxWidth, gap] = wide ? [288, 104] : [316, 62];
-    const stepLines = steps.map((step) => wrap(step.detail, chars(boxWidth)));
+    const stepLines = steps.map((step) => fit(step.detail, chars(boxWidth)));
     const detailY = 351 + Math.max(43, Math.round(1.15 * detail));
     const detailStep = Math.round(1.2 * detail);
     const boxBottom = detailY + (Math.max(...stepLines.map((l) => l.length)) - 1) * detailStep + 39;

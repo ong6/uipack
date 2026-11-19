@@ -42,8 +42,22 @@
   font-weight: var(--ui-display-weight);
   letter-spacing: var(--ui-display-tracking);
 }
-/* No text size here: SlideStarter measures the preview and draws every text at 12px or more
-   (renderSlideSvg.ts); a CSS font-size would override the drawing's own. */
+/* SlideStarter measures the preview and draws every text at 12px or more (renderSlideSvg.ts), so a
+   measured preview ([data-measured]) takes no font-size here: it would override the drawing's own.
+   Before that (server rendering, no script) the drawing assumes a desktop column, so a narrow
+   preview's fine print keeps about 10px (34 units at 358px), box text 32 units. */
+.uipack-slide-starter__preview {
+  container-type: inline-size;
+}
+@container (max-width: 640px) {
+  .uipack-slide-starter__preview:not([data-measured]) .uipack-slide-starter__label,
+  .uipack-slide-starter__preview:not([data-measured]) .uipack-slide-starter__fine {
+    font-size: 34px;
+  }
+  .uipack-slide-starter__preview:not([data-measured]) .uipack-slide-starter__boxed {
+    font-size: 32px;
+  }
+}
 .uipack-slide-starter__figure figcaption {
   display: grid;
   gap: 4px;

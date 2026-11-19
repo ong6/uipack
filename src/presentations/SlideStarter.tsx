@@ -19,7 +19,7 @@ export interface SlideStarterProps {
 const MIN_TEXT_PX = 12;
 const SLIDE_UNITS = 1200;
 
-/** Slide units for 12px at a preview `width` CSS px wide, whole so a resize re-renders only on a step. */
+/** Slide units for 12px at a preview `width` CSS px wide, whole so the drawing changes only on a step. */
 const textFloor = (width: number) => Math.ceil((MIN_TEXT_PX * SLIDE_UNITS) / width);
 
 export function SlideStarter({
@@ -32,13 +32,15 @@ export function SlideStarter({
 }: SlideStarterProps) {
   const preview = useRef<HTMLDivElement>(null);
   // The server, and the first client render, assume the width a Figure does; the effect measures.
-  const [floor, setFloor] = useState(() => textFloor(DEFAULT_RENDER_WIDTH));
+  // Until then presentations.css keeps a narrow preview's small text at about 10px.
+  const [width, setWidth] = useState<number | null>(null);
+  const floor = textFloor(width ?? DEFAULT_RENDER_WIDTH);
   useEffect(() => {
     const el = preview.current;
     if (!el || typeof ResizeObserver === "undefined") return;
     // clientWidth is the layout width inside the border, untouched by a scaling transform.
     const read = () => {
-      if (el.clientWidth > 0) setFloor(textFloor(el.clientWidth));
+      if (el.clientWidth > 0) setWidth(el.clientWidth);
     };
     read();
     const ro = new ResizeObserver(read);
@@ -54,7 +56,12 @@ export function SlideStarter({
       data-layout={slide.layout}
     >
       <figure className="uipack-slide-starter__figure">
-        <div ref={preview} className="uipack-slide-starter__preview" dangerouslySetInnerHTML={{ __html: svg }} />
+        <div
+          ref={preview}
+          className="uipack-slide-starter__preview"
+          data-measured={width ? "" : undefined}
+          dangerouslySetInnerHTML={{ __html: svg }}
+        />
         <figcaption>
           <strong>{slide.title}</strong>
           <span>{slide.description}</span>
