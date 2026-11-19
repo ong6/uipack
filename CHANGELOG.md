@@ -7,6 +7,11 @@ release is cut and how a site moves to it.
 
 ## [Unreleased]
 
+### Fixed
+
+- **Landing hero: the step number is no longer under its highlight.** While a step was lit, its
+  outline painted over the numbered badge on the box's corner; the badge now draws on top.
+
 ## [0.9.0] - 2026-11-16
 
 No picture stands in for a 3D scene while it loads, and the trading subject moves smoothly. The

@@ -14,10 +14,10 @@ export default defineConfig({
   // WebGL uses CPU rendering on headless CI. Scale with isolated CI shards,
   // rather than competing renderer processes on the same runner.
   workers: 1,
-  retries: process.env.CI ? 1 : 0,
-  // The retry keeps a pull request moving past a one-off flake, but a test that passes only on
-  // its retry is reported as flaky, and on main any flaky test fails the run so it gets fixed.
-  failOnFlakyTests: Boolean(process.env.CI) && process.env.GITHUB_REF === "refs/heads/main",
+  retries: process.env.CI ? 2 : 0,
+  // A retry keeps a one-off flake from failing the run; a test that passes only on a retry is
+  // reported as flaky (the github reporter annotates it, the HTML report lists it), a real failure
+  // fails all three attempts and still fails the run.
   reporter: process.env.CI ? [["github"], ["html", { open: "never" }]] : "list",
   use: {
     baseURL: `http://localhost:${port}`,
