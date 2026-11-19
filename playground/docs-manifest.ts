@@ -896,7 +896,7 @@ export const siteRegistry: readonly SiteEntry[] = [
     spec: "junxiong-homepage:STYLE.md",
     specStatus: "written",
     components: ["diagrams: blueprint (theme: site-paper)", "3d: ink"],
-    pins: "v1.0.0",
+    pins: "v1.1.0",
     notes:
       "STYLE.md on the site's main (passes check-spec). Since 2026-11-14 figures draw the site's `site-paper` diagram theme (diagramThemeCss on :root, declared in STYLE.md) and the user-flow figure imports uipack's parts; one theme site-wide, no per-page themes. Still site-local: sequence.js",
   },
@@ -905,9 +905,9 @@ export const siteRegistry: readonly SiteEntry[] = [
     repo: "ong6/junxiong-notes",
     spec: "junxiong-notes:STYLE.md",
     specStatus: "written",
-    components: ["diagrams: blueprint (theme: the blog's own, one for every post)"],
-    pins: "v0.6.0",
+    components: ["diagrams: blueprint (theme: notes, one for every post)"],
+    pins: "v1.1.0",
     notes:
-      "STYLE.md on the site's main (passes check-spec). Decided 2026-11-07: diagrams follow the blog's one theme, so UI diagrams in posts match. Still to do (the site-ui-2 attempt was deleted unmerged): replace the THEMES palette in content/figures/_shared.tsx with one defineDiagramTheme passed to renderStatic with mode (CHANGELOG 0.3.0); declare diagram-themes in STYLE.md. Open owner decision: self-hosting its serif",
+      "STYLE.md on the site's main (passes check-spec). Since 2026-11-19 every figure draws one `notes` diagram theme (defineDiagramTheme, rendered by renderStatic with { theme, mode } at 960 and 350) on uipack's parts; labels in the blog's sans; system serif stacks.",
   },
 ];
