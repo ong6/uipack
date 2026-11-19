@@ -109,3 +109,4 @@ export {
   type DrillMove,
   type DrillFocus,
 } from "./drill";
+export { SimGrid, type SimGridProps, type SimRun, type SimChoice } from "./sim";

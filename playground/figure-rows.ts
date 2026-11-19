@@ -30,4 +30,5 @@ export const figureRows = [
   ["flow-volumes", "Flow volumes: where every item ends up", ["Sankey", "Volumes"]],
   ["annotated-curve", "Annotated curve: one trend and the points that matter", ["Chart", "Curve", "Callout"]],
   ["drill-figure", "Drill-down: a figure inside a node", ["Drill-down", "Zoom", "Levels"]],
+  ["sim-grid", "Simulation grid: many agents, when each one finishes", ["Simulation", "Playback", "Comparison"]],
 ] as const;

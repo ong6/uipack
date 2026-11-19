@@ -159,6 +159,7 @@ a `viewBox` much wider than its column shrinks every label below the type floor.
 | Where every item ends up | Flow volumes |
 | One trend and the points that matter | Annotated curve |
 | A figure inside a node | Drill-down |
+| Many agents, when each one finishes | Simulation grid |
 <!-- /generated -->
 
 Span charts and layer stacks are in [Charts](../../charts.md).

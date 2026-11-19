@@ -6,7 +6,7 @@ import type { ReactElement } from "react";
 import { renderToString } from "react-dom/server";
 import { aiStack } from "../examples/aiStack";
 import { notes } from "../examples/articleParts";
-import { Connector, Defs, DrillFigure, DrillNode, Figure, Node } from "../src";
+import { Connector, Defs, DrillFigure, DrillNode, Figure, Node, SimGrid } from "../src";
 import { NoteCard } from "../src/article";
 import { AssetBrowser } from "../src/browser";
 import { SpanChart } from "../src/charts";
@@ -66,6 +66,16 @@ const entries: Record<string, () => ReactElement> = {
           { id: "top", label: "Top", alt: "Top level", render: () => <DrillNode x={16} y={16} w={120} h={40} drill="inner" /> },
           { id: "inner", label: "Inner", alt: "Inner level", render: () => drawing },
         ]}
+      />
+      <SimGrid
+        title="A simulation"
+        alt="Three cells"
+        designs={[
+          { id: "a", label: "A" },
+          { id: "b", label: "B" },
+        ]}
+        options={[{ id: "x", label: "X" }]}
+        simulate={() => ({ start: [0, 1, 2], end: [1, 2, 3] })}
       />
     </>
   ),
