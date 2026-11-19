@@ -7,6 +7,12 @@ release is cut and how a site moves to it.
 
 ## [Unreleased]
 
+### Added
+
+- CI builds the consumers (`examples/web-starter`, the dist smoke page) against React 18 and React 19
+  (the `react-majors` job, `scripts/react-majors.tsx`), so a change that breaks either major fails
+  the pull request.
+
 ### Fixed
 
 - `SlideStarter` previews keep every text at 12px or more from about 320px wide (it was 7.3px at

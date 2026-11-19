@@ -31,6 +31,28 @@ jobs:
         run: node scripts/load-entries.mjs
       - name: Types resolve under node16 and bundler (attw, esm-only profile)
         run: npm run attw
+  react-majors:
+    # The registry's sites span React 18 and 19 (junxiong.dev, the blog). dist/ is built on the locked
+    # React 18, as a release is; then the matrix's major replaces it and scripts/react-majors.tsx
+    # typechecks, bundles and renders the consumers (examples/web-starter, playground/dist-smoke)
+    # against it, so a change that breaks either major fails here.
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        react: [18, 19]
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - name: Build dist/
+        run: npm run build
+      - name: Install React ${{ matrix.react }}
+        run: npm install --no-save --no-audit --no-fund react@${{ matrix.react }} react-dom@${{ matrix.react }} @types/react@${{ matrix.react }} @types/react-dom@${{ matrix.react }}
+      - name: Typecheck, bundle and render the consumers on React ${{ matrix.react }}
+        run: npx tsx scripts/react-majors.tsx ${{ matrix.react }}
   site:
     # The static docs site Vercel deploys from main (vercel.json): build it and crawl it with the
     # same headers, so a broken deploy, a CSP violation or a dead link fails the pull request.
