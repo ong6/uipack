@@ -107,13 +107,19 @@ export function cellState(run: PreparedRun, cell: number, t: number): SimState {
 export const CELL = 8;
 export const PITCH = 10;
 
+/** The smallest a cell's pitch gets on screen, in CSS px: past it the grid grows taller, not finer. */
+export const MIN_PITCH_PX = 6;
+
 /**
  * Columns for n cells: about 5:2 in a wide frame, about 2:3 below 720px, so a thousand cells are 50
- * by 20 on a desktop and 25 by 40 on a phone.
+ * by 20 on a desktop and 25 by 40 on a phone. `width` (the drawing's CSS width, when known) caps the
+ * columns so a cell's pitch never drops under MIN_PITCH_PX.
  */
-export function gridColumns(n: number, narrow: boolean): number {
+export function gridColumns(n: number, narrow: boolean, width = Infinity): number {
   if (n <= 0) return 1;
-  return Math.max(1, Math.min(n, Math.ceil(Math.sqrt(n * (narrow ? 0.625 : 2.5)))));
+  const shaped = Math.ceil(Math.sqrt(n * (narrow ? 0.625 : 2.5)));
+  const fit = Math.floor(width / MIN_PITCH_PX);
+  return Math.max(1, Math.min(n, shaped, fit));
 }
 
 export function gridViewBox(n: number, columns: number): string {
@@ -157,15 +163,6 @@ export function statePaths(run: PreparedRun, marks: CellMarks, t: number): Recor
     out[s].push(marks[s][i]);
   }
   return { waiting: out.waiting.join(""), running: out.running.join(""), done: out.done.join("") };
-}
-
-/** A stable key for a choice, so each design and option set is simulated once. */
-export function choiceKey(choice: SimChoice): string {
-  const opts = Object.keys(choice.options)
-    .sort()
-    .map((k) => `${k}=${choice.options[k] ? 1 : 0}`)
-    .join("&");
-  return `${choice.design}?${opts}`;
 }
 
 /** Default number format for counters: en-US grouping, so the server and the browser agree. */

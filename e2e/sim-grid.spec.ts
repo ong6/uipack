@@ -135,7 +135,7 @@ test.describe("simulation grid", () => {
     await open(page);
     const controls = fig(page).locator("button, .uipack-sim__segment span, .uipack-sim__option");
     const count = await controls.count();
-    expect(count).toBe(7);
+    expect(count).toBe(8);
     for (let i = 0; i < count; i++) {
       const box = (await controls.nth(i).boundingBox())!;
       expect(box.height, `control ${i}`).toBeGreaterThanOrEqual(44);
@@ -149,6 +149,28 @@ test.describe("simulation grid", () => {
     expect(widths.svg).toBeLessThanOrEqual(widths.fig);
     // The narrow grid: 25 columns for 1,000 cells.
     await expect(fig(page).locator("svg[role=img]")).toHaveAttribute("data-columns", "25");
+  });
+
+  test("Open canvas shows the same moment in a dialog, wide, and Escape returns focus", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 900 });
+    await open(page);
+    await playAnimationTime(page, 1000);
+    await fig(page).getByRole("button", { name: "Pause" }).click();
+    const time = await counter(page, 0).textContent();
+    await fig(page).getByRole("button", { name: "Open canvas" }).click();
+    const dialog = page.getByRole("dialog");
+    await expect(dialog).toBeVisible();
+    const inDialog = dialog.locator(".uipack-sim");
+    await expect(inDialog.locator(".uipack-sim__readout dd > span:first-child").first()).toHaveText(time!);
+    // Wide in the canvas, even on a phone: 50 columns for 1,000 cells, at least 800px across.
+    await expect(inDialog.locator("svg[role=img]")).toHaveAttribute("data-columns", "50");
+    expect((await inDialog.locator("svg[role=img]").boundingBox())!.width).toBeGreaterThanOrEqual(800);
+    await inDialog.getByRole("button", { name: "Play" }).click();
+    await playAnimationTime(page, 500);
+    await expect(inDialog.locator(".uipack-sim__readout dd > span:first-child").first()).not.toHaveText(time!);
+    await page.keyboard.press("Escape");
+    await expect(dialog).toHaveCount(0);
+    await expect(fig(page).getByRole("button", { name: "Open canvas" })).toBeFocused();
   });
 
   test("reduced motion shows the finished run with no Play or Reset; designs still switch", async ({ page }) => {

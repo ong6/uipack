@@ -54,13 +54,13 @@ Per-cell times rather than a step function: SimGrid reads any moment of a run di
 
 ## What it shows
 
-- **Cells.** One square per cell in reading order, about 5:2 in a wide figure and 2:3 below 720px (1,000 cells are 50 by 20, or 25 by 40 on a phone). Shape carries the state as well as colour: waiting is a hollow outline, running a small solid square in the request colour (the main flow), done the full square in the response colour. The key names each, and pointing at a key entry fades the other states to 0.35.
+- **Cells.** One square per cell in reading order, about 5:2 in a wide figure and 2:3 below 720px (1,000 cells are 50 by 20, or 25 by 40 on a phone). A cell's pitch never drops under 6px: with more cells than that fits, the grid grows taller rather than finer (5,000 cells are 112 columns of about 7px at a 790px figure, and 54 columns of 6px at 390px). Shape carries the state as well as colour: waiting is a hollow outline, running a small solid square in the request colour (the main flow), done the full square in the response colour. The key names each, and pointing at a key entry fades the other states to 0.35.
 - **Counters.** A title block of ruled cells, each label first in tracked mono caps and its figure in the heading face with tabular digits: the simulated clock, the mean of (end − start) over the cells done so far, and cells done out of all. Each figure's widest text is reserved, so nothing shifts while the numbers change.
-- **Controls.** The designs as radio buttons (arrow keys move between them), the options as checkboxes, Play/Pause and Reset as buttons: real form controls with 44px targets and the figure's focus ring.
+- **Controls.** The designs as radio buttons (arrow keys move between them), the options as checkboxes, Play/Pause, Reset and Open canvas as buttons: real form controls with 44px targets and the figure's focus ring. Open canvas shows the figure in the zoomable canvas dialog, as `Figure` does, always with the wide grid at least 800px across, so cells grow on a phone; playback carries on in it at the same moment. On a quiet `uipack/web` page (`WebSurface`) there is no Open canvas.
 
 ## Playback
 
-- **At rest it is finished.** The server HTML and the first paint show the finished run, so a capture or a reader who never scrolls to it sees the outcome. As it nears the viewport it rewinds once and plays while a quarter of it is on screen; scrolled away it pauses and picks up where it was when it comes back.
+- **At rest it is finished.** The server HTML and the first paint show the finished run, so a capture or a reader who never scrolls to it sees the outcome. As it nears the viewport it rewinds once and plays while a quarter of its grid is on screen; scrolled away it pauses and picks up where it was when it comes back.
 - **Play, Pause, Reset.** Pause holds the moment; Play continues, or starts again from zero on a finished run; Reset goes back to zero and waits, every cell waiting. A press before it reaches the viewport cancels the autoplay.
 - **Comparing designs.** Switching design or option keeps the simulated moment of a run in progress or paused (clamped to the new run's end), so the counters compare designs at the same time; a finished run switches to the other design's finished run.
 - **Reduced motion and `static`.** The finished run, nothing moving, no Play or Reset; switching design or option shows that run finished.
@@ -70,7 +70,7 @@ Per-cell times rather than a step function: SimGrid reads any moment of a run di
 
 The drawing is three SVG paths, one per state, however many cells: no element per cell, no canvas, so the role colours and light and dark come from CSS and the server HTML holds the finished grid. While it plays, a frame advances a ref and writes the counters in place (a binary search over the sorted times, under a microsecond); the three paths are rebuilt only on a frame where a count changed, with no React render per frame.
 
-Measured in headless Chromium on an Apple-silicon Mac (2026-11-19), repainting a 760px-wide grid on every frame for 180 frames:
+Measured in headless Chromium on an Apple-silicon Mac (2026-11-19). The model and the repaint, timed alone on a 760px-wide grid repainted every frame for 180 frames:
 
 | Cells | Prepare a run | Repaint (build and set the three paths) | Same, CPU throttled 4× | Frame interval |
 | --- | --- | --- | --- | --- |
@@ -79,8 +79,9 @@ Measured in headless Chromium on an Apple-silicon Mac (2026-11-19), repainting a
 
 Preparing a run (sorting the times) happens once per design and option set shown.
 
+The mounted demo (this page's figure, with its cell count raised for the run), playing for 3 seconds: 1,000 and 5,000 cells both held a 16.7 ms mean frame interval (p95 16.7–16.8 ms), with and without 4× CPU throttling, and one long animation frame (over 50 ms) in each 3-second run.
+
 ## Limits
 
-- No Open canvas: the drawing has no labels to zoom, and a cell is never smaller than about 7px at 390px with 5,000 cells.
 - No static export (`uipack/static`) and no per-cell hover or selection; the key's hover is the drawing's one pointer response.
 - Three states. A failed or retried cell is not drawn; give it its final `end`.

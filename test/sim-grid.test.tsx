@@ -1,6 +1,7 @@
 import { act, fireEvent, render, screen, within } from "@testing-library/react";
+import { FigureChromeContext } from "../src/context";
 import { SimGrid, type SimChoice, type SimRun } from "../src";
-import { cellMarks, cellState, choiceKey, gridColumns, gridViewBox, prepareRun, simAt, statePaths } from "../src/sim/model";
+import { cellMarks, cellState, gridColumns, gridViewBox, prepareRun, simAt, statePaths } from "../src/sim/model";
 import { onServer } from "./on-server";
 
 const subpaths = (d: string) => (d.match(/M/g) ?? []).length;
@@ -42,6 +43,10 @@ describe("SimGrid model", () => {
     expect(gridViewBox(1000, 50)).toBe("0 0 498 198");
     expect(gridColumns(3, false)).toBe(3);
     expect(gridColumns(0, false)).toBe(1);
+    // 5,000 cells in a 246px phone column: capped at 41 columns, so a cell keeps a 6px pitch.
+    expect(gridColumns(5000, true)).toBe(56);
+    expect(gridColumns(5000, true, 246)).toBe(41);
+    expect(gridColumns(1000, false, 760)).toBe(50);
   });
 
   it("draws one path per state, each cell in exactly one, with a shape per state", () => {
@@ -52,13 +57,6 @@ describe("SimGrid model", () => {
     expect(marks.waiting[0]).toBe("M0.5 0.5h7v7h-7z");
     expect(marks.running[1]).toBe("M12 2h4v4h-4z");
     expect(marks.done[2]).toBe("M0 10h8v8h-8z");
-  });
-
-  it("keys a choice by design and options, whatever order the options come in", () => {
-    expect(choiceKey({ design: "a", options: { y: true, x: false } })).toBe(
-      choiceKey({ design: "a", options: { x: false, y: true } }),
-    );
-    expect(choiceKey({ design: "a", options: { x: true } })).not.toBe(choiceKey({ design: "a", options: { x: false } }));
   });
 });
 
@@ -243,7 +241,7 @@ describe("SimGrid", () => {
   it("static holds the finished run and keeps the design and option controls", () => {
     render(grid({ static: true }));
     setVisible(true);
-    expect(screen.queryByRole("button")).toBeNull();
+    expect(screen.queryByRole("button", { name: /Play|Pause|Reset/ })).toBeNull();
     expect(screen.getAllByRole("radio")).toHaveLength(2);
     expect(screen.getByRole("checkbox")).toBeInTheDocument();
   });
@@ -261,6 +259,14 @@ describe("SimGrid", () => {
     expect(screen.getByText("Writers done")).toBeInTheDocument();
     expect(screen.getByText("Pushing")).toBeInTheDocument();
     expect(counters()[0]).toBe("4000 ms");
+  });
+
+  it("offers Open canvas, except under a quiet page's chrome", () => {
+    const { unmount } = render(grid());
+    expect(screen.getByRole("button", { name: "Open canvas" })).toBeInTheDocument();
+    unmount();
+    render(<FigureChromeContext.Provider value="quiet">{grid()}</FigureChromeContext.Provider>);
+    expect(screen.queryByRole("button", { name: "Open canvas" })).toBeNull();
   });
 
   it("pointing at a key entry fades the other states", () => {

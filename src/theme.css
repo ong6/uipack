@@ -842,10 +842,18 @@
   outline: 2px solid var(--uipack-accent);
   outline-offset: 2px;
 }
-.uipack-sim__play {
+.uipack-sim__actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   margin-left: auto;
+}
+/* Opened in the canvas: the head keeps the controls and the key, so the grid stays readable. */
+.uipack--expanded.uipack-sim .uipack__head {
+  display: grid;
+}
+.uipack--expanded.uipack-sim .uipack-sim__legend {
+  display: flex;
 }
 .uipack-sim__legend svg path {
   stroke-width: 1;
@@ -936,7 +944,7 @@
 }
 
 @media (max-width: 720px) {
-  .uipack-sim__play {
+  .uipack-sim__actions {
     margin-left: 0;
   }
   /* The designs stay one joined row across the frame; a long name wraps inside its segment. */

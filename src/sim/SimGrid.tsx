@@ -5,7 +5,19 @@
 // three elements; the loop rewrites them only when a count changes and writes the counters in place,
 // without a React render per frame. Its resting frame is the finished run (server HTML, reduced
 // motion, `static`); as it nears the viewport it rewinds and plays once, and it pauses off screen.
-import { createElement, useEffect, useId, useMemo, useRef, useState, type CSSProperties } from "react";
+import {
+  createElement,
+  useContext,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type CSSProperties,
+} from "react";
+import { CanvasView } from "../CanvasView";
+import { FigureChromeContext } from "../context";
 import { useFigureEntrance } from "../entrance";
 import { useIsoLayoutEffect, useLatest, usePrefersReducedMotion } from "../env";
 import { PauseGlyph, PlayGlyph, ReplayGlyph } from "../Figure";
@@ -99,6 +111,18 @@ const glyphs: Record<SimState, string> = {
   done: "M1 1h10v10h-10z",
 };
 
+/** The breakpoint the frame's CSS uses (theme.css): below it the narrow grid and the stacked counters. */
+const NARROW_QUERY = "(max-width: 720px)";
+const subscribeNarrow = (changed: () => void) => {
+  if (typeof window === "undefined" || typeof window.matchMedia !== "function") return () => {};
+  const query = window.matchMedia(NARROW_QUERY);
+  query.addEventListener?.("change", changed);
+  return () => query.removeEventListener?.("change", changed);
+};
+const narrowNow = () =>
+  typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia(NARROW_QUERY).matches;
+const wideOnServer = () => false;
+
 /** Writes a counter's text in place, keeping React's own text node. */
 function setText(el: HTMLElement | null, text: string) {
   if (!el) return;
@@ -158,23 +182,30 @@ export function SimGrid({
   );
   const speed = baseFinish > 0 ? baseFinish / Math.max(0.1, duration) : 1;
 
-  // Wide grid by default (and on the server); the narrow one when the figure is under 720px.
+  // Open canvas: the figure in a zoomable dialog (not on a quiet uipack/web page), as Figure does.
+  const expandable = useContext(FigureChromeContext) === "full";
+  const [expanded, setExpanded] = useState(false);
+  const [zoom, setZoom] = useState(1);
+  const opener = useRef<HTMLButtonElement>(null);
+
+  // The wide grid by default (and on the server), the narrow one below the frame's 720px breakpoint;
+  // the canvas always draws it wide. The drawing's layout width (unaffected by a host's scaling
+  // transform) caps the columns, so a cell never shrinks under a 6px pitch: the grid grows taller.
   const rootRef = useRef<HTMLElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
-  const [narrow, setNarrow] = useState(false);
+  const narrow = useSyncExternalStore(subscribeNarrow, narrowNow, wideOnServer) && !expanded;
+  const [fitWidth, setFitWidth] = useState(Infinity);
   useEffect(() => {
-    const el = rootRef.current;
-    if (!el || typeof ResizeObserver === "undefined") return;
-    const read = () => {
-      const w = el.getBoundingClientRect().width;
-      if (w > 0) setNarrow(w < 720);
-    };
-    read();
-    const ro = new ResizeObserver(read);
+    const el = canvasRef.current;
+    if (!el || expanded || typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(([entry]) => {
+      const w = entry?.contentRect.width ?? 0;
+      if (w > 0) setFitWidth(w);
+    });
     ro.observe(el);
     return () => ro.disconnect();
-  }, []);
-  const columns = gridColumns(run.count, narrow);
+  }, [expanded]);
+  const columns = gridColumns(run.count, narrow, expanded ? Infinity : fitWidth);
   const marks = useMemo(() => cellMarks(run.count, columns), [run.count, columns]);
 
   // Playback. While it plays, `t` lives in a ref the loop advances, with no React render per frame.
@@ -275,7 +306,8 @@ export function SimGrid({
   // pauses and picks up where it was when it comes back.
   useEffect(() => {
     const el = rootRef.current;
-    if (!el || reduced) return;
+    const grid = canvasRef.current;
+    if (!el || !grid || reduced) return;
     const arm = () => {
       if (armed.current) return;
       armed.current = true;
@@ -298,7 +330,8 @@ export function SimGrid({
       { threshold: [0, 0.25] },
     );
     near.observe(el);
-    view.observe(el);
+    // The grid itself, not the frame: on a phone the header alone can fill a quarter of the screen.
+    view.observe(grid);
     const l = loop.current;
     return () => {
       near.disconnect();
@@ -306,9 +339,10 @@ export function SimGrid({
       cancelAnimationFrame(l.frame);
       l.frame = 0;
     };
-  }, [reduced, startRef, stopRef]);
+    // Opening or closing the canvas moves the figure into or out of the dialog: observe the new nodes.
+  }, [reduced, expanded, startRef, stopRef]);
 
-  useFigureEntrance(canvasRef, reduced);
+  useFigureEntrance(canvasRef, reduced || expanded);
 
   const play = () => {
     armed.current = true;
@@ -358,135 +392,175 @@ export function SimGrid({
   const done = snap.done >= run.count && run.count > 0;
 
   return (
-    <figure
-      ref={rootRef}
-      id={rootId}
-      className={["uipack", "uipack-sim", className ?? ""].join(" ").trim()}
-      data-theme={theme}
-      data-ui-style={uiStyle}
-      data-sim-state={playing ? "playing" : done ? "finished" : shown === 0 ? "idle" : "paused"}
-      aria-labelledby={title ? `${rootId}-title` : undefined}
-      aria-label={title ? undefined : alt}
+    <CanvasView
+      open={expanded}
+      onClose={() => {
+        setExpanded(false);
+        setZoom(1);
+      }}
+      restoreFocus={() => opener.current?.focus()}
+      title={title ?? eyebrow ?? "Simulation canvas"}
+      theme={theme}
+      uiStyle={uiStyle}
+      layout="figure"
+      zoom={{ value: zoom, min: 1, max: 3, onChange: setZoom }}
     >
-      <div className="uipack__head">
-        {number || eyebrow ? (
-          <p className="uipack__eyebrow">
-            {number}
-            {number && eyebrow ? " · " : ""}
-            {eyebrow}
-          </p>
-        ) : null}
-        {title ? createElement(`h${headingLevel}`, { className: "uipack__title", id: `${rootId}-title` }, title) : null}
-        {caption ? <p className="uipack__caption">{caption}</p> : null}
-        <div className="uipack-sim__bar">
-          {designs.length > 1 ? (
-            <fieldset className="uipack-sim__designs">
-              <legend className="uipack-sim__group">{labels.designs}</legend>
-              <div className="uipack-sim__segments">
-                {designs.map((d) => (
-                  <label key={d.id} className="uipack-sim__segment">
+      <figure
+        ref={rootRef}
+        id={rootId}
+        className={["uipack", "uipack-sim", expanded ? "uipack--expanded" : "", className ?? ""].join(" ").trim()}
+        // Opened, the canvas content is a flex column: auto centres it.
+        style={{ margin: expanded ? "auto 0" : 0 }}
+        data-theme={theme}
+        data-ui-style={uiStyle}
+        data-sim-state={playing ? "playing" : done ? "finished" : shown === 0 ? "idle" : "paused"}
+        aria-labelledby={title ? `${rootId}-title` : undefined}
+        aria-label={title ? undefined : alt}
+      >
+        <div className="uipack__head">
+          {number || eyebrow ? (
+            <p className="uipack__eyebrow">
+              {number}
+              {number && eyebrow ? " · " : ""}
+              {eyebrow}
+            </p>
+          ) : null}
+          {title ? createElement(`h${headingLevel}`, { className: "uipack__title", id: `${rootId}-title` }, title) : null}
+          {caption ? <p className="uipack__caption">{caption}</p> : null}
+          <div className="uipack-sim__bar">
+            {designs.length > 1 ? (
+              <fieldset className="uipack-sim__designs">
+                <legend className="uipack-sim__group">{labels.designs}</legend>
+                <div className="uipack-sim__segments">
+                  {designs.map((d) => (
+                    <label key={d.id} className="uipack-sim__segment">
+                      <input
+                        type="radio"
+                        name={`${rootId}-design`}
+                        value={d.id}
+                        checked={shownDesign === d.id}
+                        onChange={() => choose({ design: d.id })}
+                      />
+                      <span>{d.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
+            ) : null}
+            {options.length ? (
+              <fieldset className="uipack-sim__options">
+                <legend className="uipack__sr">Options</legend>
+                {options.map((o) => (
+                  <label key={o.id} className="uipack-sim__option">
                     <input
-                      type="radio"
-                      name={`${rootId}-design`}
-                      value={d.id}
-                      checked={shownDesign === d.id}
-                      onChange={() => choose({ design: d.id })}
+                      type="checkbox"
+                      checked={Boolean(checked[o.id])}
+                      onChange={(e) => choose({ option: [o.id, e.currentTarget.checked] })}
                     />
-                    <span>{d.label}</span>
+                    <span>{o.label}</span>
                   </label>
                 ))}
+              </fieldset>
+            ) : null}
+            {motion || (expandable && !expanded) ? (
+              <div className="uipack-sim__actions">
+                {motion ? (
+                  <>
+                    <button type="button" className="uipack__ctl" onClick={play}>
+                      {playing ? <PauseGlyph /> : <PlayGlyph />} {playing ? "Pause" : "Play"}
+                    </button>
+                    <button type="button" className="uipack__ctl" onClick={reset}>
+                      <ReplayGlyph /> Reset
+                    </button>
+                  </>
+                ) : null}
+                {expandable && !expanded ? (
+                  <button
+                    type="button"
+                    className="uipack__ctl"
+                    ref={opener}
+                    onClick={() => {
+                      armed.current = true;
+                      setExpanded(true);
+                    }}
+                  >
+                    Open canvas
+                  </button>
+                ) : null}
               </div>
-            </fieldset>
-          ) : null}
-          {options.length ? (
-            <fieldset className="uipack-sim__options">
-              <legend className="uipack__sr">Options</legend>
-              {options.map((o) => (
-                <label key={o.id} className="uipack-sim__option">
-                  <input
-                    type="checkbox"
-                    checked={Boolean(checked[o.id])}
-                    onChange={(e) => choose({ option: [o.id, e.currentTarget.checked] })}
-                  />
-                  <span>{o.label}</span>
-                </label>
-              ))}
-            </fieldset>
-          ) : null}
-          {motion ? (
-            <div className="uipack-sim__play">
-              <button type="button" className="uipack__ctl" onClick={play}>
-                {playing ? <PauseGlyph /> : <PlayGlyph />} {playing ? "Pause" : "Play"}
-              </button>
-              <button type="button" className="uipack__ctl" onClick={reset}>
-                <ReplayGlyph /> Reset
-              </button>
-            </div>
-          ) : null}
+            ) : null}
+          </div>
+          <ul className="uipack__legend uipack-sim__legend" aria-label="Legend">
+            {SIM_STATES.map((state) => (
+              <li
+                key={state}
+                data-sim={state}
+                data-state={hover ? (hover === state ? "hit" : "dim") : undefined}
+                onPointerEnter={(e) => isPointer(e) && setHover(state)}
+                onPointerLeave={(e) => isPointer(e) && setHover(null)}
+              >
+                <svg viewBox="0 0 12 12" aria-hidden="true">
+                  <path d={glyphs[state]} />
+                </svg>
+                <span>{labels[state]}</span>
+              </li>
+            ))}
+          </ul>
         </div>
-        <ul className="uipack__legend uipack-sim__legend" aria-label="Legend">
-          {SIM_STATES.map((state) => (
-            <li
-              key={state}
-              data-sim={state}
-              data-state={hover ? (hover === state ? "hit" : "dim") : undefined}
-              onPointerEnter={(e) => isPointer(e) && setHover(state)}
-              onPointerLeave={(e) => isPointer(e) && setHover(null)}
-            >
-              <svg viewBox="0 0 12 12" aria-hidden="true">
-                <path d={glyphs[state]} />
-              </svg>
-              <span>{labels[state]}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
-      <dl className="uipack-sim__readout">
-        <div>
-          <dt>{labels.time}</dt>
-          <dd>
-            <span ref={timeEl} style={reserve(finishedText)}>
-              {formatTime(shown)}
-            </span>
-          </dd>
+        <dl className="uipack-sim__readout">
+          <div>
+            <dt>{labels.time}</dt>
+            <dd>
+              <span ref={timeEl} style={reserve(finishedText)}>
+                {formatTime(shown)}
+              </span>
+            </dd>
+          </div>
+          <div>
+            <dt>{labels.mean}</dt>
+            <dd>
+              <span ref={meanEl} style={reserve(formatTime(run.longest))}>
+                {meanText(snap)}
+              </span>
+            </dd>
+          </div>
+          <div>
+            <dt>{labels.count}</dt>
+            <dd>
+              <span ref={doneEl} style={reserve(formatCount(run.count))}>
+                {formatCount(snap.done)}
+              </span>
+              <span className="uipack-sim__total"> / {formatCount(run.count)}</span>
+            </dd>
+          </div>
+        </dl>
+        <p className="uipack__sr" role="status">
+          {status}
+        </p>
+        <div ref={canvasRef} className="uipack__canvas uipack__canvas--plain uipack-sim__canvas">
+          <svg
+            viewBox={gridViewBox(run.count, columns)}
+            role="img"
+            aria-label={alt}
+            data-columns={columns}
+            // Opened, the drawing is never narrower than 800px, so cells stay large on a phone; pan to see the rest.
+            style={expanded ? { width: `max(${zoom * 100}%, ${800 * zoom}px)` } : undefined}
+          >
+            {SIM_STATES.map((state) => (
+              <path
+                key={state}
+                ref={(el) => {
+                  paths.current[state] = el;
+                }}
+                className="uipack-sim__cells"
+                data-sim={state}
+                data-state={hover ? (hover === state ? "hit" : "dim") : undefined}
+                d={drawn[state]}
+              />
+            ))}
+          </svg>
         </div>
-        <div>
-          <dt>{labels.mean}</dt>
-          <dd>
-            <span ref={meanEl} style={reserve(formatTime(run.longest))}>
-              {meanText(snap)}
-            </span>
-          </dd>
-        </div>
-        <div>
-          <dt>{labels.count}</dt>
-          <dd>
-            <span ref={doneEl} style={reserve(formatCount(run.count))}>
-              {formatCount(snap.done)}
-            </span>
-            <span className="uipack-sim__total"> / {formatCount(run.count)}</span>
-          </dd>
-        </div>
-      </dl>
-      <p className="uipack__sr" role="status">
-        {status}
-      </p>
-      <div ref={canvasRef} className="uipack__canvas uipack__canvas--plain uipack-sim__canvas">
-        <svg viewBox={gridViewBox(run.count, columns)} role="img" aria-label={alt} data-columns={columns}>
-          {SIM_STATES.map((state) => (
-            <path
-              key={state}
-              ref={(el) => {
-                paths.current[state] = el;
-              }}
-              className="uipack-sim__cells"
-              data-sim={state}
-              data-state={hover ? (hover === state ? "hit" : "dim") : undefined}
-              d={drawn[state]}
-            />
-          ))}
-        </svg>
-      </div>
-    </figure>
+      </figure>
+    </CanvasView>
   );
 }
