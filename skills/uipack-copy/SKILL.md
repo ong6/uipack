@@ -22,6 +22,7 @@ Words are typed data with no colour, face or position in them. Write them into t
 | Talk or presented slides | [Talks and slides](../../docs/system/writing/talks.md) and [deck storytelling](../../docs/deck-storytelling.md) |
 | Read-alone document or deck (pre-read, readout) | The same sections, `read-alone` mode: full-sentence titles, full notes |
 | Web and landing copy | [Web and landing copy](../../docs/system/writing/web.md) and [web principles](../../docs/web-principles.md) |
+| Widget text (toasts, errors, confirm dialogs, empty states, button labels) | [Widget wording](../../docs/system/writing/web.md#widget-wording) |
 | Figure labels and captions | [Figure labels and captions](../../docs/system/writing/figures.md) |
 | Every kind | [Rules for every kind](../../docs/system/writing/general.md#rules-for-every-kind) and the [slot budgets](../../docs/system/writing/general.md#slot-budgets) |
 

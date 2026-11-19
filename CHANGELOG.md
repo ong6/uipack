@@ -7,6 +7,20 @@ release is cut and how a site moves to it.
 
 ## [Unreleased]
 
+### Added
+
+- **`uipack/widgets`** and `uipack/widgets.css`: skinned library widgets on the site's roles. `CommandMenu`, cmdk's parts under uipack names, `CommandDialog` and `useCommandShortcut` (on cmdk); `Toaster` and `toast` (on Sonner). `cmdk` and `sonner` are optional peer dependencies.
+- **The widget registry** ([docs/components/widgets.md](docs/components/widgets.md), from `WIDGETS` in `scripts/site-model.ts`): one library per widget need (command menu, toasts, dialogs, menus, sheets, live numbers), with when to use it, when not, and a fallback. The page, review and copy skills point to it.
+- Web principles rule 15, one standout moment per page; writing rules for widget text (`docs/system/writing/web.md#widget-wording`).
+
+### Changed
+
+- **The docs search runs on the command menu** (cmdk), with the same look, keys and behaviour. `uipack/docs` now needs `cmdk` installed beside `react-markdown` and `remark-gfm`.
+
+### Upgrading
+
+- A site that imports `uipack/docs` installs `cmdk@^1.1.0`.
+
 ## [0.9.0] - 2026-11-16
 
 No picture stands in for a 3D scene while it loads, and the trading subject moves smoothly. The

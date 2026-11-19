@@ -564,6 +564,14 @@ export const docsManifest = [
         file: "docs/components/mechanism.md",
         intro: "The isometric machine look: its fixed drawing and the roles it takes from the site.",
       },
+      {
+        id: "component-widgets",
+        label: "Widgets",
+        path: "/looks/widgets",
+        file: "docs/components/widgets.md",
+        intro:
+          "Which library each widget comes from (command menu, toasts, dialogs, sheets, menus, live numbers), and the skins in uipack/widgets.",
+      },
     ],
   },
   {

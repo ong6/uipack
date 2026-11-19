@@ -2,10 +2,10 @@
 
 `uipack/docs` owns the reusable product-docs shell and Markdown renderer. Import its scoped CSS once in the consumer.
 
-The entry imports `react-markdown` and `remark-gfm` (its `DocsMarkdown` renderer uses them). They are optional peer dependencies, not dependencies, so a project that never imports `uipack/docs` does not install them. Add both when you use this entry; without them the import fails at build time:
+The entry imports `react-markdown` and `remark-gfm` (its `DocsMarkdown` renderer uses them) and `cmdk` (its search runs on the [command menu widget](components/widgets.md)). They are optional peer dependencies, not dependencies, so a project that never imports `uipack/docs` does not install them. Add all three when you use this entry; without them the import fails at build time:
 
 ```sh
-npm install react-markdown@^10.1.0 remark-gfm@^4.0.1
+npm install react-markdown@^10.1.0 remark-gfm@^4.0.1 cmdk@^1.1.0
 ```
 
 ```tsx

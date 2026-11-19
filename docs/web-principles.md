@@ -159,9 +159,10 @@ takes the spec's.
     (and `--web-display-weight` / `--web-display-tracking`) on `.uipack-web`. (SMWD-6, RN)
 12. **Make a radically different version before refining.** Two or three divergent directions first,
     then polish the winner. (SMWD-6)
-13. **Start from an 80% snippet, then tune it.** 21st.dev, React Bits and Canvas UI give a working
+13. **Start from an 80% snippet, then tune it.** 21st.dev, React Bits, Magic UI, Aceternity and Canvas UI give a working
     start; set the design system first, then adjust it with prompts. Prefer SVG over raster. Audit the result (RN's
-    Impeccable pass) before shipping. (SMWD-5, RN)
+    Impeccable pass) before shipping. Widgets (toasts, the command menu, dialogs, sheets, menus) are never
+    hand-built: take each from its library in the [widget registry](components/widgets.md). (SMWD-5, RN)
 14. **Motion explains change.** Each flashy piece earns its motion: typing shows input, ticks show
     work, the metric falls as it happens, the star draws once. Under `prefers-reduced-motion`, every
     piece renders its final, complete state (`DemoPlayer` lists all steps and keeps its step tabs, each showing its step's finished frame with nothing moving). The resting state is the
@@ -172,6 +173,9 @@ takes the spec's.
     transform, opacity and filter, and reserve final sizes (`TextScramble` and `NumberTicker` lay the
     final text under the live one), so nothing shifts. Moving content that runs longer than 5 s
     gets a Pause control (`Marquee`). (RN, CA)
+15. **One standout moment per page.** One thing a reader remembers (the demo, the star, the 3D object):
+    every other section stays quiet around it. A second showpiece competes with the first; move it to its
+    own page or calm it down.
 
 ## Ambient motion and backgrounds
 

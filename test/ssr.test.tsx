@@ -18,6 +18,7 @@ import { SlideStarter } from "../src/presentations";
 import { PRESETS } from "../src/presets";
 import { SlidePlayer, harnessDive } from "../src/slides";
 import { renderStatic } from "../src/static";
+import { CommandInput, CommandItem, CommandList, CommandMenu, Toaster } from "../src/widgets";
 import { CtaButton, FAQ, HeadTags, Section, SmoothScroll, StarHero, WebSurface, pageMeta } from "../src/web";
 
 const slides: DeckSlide[] = [
@@ -122,6 +123,17 @@ const entries: Record<string, () => ReactElement> = {
   "uipack/article": () => <NoteCard {...notes.prefillVsDecode} />,
   "uipack/deck": () => <DeckPlayer id="ssr" title="Deck" slides={slides} />,
   "uipack/mechanism": () => <VerificationGate pose="idle" />,
+  "uipack/widgets": () => (
+    <>
+      <CommandMenu label="Commands">
+        <CommandInput placeholder="Type a command" />
+        <CommandList>
+          <CommandItem>Open the docs</CommandItem>
+        </CommandList>
+      </CommandMenu>
+      <Toaster />
+    </>
+  ),
 };
 
 describe("server render of each entry's main component", () => {

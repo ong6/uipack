@@ -1,4 +1,5 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
+import { afterAll, beforeAll, vi } from "vitest";
 import {
   DocsLayout,
   docsSearchEntries,
@@ -22,6 +23,20 @@ import {
   navTripDuration,
   visibleRoute,
 } from "../src/docs/DocsMarkers";
+
+// The search dialog's list (cmdk) measures itself with ResizeObserver, which jsdom lacks. Stubbed here
+// only: other parts skip measuring when it is missing, and their tests rely on that.
+beforeAll(() =>
+  vi.stubGlobal(
+    "ResizeObserver",
+    class {
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    },
+  ),
+);
+afterAll(() => vi.unstubAllGlobals());
 
 const page = `---
 spec: x

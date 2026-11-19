@@ -27,7 +27,7 @@ import { LAYER_SECTION_PARTS } from "../examples/articleSectionParts";
 import { docsManifest, docsPages, docsSections, siteRegistry, type DocsPageEntry } from "../playground/docs-manifest";
 import { installLine, tarballUrl as releaseTarball } from "../playground/release";
 import { frontmatter } from "./check-spec";
-import { COMPONENTS, LAYOUT_ARCHETYPES, PAGE_TYPES } from "./site-model";
+import { COMPONENTS, LAYOUT_ARCHETYPES, PAGE_TYPES, WIDGETS } from "./site-model";
 import { CORE_ROLES, lightDark, parseValueSet } from "./style-contract";
 
 const pagesOf = (g: (typeof docsManifest)[number]): readonly DocsPageEntry[] => g.pages;
@@ -387,6 +387,19 @@ export function componentLookList(file: string) {
   ].join("\n");
 }
 
+/** The widget registry: one library per need, and what `uipack/widgets` skins (WIDGETS). */
+export function widgetRegistry() {
+  const rows = WIDGETS.map(
+    (w) =>
+      `| ${w.need} | \`${w.library}\` ${w.range} | ${w.exports.length ? w.exports.map((e) => `\`${e}\``).join(", ") : "Use the library directly"} | ${w.use} | ${w.avoid} | ${w.fallback} |`,
+  );
+  return [
+    "| Need | Library | From `uipack/widgets` | Use it for | Not for | Fallback |",
+    "| --- | --- | --- | --- | --- | --- |",
+    ...rows,
+  ].join("\n");
+}
+
 /* ------------------------------------------------------------------ writing guidance */
 
 const dash = (r: readonly number[]) => r.join("–");
@@ -567,6 +580,7 @@ export const generators: Record<string, (file: string) => string> = {
   "layout-archetype": (file) => layoutArchetype(file),
   "component-looks": (file) => componentLooks(file),
   "component-look-list": (file) => componentLookList(file),
+  "widget-registry": () => widgetRegistry(),
   "title-forms": () => titleForms(),
   "figure-lengths": () => figureLengths(),
   "headline-rule": () => headlineRule(),
