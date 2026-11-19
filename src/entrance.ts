@@ -28,7 +28,7 @@ const SETTLE_MS = ENTRANCE_SWEEP + 520;
  * reduced motion, without IntersectionObserver, for a canvas already on screen, or when the host
  * turned it off (`entranceOff`).
  */
-export function useFigureEntrance(ref: RefObject<HTMLElement>, disabled: boolean) {
+export function useFigureEntrance(ref: RefObject<HTMLElement | null>, disabled: boolean) {
   useEffect(() => {
     const el = ref.current;
     if (!el || disabled || typeof IntersectionObserver === "undefined" || typeof window === "undefined") return;

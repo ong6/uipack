@@ -7,7 +7,7 @@ import {
   type AnimationEvent,
   type CSSProperties,
   type ReactNode,
-  type RefObject,
+  type Ref,
 } from "react";
 import type { MarkCell } from "../src";
 import { isMarkerShape, useActivated, type DocsMarkerMorph, type DocsMarkerShape } from "../src/docs/DocsMarkers";
@@ -97,7 +97,7 @@ export function useBrandMark(
   live: MarkCell;
   liveColor: string | undefined;
   /** For the brand's anchor: the state drawn and the portal's half in play. */
-  props: AnchorHTMLAttributes<HTMLAnchorElement> & { ref: RefObject<HTMLAnchorElement> } & Record<`data-${string}`, unknown>;
+  props: AnchorHTMLAttributes<HTMLAnchorElement> & { ref: Ref<HTMLAnchorElement> } & Record<`data-${string}`, unknown>;
   onMarkerTrip: (ms: number, changeAt?: number) => void;
 } {
   const now: BrandState = section && section in BRAND_CELLS ? section : NEUTRAL;

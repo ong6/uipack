@@ -57,7 +57,7 @@ function SceneViewport({
 }: SlideSceneProps) {
   const host = useRef<HTMLDivElement>(null),
     labels = useRef<HTMLDivElement>(null),
-    runtime = useRef<SceneRuntime>();
+    runtime = useRef<SceneRuntime | undefined>(undefined);
   const prefersReduced = usePrefersReducedMotion();
   const reduced = motion === "none" || prefersReduced;
   const stop = story.stops.find((s) => s.id === stopId) ?? story.stops[0];

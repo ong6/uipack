@@ -15,7 +15,10 @@ export interface InViewOptions {
  * it is always true, so content never waits on an observer that cannot fire.
  * Starts false on the server and first client render, so hydration matches.
  */
-export function useInView(ref: RefObject<Element>, { threshold = 0, once = false, rootMargin }: InViewOptions = {}): boolean {
+export function useInView(
+  ref: RefObject<Element | null>,
+  { threshold = 0, once = false, rootMargin }: InViewOptions = {},
+): boolean {
   const [inView, setInView] = useState(false);
   useEffect(() => {
     const el = ref.current;
@@ -47,7 +50,7 @@ export function scrollProgressOf(rect: { top: number; height: number }, viewport
  * Tracks scrollProgressOf for an element. Listens to scroll only while the element is on
  * screen and coalesces updates into one per animation frame.
  */
-export function useScrollProgress(ref: RefObject<Element>): number {
+export function useScrollProgress(ref: RefObject<Element | null>): number {
   const inView = useInView(ref);
   const [progress, setProgress] = useState(0);
   useEffect(() => {

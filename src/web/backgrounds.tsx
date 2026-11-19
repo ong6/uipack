@@ -33,7 +33,7 @@ export interface GridBackgroundProps {
   spotlight?: boolean;
 }
 
-function useParentSpotlight(ref: RefObject<HTMLDivElement>, enabled: boolean) {
+function useParentSpotlight(ref: RefObject<HTMLDivElement | null>, enabled: boolean) {
   useEffect(() => {
     const el = ref.current;
     const host = el?.parentElement;

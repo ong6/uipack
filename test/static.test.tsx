@@ -1,4 +1,5 @@
-import { Connector, Defs, Node, Packet } from "../src";
+import { readFileSync } from "node:fs";
+import { Chip, Connector, Defs, Node, Packet, defineDiagramTheme } from "../src";
 import { agentLoop } from "../src/presets";
 import { renderStatic } from "../src/static";
 import { DARK, LIGHT, inlineVars, resolvePalette } from "../src/static/palette";
@@ -130,5 +131,69 @@ describe("renderStatic is well-formed XML", () => {
       const doc = new DOMParser().parseFromString(renderStatic(agentLoop(), { theme }), "image/svg+xml");
       expect(doc.querySelector("parsererror")).toBeNull();
     }
+  });
+});
+
+describe("renderStatic chip washes match the live figure", () => {
+  // A site's diagram theme sets no chip wash, as defineDiagramTheme has no such role. Live, a light
+  // figure leaves --uipack-chip-tint unset (the chip's own 0.55 and soft 0.2 apply) and a dark one
+  // takes theme.css's wash; the static file must print the same fill-opacity, not a solid fill.
+  const theme = defineDiagramTheme({
+    name: "plain-site",
+    light: {
+      ink: "#1d1b16",
+      "ink-2": "#5c574c",
+      surface: "#faf6ee",
+      "surface-raised": "#fffdf8",
+      "surface-2": "#f0e9dc",
+      accent: "#2346c8",
+      "flow-request": "#0f7480",
+      "flow-response": "#3c7a3a",
+      "flow-change": "#8e44ad",
+      "flow-error": "#c0392b",
+    },
+    dark: {
+      ink: "#f1ece2",
+      "ink-2": "#b9b1a2",
+      surface: "#1b1915",
+      "surface-raised": "#24211c",
+      "surface-2": "#2d2a23",
+      accent: "#8ea8ff",
+      "flow-request": "#63c7cf",
+      "flow-response": "#8fd18a",
+      "flow-change": "#d4a2ec",
+      "flow-error": "#ff8f7d",
+    },
+  });
+  const css = readFileSync("src/theme.css", "utf8");
+  const dark = css.match(
+    /\[data-theme="dark"\] \.uipack,[^{]*\{[^}]*--uipack-chip-tint: ([\d.]+);\s*--uipack-chip-soft: ([\d.]+);/,
+  )!;
+  const chips = {
+    children: (
+      <>
+        <Chip x={8} y={8} w={80} label="busy" kind="request" />
+        <Chip x={96} y={8} w={80} label="was" kind="request" soft />
+      </>
+    ),
+    viewBox: "0 0 184 40",
+  };
+  const opacities = (svg: string) => [...svg.matchAll(/fill-opacity:([^;"]+)/g)].map((m) => m[1].trim());
+
+  it.each([
+    ["light", ["0.55", "0.2"]],
+    ["dark", [dark[1], dark[2]]],
+  ] as const)("%s: the live wash, not currentColor", (mode, expected) => {
+    expect(dark).not.toBeNull();
+    expect(opacities(renderStatic(chips, { theme, mode, frame: false }))).toEqual(expected);
+  });
+  it("the older named palettes follow the same washes", () => {
+    expect(opacities(renderStatic(chips, { theme: "light", frame: false }))).toEqual(["0.55", "0.2"]);
+    expect(opacities(renderStatic(chips, { theme: "dark", frame: false }))).toEqual([dark[1], dark[2]]);
+  });
+  it("an unknown variable takes its declared fallback; none, or one that reads the page, gives currentColor", () => {
+    expect(inlineVars("var(--uipack-nope, 0.4)", LIGHT)).toBe("0.4");
+    expect(inlineVars("var(--uipack-nope, var(--uipack-accent))", LIGHT)).toBe(LIGHT.accent);
+    expect(inlineVars("var(--uipack-nope, var(--ui-page))", LIGHT)).toBe("currentColor");
   });
 });

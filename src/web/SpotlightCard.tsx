@@ -29,12 +29,27 @@ export function SpotlightCard({ children, href, className = "" }: SpotlightCardP
   const cls = `uipack-web-spotlight ${className}`.trim();
   if (href)
     return (
-      <a ref={(n) => (ref.current = n)} className={cls} href={href} onPointerMove={onMove} onPointerLeave={onLeave}>
+      <a
+        ref={(n) => {
+          ref.current = n;
+        }}
+        className={cls}
+        href={href}
+        onPointerMove={onMove}
+        onPointerLeave={onLeave}
+      >
         {children}
       </a>
     );
   return (
-    <div ref={(n) => (ref.current = n)} className={cls} onPointerMove={onMove} onPointerLeave={onLeave}>
+    <div
+      ref={(n) => {
+        ref.current = n;
+      }}
+      className={cls}
+      onPointerMove={onMove}
+      onPointerLeave={onLeave}
+    >
       {children}
     </div>
   );

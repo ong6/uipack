@@ -58,7 +58,7 @@ export const Layer = /*#__PURE__*/ forwardRef<HTMLDivElement, LayerProps>(functi
       aria-roledescription={thumbnail ? undefined : "slide"}
       aria-label={thumbnail ? undefined : `${index + 1} of ${count}: ${slide.title}`}
       aria-hidden={active ? undefined : true}
-      {...(active ? {} : { inert: "" })}
+      {...(active ? {} : ({ inert: "" } as object))}
     >
       <div className="uipack-deck-layer__bg" />
       <DeckSlideContext.Provider value={{ step, active, thumbnail, index, count }}>
