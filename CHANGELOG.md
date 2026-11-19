@@ -7,6 +7,19 @@ release is cut and how a site moves to it.
 
 ## [Unreleased]
 
+### Fixed
+
+- Web principles: 0.10.0 numbered two rules 15. "One standout moment per page" is now part of rule 3
+  (one star of the show), so the ambient-motion rules keep their numbers.
+
+### Changed
+
+- The `uipack-review` skill's Parts row is back to its 0.9.0 wording. 0.10.0 added three fail
+  grounds (a hand-built widget, a widget-skin override, two standout moments) without the skill
+  eval; the eval found reviewers without those words catch both seeded defects through the docs
+  (the widget registry and its "Skins, not forks" rules already say this fails review), so the
+  extra words earned nothing.
+
 ## [0.10.0] - 2026-11-19
 
 The release candidate for 1.0. Widgets come from libraries (a registry, and `uipack/widgets` for the
