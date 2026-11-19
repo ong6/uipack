@@ -13,6 +13,11 @@ release is cut and how a site moves to it.
   (the `react-majors` job, `scripts/react-majors.tsx`), so a change that breaks either major fails
   the pull request.
 
+### Fixed
+
+- `SlideStarter` previews keep every text at 12px or more from about 320px wide (it was 7.3px at
+  680px and about 10px on phones); `renderSlideSvg`'s output is unchanged.
+
 ## [1.0.0] - 2026-11-19
 
 The first stable release: 0.10.0's API, unchanged. From here a removed or renamed export, entry,

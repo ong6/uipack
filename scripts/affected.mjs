@@ -70,7 +70,7 @@ const AREAS = [
   [/^src\/article\//, ["article"]],
   [/^src\/deck\/consulting\//, ["deck-consulting"]],
   [/^src\/deck\//, ["deck"]],
-  [/^src\/presentations\//, ["deck", "showcase"]],
+  [/^src\/presentations\//, ["deck", "showcase", "slide-starter"]],
   [/^src\/mechanism\//, ["mechanism"]],
   [/^src\/web\//, ["web", "tier1"]],
   [
@@ -132,7 +132,7 @@ const AREAS = [
   // nav covers the routes on the dev server.
   [/^playground\/site\.ts$|^scripts\/(check-site|serve-site)|^vercel\.json$/, ["nav"]],
   // The /styles and /presentations pages (CatalogShowcase): slide starters and the style catalog demo.
-  [/^playground\/(CatalogShowcase|StylePreviews|presentations\.css)/, ["web", "page-audit", "showcase"]],
+  [/^playground\/(CatalogShowcase|StylePreviews|presentations\.css)/, ["web", "page-audit", "showcase", "slide-starter"]],
   // Component demos embedded in their docs pages.
   [/^playground\/(ArticleShowcase|article-showcase)/, ["article"]],
   [/^playground\/FiguresShowcase/, [...FIGURES, "charts", "assets"]],
