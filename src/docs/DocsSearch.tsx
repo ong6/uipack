@@ -113,12 +113,11 @@ export function DocsSearchDialog({
   };
   const valueOf = (e: DocsSearchEntry) => `${e.href}#${e.anchor ?? ""}`;
   // The first result is selected whenever the results change (a new query, the index arriving).
-  const first = flat[0] ? valueOf(flat[0].entry) : "";
-  const [selectedFor, setSelectedFor] = useState(first);
-  if (selectedFor !== first) {
-    setSelectedFor(first);
-    setSelected(first);
-  }
+  // The selection is the reader's choice while it is still a result, else the first result. cmdk
+  // re-selects on its own when the query changes, sometimes before the index has loaded (an empty
+  // list), so a stale or empty value from it falls back here rather than leaving nothing selected.
+  const values = useMemo(() => flat.map((r) => valueOf(r.entry)), [flat]);
+  const current = values.includes(selected) ? selected : (values[0] ?? "");
 
   const follow = (href: string) => {
     onClose();
@@ -143,7 +142,7 @@ export function DocsSearchDialog({
         className="uipack-docs-search__panel"
         skin={false}
         shouldFilter={false}
-        value={selected}
+        value={current}
         onValueChange={setSelected}
       >
         <div className="uipack-docs-search__bar">
