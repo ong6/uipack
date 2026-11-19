@@ -888,7 +888,7 @@ export const siteRegistry: readonly SiteEntry[] = [
     spec: "junxiong-homepage:STYLE.md",
     specStatus: "written",
     components: ["diagrams: blueprint (theme: site-paper)", "3d: ink"],
-    pins: "v0.9.0",
+    pins: "v0.10.0",
     notes:
       "STYLE.md on the site's main (passes check-spec). Since 2026-11-14 figures draw the site's `site-paper` diagram theme (diagramThemeCss on :root, declared in STYLE.md) and the user-flow figure imports uipack's parts; one theme site-wide, no per-page themes. Still site-local: sequence.js",
   },
