@@ -32,6 +32,7 @@ Generated from the catalogue's own list (`playground/figure-rows.ts`), in page o
 | [Flow volumes](#flow-volumes) | where every item ends up | Sankey, Volumes |
 | [Annotated curve](#annotated-curve) | one trend and the points that matter | Chart, Curve, Callout |
 | [Drill-down](#drill-figure) | a figure inside a node | Drill-down, Zoom, Levels |
+| [Simulation grid](#sim-grid) | many agents, when each one finishes | Simulation, Playback, Comparison |
 <!-- /generated -->
 
 ## How to use a pattern

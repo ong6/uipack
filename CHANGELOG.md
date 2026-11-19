@@ -9,6 +9,7 @@ release is cut and how a site moves to it.
 
 ### Added
 
+- `SimGrid` in `uipack`: a playable simulation drawn as a grid of identical cells (one SVG path per state), with live counters, the designs it compares on one control, option checkboxes, Play, Pause, Reset and Open canvas; the page supplies seeded per-cell start and end times ([simulation grid](docs/sim-grid.md)).
 - CI builds the consumers (`examples/web-starter`, the dist smoke page) against React 18 and React 19
   (the `react-majors` job, `scripts/react-majors.tsx`), so a change that breaks either major fails
   the pull request.
