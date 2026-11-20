@@ -10,6 +10,7 @@ export type Theme = "light" | "dark";
 /** Each registered style's value set (one entry per `uiStyles` id; test/style-roles.test.tsx checks both lists agree). */
 export const STYLE_FILES = {
   technical: "src/styles/technical.css",
+  motion: "src/styles/motion.css",
 } as const;
 export type StyleId = keyof typeof STYLE_FILES;
 

@@ -18,6 +18,8 @@ export const deckMotion = {
   zoom: 1150,
   /** A bento camera move, cell to cell or back to the whole grid. */
   pan: 860,
+  /** A number counting up to its value (CountUp). */
+  count: 1200,
   stagger: 45,
   /** When an advance's incoming blocks start: while the outgoing slide is still leaving (it is gone at `quick`), so no frame is blank. */
   handoff: 90,
@@ -36,7 +38,37 @@ const cameraEase = /*#__PURE__*/ cubicBezier(0.3, 0.05, 0.25, 1);
 
 export type { Rect } from "../zoom-math";
 
-export type TransitionKind = "advance" | "morph" | "fade" | "none" | "zoom";
+export type TransitionKind =
+  "advance" | "morph" | "fade" | "none" | "zoom" | "push" | "flip" | "cube" | "shutter" | "blinds" | "rise";
+
+/** The whole-slide moves: the slide itself travels, turns or opens, rather than its blocks. */
+export const SLIDE_MOVES = ["push", "flip", "cube", "shutter", "blinds", "rise"] as const;
+export type SlideMove = (typeof SLIDE_MOVES)[number];
+
+/** Slats in a `blinds` reveal. */
+export const BLIND_SLATS = 8;
+
+/**
+ * The clip path of a `blinds` reveal at progress `t` (0 closed, 1 open): `slats` vertical strips,
+ * each opening from its left edge, the next starting a little after the last, drawn as one polygon
+ * with the same number of points at every `t` so the browser can interpolate between samples.
+ */
+export function blindsClip(t: number, slats = BLIND_SLATS, spread = 0.5): string {
+  const w = 100 / slats;
+  const points: string[] = [];
+  for (let i = 0; i < slats; i++) {
+    // Each slat runs for (1 - spread) of the clock, starting at i/(slats-1) of the spread.
+    const start = slats > 1 ? (i / (slats - 1)) * spread : 0;
+    const local = Math.min(1, Math.max(0, (t - start) / (1 - spread)));
+    const eased = 1 - Math.pow(1 - local, 3);
+    const x0 = i * w;
+    const x1 = x0 + w * eased;
+    // Up the strip's left edge, across its top, down its right edge; the strips join along the
+    // bottom edge, where the joining runs enclose no area.
+    points.push(`${x0.toFixed(3)}% 100%`, `${x0.toFixed(3)}% 0%`, `${x1.toFixed(3)}% 0%`, `${x1.toFixed(3)}% 100%`);
+  }
+  return `polygon(${points.join(", ")})`;
+}
 
 export interface ResolvedTransition {
   kind: TransitionKind;
@@ -491,6 +523,11 @@ export function runTransition(opts: RunOptions): Animation[] {
     }
   }
 
+  if ((SLIDE_MOVES as readonly string[]).includes(kind)) {
+    playSlideMove(kind as SlideMove, from, to, direction, play);
+    return anims;
+  }
+
   if (kind === "advance") {
     from.style.zIndex = "2";
     const shift = 40 * direction;
@@ -529,4 +566,139 @@ export function runTransition(opts: RunOptions): Animation[] {
     });
   }
   return anims;
+}
+
+type Play = (el: Element, keyframes: Keyframe[], options: KeyframeAnimationOptions) => void;
+
+/**
+ * A whole-slide move. Forward, the incoming slide arrives by the move; back, the same move plays in
+ * reverse (the slide you came from turns, slides or closes back the way it arrived). Every move
+ * reads `deckMotion`: the turning moves (flip, cube) take `morph`, the rest `slow`.
+ */
+function playSlideMove(kind: SlideMove, from: HTMLElement, to: HTMLElement, direction: 1 | -1, play: Play) {
+  const d = direction;
+  if (kind === "push") {
+    const timing = { duration: deckMotion.slow, easing: deckMotion.travel };
+    play(from, [{ transform: "none" }, { transform: `translateX(${-100 * d}%)` }], timing);
+    play(to, [{ transform: `translateX(${100 * d}%)` }, { transform: "none" }], timing);
+    return;
+  }
+  if (kind === "cube") {
+    // The two slides are adjacent faces: the outgoing one turns away about its far edge as the
+    // incoming one turns in about its near edge, so their shared edge stays joined. The cube pulls
+    // back a little mid-turn so both faces fit on screen.
+    const timing = { duration: deckMotion.morph, easing: deckMotion.travel };
+    // A turning face never shows its back (it would read as mirrored text).
+    from.style.backfaceVisibility = to.style.backfaceVisibility = "hidden";
+    const fromOrigin = d === 1 ? "100% 50%" : "0% 50%";
+    const toOrigin = d === 1 ? "0% 50%" : "100% 50%";
+    play(
+      from,
+      [
+        {
+          transformOrigin: fromOrigin,
+          transform: `translateX(0%) rotateY(0deg) scale(1)`,
+          filter: "brightness(1)",
+        },
+        {
+          transformOrigin: fromOrigin,
+          transform: `translateX(${-50 * d}%) rotateY(${-45 * d}deg) scale(0.86)`,
+          offset: 0.5,
+        },
+        {
+          transformOrigin: fromOrigin,
+          transform: `translateX(${-100 * d}%) rotateY(${-90 * d}deg) scale(1)`,
+          filter: "brightness(0.82)",
+        },
+      ],
+      timing,
+    );
+    play(
+      to,
+      [
+        {
+          transformOrigin: toOrigin,
+          transform: `translateX(${100 * d}%) rotateY(${90 * d}deg) scale(1)`,
+          filter: "brightness(0.82)",
+        },
+        {
+          transformOrigin: toOrigin,
+          transform: `translateX(${50 * d}%) rotateY(${45 * d}deg) scale(0.86)`,
+          offset: 0.5,
+        },
+        { transformOrigin: toOrigin, transform: `translateX(0%) rotateY(0deg) scale(1)`, filter: "brightness(1)" },
+      ],
+      timing,
+    );
+    return;
+  }
+  if (kind === "flip") {
+    // The slide turns over like a card: the outgoing face turns to edge-on over the first half,
+    // the incoming face turns in from edge-on over the second (held edge-on, so unseen, until then),
+    // the card lifting (scaling down) through the turn. One face shows at a time, never a back face.
+    const half = deckMotion.morph / 2;
+    play(
+      from,
+      [
+        { transform: `rotateY(0deg) scale(1)`, filter: "brightness(1)" },
+        { transform: `rotateY(${-90 * d}deg) scale(0.88)`, filter: "brightness(0.85)" },
+      ],
+      { duration: half, easing: "cubic-bezier(0.55, 0, 1, 0.45)" },
+    );
+    play(from, [{ opacity: 1 }, { opacity: 0 }], { duration: 1, delay: half - 1 });
+    play(
+      to,
+      [
+        { transform: `rotateY(${90 * d}deg) scale(0.88)`, filter: "brightness(0.85)" },
+        { transform: `rotateY(0deg) scale(1)`, filter: "brightness(1)" },
+      ],
+      { duration: half, delay: half, easing: deckMotion.settle },
+    );
+    return;
+  }
+  if (kind === "rise") {
+    // The incoming slide rises into focus from a blur; the outgoing one sinks back and blurs out.
+    from.style.zIndex = "2";
+    play(
+      from,
+      [
+        { opacity: 1, transform: "none", filter: "blur(0px)" },
+        { opacity: 0, transform: `translateY(${-24 * d}px) scale(0.97)`, filter: "blur(8px)" },
+      ],
+      { duration: deckMotion.base, easing: deckMotion.exit },
+    );
+    play(
+      to,
+      [
+        { opacity: 0, transform: `translateY(${72 * d}px) scale(1.02)`, filter: "blur(10px)" },
+        { opacity: 1, transform: "none", filter: "blur(0px)" },
+      ],
+      { duration: deckMotion.slow, delay: deckMotion.handoff, easing: deckMotion.settle },
+    );
+    return;
+  }
+  // The reveals (shutter, blinds): the later slide is drawn over the earlier one and its clip opens
+  // forward, or closes back the way it opened.
+  const top = d === 1 ? to : from;
+  top.style.zIndex = "2";
+  const frames: Keyframe[] =
+    kind === "shutter"
+      ? [{ clipPath: "inset(50% 0% 50% 0%)" }, { clipPath: "inset(0% 0% 0% 0%)" }]
+      : Array.from({ length: 17 }, (_, i) => ({ offset: i / 16, clipPath: blindsClip(i / 16) }));
+  const easing = kind === "shutter" ? deckMotion.travel : "linear";
+  play(top, frames, { duration: deckMotion.slow, easing, direction: d === 1 ? "normal" : "reverse" });
+  // The covered slide steps back as it is covered (or forward as it is uncovered).
+  const under = d === 1 ? from : to;
+  play(
+    under,
+    [
+      { transform: "none", filter: "brightness(1)" },
+      { transform: "scale(0.98)", filter: "brightness(0.9)" },
+    ],
+    {
+      duration: deckMotion.slow,
+      easing: deckMotion.settle,
+      direction: d === 1 ? "normal" : "reverse",
+    },
+  );
 }

@@ -43,6 +43,7 @@ Install (ES modules only; not on npm): `npm install https://github.com/ong6/uipa
 - [Spec template](docs/specs/TEMPLATE.md): The file a new site spec starts from: the frontmatter (pages, layouts, component looks) and the sections the checker requires.
 - [Technical spec](docs/specs/technical.md): The package's default look, which the docs site extends: Cyanotype, Prussian ink and one amber mark, IBM Plex, with its role values generated from the style file.
 - [Docs site spec](docs/specs/docs-site.md): The spec of ui.junxiong.dev: Technical's look with its own darker dark palette, the four navigation hues and the travelling location marker.
+- [Motion spec](docs/specs/motion.md): The talk-deck look: warm grey paper, heavy tight Instrument Sans headlines, one vermilion-orange accent, mono kickers and lifted cards, with its role values generated from the style file.
 
 ## Build · Recipes
 

@@ -92,8 +92,10 @@ optional peers, used only by `uipack/objects` and `uipack/slides`. `react-markdo
 
 ## Style
 
-There is one implemented style, **Technical** ("Cyanotype": Prussian-blue ink on a cool white
-sheet, one amber accent, IBM Plex Sans and Mono). Every colour, face, radius and ornament is a
+There are two implemented styles: **Technical**, the default ("Cyanotype": Prussian-blue ink on a
+cool white sheet, one amber accent, IBM Plex Sans and Mono), and **Motion**, the talk-deck look (warm
+grey paper, heavy tight Instrument Sans headlines, one vermilion-orange accent, JetBrains Mono
+kickers; [its spec](docs/specs/motion.md)). Every colour, face, radius and ornament is a
 `--ui-*` role, so components never hold a literal. Components offer named looks: diagrams use the **Blueprint** look on every site, coloured by the site's diagram theme
 ([component looks](docs/components/README.md)). Each site gets its own spec, written from
 [the template](docs/specs/README.md). The [site registry](docs/specs/registry.md) lists every

@@ -135,7 +135,9 @@ export default function DeckShowcase() {
           title={`${example.name} deck`}
           slides={example.slides}
           theme={theme}
-          uiStyle="technical"
+          uiStyle={example.uiStyle ?? "technical"}
+          backdrop={example.backdrop}
+          transition={example.transition}
           view="print"
           printNotes={params.get("notes") === "1"}
         />
@@ -152,7 +154,9 @@ export default function DeckShowcase() {
           title="Deck player example, speaker view"
           slides={example.slides}
           theme={theme}
-          uiStyle="technical"
+          uiStyle={example.uiStyle ?? "technical"}
+          backdrop={example.backdrop}
+          transition={example.transition}
           motion={motion}
           mode="presenter"
           minutes={example.lint?.minutes}
@@ -189,7 +193,9 @@ export function DeckDemo() {
         title="Deck player example"
         slides={example.slides}
         theme={theme}
-        uiStyle="technical"
+        uiStyle={example.uiStyle ?? "technical"}
+        backdrop={example.backdrop}
+        transition={example.transition}
         motion={motion}
         view={view}
         onViewChange={(v) => setPresenting(v === "present")}

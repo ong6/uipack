@@ -1,5 +1,6 @@
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState, type ReactNode } from "react";
 import { toneOf } from "./tone";
+import { DeckBackdropContext } from "./parts";
 import { usePrefersReducedMotion } from "../env";
 import { useLayerFlight } from "../flight";
 import { Controls } from "./player/Controls";
@@ -28,12 +29,17 @@ export interface DeckPlayerProps {
   theme?: DeckTheme;
   /**
    * The style the deck is painted in (sets data-ui-style): a registered style id, "technical"
-   * (the default and only one today). Only tokens change: every slide keeps its regions, words and reading order.
+   * (the default) or "motion". Only tokens change: every slide keeps its regions, words and reading order.
    * Omitted, the deck follows the nearest ancestor with data-ui-style.
    */
   uiStyle?: UiStyleId;
   /** Default transition for slides that do not set one. */
   transition?: DeckTransition;
+  /**
+   * An ambient backdrop drawn into every slide's background, such as `<Polyhedra />`: one per
+   * deck, under every slide's words, still in thumbnails and with reduced motion.
+   */
+  backdrop?: ReactNode;
   motion?: "auto" | "none";
   /** `presenter` shows the current slide, the next slide, the talk track and a clock. */
   mode?: "audience" | "presenter";
@@ -100,6 +106,7 @@ function Player({
   theme = "light",
   uiStyle,
   transition = "advance",
+  backdrop = null,
   motion = "auto",
   mode = "audience",
   initial,
@@ -142,6 +149,7 @@ function Player({
     stageEl.current?.querySelectorAll<HTMLElement>(".uipack-deck-layer").forEach((el) => {
       el.style.zIndex = "";
       el.style.visibility = "";
+      el.style.backfaceVisibility = "";
     }),
   );
   const { view, viewRef, commit, go, next, prev, maxStep } = useDeckPosition({ slides, initial, toRef, settle });
@@ -247,105 +255,107 @@ function Player({
   );
 
   return (
-    <div
-      ref={rootRef}
-      className={["uipack-deck", className].filter(Boolean).join(" ")}
-      data-theme={theme}
-      data-ui-style={uiStyle}
-      data-mode={mode}
-      data-motion={reducedMotion ? "none" : "auto"}
-      data-index={view.index}
-      data-step={Number.isFinite(view.step) ? view.step : "all"}
-      data-transitioning={view.from ? "" : undefined}
-      role="region"
-      aria-label={title}
-      aria-roledescription="slide deck"
-      aria-keyshortcuts="ArrowLeft ArrowRight Space Home End G F S"
-      tabIndex={0}
-      onKeyDown={onKeyDown}
-    >
-      {initialView === "print" ? (
-        <Printout slides={slides} theme={theme} notes={printNotes} inPlace />
-      ) : reading ? (
-        <Reader
-          slides={slides}
-          theme={theme}
-          index={view.index}
-          open={readOpen}
-          onPresent={(i) => {
-            setReading(false);
-            onViewChange?.("present");
-            go(i, 0);
-            requestAnimationFrame(() => {
-              const root = rootRef.current;
-              if (!root) return;
-              root.focus({ preventScroll: true });
-              // The reader was scrolled (a phone reads far down the page): bring the stage up with it.
-              const { top, bottom } = root.getBoundingClientRect();
-              if (top < 0 || bottom > window.innerHeight)
-                root.scrollIntoView({ block: "start", behavior: reducedMotion ? "auto" : "smooth" });
-            });
-          }}
-        />
-      ) : (
-        <>
-          {mode === "audience" && (
-            // Shown on a phone only (deck.css): a 1920px slide is drawn at a fifth of its size there.
-            <p className="uipack-deck-phone-hint">
-              Slides are small on a phone; the read view is easier.{" "}
-              <button type="button" onClick={openReader}>
-                Read view
-              </button>
-            </p>
-          )}
-          {mode === "presenter" ? (
-            <Presenter
-              slides={slides}
-              index={view.index}
-              theme={theme}
-              stage={stage}
-              cue={cue}
-              stop={stop}
-              minutes={minutes ?? (typeof lint === "object" ? lint.minutes : undefined)}
-            />
-          ) : (
-            stage
-          )}
-          {controls}
-        </>
-      )}
-      {printing && (
-        <PrintJob
-          uiStyle={uiStyle}
-          slides={slides}
-          theme={theme}
-          title={title}
-          notes={printNotes}
-          onDone={() => {
-            setPrinting(false);
-            rootRef.current?.focus({ preventScroll: true });
-          }}
-        />
-      )}
-      <p className="uipack-deck-sr" aria-live="polite">
-        Slide {view.index + 1} of {count}: {current.title}
-      </p>
-      {overview && (
-        <Overview
-          slides={slides}
-          index={view.index}
-          theme={theme}
-          findings={findings}
-          onPick={(i) => {
-            go(i, 0);
-            // Focus the deck, not the All slides button, so Space and the arrows move through the
-            // picked slide instead of reopening the overview.
-            setOverview(false);
-            requestAnimationFrame(() => rootRef.current?.focus({ preventScroll: true }));
-          }}
-          onClose={closeOverview}
-        />
-      )}
-    </div>
+    <DeckBackdropContext.Provider value={backdrop}>
+      <div
+        ref={rootRef}
+        className={["uipack-deck", className].filter(Boolean).join(" ")}
+        data-theme={theme}
+        data-ui-style={uiStyle}
+        data-mode={mode}
+        data-motion={reducedMotion ? "none" : "auto"}
+        data-index={view.index}
+        data-step={Number.isFinite(view.step) ? view.step : "all"}
+        data-transitioning={view.from ? "" : undefined}
+        role="region"
+        aria-label={title}
+        aria-roledescription="slide deck"
+        aria-keyshortcuts="ArrowLeft ArrowRight Space Home End G F S"
+        tabIndex={0}
+        onKeyDown={onKeyDown}
+      >
+        {initialView === "print" ? (
+          <Printout slides={slides} theme={theme} notes={printNotes} inPlace />
+        ) : reading ? (
+          <Reader
+            slides={slides}
+            theme={theme}
+            index={view.index}
+            open={readOpen}
+            onPresent={(i) => {
+              setReading(false);
+              onViewChange?.("present");
+              go(i, 0);
+              requestAnimationFrame(() => {
+                const root = rootRef.current;
+                if (!root) return;
+                root.focus({ preventScroll: true });
+                // The reader was scrolled (a phone reads far down the page): bring the stage up with it.
+                const { top, bottom } = root.getBoundingClientRect();
+                if (top < 0 || bottom > window.innerHeight)
+                  root.scrollIntoView({ block: "start", behavior: reducedMotion ? "auto" : "smooth" });
+              });
+            }}
+          />
+        ) : (
+          <>
+            {mode === "audience" && (
+              // Shown on a phone only (deck.css): a 1920px slide is drawn at a fifth of its size there.
+              <p className="uipack-deck-phone-hint">
+                Slides are small on a phone; the read view is easier.{" "}
+                <button type="button" onClick={openReader}>
+                  Read view
+                </button>
+              </p>
+            )}
+            {mode === "presenter" ? (
+              <Presenter
+                slides={slides}
+                index={view.index}
+                theme={theme}
+                stage={stage}
+                cue={cue}
+                stop={stop}
+                minutes={minutes ?? (typeof lint === "object" ? lint.minutes : undefined)}
+              />
+            ) : (
+              stage
+            )}
+            {controls}
+          </>
+        )}
+        {printing && (
+          <PrintJob
+            uiStyle={uiStyle}
+            slides={slides}
+            theme={theme}
+            title={title}
+            notes={printNotes}
+            onDone={() => {
+              setPrinting(false);
+              rootRef.current?.focus({ preventScroll: true });
+            }}
+          />
+        )}
+        <p className="uipack-deck-sr" aria-live="polite">
+          Slide {view.index + 1} of {count}: {current.title}
+        </p>
+        {overview && (
+          <Overview
+            slides={slides}
+            index={view.index}
+            theme={theme}
+            findings={findings}
+            onPick={(i) => {
+              go(i, 0);
+              // Focus the deck, not the All slides button, so Space and the arrows move through the
+              // picked slide instead of reopening the overview.
+              setOverview(false);
+              requestAnimationFrame(() => rootRef.current?.focus({ preventScroll: true }));
+            }}
+            onClose={closeOverview}
+          />
+        )}
+      </div>
+    </DeckBackdropContext.Provider>
   );
 }

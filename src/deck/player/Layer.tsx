@@ -3,7 +3,7 @@ import { toneOf } from "../tone";
 import { flushSync } from "react-dom";
 import { useIsoLayoutEffect } from "../../env";
 import { inertProps } from "../../inert";
-import { DeckSlideContext } from "../parts";
+import { DeckSlideContext, useDeckBackdrop } from "../parts";
 import { CANVAS_WIDTH } from "../transitions";
 import type { DeckSlide, DeckTheme } from "../types";
 
@@ -49,6 +49,7 @@ export const Layer = /*#__PURE__*/ forwardRef<HTMLDivElement, LayerProps>(functi
   { slide, index, count, step, active, thumbnail = false, theme, reducedMotion },
   ref,
 ) {
+  const backdrop = useDeckBackdrop();
   return (
     <div
       ref={ref}
@@ -61,8 +62,10 @@ export const Layer = /*#__PURE__*/ forwardRef<HTMLDivElement, LayerProps>(functi
       aria-hidden={active ? undefined : true}
       {...inertProps(!active)}
     >
-      <div className="uipack-deck-layer__bg" />
-      <DeckSlideContext.Provider value={{ step, active, thumbnail, index, count }}>
+      <DeckSlideContext.Provider value={{ step, active, thumbnail, index, count, reducedMotion }}>
+        {/* The deck's backdrop (DeckPlayer backdrop) is part of each slide's ground, so it travels
+            with a slide that turns or slides away. */}
+        <div className="uipack-deck-layer__bg">{backdrop}</div>
         {slide.render({ step, active, thumbnail, theme, reducedMotion })}
       </DeckSlideContext.Provider>
     </div>

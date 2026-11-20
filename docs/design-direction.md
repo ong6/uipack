@@ -9,7 +9,7 @@ UiPack is a library of reusable visual explanations. The browser organizes two i
 | Axis | Values |
 | --- | --- |
 | Content type | Diagrams (architecture diagrams, charts, article parts), Presentations, Motion & 3D, Web, Foundations (styles, icons and marks) |
-| Visual style | Technical (the one implemented style: diagrams, decks, web pages and the shell); Mechanism for crafted isometric machines; ink line art for every 3D object. Technical is a value set of one role layer (`src/styles`), selected with `uiStyle` / `data-ui-style`; each other website has its own [spec](specs/README.md), built as a further value set only when uipack must render it |
+| Visual style | Technical (the default style: diagrams, decks, web pages and the shell); Motion for talk decks ([spec](specs/motion.md)); Mechanism for crafted isometric machines; ink line art for every 3D object. Technical is a value set of one role layer (`src/styles`), selected with `uiStyle` / `data-ui-style`; each other website has its own [spec](specs/README.md), built as a further value set only when uipack must render it |
 
 The Technical spec page (`/specs/technical`) shows Technical with the illustration looks drawn within it (Mechanism and the 3D ink line art); `/styles` explains one spec per website. Light and dark are themes within a style. Do not use “slides” as the name for all 3D content. The existing `uipack/slides` API and `/slides` URL remain compatibility paths.
 

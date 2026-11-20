@@ -7,6 +7,15 @@ release is cut and how a site moves to it.
 
 ## [Unreleased]
 
+### Added
+
+- The **Motion** style (`uiStyle="motion"`, `src/styles/motion.css`, [its spec](docs/specs/motion.md)): a talk-deck look drawn from a conference talk's slides. Warm grey paper, near-black Instrument Sans 700 headlines tracked tight, one vermilion-orange accent (red stays a data colour), JetBrains Mono kickers, lifted cards, diamond markers. Self-hosts Instrument Sans 400/500/700 and JetBrains Mono 400/600 (SIL OFL) with metric-matched fallbacks.
+- Six whole-slide transitions in `uipack/deck`, for every style: `push`, `flip`, `cube`, `shutter`, `blinds` and `rise` ([transitions](docs/deck.md#transitions)); `SLIDE_MOVES`, `blindsClip` and `BLIND_SLATS` are exported.
+- Kinetic slide parts: `CountUp` (a number counting up as its slide arrives, `deckMotion.count` 1200 ms), `LetterReveal` (a line's letters rising in from a blur) and `Polyhedra` (drifting wireframe solids), with `DeckPlayer backdrop` to draw one backdrop into every slide; `SOLIDS`, `SOLID_NAMES` and `scatter` for placing solids.
+- Slide ornament slots a style may paint: `--ui-slide-eyebrow-index` and `--ui-slide-eyebrow-accent` (a kicker before the eyebrow), `--ui-slide-progress` (a footer segment per slide), `--ui-slide-display-tracking`, and `--ui-marker-rotate` for the web eyebrow marker. Technical's values keep its look unchanged.
+- `uipack-deck-em`, a headline's second voice in the accent at display size.
+- The Motion example deck at `/deck?deck=motion`.
+
 ## [1.1.0] - 2026-11-19
 
 Additions and fixes; nothing a site wrote needs to change. A playable simulation grid (`SimGrid`),

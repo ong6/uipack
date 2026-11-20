@@ -12,7 +12,7 @@ styles. See [the system overview](README.md) for how style fits with writing and
 
 UiPack renders a spec's look once its values are one value set in `src/styles`, registered in
 `uiStyles` and tested ([building a style from a spec](../specs/README.md#building-a-style-from-a-spec)).
-Today that is Technical alone. What a spec may choose, and what holds for every site, is in
+Today that is Technical (the default) and [Motion](../specs/motion.md) (the talk-deck look). What a spec may choose, and what holds for every site, is in
 [What a spec may set](spec-settings.md).
 
 ## The role contract
@@ -60,6 +60,7 @@ The colour roles as swatches, light and dark side by side, each named by its cus
 | `--ui-font-display` / `-text` / `-label` | The three faces |
 | `--ui-font-heading` | Small headings outside the display steps: a figure's title, a consulting slide's title. A spec with a loud display face points it at the text face (example, Technical: the display face, so page, slide and figure share one heading face) |
 | `--ui-display-weight` / `-tracking` / `-case`, `--ui-display-scale` | How the display face is set: weight, tracking, case, and a scale on web steps 4–6 |
+| `--ui-slide-display-tracking` | Tracking of slide titles and headings (a heading tracks 0.004em looser than a title) |
 | `--ui-label-tracking` | Tracked caps for eyebrows and labels |
 | `--ui-em-style`, `--ui-em-color`, `--ui-em-decoration` | The emphasised phrase in a display headline |
 | `--ui-radius` / `-sm` / `-xs` / `-pill` | Container, inner box, mark, control |
@@ -81,8 +82,10 @@ The same markup with its ornament slots painted by Technical: the hero backdrop,
 | `--ui-backdrop`, `--ui-backdrop-mask` | Behind the hero |
 | `--ui-backdrop-narrow` | Behind the hero below 720px |
 | `--ui-canvas-pattern` | A figure's canvas (`Figure background="dots"`, the default) |
-| `--ui-marker-size` / `-shape` / `-color` | Hung before each eyebrow |
+| `--ui-marker-size` / `-shape` / `-rotate` / `-color` | Hung before each eyebrow (`-rotate: 45deg` turns a square into a diamond) |
 | `--ui-section-index` | `inline` or `none`: each `Section` eyebrow's number in page order (`WebPage` numbers its sections after the hero; a section outside a `WebPage` has none) |
+| `--ui-slide-eyebrow-index`, `--ui-slide-eyebrow-accent` | A slide's eyebrow: `inline-flex` shows the slide number and a rule before it (a kicker), `none` hides them; the eyebrow's words in the accent (1) or the muted ink (0) |
+| `--ui-slide-progress` | `flex` or `none`: one footer segment per slide, the current one in the accent, in the gap between the footer's two ends |
 | `--ui-corner-marks` | Background layers on quiet cards, plans and the quote |
 | `--ui-section-rule` | Top edge of each section |
 | `--ui-frame-border`, `--ui-frame-shadow`, `--ui-card-shadow` | Cards and framed windows |
@@ -250,10 +253,12 @@ Motion feel is part of the style, so it lives in tokens:
 | hover | 120–160ms `ease` | colour, border, fill, opacity |
 | quick | 160ms | outgoing slide, reduced-motion fade |
 | base | 320ms | blocks settling |
-| slow | 560ms | large moves |
-| morph | 760ms | shared elements travelling |
+| slow | 560ms | large moves; a whole slide that pushes, opens (shutter, blinds) or rises |
+| morph | 760ms | shared elements travelling; a whole slide turning (flip, cube) |
 | zoom | 1150ms | camera into a part |
 | pan | 860ms | bento camera |
+| count | 1200ms, ease-out-quint | a number counting up to its value (`CountUp`) |
+| reveal | 560ms a letter, 0.32em rise from 6px blur, staggered so the last starts by 480ms | a headline's letters rising in (`LetterReveal`) |
 | entrance | about 600ms, ease-out-quint, 6px rise from 2px blur, staggered 0–240ms by position | figures scrolling in |
 | settle curve | `cubic-bezier(0.2, 0.7, 0.2, 1)` | anything that arrives |
 | travel curve | `cubic-bezier(0.55, 0, 0.15, 1)` | anything that crosses the screen |

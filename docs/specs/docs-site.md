@@ -92,6 +92,7 @@ more on every surface in both themes, and every mark 3:1 (`test/site-palette.tes
 | `--ui-slide-font-label` | `var(--ui-font-label)` | `var(--ui-font-label)` |
 | `--ui-display-weight` | `600` | `600` |
 | `--ui-display-tracking` | `-0.01em` | `-0.01em` |
+| `--ui-slide-display-tracking` | `-0.02em` | `-0.02em` |
 | `--ui-display-case` | `none` | `none` |
 | `--ui-display-scale` | `1` | `1` |
 | `--ui-label-tracking` | `0.02em` | `0.02em` |
@@ -119,6 +120,7 @@ more on every surface in both themes, and every mark 3:1 (`test/site-palette.tes
 | `--ui-frame-shadow` | `none` | `none` |
 | `--ui-marker-size` | `7px` | `7px` |
 | `--ui-marker-shape` | `50%` | `50%` |
+| `--ui-marker-rotate` | `0deg` | `0deg` |
 | `--ui-marker-color` | `var(--ui-accent)` | `var(--ui-accent)` |
 | `--ui-section-rule` | `none` | `none` |
 | `--ui-grain` | `0` | `0` |
@@ -138,6 +140,9 @@ more on every surface in both themes, and every mark 3:1 (`test/site-palette.tes
 | `--ui-on-band-cta` | `#0b2748` | `#111315` |
 | `--ui-band-pattern` | `none` | `none` |
 | `--ui-section-index` | `inline` | `inline` |
+| `--ui-slide-eyebrow-index` | `none` | `none` |
+| `--ui-slide-eyebrow-accent` | `1` | `1` |
+| `--ui-slide-progress` | `none` | `none` |
 | `--ui-corner-marks` | `linear-gradient(var(--ui-ink), var(--ui-ink)) 0 0 / 8px 1px no-repeat, linear-gradient(var(--ui-ink), var(--ui-ink)) 0 0 / 1px 8px no-repeat, linear-gradient(var(--ui-ink), var(--ui-ink)) 100% 0 / 8px 1px no-repeat, linear-gradient(var(--ui-ink), var(--ui-ink)) 100% 0 / 1px 8px no-repeat, linear-gradient(var(--ui-ink), var(--ui-ink)) 0 100% / 8px 1px no-repeat, linear-gradient(var(--ui-ink), var(--ui-ink)) 0 100% / 1px 8px no-repeat, linear-gradient(var(--ui-ink), var(--ui-ink)) 100% 100% / 8px 1px no-repeat, linear-gradient(var(--ui-ink), var(--ui-ink)) 100% 100% / 1px 8px no-repeat` | `linear-gradient(var(--ui-ink), var(--ui-ink)) 0 0 / 8px 1px no-repeat, linear-gradient(var(--ui-ink), var(--ui-ink)) 0 0 / 1px 8px no-repeat, linear-gradient(var(--ui-ink), var(--ui-ink)) 100% 0 / 8px 1px no-repeat, linear-gradient(var(--ui-ink), var(--ui-ink)) 100% 0 / 1px 8px no-repeat, linear-gradient(var(--ui-ink), var(--ui-ink)) 0 100% / 8px 1px no-repeat, linear-gradient(var(--ui-ink), var(--ui-ink)) 0 100% / 1px 8px no-repeat, linear-gradient(var(--ui-ink), var(--ui-ink)) 100% 100% / 8px 1px no-repeat, linear-gradient(var(--ui-ink), var(--ui-ink)) 100% 100% / 1px 8px no-repeat` |
 | `--ui-density` | `0.9` | `0.9` |
 | `--ui-column-rule` | `linear-gradient(var(--ui-ink), var(--ui-ink)) 0 0 / 1px 11px no-repeat, linear-gradient(var(--ui-ink), var(--ui-ink)) 100% 0 / 1px 11px no-repeat, linear-gradient(var(--ui-line), var(--ui-line)) 0 5px / 100% 1px no-repeat` | `linear-gradient(var(--ui-ink), var(--ui-ink)) 0 0 / 1px 11px no-repeat, linear-gradient(var(--ui-ink), var(--ui-ink)) 100% 0 / 1px 11px no-repeat, linear-gradient(var(--ui-line), var(--ui-line)) 0 5px / 100% 1px no-repeat` |

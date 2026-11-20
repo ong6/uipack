@@ -96,11 +96,12 @@ describe("Self-hosted fonts", () => {
   const urls = (css: string) => [...css.matchAll(/url\("?([^")]+)"?\)/g)].map((m) => m[1]);
   it("self-hosts every face as woff2 with swap, latin only, beside its licence", () => {
     // The registered styles' faces, declared once; a browser fetches a face only when a style uses
-    // it. Technical: IBM Plex Sans 400/500/600 and IBM Plex Mono 400/600.
+    // it. Technical: IBM Plex Sans 400/500/600 and IBM Plex Mono 400/600. Motion: Instrument Sans
+    // 400/500/700 and JetBrains Mono 400/600.
     const css = readFileSync("src/web/fonts.css", "utf8");
     const faces = css.match(/@font-face \{[^}]*\}/g)!;
     const hosted = faces.filter((f) => f.includes("url("));
-    expect(hosted).toHaveLength(5);
+    expect(hosted).toHaveLength(10);
     for (const f of hosted) {
       expect(f).toContain("font-display: swap;");
       expect(f).toMatch(/unicode-range:\s+U\+0000-00FF/);
@@ -112,7 +113,12 @@ describe("Self-hosted fonts", () => {
     // Nothing leaves the package: no absolute or protocol-relative font URLs.
     expect(css).not.toMatch(/url\("?(https?:)?\/\//);
     const files = readdirSync("src/web/fonts");
-    expect(files.filter((f) => f.endsWith(".txt")).sort()).toEqual(["OFL-ibm-plex-mono.txt", "OFL-ibm-plex-sans.txt"]);
+    expect(files.filter((f) => f.endsWith(".txt")).sort()).toEqual([
+      "OFL-ibm-plex-mono.txt",
+      "OFL-ibm-plex-sans.txt",
+      "OFL-instrument-sans.txt",
+      "OFL-jetbrains-mono.txt",
+    ]);
     expect(files.filter((f) => f.endsWith(".woff2")).sort()).toEqual(
       urls(css)
         .map((u) => u.slice(8))
@@ -126,11 +132,12 @@ describe("Self-hosted fonts", () => {
     expect(pkg.exports["./fonts/*"]).toBe("./dist/fonts/*");
     expect(fontFiles.out).toBe("fonts"); // scripts/build-css.ts copies src/web/fonts there
     const built = readFileSync("dist/web.css", "utf8");
-    expect(urls(built).length).toBe(5);
+    expect(urls(built).length).toBe(10);
     for (const u of urls(built)) expect(existsSync(`dist/${u}`)).toBe(true);
     // Every entry carries the faces (Technical's on figures, charts and the article too).
-    expect(urls(readFileSync("dist/theme.css", "utf8")).length).toBe(5);
-    for (const name of ["ibm-plex-sans", "ibm-plex-mono"]) expect(existsSync(`dist/fonts/OFL-${name}.txt`)).toBe(true);
+    expect(urls(readFileSync("dist/theme.css", "utf8")).length).toBe(10);
+    for (const name of ["ibm-plex-sans", "ibm-plex-mono", "instrument-sans", "jetbrains-mono"])
+      expect(existsSync(`dist/fonts/OFL-${name}.txt`)).toBe(true);
   });
 });
 

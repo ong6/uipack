@@ -11,8 +11,10 @@
 /* The player's own controls (the bar, the overview, speaker and read views) are playground controls
    here: the shell's control font and radius (showcase.css). The library has no hook for a control's
    font, and --deck-radius-sm also rounds slide thumbnails, so these set the controls alone; slide
-   content keeps the deck's type. */
+   content keeps the deck's type. A deck in another style (the Motion example) keeps its own
+   controls, in its own label face. */
 :is(.deck-showcase, .deck-speaker-page)
+  [data-ui-style="technical"]
   :is(
     .uipack-deck-controls,
     .uipack-deck-overview__head,
@@ -26,7 +28,7 @@
 }
 /* Under a narrow slide the tools tighten to the small control size, as the library's do. */
 @container (max-width: 860px) {
-  :is(.deck-showcase, .deck-speaker-page) .uipack-deck-tools button {
+  :is(.deck-showcase, .deck-speaker-page) [data-ui-style="technical"] .uipack-deck-tools button {
     font: var(--show-control-font-sm);
   }
 }

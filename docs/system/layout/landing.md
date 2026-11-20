@@ -66,6 +66,7 @@ Each archetype is a component:
 
   <!-- generated:web-style-order -->
 - **Technical:** hero → how → demo → proof → faq → pricing
+- **Motion:** hero → proof → how → demo → faq → pricing
 <!-- /generated -->
 
 - The order the example page renders is in the [landing recipe](../../recipes/landing.md#section-order).

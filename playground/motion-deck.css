@@ -1,0 +1,216 @@
+/* The Motion example deck (motionDeck.tsx): its slide layouts, in canvas pixels on 1920×1080.
+   Colours and faces are deck tokens only, so the slides follow the style and tone. */
+.motion-demo-cover {
+  justify-content: center;
+}
+.motion-demo-tag {
+  align-self: flex-start;
+  margin: 0 0 48px;
+  padding: 8px 16px;
+  border: 1.5px solid var(--deck-fg);
+  border-radius: var(--deck-radius-sm);
+  font: 600 22px/1.2 var(--deck-mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.motion-demo-cover__title {
+  max-width: 13ch;
+  font-size: 150px;
+  line-height: 1;
+}
+.motion-demo-statement {
+  max-width: 16ch;
+  font-size: 128px;
+  line-height: 1.02;
+}
+.motion-demo-meta {
+  display: flex;
+  gap: 48px;
+  margin: 56px 0 0;
+  padding: 0;
+  list-style: none;
+  color: var(--deck-muted);
+  font: 400 26px/1.3 var(--deck-mono);
+}
+.motion-demo-meta li::before {
+  content: "";
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-right: 16px;
+  vertical-align: 0.1em;
+  background: var(--deck-accent-display);
+  transform: rotate(45deg);
+}
+.motion-demo-cover__rule {
+  width: 520px;
+  margin-top: 88px;
+  border-top: 3px solid var(--deck-accent-display);
+}
+.motion-demo-muted {
+  max-width: 24ch;
+  margin-top: 32px;
+  color: var(--deck-muted);
+}
+
+/* Lifted cards: the stat cards and the clock */
+.motion-demo-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  margin-top: 64px;
+}
+.motion-demo-cards--four {
+  grid-template-columns: repeat(4, 1fr);
+}
+.motion-demo-card {
+  padding: 40px 40px 44px;
+  border-radius: var(--deck-radius);
+  background: var(--deck-surface);
+  box-shadow: var(--ui-card-shadow, none);
+}
+.motion-demo-card__label {
+  margin: 0;
+  color: var(--deck-accent);
+  font: 400 22px/1.3 var(--deck-mono);
+  letter-spacing: 0.06em;
+}
+.motion-demo-card__value {
+  margin: 48px 0 24px;
+  color: var(--deck-accent-display);
+  font-family: var(--deck-display);
+  font-size: 200px;
+  font-weight: var(--deck-display-weight);
+  line-height: 0.9;
+  letter-spacing: -0.05em;
+}
+.motion-demo-cards--four .motion-demo-card__value {
+  font-size: 96px;
+}
+.motion-demo-code {
+  margin-top: 72px;
+}
+.motion-demo-card__value--ink {
+  color: var(--deck-fg);
+}
+.motion-demo-card__detail {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+/* Which move, when: a table with the current row marked */
+.motion-demo-moves {
+  align-items: center;
+}
+.motion-demo-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 30px;
+}
+.motion-demo-table th,
+.motion-demo-table td {
+  padding: 20px 16px;
+  border-bottom: 1.5px solid var(--deck-rule);
+  text-align: left;
+  font-weight: 500;
+}
+.motion-demo-table thead th {
+  color: var(--deck-muted);
+  font: 400 20px/1.2 var(--deck-mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.motion-demo-table tbody th {
+  font-family: var(--deck-mono);
+  font-weight: 600;
+}
+.motion-demo-table td:last-child {
+  color: var(--deck-muted);
+  font-family: var(--deck-mono);
+  font-size: 24px;
+  white-space: nowrap;
+}
+.motion-demo-table tr[data-current] > * {
+  background: color-mix(in srgb, var(--deck-accent-display) 14%, transparent);
+}
+
+/* The big count */
+.motion-demo-big {
+  display: flex;
+  align-items: baseline;
+  gap: 32px;
+  margin: 24px 0 40px;
+  color: var(--deck-accent-display);
+  font-family: var(--deck-display);
+  font-size: 380px;
+  font-weight: var(--deck-display-weight);
+  line-height: 0.9;
+  letter-spacing: -0.055em;
+}
+.motion-demo-big__unit {
+  color: var(--deck-fg);
+  font-size: 96px;
+  letter-spacing: -0.03em;
+}
+
+/* Two columns, each with a coloured top rule */
+.motion-demo-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  margin-top: 56px;
+}
+.motion-demo-col {
+  padding: 40px 48px 48px;
+  border-top: 6px solid var(--deck-accent-display);
+  border-radius: 2px;
+  background: var(--deck-surface);
+  box-shadow: var(--ui-card-shadow, none);
+}
+.motion-demo-col[data-tone-rule="ink"] {
+  border-top-color: var(--deck-fg);
+}
+.motion-demo-col__title {
+  margin: 28px 0 32px;
+  font-family: var(--deck-display);
+  font-size: 72px;
+  font-weight: var(--deck-display-weight);
+  line-height: 1.04;
+  letter-spacing: -0.04em;
+}
+.motion-demo-col[data-tone-rule="accent"] .motion-demo-col__title {
+  color: var(--deck-accent-display);
+}
+.motion-demo-list {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.motion-demo-list li {
+  padding: 18px 0 18px 36px;
+  border-top: 1.5px solid var(--deck-rule);
+  font-size: 34px;
+  font-weight: 500;
+  position: relative;
+}
+.motion-demo-list li::before {
+  content: "";
+  position: absolute;
+  top: 34px;
+  left: 4px;
+  width: 12px;
+  height: 12px;
+  background: var(--deck-accent-display);
+  transform: rotate(45deg);
+}
+.motion-demo-col[data-tone-rule="ink"] .motion-demo-list li::before {
+  background: var(--deck-fg);
+}
+/* The count slide: the number sits inside the heading, so the heading says the whole claim. */
+.motion-demo-count {
+  max-width: none;
+}
