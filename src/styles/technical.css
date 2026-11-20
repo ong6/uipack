@@ -72,6 +72,8 @@
     --ui-slide-font-label: var(--ui-font-label);
     --ui-display-weight: 600;
     --ui-display-tracking: -0.01em;
+    /* Slide titles and headings track a little tighter than the page's display line. */
+    --ui-slide-display-tracking: -0.02em;
     --ui-display-case: none;
     --ui-display-scale: 1;
     --ui-label-tracking: 0.02em;
@@ -115,6 +117,7 @@
     /* Eyebrow marker: a 7px amber dot. */
     --ui-marker-size: 7px;
     --ui-marker-shape: 50%;
+    --ui-marker-rotate: 0deg;
     --ui-marker-color: var(--ui-accent);
     /* The section rule moves onto the column (--ui-column-rule): a dimension line, not a
        full-bleed line. */
@@ -142,6 +145,10 @@
     --ui-band-pattern: none;
     /* Section index: each section's eyebrow opens with its number (01, 02…), as a drawing does. */
     --ui-section-index: inline;
+    /* Slides: the eyebrow in the accent, no kicker number, no footer progress. */
+    --ui-slide-eyebrow-index: none;
+    --ui-slide-eyebrow-accent: 1;
+    --ui-slide-progress: none;
     /* Crop marks: 8px ink corners at all four corners of cards, plans and the quote. */
     --ui-corner-marks:
       linear-gradient(var(--ui-ink), var(--ui-ink)) 0 0 / 8px 1px no-repeat,

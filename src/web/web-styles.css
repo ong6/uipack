@@ -25,6 +25,7 @@
     height: var(--ui-marker-size, 0px);
     vertical-align: 0.05em;
     border-radius: var(--ui-marker-shape, 0px);
+    transform: rotate(var(--ui-marker-rotate, 0deg));
   }
   .uipack-web-eyebrow::before {
     margin-right: calc(var(--ui-marker-size, 0px) * 0.75);

@@ -6,6 +6,8 @@ export interface DeckSlideState {
   thumbnail: boolean;
   index: number;
   count: number;
+  /** The viewer prefers reduced motion, or the deck was given `motion="none"`. */
+  reducedMotion?: boolean;
 }
 
 export const DeckSlideContext = /*#__PURE__*/ createContext<DeckSlideState>({
@@ -99,11 +101,25 @@ export function Slide({
   const { index, count } = useDeckSlide();
   return (
     <div className={["uipack-deck-slide", className].filter(Boolean).join(" ")} data-layout={layout}>
-      {eyebrow && <p className="uipack-deck-eyebrow">{eyebrow}</p>}
+      {eyebrow && (
+        <p className="uipack-deck-eyebrow">
+          {/* The slide number before the eyebrow, shown only by a style that asks for it. */}
+          <span className="uipack-deck-eyebrow__index" aria-hidden="true">
+            {String(index + 1).padStart(2, "0")}
+          </span>
+          {eyebrow}
+        </p>
+      )}
       {children}
       {footer !== null && (
         <footer className="uipack-deck-footer" data-morph="deck-footer" data-morph-fit="stretch">
           <span>{footer}</span>
+          {/* One segment per slide, shown only by a style that asks for it. */}
+          <span className="uipack-deck-progress" aria-hidden="true">
+            {Array.from({ length: count }, (_, i) => (
+              <i key={i} data-done={i < index ? "" : undefined} data-current={i === index ? "" : undefined} />
+            ))}
+          </span>
           <span>
             {String(index + 1).padStart(2, "0")} / {String(count).padStart(2, "0")}
           </span>

@@ -1,0 +1,223 @@
+/* Motion — a talk deck that moves: warm grey paper, near-black ink set tight and heavy, one
+   vermilion-orange accent, tracked mono kickers, soft lifted cards, diamond markers. Its motion
+   parts (the deck transitions push, flip, cube, shutter, blinds and rise, CountUp, LetterReveal and
+   the drifting Polyhedra backdrop) are deck parts every style can use; this file holds only values.
+   Instrument Sans 700 for headings (tracked tight), Instrument Sans text, JetBrains Mono labels.
+   Light values sampled from the reference talk's slides (docs/specs/motion.md); the accent moved
+   off the talk's red (owner, 2026-11-20) so red stays a data colour. The dark half is derived. */
+@layer uipack.tokens {
+  [data-ui-style="motion"] {
+    /* Surfaces: warm grey paper, a lighter lifted card */
+    --ui-paper: light-dark(#ecebe3, #161512);
+    --ui-surface: light-dark(#f8f8f1, #1f1e1a);
+    --ui-surface-raised: light-dark(#fdfdf8, #27261f);
+    --ui-surface-2: light-dark(#e2e1d7, #2c2a24);
+    /* Ink: near-black, warm greys for the second and third levels */
+    --ui-ink: light-dark(#191917, #efede5);
+    --ui-ink-2: light-dark(#54524c, #b6b3a9);
+    --ui-ink-3: light-dark(#625f58, #a3a096);
+    --ui-line: color-mix(in srgb, var(--ui-ink) 22%, transparent);
+    --ui-line-soft: color-mix(in srgb, var(--ui-ink) 11%, transparent);
+    /* The one accent: vermilion orange (hue 21°) for large type, fills and marks (3.2:1 on paper, ink on it at 4.6:1),
+       a deeper burnt orange (hue 24°) wherever it is small text (4.8:1). Dark: one light orange. */
+    --ui-accent: light-dark(#e0560f, #ff8a4c);
+    --ui-accent-ink: light-dark(#ad4500, #ff9a5c);
+    --ui-accent-stroke: var(--ui-accent);
+    --ui-on-accent: light-dark(#191917, #161512);
+    --ui-accent-surface: light-dark(#191917, #ff8a4c);
+    --ui-accent-ink-2: light-dark(#ff9a5c, #161512);
+    --ui-accent-line: light-dark(#3a3833, #b8653a);
+    /* Flow tokens, always paired with a shape: square request, circle response, diamond change. */
+    --ui-flow-request: light-dark(#0f6278, #7fd3e8);
+    --ui-flow-response: light-dark(#20694c, #8be0b4);
+    --ui-flow-change: light-dark(#6a4bb8, #c9b2ff);
+    --ui-flow-error: light-dark(#b42318, #ff8c7a);
+    /* Data: signed values in green and red (always with a sign or arrow; the red is never the
+       accent), a context grey, four categorical slots: ink, orange, teal, warm grey. */
+    --ui-data-pos: light-dark(#20694c, #8be0b4);
+    --ui-data-neg: light-dark(#b42318, #ff8c7a);
+    --ui-data-context: light-dark(#a3a096, #6b675e);
+    --ui-data-1: light-dark(#191917, #efede5);
+    --ui-data-2: light-dark(#ad4500, #ff8a4c);
+    --ui-data-3: light-dark(#0f6278, #7fd3e8);
+    --ui-data-4: light-dark(#5e5b54, #a8a59b);
+    --ui-on-data-1: light-dark(#ffffff, #161512);
+    --ui-on-data-2: light-dark(#ffffff, #161512);
+    --ui-on-data-3: light-dark(#ffffff, #161512);
+    --ui-on-data-4: light-dark(#ffffff, #161512);
+    /* Invert: the near-black slide (deck "ink" tone) and the closing band */
+    --ui-inv-paper: light-dark(#191917, #ecebe3);
+    --ui-inv-surface: light-dark(#24231f, #f8f8f1);
+    --ui-inv-ink: light-dark(#efede5, #191917);
+    --ui-inv-ink-2: light-dark(#b6b3a9, #54524c);
+    --ui-inv-line: light-dark(#45433d, #c9c7bd);
+    --ui-inv-accent: light-dark(#ff8a4c, #ad4500);
+
+    /* Type: Instrument Sans 700 headings tracked tight, Instrument Sans text, JetBrains Mono labels
+       tracked wide; self-hosted in uipack/fonts (src/web/fonts.css) with metric-matched fallbacks. */
+    --ui-font-display: "Instrument Sans", "Instrument Sans Fallback", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --ui-font-heading: var(--ui-font-display);
+    --ui-font-text: "Instrument Sans", "Instrument Sans Fallback", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --ui-font-label: "JetBrains Mono", "JetBrains Mono Fallback", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    --ui-web-font-display: var(--ui-font-display);
+    --ui-web-font-text: var(--ui-font-text);
+    --ui-web-font-label: var(--ui-font-label);
+    --ui-slide-font-display: var(--ui-font-display);
+    --ui-slide-font-text: var(--ui-font-text);
+    --ui-slide-font-label: var(--ui-font-label);
+    --ui-display-weight: 700;
+    --ui-display-tracking: -0.035em;
+    --ui-slide-display-tracking: -0.045em;
+    --ui-display-case: none;
+    --ui-display-scale: 1.04;
+    --ui-label-tracking: 0.06em;
+    /* Shape and line: small radii, 1px hairlines */
+    --ui-radius: 4px;
+    --ui-radius-sm: 3px;
+    --ui-radius-xs: 2px;
+    --ui-radius-pill: 2px;
+    --ui-nav-fill: color-mix(in srgb, var(--ui-paper) 90%, transparent);
+    --ui-nav-blur: blur(10px);
+    --ui-stroke: 1;
+    --ui-rule-width: 1px;
+    --ui-type-ratio: 1.333;
+    --ui-measure: 62ch;
+    /* Motion feel: a firm settle with a long tail, a travel curve that commits early */
+    --ui-ease-settle: cubic-bezier(0.16, 1, 0.3, 1);
+    --ui-ease-travel: cubic-bezier(0.65, 0, 0.2, 1);
+    --ui-dur-quick: 160ms;
+    --ui-dur-base: 320ms;
+    --ui-dur-slow: 560ms;
+
+    /* Ornament slots. The paper stays plain: the deck's drifting Polyhedra are the style's one
+       ambient effect, so the web hero gets no pattern of its own. The figure canvas carries a faint
+       dot field. */
+    --ui-backdrop: none;
+    --ui-backdrop-mask: none;
+    --ui-backdrop-narrow: none;
+    --ui-canvas-pattern: radial-gradient(color-mix(in srgb, var(--ui-ink) 14%, transparent) 1px, transparent 1.2px) 0 0 / 24px
+      24px;
+    --ui-frame-border: var(--ui-rule-width) solid var(--ui-line-soft);
+    --ui-card-shadow:
+      0 1px 2px color-mix(in srgb, var(--ui-ink) 6%, transparent),
+      0 14px 32px -16px color-mix(in srgb, var(--ui-ink) 22%, transparent);
+    --ui-frame-shadow: var(--ui-card-shadow);
+    /* Eyebrow marker: a 7px orange diamond, as the slides' bullets. */
+    --ui-marker-size: 7px;
+    --ui-marker-shape: 1px;
+    --ui-marker-rotate: 45deg;
+    --ui-marker-color: var(--ui-accent);
+    --ui-section-rule: none;
+    --ui-grain: 0;
+    --ui-glow: 0;
+    --ui-cta-shadow: var(--ui-card-shadow);
+    --ui-cta-shadow-hover: 0 0 0 3px color-mix(in srgb, var(--ui-accent) 32%, transparent);
+    /* Primary button: ink in light, orange in dark. */
+    --ui-cta-fill: light-dark(var(--ui-ink), var(--ui-accent));
+    --ui-on-cta: light-dark(#ffffff, #161512);
+    /* The headline's key phrase: the title's second voice, in the accent (the slides' coloured line). */
+    --ui-em-style: normal;
+    --ui-em-color: var(--ui-accent-ink);
+    --ui-em-decoration: none;
+    --ui-star-fill: 0;
+
+    /* Web closing band: the near-black ground with the orange call to action. */
+    --ui-band-fill: light-dark(#191917, #0e0d0b);
+    --ui-band-ink: light-dark(#efede5, #efede5);
+    --ui-band-ink-2: light-dark(#b6b3a9, #b6b3a9);
+    --ui-band-cta: light-dark(#ff8a4c, #ff8a4c);
+    --ui-on-band-cta: light-dark(#191917, #161512);
+    --ui-band-pattern: none;
+    /* Section index: each section's eyebrow opens with its number, as each slide's kicker does. */
+    --ui-section-index: inline;
+    --ui-corner-marks: none;
+    /* Slides: a kicker before each eyebrow (the slide number in the accent and a rule, the words in
+       muted ink) and one footer segment per slide. */
+    --ui-slide-eyebrow-index: inline-flex;
+    --ui-slide-eyebrow-accent: 0;
+    --ui-slide-progress: flex;
+
+    /* Component treatment on the web: lifted cards on the paper. Steps are a mono number in the
+       accent over a hairline; stats sit in their own cards; the quote is a card with an orange
+       rule; the featured plan carries a 3px orange top rule; the table's peak cell is orange. */
+    --ui-density: 1;
+    --ui-column-rule: none;
+    --ui-column-rule-gap: 0px;
+    --ui-card-fill: var(--ui-surface);
+    --ui-card-pad: 1.75rem;
+    --ui-num-font: var(--ui-font-label);
+    --ui-num-size: 0.8125rem;
+    --ui-num-weight: 600;
+    --ui-num-prefix: "";
+    --ui-num-pad: inline;
+    --ui-num-rule: 1px solid var(--ui-line-soft);
+    --ui-num-color: var(--ui-accent-ink);
+    --ui-num-fill: transparent;
+    --ui-num-ring: none;
+    --ui-num-box: auto;
+    --ui-num-bleed: 1;
+    --ui-num-gap: 0.75rem;
+    --ui-num-display: block;
+    --ui-stat-divider: none;
+    --ui-quote-fill: var(--ui-surface);
+    --ui-quote-ink: var(--ui-ink);
+    --ui-quote-ink-2: var(--ui-ink-2);
+    --ui-quote-line: var(--ui-line-soft);
+    --ui-quote-mark: var(--ui-accent);
+    --ui-quote-face: var(--ui-font-display);
+    --ui-quote-weight: 600;
+    --ui-quote-case: none;
+    --ui-quote-size: 1.45rem;
+    --ui-quote-rule: inset 4px 0 0 var(--ui-accent);
+    --ui-quote-shadow: var(--ui-card-shadow);
+    --ui-plan-featured-border: var(--ui-line);
+    --ui-plan-featured-ring: inset 0 3px 0 var(--ui-accent);
+    --ui-cell-fill: var(--ui-surface-2);
+    --ui-cell-ink: var(--ui-ink);
+    --ui-cell-line: color-mix(in srgb, var(--ui-ink) 14%, transparent);
+    --ui-cell-peak: var(--ui-accent);
+    --ui-on-cell-peak: var(--ui-on-accent);
+    --ui-cell-off-ink: var(--ui-ink-3);
+    --ui-cell-radius: 2px;
+    --ui-window-dots: inline-flex;
+    --ui-window-bar: var(--ui-surface-2);
+    --ui-web-flow-request: var(--ui-flow-request);
+    --ui-perf: solid;
+    --ui-plan-featured-fill: var(--ui-surface);
+    /* Stamp: a mono chip, as the slides' tag row. */
+    --ui-stamp-fill: var(--ui-surface);
+    --ui-stamp-ink: var(--ui-ink);
+    --ui-stamp-accent: var(--ui-accent-ink);
+    --ui-stamp-border: 1px solid var(--ui-line);
+    --ui-stamp-inner: 1px solid transparent;
+    --ui-stamp-radius: 2px;
+    --ui-stamp-rotate: 0deg;
+    --ui-stamp-face: var(--ui-font-display);
+    --ui-stamp-case: none;
+    --ui-stamp-size: 2.25rem;
+    --ui-stamp-fit: 4.6rem;
+    --ui-stamp-label-width: 9em;
+    --ui-stamp-shadow: var(--ui-card-shadow);
+
+    --ui-spot: var(--ui-accent);
+    --ui-on-spot: var(--ui-on-accent);
+    /* Product imagery: near-black through warm grey to the orange. */
+    --ui-media-ground: #161512;
+    --ui-media-cold: #161512;
+    --ui-media-mid: #54524c;
+    --ui-media-warm: #d9cfc0;
+    --ui-media-hot: #ff8a4c;
+    --ui-media-ink: #efede5;
+    --ui-media-ramp: linear-gradient(90deg, var(--ui-media-cold), var(--ui-media-mid), var(--ui-media-warm), var(--ui-media-hot));
+    --ui-media-filter: grayscale(1) contrast(1.05);
+    --ui-media-tint: #191917;
+    --ui-media-blend: lighten;
+
+    --ui-node: light-dark(#fdfdf8, #1f1e1a);
+    --ui-inv-node: light-dark(#24231f, #fdfdf8);
+    --ui-line-solid: light-dark(#cfcdc3, #3a3833);
+    --ui-data-neg-ink: light-dark(#a8261b, #ff9d8d);
+    --ui-alert: light-dark(#a8261b, #ff8c7a);
+    --ui-warn: light-dark(#8a5a00, #f0c45a);
+  }
+}

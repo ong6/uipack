@@ -2,6 +2,8 @@
 // Every export is listed by name, so a new module cannot shadow or collide with an existing name.
 export { DeckPlayer, type DeckPlayerProps } from "./DeckPlayer";
 export { Build, Morph, Slide } from "./parts";
+export { CountUp, Polyhedra, LetterReveal, type CountUpProps, type PolyhedraProps, type LetterRevealProps } from "./kinetic";
+export { SOLIDS, SOLID_NAMES, scatter, type PolyhedronSpec, type SolidName } from "./polyhedra";
 export {
   PointsSlide,
   SectionSlide,
@@ -28,7 +30,16 @@ export {
   type SlotName,
   type SlotOverflow,
 } from "./budgets";
-export { CANVAS_HEIGHT, CANVAS_WIDTH, deckMotion, type TransitionKind } from "./transitions";
+export {
+  BLIND_SLATS,
+  CANVAS_HEIGHT,
+  CANVAS_WIDTH,
+  SLIDE_MOVES,
+  blindsClip,
+  deckMotion,
+  type SlideMove,
+  type TransitionKind,
+} from "./transitions";
 export {
   LINT_RULES,
   STORYLINE_TEMPLATES,

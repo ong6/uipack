@@ -1,4 +1,4 @@
-// Entry: ?style= picks a registered style (Technical, the default and only one today) and
+// Entry: ?style= picks a registered style (Technical, the default, or Motion) and
 // ?theme=light|dark forces a theme; without ?theme the page follows the system (prefers-color-scheme).
 // Set both before the first paint with uipack's boot script; with Vite, one line in vite.config.ts
 // inlines it into index.html (at its <!--uipack-boot--> comment):

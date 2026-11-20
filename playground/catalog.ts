@@ -12,7 +12,7 @@ export const visualStyles = [
     id: "technical",
     name: "Technical",
     description:
-      "The one implemented style, for pages, documents, slides and figures. A blueprint: precise system diagrams in Prussian-blue ink, one amber mark, square hairlines and a drafting grid on the hero and figures. On the web, a page leads with the product's real output.",
+      "The default style, for pages, documents, slides and figures. A blueprint: precise system diagrams in Prussian-blue ink, one amber mark, square hairlines and a drafting grid on the hero and figures. On the web, a page leads with the product's real output.",
     tokens: "src/styles/technical.css",
     guidance: "docs/system/style.md",
   },

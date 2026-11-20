@@ -1,13 +1,14 @@
 /**
  * The styles UI Pack ships, one value set each in src/styles (docs/system/style.md). Technical is
- * the one implemented style, the uipack site's spec (docs/specs/technical.md). Each other website
+ * the default, the uipack site's spec (docs/specs/technical.md); Motion (docs/specs/motion.md) is the
+ * talk-deck look. Each other website
  * has its own spec (docs/specs/README.md); uipack renders one by adding one value set in
  * src/styles, registering it here (the id below and an entry in `uiStyles`), and testing it.
  * A component's `uiStyle` prop sets `data-ui-style` on its root; omitted, it follows the nearest
  * ancestor that sets one, else Technical. A swap changes tokens only: the same regions, boxes and
  * reading order.
  */
-export type UiStyleId = "technical";
+export type UiStyleId = "technical" | "motion";
 
 export interface UiStyleMeta {
   id: UiStyleId;
@@ -45,6 +46,22 @@ export const uiStyles: readonly UiStyleMeta[] = [
     preload: ["ibm-plex-sans-latin-600-normal.woff2"],
     prefers: ["hero", "how", "demo", "proof", "faq", "pricing"],
     layout: { hero: "figure", align: "start", steps: "rows" },
+  },
+  {
+    id: "motion",
+    name: "Motion",
+    summary:
+      "A talk deck that moves: warm grey paper, heavy tight headlines, one vermilion-orange accent, mono kickers, lifted cards.",
+    fonts: [
+      "instrument-sans-latin-400-normal.woff2",
+      "instrument-sans-latin-500-normal.woff2",
+      "instrument-sans-latin-700-normal.woff2",
+      "jetbrains-mono-latin-400-normal.woff2",
+      "jetbrains-mono-latin-600-normal.woff2",
+    ],
+    preload: ["instrument-sans-latin-700-normal.woff2"],
+    prefers: ["hero", "proof", "how", "demo", "faq", "pricing"],
+    layout: { hero: "demo", align: "start", steps: "cards" },
   },
 ];
 

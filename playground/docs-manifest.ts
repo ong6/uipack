@@ -344,6 +344,14 @@ export const docsManifest = [
         intro:
           "The spec of ui.junxiong.dev: Technical's look with its own darker dark palette, the four navigation hues and the travelling location marker.",
       },
+      {
+        id: "spec-motion",
+        label: "Motion spec",
+        path: "/specs/motion",
+        file: "docs/specs/motion.md",
+        intro:
+          "The talk-deck look: warm grey paper, heavy tight Instrument Sans headlines, one vermilion-orange accent, mono kickers and lifted cards, with its role values generated from the style file.",
+      },
     ],
   },
   {
@@ -467,6 +475,19 @@ export const docsManifest = [
         },
         file: "docs/deck.md",
         intro: "The deck player's guide, with the Bento example: a quarterly review on one bento slide the camera tours.",
+      },
+      {
+        id: "deck-motion",
+        label: "Motion",
+        title: "Deck player",
+        path: "/deck",
+        fullWindow: true,
+        query: {
+          deck: "motion",
+        },
+        file: "docs/deck.md",
+        intro:
+          "The deck player's guide, with the Motion example: a short talk in the Motion style, each slide arriving by a different whole-slide move, over the drifting Polyhedra backdrop.",
       },
       {
         id: "deck-consulting",
@@ -889,6 +910,16 @@ export const siteRegistry: readonly SiteEntry[] = [
     pins: "current",
     notes:
       "Extends Technical with its own dark palette, navigation hues and location marker (playground/site-palette.css, playground/site-settings.tsx); light is Technical's",
+  },
+  {
+    site: "the Motion style (talk decks)",
+    repo: "ong6/uipack",
+    spec: "docs/specs/motion.md",
+    specStatus: "written",
+    components: ["diagrams: blueprint (theme: blueprint)", "3d: ink", "mechanism: isometric"],
+    pins: "current",
+    notes:
+      'Motion, the talk-deck style (src/styles/motion.css, uiStyle="motion"): warm grey paper, heavy tight headlines, one vermilion-orange accent, mono kickers; its decks use the whole-slide transitions and the Polyhedra backdrop (/deck?deck=motion)',
   },
   {
     site: "junxiong.dev",

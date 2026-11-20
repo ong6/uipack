@@ -59,7 +59,7 @@ A few of the pages and their addresses (the manifest lists every one, with its s
 | Build | Architecture diagrams | `/components/diagrams` (aliases `/diagrams`, and `/drill`, which scrolls to the drill-down) |
 | Build | Charts | `/charts` |
 | Build | Article parts | `/article` |
-| Build | Tech talk, Bento, Consulting (under Deck player) | `/deck?deck=moves`, `?deck=bento`, `?deck=consulting` |
+| Build | Tech talk, Bento, Motion, Consulting (under Deck player) | `/deck?deck=moves`, `?deck=bento`, `?deck=motion`, `?deck=consulting` |
 | Build | Slide starters | `/presentations` |
 | Build | 3D animations | `/animations` (alias `/slides`) |
 | Build | Mechanism | `/mechanism` |

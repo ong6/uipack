@@ -87,8 +87,9 @@ const slides: DeckSlide[] = [
 ```
 
 `uiStyle` sets the style the deck is painted in (it sets `data-ui-style`; omitted, the deck
-follows an ancestor's, else Technical). Technical is the one implemented style; another
-site's [spec](specs/README.md) becomes a new value set when UiPack needs to render it. A style
+follows an ancestor's, else Technical). Two styles are implemented: Technical, the default, and
+[Motion](specs/motion.md), the talk-deck look (`uiStyle="motion"`, shown by `/deck?deck=motion`);
+another site's [spec](specs/README.md) becomes a new value set when UiPack needs to render it. A style
 changes tokens only: the headline, body and footer keep their regions (and an eyebrow, on a slide
 that has one), and headlines take the style's display face (IBM Plex Sans 600 in Technical).
 Consulting charts read the data roles, so they would follow a new style too; their dense layouts
@@ -138,7 +139,20 @@ A slide's `transition` says how it arrives; going back plays it in reverse. Jump
 | `{ zoom: id }` | The next slide is the inside of one part of this one | The camera flies into the `Morph id` element. The new slide opens whole, from the first frame, in a 16:9 window inside the target (as large as fits, with a small margin), so it is never cropped to the target's shape; the target's box stays opaque round it and scales with the camera, so the viewer clearly flies into the box. Scale grows evenly in log space about one fixed point, paced by `deckMotion.camera`, so the camera is visibly moving by 10% of the clock. The target's words hand over to the slide inside it in the first moments; everything around the target clears over the first quarter, before the camera has scaled it far enough to cut words off at the edge; the target's edge (border, ring) clears mid-flight, so no scaled-up border sweeps across the screen as the slide lands. |
 | `fade` / `none` | Rarely | Crossfade / cut. |
 
-Every move reads `deckMotion` (quick 160, base 320, slow 560, morph 760, zoom 1150, bento pan 860 ms, an advance's handoff at 90 ms; settle, exit, travel and camera curves), so a deck never mixes speeds. Reduced motion (`prefers-reduced-motion` or `motion="none"`) turns every move into a 160 ms fade with no movement.
+**Whole-slide moves.** For a talk that wants the slide itself to move (the [Motion](specs/motion.md) style's decks; `/deck?deck=motion` shows each one). Pick one or two for a talk and keep to them; they move the slide, never what is on it, so builds, morphs and the footer still work inside it. Each reverses going back.
+
+| Value | Says | What happens |
+| --- | --- | --- |
+| `push` | Next in a sequence | The incoming slide pushes the outgoing one off sideways, both on the travel curve, in 560 ms (`slow`). |
+| `flip` | The other side of the same thing | The slide turns over like a card: the outgoing face turns to edge-on over the first half of 760 ms (`morph`), the incoming one turns in over the second, the card lifting a little through the turn. One face shows at a time. |
+| `cube` | A new face of the topic | The two slides are adjacent faces of a cube turning about its centre, joined at their shared edge, pulling back a little mid-turn so both faces fit; 760 ms (`morph`). The far face darkens as it turns away. |
+| `shutter` | A reveal: the answer behind the question | The incoming slide opens from a line across the middle, over the outgoing one, which steps back; 560 ms. |
+| `blinds` | A list arriving, left to right | The incoming slide opens through eight vertical slats, each a little after the last (`blindsClip`); 560 ms. |
+| `rise` | A statement coming into focus | The outgoing slide sinks back and blurs out (320 ms); the incoming one rises 72px into focus from a 10px blur, from 90 ms (560 ms). |
+
+The turning moves share one camera on the canvas (`perspective: 3200px`, centred), so a turning slide never looms and a face never shows its back.
+
+Every move reads `deckMotion` (quick 160, base 320, slow 560, morph 760, zoom 1150, bento pan 860, count 1200 ms, an advance's handoff at 90 ms; settle, exit, travel and camera curves), so a deck never mixes speeds. Reduced motion (`prefers-reduced-motion` or `motion="none"`) turns every move into a 160 ms fade with no movement.
 
 Authoring notes:
 
@@ -148,6 +162,20 @@ Authoring notes:
 - For a shape that grows (a strip of slide thumbnails that comes forward), size everything inside it in `em` and change only its `font-size`, so both copies have the same proportions and the morph is a pure scale. For text, give both copies the same weight, tracking and `max-width` in `ch`, so they break at the same words.
 - Tables inside morph slides need `border-collapse: separate`, or their collapsed borders ignore row fades.
 - `render` receives `{ step, active, thumbnail, theme, reducedMotion }`. Render something still and cheap when `thumbnail` is true: the overview, read view and speaker view render every slide. Never start a WebGL scene in a thumbnail.
+
+## Kinetic parts and the backdrop
+
+Three parts move on a live slide and show their finished state in thumbnails, the read view, print and reduced motion. Every style can use them; the Motion style's decks do.
+
+| Part | What it does |
+| --- | --- |
+| `<CountUp value={286884} suffix="+" />` | Counts from `from` (default 0) to `value` as its slide arrives, easing out over `deckMotion.count` (1200 ms), from the handoff. The final value holds the width, so the line never reflows; screen readers get the final value. Grouped with the value's own decimals unless `format` is given; `step` waits for a build. |
+| `<LetterReveal>a line</LetterReveal>` | The line's letters rise 0.32em in from a 6px blur, left to right, each over 560 ms, the stagger shrinking with length so the last letter starts by 480 ms. Words never break; screen readers read the line once. Inside a title, wrap a headline's second voice: `<LetterReveal className="uipack-deck-em">`. |
+| `<Polyhedra count={9} seed={1} />` | Wireframe solids (tetrahedron, cube, octahedron, icosahedron, dodecahedron, prism) drifting and turning slowly round the canvas edges, the far edges dashed: one bolder icosahedron with accent vertices, one in the accent, the rest faint. Pass it as `DeckPlayer backdrop`; it is drawn into every slide's background on the page's clock, so the field stays put as slides change and travels with a slide that turns or slides. Paused off screen, 30 frames a second on touch screens; `solids` places them yourself. It is the deck's one ambient effect. |
+
+`uipack-deck-em` (a span in a title or heading) sets a headline's second voice in the accent at display size (`--deck-accent-display`, the brighter accent large type may use).
+
+A style can add two slide ornaments, off in Technical and on in Motion: a kicker before the eyebrow (the slide number in the accent and a rule, the eyebrow's words in muted ink; `--ui-slide-eyebrow-index`, `--ui-slide-eyebrow-accent`) and one footer segment per slide with the current one in the accent (`--ui-slide-progress`). Neither takes space or moves a region.
 
 ## Builds
 

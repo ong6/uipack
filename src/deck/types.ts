@@ -14,8 +14,14 @@ export type DeckTheme = "light" | "dark";
  * - `{ zoom: id }`: the camera flies into the `<Morph id>` element on the previous slide, and that
  *   element opens into this slide. Use it for "here is a part; now look inside it".
  * - `fade`: a plain crossfade. `none`: cut.
+ * - Whole-slide moves, for a talk that wants the slide itself to move (the Motion style's decks):
+ *   `push` (the new slide pushes the old one off sideways), `flip` (the slide turns over like a
+ *   card), `cube` (the two slides are faces of a turning cube), `shutter` (the new slide opens from
+ *   a line across the middle), `blinds` (the new slide opens through vertical slats, left to right)
+ *   and `rise` (the new slide rises into focus from a blur as the old one sinks back).
  */
-export type DeckTransition = "advance" | "morph" | "fade" | "none" | { zoom: string };
+export type DeckTransition =
+  "advance" | "morph" | "fade" | "none" | "push" | "flip" | "cube" | "shutter" | "blinds" | "rise" | { zoom: string };
 
 export interface DeckRenderContext {
   /** Build step reached on this slide. `Infinity` means fully built. */
