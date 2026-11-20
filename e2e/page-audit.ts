@@ -351,8 +351,9 @@ export async function checkControlFaces(page: Page) {
 
 /**
  * Visible text uses the style's faces only: the first family of every element with its own text
- * matches the first family of the computed --ui-font-text, --ui-font-display or --ui-font-label (IBM
- * Plex Sans and Plex Mono in Technical), so an undefined host variable or a hard-coded system stack
+ * matches the first family of the --ui-font-text, --ui-font-display or --ui-font-label it inherits
+ * (IBM Plex Sans and Plex Mono in Technical; a part inside a data-ui-style host, such as the Motion
+ * deck, checks against that style's faces), so an undefined host variable or a hard-coded system stack
  * fails here instead of quietly rendering in system-ui. Skips screen-reader-only text, the ?host=notes
  * stand-in (which copies another site's faces on purpose) and 3D canvases (no DOM text). Run after a
  * check that scrolls the page, so lazy sections have mounted.
@@ -364,10 +365,12 @@ export async function checkTextFaces(page: Page) {
         .split(",")[0]
         .trim()
         .replace(/^["']|["']$/g, "");
-    const root = getComputedStyle(document.body);
-    const faces = new Set(
-      ["--ui-font-text", "--ui-font-display", "--ui-font-label"].map((v) => first(root.getPropertyValue(v))).filter(Boolean),
-    );
+    const facesOf = (el: Element) => {
+      const cs = getComputedStyle(el);
+      return new Set(
+        ["--ui-font-text", "--ui-font-display", "--ui-font-label"].map((v) => first(cs.getPropertyValue(v))).filter(Boolean),
+      );
+    };
     const hidden = (el: Element) => {
       for (let e: Element | null = el; e; e = e.parentElement) {
         const s = getComputedStyle(e);
@@ -383,7 +386,7 @@ export async function checkTextFaces(page: Page) {
         return el.getClientRects().length > 0 && s.visibility !== "hidden" && s.opacity !== "0" && !hidden(el);
       })
       .map((el) => ({ el, face: first(getComputedStyle(el).fontFamily) }))
-      .filter(({ face }) => !faces.has(face))
+      .filter(({ el, face }) => !facesOf(el).has(face))
       .map(
         ({ el, face }) =>
           `${el.tagName.toLowerCase()}.${[...el.classList].join(".")} "${(el.textContent ?? "").trim().slice(0, 30)}": ${face}`,

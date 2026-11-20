@@ -1,7 +1,7 @@
 // Kinetic slide parts: a number that counts up as its slide arrives, a line whose letters rise in,
 // and the drifting wireframe Polyhedra backdrop. Every style can use them (the Motion style's decks
 // do). Each shows its finished state in thumbnails, the read view, print and reduced motion.
-import { createContext, useContext, useEffect, useMemo, useRef, useState, type ElementType, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, type ElementType } from "react";
 import { useIsoLayoutEffect } from "../env";
 import { useDeckSlide } from "./parts";
 import { deckMotion } from "./transitions";
@@ -60,11 +60,7 @@ export function CountUp({ value, from = 0, prefix = "", suffix = "", format, ste
 
   useEffect(() => {
     const el = ref.current;
-    if (!el) return;
-    if (!started) {
-      el.dataset.value = final;
-      return;
-    }
+    if (!el || !started) return;
     const begin = performance.now() + deckMotion.handoff;
     let raf = 0;
     const tick = (now: number) => {
@@ -78,8 +74,11 @@ export function CountUp({ value, from = 0, prefix = "", suffix = "", format, ste
     return () => cancelAnimationFrame(raf);
   }, [started, from, value, prefix, suffix, fmt, final]);
 
+  const cls = ["uipack-deck-count", className].filter(Boolean).join(" ");
+  // Still (a thumbnail, the read view, print, reduced motion): the value as plain, selectable text.
+  if (!started) return <span className={cls}>{final}</span>;
   return (
-    <span className={["uipack-deck-count", className].filter(Boolean).join(" ")}>
+    <span className={cls}>
       <span className="uipack-deck-sr">{final}</span>
       {/* Drawn from data-value (CSS ::before), so the text is in the page once, in the line above:
           the final value holds the width and the counting copy sits over it. */}
@@ -113,11 +112,11 @@ export function LetterReveal({ children, as: Tag = "span", step, className }: Le
   const letters = children.replace(/\s+/g, "").length;
   const stagger = Math.min(28, 480 / Math.max(1, letters));
   let i = 0;
+  const cls = ["uipack-deck-reveal", className].filter(Boolean).join(" ");
+  // Still: the words as plain, selectable text.
+  if (!moving && !hidden) return <Tag className={cls}>{children}</Tag>;
   return (
-    <Tag
-      className={["uipack-deck-reveal", className].filter(Boolean).join(" ")}
-      data-reveal={moving ? "" : hidden ? "hidden" : undefined}
-    >
+    <Tag className={cls} data-reveal={moving ? "" : hidden ? "hidden" : undefined}>
       {/* The words once, for screen readers and textContent; the letters draw from data-char. */}
       <span className="uipack-deck-sr">{children}</span>
       <span aria-hidden="true">
@@ -142,10 +141,6 @@ export function LetterReveal({ children, as: Tag = "span", step, className }: Le
   );
 }
 
-/** The deck's backdrop, painted inside every slide's background (DeckPlayer `backdrop`). */
-export const DeckBackdropContext = /*#__PURE__*/ createContext<ReactNode>(null);
-export const useDeckBackdrop = () => useContext(DeckBackdropContext);
-
 export interface PolyhedraProps {
   /** How many solids, scattered round the canvas edges. Default 9. Ignored when `solids` is given. */
   count?: number;
@@ -167,7 +162,8 @@ export function Polyhedra({ count = 9, seed = 1, solids }: PolyhedraProps) {
   const live = useLive();
   const specs = useMemo(() => solids ?? scatter(count, seed), [solids, count, seed]);
   const svgRef = useRef<SVGSVGElement>(null);
-  const [still] = useState(() => specs.map((s, i) => draw(s, i, 0)));
+  // The still pose: what thumbnails, print and reduced motion show, and the first paint otherwise.
+  const still = useMemo(() => specs.map((s, i) => draw(s, i, 0)), [specs]);
 
   // A layout effect, so a slide that mounts mid-talk draws the current pose before its first paint
   // instead of flashing the still pose.

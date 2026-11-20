@@ -3,8 +3,7 @@ import { toneOf } from "../tone";
 import { flushSync } from "react-dom";
 import { useIsoLayoutEffect } from "../../env";
 import { inertProps } from "../../inert";
-import { DeckSlideContext } from "../parts";
-import { useDeckBackdrop } from "../kinetic";
+import { DeckSlideContext, useDeckBackdrop } from "../parts";
 import { CANVAS_WIDTH } from "../transitions";
 import type { DeckSlide, DeckTheme } from "../types";
 

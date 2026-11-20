@@ -148,8 +148,8 @@ export function StyleCatalog() {
     <section className="style-catalog">
       <h2>The style: Technical</h2>
       <p className="collection-intro">
-        Technical is the one implemented style: every page, document, slide and figure in the library is drawn in it. Light and
-        dark are its colour themes, not further styles.
+        Technical is the default style: every page, document, slide and figure in the library is drawn in it, except the Motion
+        example deck, drawn in the Motion style. Light and dark are its colour themes, not further styles.
       </p>
       <div className="style-grid">
         <StyleCard style={technical} theme={theme} wide />

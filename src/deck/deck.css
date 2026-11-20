@@ -1010,6 +1010,8 @@
 .uipack-deck-read__notes p,
 .uipack-deck-print__say > p {
   white-space: pre-line;
+  /* A source URL or a long identifier in the talk track wraps instead of widening the page. */
+  overflow-wrap: anywhere;
 }
 .uipack-deck-read__notes p {
   margin: 0 0 12px;

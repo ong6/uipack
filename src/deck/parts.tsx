@@ -20,6 +20,10 @@ export const DeckSlideContext = /*#__PURE__*/ createContext<DeckSlideState>({
 
 export const useDeckSlide = () => useContext(DeckSlideContext);
 
+/** The deck's backdrop (DeckPlayer `backdrop`), painted inside every slide's background. */
+export const DeckBackdropContext = /*#__PURE__*/ createContext<ReactNode>(null);
+export const useDeckBackdrop = () => useContext(DeckBackdropContext);
+
 /**
  * Marks an element that is "the same thing" across slides. A `morph` transition moves it from its
  * place on the previous slide to its place here; a `zoom` transition flies into it.

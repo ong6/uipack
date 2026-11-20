@@ -39,14 +39,14 @@ function build(vertices: Vec3[]): Solid {
 const signs = [-1, 1];
 
 export const SOLIDS: Record<SolidName, Solid> = {
-  tetrahedron: build([
+  tetrahedron: /*#__PURE__*/ build([
     [1, 1, 1],
     [1, -1, -1],
     [-1, 1, -1],
     [-1, -1, 1],
   ]),
-  cube: build(signs.flatMap((x) => signs.flatMap((y) => signs.map((z) => [x, y, z] as Vec3)))),
-  octahedron: build([
+  cube: /*#__PURE__*/ build(signs.flatMap((x) => signs.flatMap((y) => signs.map((z) => [x, y, z] as Vec3)))),
+  octahedron: /*#__PURE__*/ build([
     [1, 0, 0],
     [-1, 0, 0],
     [0, 1, 0],
@@ -54,10 +54,10 @@ export const SOLIDS: Record<SolidName, Solid> = {
     [0, 0, 1],
     [0, 0, -1],
   ]),
-  icosahedron: build(
+  icosahedron: /*#__PURE__*/ build(
     signs.flatMap((a) => signs.flatMap((b) => [[0, a, b * PHI] as Vec3, [a, b * PHI, 0] as Vec3, [b * PHI, 0, a] as Vec3])),
   ),
-  dodecahedron: build([
+  dodecahedron: /*#__PURE__*/ build([
     ...signs.flatMap((x) => signs.flatMap((y) => signs.map((z) => [x, y, z] as Vec3))),
     ...signs.flatMap((a) =>
       signs.flatMap((b) => [[0, a / PHI, b * PHI] as Vec3, [a / PHI, b * PHI, 0] as Vec3, [b * PHI, 0, a / PHI] as Vec3]),
@@ -65,7 +65,7 @@ export const SOLIDS: Record<SolidName, Solid> = {
   ]),
   // A triangular prism: two triangles and the three edges joining them (not regular, so its edges
   // are listed rather than found by length).
-  prism: (() => {
+  prism: /*#__PURE__*/ (() => {
     const tri = [0, 1, 2].map((i) => [Math.cos((i * 2 * Math.PI) / 3), Math.sin((i * 2 * Math.PI) / 3)] as const);
     const vertices = unit([...tri.map(([x, y]) => [x, y, -0.8] as Vec3), ...tri.map(([x, y]) => [x, y, 0.8] as Vec3)]);
     const edges: [number, number][] = [
@@ -83,7 +83,7 @@ export const SOLIDS: Record<SolidName, Solid> = {
   })(),
 };
 
-export const SOLID_NAMES = Object.keys(SOLIDS) as SolidName[];
+export const SOLID_NAMES = /*#__PURE__*/ Object.keys(SOLIDS) as SolidName[];
 
 /** Rotate about x, then y, then z (radians). */
 export function rotate(v: Vec3, rx: number, ry: number, rz: number): Vec3 {

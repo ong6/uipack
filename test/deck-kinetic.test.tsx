@@ -119,15 +119,14 @@ describe("polyhedra", () => {
 });
 
 describe("kinetic parts", () => {
-  it("CountUp shows its final value, grouped, when still, and holds the final width", () => {
-    const { container } = render(inSlide({ ...live, thumbnail: true }, <CountUp value={286884} suffix="+" />));
-    const run = container.querySelector(".uipack-deck-count__run")!;
-    expect(run.getAttribute("data-value")).toBe("286,884+");
-    expect(container.querySelector(".uipack-deck-count__hold")!.getAttribute("data-value")).toBe("286,884+");
-    // The text is in the page once.
-    expect(container.textContent).toBe("286,884+");
-    // Screen readers get the value once.
-    expect(container.querySelector(".uipack-deck-sr")!.textContent).toBe("286,884+");
+  it("CountUp is plain, selectable text when still, and holds the final width while it counts", () => {
+    const still = render(inSlide({ ...live, thumbnail: true }, <CountUp value={286884} suffix="+" />));
+    expect(still.container.textContent).toBe("286,884+");
+    expect(still.container.querySelector(".uipack-deck-count__run")).toBeNull();
+    const counting = render(inSlide(live, <CountUp value={286884} suffix="+" />));
+    expect(counting.container.querySelector(".uipack-deck-count__hold")!.getAttribute("data-value")).toBe("286,884+");
+    // The text is in the page once (the counting copies draw from data-value).
+    expect(counting.container.textContent).toBe("286,884+");
   });
 
   it("CountUp starts from `from` on a live slide and keeps the value's decimals", () => {
@@ -138,6 +137,7 @@ describe("kinetic parts", () => {
   it("LetterReveal animates only on a live slide, never breaking a word, read once", () => {
     const still = render(inSlide({ ...live, reducedMotion: true }, <LetterReveal>move with the story</LetterReveal>));
     expect(still.container.querySelector("[data-reveal]")).toBeNull();
+    expect(still.container.querySelector(".uipack-deck-reveal")!.innerHTML).toBe("move with the story");
     const moving = render(inSlide(live, <LetterReveal>move with the story</LetterReveal>));
     const root = moving.container.querySelector(".uipack-deck-reveal")!;
     expect(root.getAttribute("data-reveal")).toBe("");

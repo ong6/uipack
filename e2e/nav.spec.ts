@@ -306,7 +306,7 @@ test.describe("deck sub-views in the 390px drawer", () => {
     await page.getByRole("button", { name: "Open navigation" }).click();
     const drawer = page.getByRole("dialog", { name: "Library menu" });
     const run = drawer.getByRole("list", { name: "Deck player" });
-    await expect(run.getByRole("link")).toHaveText(["Tech talk", "Bento", "Consulting"]);
+    await expect(run.getByRole("link")).toHaveText(["Tech talk", "Bento", "Motion", "Consulting"]);
     await expect(drawer.locator('[aria-current="page"]')).toHaveText("Consulting");
     const pad = async (name: string) =>
       drawer.getByRole("link", { name, exact: true }).evaluate((el) => parseFloat(getComputedStyle(el).paddingLeft));
@@ -339,7 +339,7 @@ test.describe("desktop sidebar groups", () => {
     await page.goto("/deck?deck=bento");
     const run = sidebar(page).getByRole("list", { name: "Deck player" });
     await expect(run).toBeVisible();
-    await expect(run.getByRole("link")).toHaveText(["Tech talk", "Bento", "Consulting"]);
+    await expect(run.getByRole("link")).toHaveText(["Tech talk", "Bento", "Motion", "Consulting"]);
     await expect(run.getByRole("link", { name: "Bento" })).toHaveAttribute("aria-current", "page");
     // Slide starters is a page of its own, outside the run.
     await expect(sidebar(page).getByRole("link", { name: "Slide starters" })).toBeVisible();

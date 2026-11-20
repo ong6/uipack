@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState, type ReactNode } from "react";
 import { toneOf } from "./tone";
-import { DeckBackdropContext } from "./kinetic";
+import { DeckBackdropContext } from "./parts";
 import { usePrefersReducedMotion } from "../env";
 import { useLayerFlight } from "../flight";
 import { Controls } from "./player/Controls";
